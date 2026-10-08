@@ -1,5 +1,5 @@
 import { Prisma, type PrismaClient, type EquipmentEventType } from '@prisma/client';
-import { clientSchema, dniSchema, equipmentSchema, externalEquipmentSchema, idSchema, imeiSchema, imeiValueSchema, registrationSchema, saleSchema } from '../../shared/validation.js';
+import { clientSchema, clientEditSchema, dniSchema, equipmentSchema, equipmentEditSchema, externalEquipmentSchema, idSchema, imeiSchema, imeiValueSchema, listQuerySchema, registrationFlowSchema, registrationSchema, resolveRegistrationSchema, saleSchema } from '../../shared/validation.js';
 import { deriveRegistrationStatus } from '../../shared/registration.js';
 import { repository, type Db } from '../repositories/pos.repository.js';
 import { DomainError } from '../lib/errors.js';
@@ -15,7 +15,7 @@ export function createPosService(db: PrismaClient) {
     }
   }
   const audit = (tx: Db, action: string, entityType: string, entityId: string, userId?: string) => tx.auditLog.create({ data: { action, entityType, entityId, userId } });
-  const history = (tx: Db, equipmentId: string, eventType: EquipmentEventType, imeiId?: string, userId?: string, metadata?: Prisma.InputJsonValue) => tx.equipmentHistory.create({ data: { equipmentId, eventType, imeiId, userId, metadata } });
+  const history = (tx: Db, equipmentId: string, eventType: EquipmentEventType, imeiId?: string, userId?: string, metadata?: Prisma.InputJsonValue) => tx.equipmentHistory.create({ data: { equipmentId, eventType, imeiId, userId, metadata, createdAt: new Date() } });
   function decorated<T extends { imeis: { registrationStatus: string }[] }>(equipment: T) {
     return { ...equipment, registrationStatus: deriveRegistrationStatus(equipment.imeis) };
   }
@@ -30,9 +30,10 @@ export function createPosService(db: PrismaClient) {
   }
   async function updateRegistrationInTx(tx: Db, value: string, input: ReturnType<typeof registrationSchema.parse>) {
     const found = await repository.findImei(tx, value);
-    if (!found) throw new DomainError(404, 'IMEI no encontrado.');
+    if (!found) throw new DomainError(404, 'IMEI no encontrado.', 'IMEI_NOT_FOUND');
     if (!found.equipment.ownerId) throw new DomainError(409, 'Asigne un propietario antes de registrar el equipo.');
-    if (found.registrationStatus === input.status && (!input.method || input.method === found.registrationMethod)) return decorated(found.equipment);
+    if (input.ownerId && input.ownerId !== found.equipment.ownerId) throw new DomainError(409, 'Este equipo ya está asociado a otro cliente.', 'OWNER_MISMATCH');
+    if (found.registrationStatus === input.status && (input.method === undefined || input.method === found.registrationMethod)) return decorated(found.equipment);
     const events: Record<string, EquipmentEventType> = {
       PENDING: 'IMEI_REGISTRATION_STARTED', PROCESSING: 'IMEI_REGISTRATION_STARTED',
       REGISTERED: 'IMEI_REGISTERED', REJECTED: 'IMEI_REGISTRATION_REJECTED', CANCELLED: 'IMEI_REGISTRATION_CANCELLED', NOT_REGISTERED: 'IMEI_REGISTRATION_UPDATED',
@@ -43,18 +44,76 @@ export function createPosService(db: PrismaClient) {
       registrationMethod: input.method,
       registrationStartedAt: input.status === 'NOT_REGISTERED' ? null : found.registrationStartedAt ?? now,
       registeredAt: input.status === 'REGISTERED' ? found.registeredAt ?? now : null,
-      registeredById: input.status === 'REGISTERED' ? input.userId ?? null : null,
+      registeredById: input.status === 'REGISTERED' ? input.userId ?? found.registeredById : null,
     } });
-    await history(tx, found.equipmentId, events[input.status], found.id, input.userId, { from: found.registrationStatus, to: input.status });
+    if (!found.registrationStartedAt && ['REGISTERED', 'REJECTED'].includes(input.status)) await history(tx, found.equipmentId, 'IMEI_REGISTRATION_STARTED', found.id, input.userId);
+    await history(tx, found.equipmentId, events[input.status], found.id, input.userId, { from: found.registrationStatus, to: input.status, previousMethod: found.registrationMethod, method: input.method === undefined ? found.registrationMethod : input.method });
     await audit(tx, 'REGISTRATION_UPDATE', 'Imei', found.id, input.userId);
     return decorated(await repository.getEquipmentById(tx, found.equipmentId));
   }
+  async function resolveInTx(tx: Db, raw: ReturnType<typeof resolveRegistrationSchema.parse>) {
+    const matches = await tx.imei.findMany({ where: { value: { in: raw.imeis.map(i => i.value) } }, include: { equipment: { include: { owner: true } } } });
+    const ids = new Set(matches.map(i => i.equipmentId));
+    if (ids.size > 1) throw new DomainError(409, 'Los IMEIs pertenecen a equipos distintos. No se pueden combinar.', 'IMEI_EQUIPMENT_CONFLICT');
+    if (!matches.length) return { kind: 'NEW' as const, equipment: null, additions: raw.imeis, requiresConfirmation: false };
+    const equipment = decorated(await repository.getEquipmentById(tx, matches[0].equipmentId));
+    if (!equipment.owner || equipment.owner.dni !== raw.dni) throw new DomainError(409, 'Este equipo ya está asociado a otro cliente. No se cambiará su propietario.', 'OWNER_MISMATCH');
+    const additions = raw.imeis.filter(i => !matches.some(match => match.value === i.value));
+    for (const imei of additions) {
+      if (equipment.imeis.some(existing => existing.slot === imei.slot)) throw new DomainError(409, `El slot ${imei.slot} ya está ocupado. Revise los IMEIs del equipo.`, 'IMEI_SLOT_OCCUPIED');
+    }
+    if (equipment.imeis.length + additions.length > 2) throw new DomainError(409, 'El equipo ya tiene sus dos IMEIs.', 'IMEI_SLOT_OCCUPIED');
+    return { kind: 'EXISTING' as const, equipment, additions, requiresConfirmation: additions.length > 0 };
+  }
   return {
     findClientByDni: (dni: unknown) => repository.findClientByDni(db, dniSchema.parse(dni)),
-    getClientById: (id: unknown) => repository.getClientById(db, idSchema.parse(id)),
+    getClientById: async (id: unknown) => { const client = await repository.getClientById(db, idSchema.parse(id)); return { ...client, equipment: client.equipment.map(decorated) }; },
     createClient: (raw: unknown) => {
       const data = clientSchema.parse(raw);
       return transaction(async tx => { const client = await tx.client.create({ data }); await audit(tx, 'CREATE', 'Client', client.id); return client; });
+    },
+    updateClient: (id: unknown, raw: unknown) => {
+      const clientId = idSchema.parse(id), data = clientEditSchema.parse(raw);
+      return transaction(async tx => { await repository.getClientById(tx, clientId); const client = await tx.client.update({ where: { id: clientId }, data }); await audit(tx, 'UPDATE', 'Client', clientId); return client; });
+    },
+    updateEquipment: (id: unknown, raw: unknown) => {
+      const equipmentId = idSchema.parse(id), data = equipmentEditSchema.parse(raw);
+      return transaction(async tx => {
+        await repository.getEquipmentById(tx, equipmentId);
+        await tx.equipment.update({ where: { id: equipmentId }, data });
+        await history(tx, equipmentId, 'EQUIPMENT_UPDATED', undefined, undefined, { fields: Object.keys(data) });
+        await audit(tx, 'UPDATE', 'Equipment', equipmentId);
+        return decorated(await repository.getEquipmentById(tx, equipmentId));
+      });
+    },
+    resolveRegistration: (raw: unknown) => {
+      const input = resolveRegistrationSchema.parse(raw);
+      return transaction(tx => resolveInTx(tx, input));
+    },
+    submitRegistration: (raw: unknown) => {
+      const input = registrationFlowSchema.parse(raw);
+      return transaction(async tx => {
+        // Revalidar dentro de la transacción; el preflight de UI nunca es autoridad.
+        const resolved = await resolveInTx(tx, { dni: input.client.dni, imeis: input.imeis });
+        if (input.expectedEquipmentId && input.expectedEquipmentId !== resolved.equipment?.id) throw new DomainError(409, 'El equipo encontrado cambió. Vuelva a buscar los IMEIs.', 'IMEI_EQUIPMENT_CONFLICT');
+        if (resolved.requiresConfirmation && (!input.confirmAddImei || input.expectedEquipmentId !== resolved.equipment?.id)) throw new DomainError(409, 'Confirme explícitamente que el nuevo IMEI pertenece al equipo encontrado.', 'IMEI_ASSOCIATION_CONFIRMATION_REQUIRED');
+        let equipment = resolved.equipment;
+        if (!equipment) {
+          if (!input.equipment) throw new DomainError(400, 'Complete marca y modelo del equipo nuevo.', 'VALIDATION_ERROR');
+          let client = await repository.findClientByDni(tx, input.client.dni);
+          if (!client) { client = await tx.client.create({ data: input.client }); await audit(tx, 'CREATE', 'Client', client.id); }
+          equipment = await createEquipmentInTx(tx, equipmentSchema.parse({ ...input.equipment, serialNumber: input.equipment.serialNumber ?? undefined, ownerId: client.id, origin: 'EXTERNAL', imeis: input.imeis }));
+        } else {
+          for (const imei of resolved.additions) {
+            const created = await tx.imei.create({ data: { ...imei, equipmentId: equipment.id } });
+            await history(tx, equipment.id, 'IMEI_ADDED', created.id);
+            await audit(tx, 'CREATE', 'Imei', created.id);
+          }
+        }
+        if (input.registration.ownerId && input.registration.ownerId !== equipment.ownerId) throw new DomainError(409, 'Este equipo ya está asociado a otro cliente.', 'OWNER_MISMATCH');
+        for (const value of input.selectedImeis) await updateRegistrationInTx(tx, value, { ...input.registration, ownerId: equipment.ownerId ?? undefined });
+        return decorated(await repository.getEquipmentById(tx, equipment.id));
+      });
     },
     createEquipment: (raw: unknown) => {
       const data = equipmentSchema.parse(raw);
@@ -66,7 +125,7 @@ export function createPosService(db: PrismaClient) {
         // Un IMEI existente se registra por /imeis/:value/registration.
         // No asumir que dos IMEIs desconocidos representan el mismo dispositivo.
         const existing = await tx.imei.findFirst({ where: { value: { in: input.imeis.map(i => i.value) } } });
-        if (existing) throw new DomainError(409, 'IMEI existente: busque su equipo y actualice únicamente ese IMEI.');
+        if (existing) throw new DomainError(409, 'IMEI existente: busque su equipo y actualice únicamente ese IMEI.', 'IMEI_ALREADY_EXISTS');
         let client = await repository.findClientByDni(tx, input.client.dni);
         if (!client) { client = await tx.client.create({ data: input.client }); await audit(tx, 'CREATE', 'Client', client.id); }
         return createEquipmentInTx(tx, equipmentSchema.parse({ ownerId: client.id, origin: 'EXTERNAL', brand: input.brand, model: input.model, serialNumber: input.serialNumber, imeis: input.imeis }));
@@ -86,10 +145,12 @@ export function createPosService(db: PrismaClient) {
     registerExternalImei: (raw: unknown) => {
       const envelope = registrationRequestSchema.parse(raw);
       return transaction(async tx => {
-        if (!await repository.findImei(tx, envelope.value)) {
-          if (!envelope.newEquipment) throw new DomainError(404, 'IMEI no encontrado. Proporcione cliente y equipo externo.');
+        const existing = await repository.findImei(tx, envelope.value);
+        if (existing && envelope.newEquipment && existing.equipment.owner?.dni !== envelope.newEquipment.client.dni) throw new DomainError(409, 'Este equipo ya está asociado a otro cliente.', 'OWNER_MISMATCH');
+        if (!existing) {
+          if (!envelope.newEquipment) throw new DomainError(404, 'IMEI no encontrado. Proporcione cliente y equipo externo.', 'IMEI_NOT_FOUND');
           const input = externalEquipmentSchema.parse(envelope.newEquipment);
-          if (!input.imeis.some(i => i.value === envelope.value)) throw new DomainError(400, 'El equipo nuevo debe incluir el IMEI solicitado.');
+          if (!input.imeis.some(i => i.value === envelope.value)) throw new DomainError(400, 'El equipo nuevo debe incluir el IMEI solicitado.', 'VALIDATION_ERROR');
           let client = await repository.findClientByDni(tx, input.client.dni);
           if (!client) { client = await tx.client.create({ data: input.client }); await audit(tx, 'CREATE', 'Client', client.id); }
           await createEquipmentInTx(tx, equipmentSchema.parse({ ownerId: client.id, origin: 'EXTERNAL', brand: input.brand, model: input.model, serialNumber: input.serialNumber, imeis: input.imeis }));
@@ -114,8 +175,15 @@ export function createPosService(db: PrismaClient) {
     },
     getSaleById: (id: unknown) => repository.getSaleById(db, idSchema.parse(id)),
     getEquipmentHistory: async (id: unknown) => { const equipmentId = idSchema.parse(id); await repository.getEquipmentById(db, equipmentId); return repository.getHistory(db, equipmentId); },
-    listClients: () => db.client.findMany({ orderBy: { createdAt: 'desc' }, take: 100 }),
-    listEquipment: async () => (await db.equipment.findMany({ include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: { createdAt: 'desc' }, take: 100 })).map(decorated),
+    listClients: async (raw: unknown = {}) => {
+      const { q, offset, limit } = listQuerySchema.parse(raw);
+      const rows = await db.client.findMany({ where: { AND: q.split(/\s+/).filter(Boolean).map(term => ({ OR: [{ dni: { contains: term } }, { code: { contains: term, mode: 'insensitive' as const } }, { firstName: { contains: term, mode: 'insensitive' as const } }, { lastName: { contains: term, mode: 'insensitive' as const } }] })) }, include: { _count: { select: { equipment: true } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit });
+      return rows.map(({ _count, ...client }) => ({ ...client, equipmentCount: _count.equipment }));
+    },
+    listEquipment: async (raw: unknown = {}) => {
+      const { q, ownerId, offset, limit } = listQuerySchema.parse(raw);
+      return (await db.equipment.findMany({ where: { ownerId, ...(q ? { OR: [{ code: { contains: q, mode: 'insensitive' } }, { brand: { contains: q, mode: 'insensitive' } }, { model: { contains: q, mode: 'insensitive' } }, { imeis: { some: { value: q.replace(/\s/g, '') } } }] } : {}) }, include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit })).map(decorated);
+    },
     listSales: () => db.sale.findMany({ include: { buyer: true }, orderBy: { createdAt: 'desc' }, take: 100 }),
   };
 }

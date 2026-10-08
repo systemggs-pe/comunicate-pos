@@ -1,44 +1,18 @@
-import { useEffect, useState } from 'react';
-import { ArrowRight, CheckCircle2, Circle, Home, MonitorSmartphone, ShoppingBag, Users } from 'lucide-react';
-import { getApiHealth } from '../services/api';
-
-const navigation = [
-  { label: 'Inicio', icon: Home }, { label: 'Clientes', icon: Users },
-  { label: 'Equipos', icon: MonitorSmartphone }, { label: 'Ventas', icon: ShoppingBag },
-];
-const descriptions: Record<string, string> = {
-  Clientes: 'Cada persona tiene un único registro identificado por su DNI.',
-  Equipos: 'Cada dispositivo conserva su propietario y el registro independiente de sus IMEIs.',
-  Ventas: 'Una operación puede incluir varios equipos y un comprador distinto del propietario.',
-};
-
-export function App() {
-  const [page, setPage] = useState('Inicio');
-  const [health, setHealth] = useState<'checking' | 'online' | 'offline'>('checking');
-  useEffect(() => {
-    const controller = new AbortController();
-    getApiHealth(controller.signal).then(ok => setHealth(ok ? 'online' : 'offline')).catch(() => { if (!controller.signal.aborted) setHealth('offline'); });
-    return () => controller.abort();
-  }, []);
-  return <div className="app-shell">
-    <aside className="sidebar">
-      <a className="brand" href="#inicio" onClick={() => setPage('Inicio')} aria-label="COMUNIC@TE POS, inicio">COMUNIC<span>@</span>TE <small>POS</small></a>
-      <p className="nav-label">ESPACIO DE TRABAJO</p>
-      <nav aria-label="Navegación principal">{navigation.map(({ label, icon: Icon }) => <button key={label} onClick={() => setPage(label)} aria-current={page === label ? 'page' : undefined} className={`nav-item ${page === label ? 'selected' : ''}`}><Icon size={19} aria-hidden="true" />{label}</button>)}</nav>
-      <div className="sidebar-footer"><span className="tag">FASE 01</span><p>Una nueva base<br />para tu negocio.</p></div>
-    </aside>
-    <div className="main-panel">
-      <header><span>COMUNIC@TE POS / <strong>{page}</strong></span><span className="connection" role="status"><Circle size={8} fill="currentColor" />{health === 'checking' ? 'Verificando API…' : health === 'online' ? 'API disponible' : 'API sin conexión'}</span></header>
-      <main id="inicio">
-        <p className="eyebrow">{page === 'Inicio' ? 'FUNDACIÓN DEL SISTEMA' : 'MÓDULO INICIAL'}</p>
-        <h1>{page === 'Inicio' ? 'Todo empieza con una buena base.' : page}</h1>
-        <p className="intro">{page === 'Inicio' ? 'Clientes, equipos y ventas conectados. Un registro claro para cada persona, cada dispositivo y cada operación.' : descriptions[page]}</p>
-        {page === 'Inicio' ? <>
-          <section className="module-list" aria-label="Módulos">{navigation.slice(1).map(({ label, icon: Icon }, index) => <button key={label} onClick={() => setPage(label)} className="module-row"><span className="module-number">0{index + 1}</span><Icon size={24} aria-hidden="true" /><span className="module-content"><strong>{label}</strong><span>{descriptions[label]}</span></span><ArrowRight size={20} aria-hidden="true" /></button>)}</section>
-          <section className="foundation-note"><CheckCircle2 size={22} aria-hidden="true" /><div><h2>Construido desde cero</h2><p>La primera fase prepara la estructura del sistema. Los flujos comerciales se incorporarán en las siguientes etapas.</p></div></section>
-        </> : <section className="empty-state"><MonitorSmartphone size={32} aria-hidden="true" /><h2>Espacio preparado</h2><p>La interfaz de {page.toLowerCase()} se habilitará en una siguiente fase. La base técnica ya contempla este módulo.</p><button onClick={() => setPage('Inicio')} className="back-button">Volver al inicio <ArrowRight size={16} /></button></section>}
-      </main>
-      <footer>COMUNIC@TE POS <span>Fundación · v0.1.0</span></footer>
-    </div>
-  </div>;
+import { Home, Users, MonitorSmartphone, Plus } from 'lucide-react';
+import { ApiProvider, useApi } from './ApiProvider';
+import { Link, usePathname } from './router';
+import { TemporaryAccess } from '../features/auth/TemporaryAccess';
+import { GlobalImeiSearch } from '../features/registrations/GlobalImeiSearch';
+import { RegistrationFlow } from '../features/registrations/RegistrationFlow';
+import { ClientsPage, ClientDetailsPage, NewClientPage } from '../pages/Clients';
+import { EquipmentPage, EquipmentDetailsPage } from '../pages/Equipment';
+import { HomePage } from '../pages/Home';
+const navigation = [{ label: 'Inicio', path: '/', icon: Home }, { label: 'Clientes', path: '/clientes', icon: Users }, { label: 'Equipos', path: '/equipos', icon: MonitorSmartphone }, { label: 'Nuevo registro', path: '/registros/nuevo', icon: Plus }];
+function Workspace() {
+  const path = usePathname(); const { connected, disconnect } = useApi();
+  const item = navigation.find(item => item.path === '/' ? path === '/' : path.startsWith(item.path));
+  const clientId = path.match(/^\/clientes\/([^/]+)$/)?.[1], equipmentId = path.match(/^\/equipos\/([^/]+)$/)?.[1];
+  const page = path === '/' ? <HomePage /> : path === '/clientes' ? <ClientsPage /> : path === '/clientes/nuevo' ? <NewClientPage /> : clientId ? <ClientDetailsPage key={clientId} id={clientId} /> : path === '/equipos' ? <EquipmentPage /> : equipmentId ? <EquipmentDetailsPage key={equipmentId} id={equipmentId} /> : path === '/registros/nuevo' ? <RegistrationFlow /> : <p>Página no encontrada. <Link to="/">Ir al inicio</Link></p>;
+  return <div className="app-shell"><aside className="sidebar"><Link className="brand" to="/">COMUNIC<span>@</span>TE <small>POS</small></Link><p className="nav-label">ESPACIO DE TRABAJO</p><nav aria-label="Navegación principal">{navigation.map(({ label, path: to, icon: Icon }) => <Link key={to} to={to} className={`nav-item ${item?.path === to ? 'selected' : ''}`} aria-current={item?.path === to ? 'page' : undefined}><Icon size={18} aria-hidden="true" /><span>{label}</span></Link>)}</nav><div className="sidebar-footer"><span className="tag">FASE 02</span><p>Cliente → Equipo<br />→ IMEI → Registro</p></div></aside><div className="main-panel"><header><span>COMUNIC@TE POS / <strong>{item?.label ?? 'Detalle'}</strong></span>{connected && <button className="text-button" onClick={disconnect}>Cerrar acceso</button>}</header><main>{connected ? <><GlobalImeiSearch key={`search:${path}`} /><div key={`page:${path}`}>{page}</div></> : <TemporaryAccess />}</main><footer>COMUNIC@TE POS<span>TEMPORARY AUTH · Fase 2</span></footer></div></div>;
 }
+export function App() { return <ApiProvider><Workspace /></ApiProvider>; }

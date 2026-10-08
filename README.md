@@ -1,6 +1,6 @@
 # COMUNIC@TE POS
 
-Fase 1: fundación nueva e independiente del POS anterior. React, Vite, TypeScript,
+Fase 2: núcleo funcional Cliente → Equipo → IMEI → Registro sobre la fundación independiente del POS anterior. React, Vite, TypeScript,
 Tailwind CSS, Lucide React, API Express, Prisma y PostgreSQL. No contiene migración
 del sistema anterior ni integraciones comerciales.
 
@@ -21,7 +21,10 @@ Copy-Item .env.example .env
 ```
 
 Cambie `API_ACCESS_TOKEN` en `.env` por un valor aleatorio de al menos 32 caracteres.
-Es un secreto exclusivamente del servidor, nunca una variable `VITE_`.
+Es una clave privada temporal, nunca una variable `VITE_` ni un secreto incluido en el bundle.
+Para usar la UI local, ingrésela en Acceso temporal. Se verifica con `/api/access`
+y permanece sólo en memoria hasta recargar/cerrar la pestaña. **TEMPORARY AUTH**;
+no hay sesiones definitivas ni identidad por operador.
 
 ```powershell
 docker compose up -d
@@ -35,9 +38,11 @@ Frontend: <http://127.0.0.1:5173>. API: <http://127.0.0.1:3001/api/health>.
 Vite redirige `/api` al servidor local. La salud de API indica que el proceso responde,
 no constituye una comprobación de disponibilidad de PostgreSQL.
 
-La interfaz inicial sólo permite navegar entre Inicio, Clientes, Equipos y Ventas.
-No muestra datos comerciales ni implementa formularios en esta fase. Los servicios
-se prueban a través de la API o las pruebas de integración.
+La navegación funcional incluye Inicio, Clientes, Equipos y Nuevo registro.
+Clientes permite listar/buscar/crear/editar y ver equipos asociados; equipo muestra
+propietario, IMEIs independientes e historial. La búsqueda global por IMEI está
+siempre visible. El asistente `/registros/nuevo` reutiliza entidades existentes
+y guarda nuevas entidades y estados atómicamente. No se amplía el módulo de ventas.
 
 ## Validaciones y pruebas
 
@@ -49,6 +54,7 @@ npm run build
 npm test
 npm run db:test:prepare
 npm run test:integration
+npm run test:e2e
 ```
 
 En Windows, detenga `npm run dev` antes de ejecutar `prisma generate`, migraciones
@@ -73,6 +79,11 @@ consumidores internos confiables, no una identidad verificada del operador.
 | Método | Ruta | Operación |
 |---|---|---|
 | GET | `/api/health` | Salud pública de proceso |
+| GET | `/api/access` | Comprobar clave temporal, sin sesión |
+| PATCH | `/api/clients/:id` | Editar nombres/contacto, DNI inmutable |
+| PATCH | `/api/equipment/:id` | Editar marca/modelo/serie |
+| POST | `/api/registrations/resolve` | Comprobar todos los IMEIs sin altas |
+| POST | `/api/registrations` | Registro múltiple atómico con reutilización |
 | GET / POST | `/api/clients` | Listado / crear cliente |
 | GET | `/api/clients/by-dni/:dni` | Buscar DNI |
 | GET | `/api/clients/:id` | Obtener cliente |
@@ -87,7 +98,9 @@ consumidores internos confiables, no una identidad verificada del operador.
 | GET / POST | `/api/sales` | Listado / crear venta |
 | GET | `/api/sales/:id` | Venta con líneas relacionadas |
 
-Listados limitados a los 100 registros más recientes. Paginación completa pendiente.
+Listados de clientes/equipos paginados: `q`, `offset`, `limit` (20 por defecto,
+máximo 100). Clientes busca DNI/nombres; equipos busca código/marca/modelo/IMEI y
+admite `ownerId`. Las rutas de ventas conservan el comportamiento de Phase 1.
 Moneda inicial: soles (PEN), importes JSON como cadenas decimales. `total` se calcula
 en servidor a partir de las líneas. No aceptar totales del consumidor.
 
@@ -126,7 +139,8 @@ actualiza únicamente el IMEI existente. Un conflicto concurrente de unicidad re
 ## Estructura
 
 ```text
-src/app, src/services   → UI base y cliente HTTP
+src/app, src/services   → navegación, acceso temporal y cliente HTTP
+src/features, src/pages → formularios, búsquedas, detalle y asistente
 shared/                → validaciones y cálculos puros, sin Prisma
 api/index.ts           → entrada Vercel
 server/app.ts          → HTTP y guardia de acceso
@@ -136,6 +150,7 @@ server/db/             → Prisma reutilizable por proceso
 prisma/                → esquema y migración SQL inicial versionada
 tests/unit/            → validaciones y HTTP
 tests/integration/     → invariantes en PostgreSQL real
+tests/e2e/             → Edge, flujo completo y pantallas responsive
 docs/                  → decisiones y verificaciones
 ```
 
@@ -159,3 +174,13 @@ Referencias: [Vite en Vercel](https://vercel.com/docs/frameworks/frontend/vite),
 
 Consulte [docs/database-architecture.md](docs/database-architecture.md) para las
 restricciones y [docs/verification.md](docs/verification.md) para los resultados ejecutados.
+
+## Phase 2
+
+[Flujo y casos](docs/phase-2-registration-flow.md),
+[verificación de Phase 2](docs/phase-2-verification.md).
+No hay cambios al esquema ni a la migración histórica. Errores API normalizados
+con `error.code` y `error.message`; se mantiene `message` superior por compatibilidad.
+E2E requiere Microsoft Edge instalado, usa backend 3002/Vite 5175 y DB local
+`communicate_pos_test`. No ejecutar E2E e integración simultáneamente: ambas
+limpian únicamente esa DB dedicada. Capturas ignoradas: `.test-results/visual`.

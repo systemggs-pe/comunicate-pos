@@ -1,5 +1,15 @@
 # Arquitectura de datos
 
+Phase 2 conserva íntegros schema.prisma y la migración de fundación. No requiere
+migración nueva: Client, Equipment, Imei y EquipmentHistory ya tienen las relaciones,
+campos, enums, FKs y restricciones necesarios.
+La edición de cliente excluye DNI; equipo excluye ownerId/id/code/IMEIs. Registro
+resuelve todos los IMEIs antes de escribir y exige confirmación ligada al equipo
+canónico para agregar uno desconocido. El propietario se comprueba por DNI y, cuando
+se suministra, por ownerId. Nunca se transfiere automáticamente.
+Consulte [el flujo de Phase 2](phase-2-registration-flow.md) para atomicidad,
+reutilización, registro parcial, historial y TEMPORARY AUTH.
+
 ```text
 Client 1 ── N Equipment 1 ── N Imei
 Client (buyer) 1 ── N Sale 1 ── N SaleEquipment N ── 1 Equipment
