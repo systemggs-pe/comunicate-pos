@@ -1,7 +1,8 @@
 import { Prisma, type PrismaClient, type EquipmentEventType } from '@prisma/client';
-import { clientSchema, clientEditSchema, dniSchema, equipmentSchema, equipmentEditSchema, externalEquipmentSchema, idSchema, imeiSchema, imeiValueSchema, listQuerySchema, registrationFlowSchema, registrationSchema, resolveRegistrationSchema, saleSchema } from '../../shared/validation.js';
+import { clientSchema, clientEditSchema, dniSchema, equipmentSchema, equipmentEditSchema, externalEquipmentSchema, idSchema, imeiSchema, imeiValueSchema, listQuerySchema, registrationFlowSchema, registrationSchema, resolveRegistrationSchema } from '../../shared/validation.js';
 import { deriveRegistrationStatus } from '../../shared/registration.js';
 import { repository, type Db } from '../repositories/pos.repository.js';
+import { createSalesService } from './sales.service.js';
 import { DomainError } from '../lib/errors.js';
 
 export function createPosService(db: PrismaClient) {
@@ -158,22 +159,6 @@ export function createPosService(db: PrismaClient) {
         return updateRegistrationInTx(tx, envelope.value, envelope.registration);
       });
     },
-    createSale: (raw: unknown) => {
-      const input = saleSchema.parse(raw);
-      return transaction(async tx => {
-        const total = input.items.reduce((sum, i) => sum.add(new Prisma.Decimal(i.unitPrice)), new Prisma.Decimal(0));
-        if (total.greaterThan('9999999999.99')) throw new DomainError(400, 'Total supera el máximo permitido.');
-        for (const item of input.items) {
-          const equipment = await repository.getEquipmentById(tx, item.equipmentId);
-          if (equipment.origin !== 'STORE' || equipment.status !== 'ACTIVE') throw new DomainError(409, 'Sólo se venden equipos de tienda activos.');
-        }
-        const sale = await tx.sale.create({ data: { buyerId: input.buyerId, status: input.status, paymentMethod: input.paymentMethod, createdById: input.createdById, total, equipment: { create: input.items } } });
-        for (const item of input.items) await history(tx, item.equipmentId, 'SOLD', undefined, input.createdById, { saleId: sale.id, status: sale.status });
-        await audit(tx, 'CREATE', 'Sale', sale.id, input.createdById);
-        return repository.getSaleById(tx, sale.id);
-      });
-    },
-    getSaleById: (id: unknown) => repository.getSaleById(db, idSchema.parse(id)),
     getEquipmentHistory: async (id: unknown) => { const equipmentId = idSchema.parse(id); await repository.getEquipmentById(db, equipmentId); return repository.getHistory(db, equipmentId); },
     listClients: async (raw: unknown = {}) => {
       const { q, offset, limit } = listQuerySchema.parse(raw);
@@ -184,7 +169,7 @@ export function createPosService(db: PrismaClient) {
       const { q, ownerId, offset, limit } = listQuerySchema.parse(raw);
       return (await db.equipment.findMany({ where: { ownerId, ...(q ? { OR: [{ code: { contains: q, mode: 'insensitive' } }, { brand: { contains: q, mode: 'insensitive' } }, { model: { contains: q, mode: 'insensitive' } }, { imeis: { some: { value: q.replace(/\s/g, '') } } }] } : {}) }, include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit })).map(decorated);
     },
-    listSales: () => db.sale.findMany({ include: { buyer: true }, orderBy: { createdAt: 'desc' }, take: 100 }),
+    ...createSalesService(db, { transaction, history, audit, createEquipmentInTx }),
   };
 }
 import { z } from 'zod';

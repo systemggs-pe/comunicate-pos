@@ -7,7 +7,7 @@ if (!['localhost', '127.0.0.1'].includes(target.hostname) || target.pathname !==
 export default defineConfig({
   testDir: './tests/e2e', workers: 1, timeout: 120000, expect: { timeout: 15000 },
   outputDir: '.test-results/e2e', reporter: 'list',
-  use: { baseURL: 'http://127.0.0.1:5175', channel: 'msedge', viewport: { width: 1280, height: 900 } },
+  use: { actionTimeout: 15000, screenshot: 'only-on-failure', baseURL: 'http://127.0.0.1:5175', channel: 'msedge', viewport: { width: 1280, height: 900 } },
   webServer: [
     { command: 'npx tsx server/local.ts', url: 'http://127.0.0.1:3002/api/health', timeout: 120000, env: { DATABASE_URL: database, API_ACCESS_TOKEN: 'e2e-test-only-token-communicate-pos-32chars', PORT: '3002' } },
     { command: 'npx vite --host 127.0.0.1 --port 5175 --strictPort', url: 'http://127.0.0.1:5175', timeout: 120000, env: { API_PROXY_TARGET: 'http://127.0.0.1:3002' } },

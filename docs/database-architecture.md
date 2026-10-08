@@ -1,6 +1,6 @@
 # Arquitectura de datos
 
-Phase 2 conserva íntegros schema.prisma y la migración de fundación. No requiere
+Phase 2 conservó íntegros schema.prisma y la migración de fundación. No requirió
 migración nueva: Client, Equipment, Imei y EquipmentHistory ya tienen las relaciones,
 campos, enums, FKs y restricciones necesarios.
 La edición de cliente excluye DNI; equipo excluye ownerId/id/code/IMEIs. Registro
@@ -26,7 +26,7 @@ ni IMEIs en JSON. Historial y auditoría son trazabilidad, no estado actual.
 - `Client`: persona única, DNI normalizado de ocho dígitos, código único.
 - `Equipment`: dispositivo físico, marca/modelo/serie, propietario por FK.
 - `Imei`: identidad única de 15 dígitos, FK a equipo, slot 1 o 2, tipo físico/eSIM.
-- `Sale`: comprador independiente, estado, método de pago y total decimal.
+- `Sale`: comprador independiente, estado, método de pago, descuento, total decimal y notas.
 - `SaleEquipment`: relación de muchas líneas por venta con precio unitario decimal.
 - `EquipmentHistory`: evento vinculado al equipo e IMEI opcional.
 - `AuditLog`: acciones exitosas persistidas en la misma transacción.
@@ -36,7 +36,10 @@ ni IMEIs en JSON. Historial y auditoría son trazabilidad, no estado actual.
 `EXTERNAL` representa equipos traídos por clientes y exige propietario en PostgreSQL.
 Todos los registros de IMEI que avanzan desde `NOT_REGISTERED` requieren propietario.
 Comprador (`Sale.buyerId`) y propietario (`Equipment.ownerId`) pueden ser distintos.
-Crear una venta no cambia automáticamente el propietario.
+Un equipo nuevo vendido se crea como STORE/ACTIVE y recibe por defecto al comprador
+como propietario, o al propietario elegido. Un equipo STORE existente conserva su
+propietario; si está sin asignar, el contrato nuevo permite asignarlo al vender.
+La venta no transfiere automáticamente equipos ya asociados a otra persona.
 
 ## IMEIs y registro
 
@@ -80,8 +83,9 @@ Las líneas tienen `isActive`, indicador técnico **mantenido sólo por triggers
 Sale.status. No es un estado comercial editable. Un índice único parcial sobre
 equipmentId WHERE isActive impide varias ventas PENDING/COMPLETED del mismo equipo.
 Cancelar/reembolsar una venta libera la exclusividad; reactivarla vuelve a aplicar
-esa restricción. No hay endpoint de cancelación/reembolso en esta fase.
-Triggers diferidos exigen al commit al menos una línea y total igual a su suma.
+esa restricción. Phase 3 habilita cancelación confirmada de COMPLETED/PENDING,
+sin reembolsos. Los equipos/propietarios/IMEIs no se eliminan ni se reinician.
+Triggers diferidos exigen al commit al menos una línea y total igual a su suma menos descuento.
 Los servicios venden exclusivamente equipos STORE/ACTIVE. Los importes usan
 `Decimal(12,2)` y Prisma.Decimal; nunca suma de números float.
 
@@ -119,3 +123,37 @@ triggers y migraciones. No conectar producción en esta fase. No se han implemen
 sesiones por usuario, roles, retención/archivo de auditoría ni autorización fina;
 la API permanece protegida por un token privado temporal. La fundación no equivale
 a habilitar operación comercial en producción.
+
+## Evolución Phase 3 — Sales core
+
+`20261008000100_sales_core` agrega YAPE y PLIN al enum PaymentMethod y agrega
+`Sale.discount Decimal(12,2) default 0` y `Sale.notes varchar(1000)`. Reemplaza la
+función `validate_sale_total` conservando los triggers diferidos existentes.
+Las ventas históricas reciben descuento cero. La migración de fundación no se edita.
+
+La cadena canónica es Client → Sale → SaleEquipment → Equipment → Imei.
+Sale almacena buyerId; SaleEquipment almacena equipmentId y unitPrice histórico.
+No se copian DNI, nombres, marca/modelo o IMEIs en Sale. El historial SOLD incluye
+saleId/saleCode para navegación, sin convertirse en fuente de verdad de la venta.
+
+Dinero: PostgreSQL Decimal(12,2), cálculos de servidor con Prisma.Decimal y contratos
+JSON con cadenas. El frontend usa BigInt en céntimos para el estimado, que el servidor
+recalcula. El subtotal se deriva de total + discount; el trigger asegura que coincide
+con la suma de unitPrice. Descuento a nivel de venta: no se reparte entre equipos y
+no se persiste un segundo finalPrice redundante en cada línea.
+
+La creación usa la transacción serializable existente: reutiliza/crea comprador por
+DNI, reutiliza/crea propietarios, valida todos los IMEIs, crea equipos STORE y uno/dos
+IMEIs NOT_REGISTERED, venta/líneas, historial y auditoría. Cualquier fallo revierte
+todo; las secuencias pueden consumir códigos. UNIQUE global y exclusividad parcial
+protegen frente a carreras. El preflight de UI comprueba IMEIs y totales sin escribir;
+confirmar repite comprobaciones y resuelve las referencias dentro de la transacción.
+
+Cancelar registra motivo en AuditLog y SALE_CANCELLED por equipo. Conserva el precio
+histórico y la relación, libera isActive vía trigger, y excluye la venta de los
+indicadores de ventas COMPLETED del día Lima. No afirma que el equipo regresó
+físicamente a tienda, no libera propietario y no revierte registro IMEI. Una venta
+posterior del mismo equipo usa equipmentId y conserva sus relaciones anteriores.
+El estado Equipment.ACTIVE indica vigencia del dispositivo, no disponibilidad de stock.
+
+Consulte [flujo y política de ventas](phase-3-sales-flow.md).

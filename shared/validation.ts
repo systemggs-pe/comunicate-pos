@@ -37,6 +37,6 @@ export const registrationFlowSchema = z.object({
 });
 // Montos como cadenas decimales: nunca calcular dinero con float de JavaScript.
 export const moneySchema = z.string().regex(/^(0|[1-9]\d{0,9})(\.\d{1,2})?$/);
-export const saleSchema = z.object({ buyerId: idSchema, status: z.enum(['PENDING', 'COMPLETED']).default('PENDING'), paymentMethod: z.enum(['CASH', 'CARD', 'TRANSFER', 'OTHER']), createdById: idSchema.optional(), items: z.array(z.object({ equipmentId: idSchema, unitPrice: moneySchema }).strict()).min(1).max(100) }).strict().superRefine((v, ctx) => {
+export const saleSchema = z.object({ buyerId: idSchema, status: z.enum(['PENDING', 'COMPLETED']).default('PENDING'), paymentMethod: z.enum(['CASH', 'YAPE', 'PLIN', 'CARD', 'TRANSFER', 'OTHER']), discount: moneySchema.default('0'), notes: z.string().trim().max(1000).optional(), createdById: idSchema.optional(), items: z.array(z.object({ equipmentId: idSchema, unitPrice: moneySchema }).strict()).min(1).max(100) }).strict().superRefine((v, ctx) => {
   if (new Set(v.items.map(i => i.equipmentId)).size !== v.items.length) ctx.addIssue({ code: 'custom', message: 'Equipo repetido en venta', path: ['items'] });
 });

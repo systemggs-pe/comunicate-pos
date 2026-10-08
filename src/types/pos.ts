@@ -13,8 +13,9 @@ export interface Equipment {
   origin: 'STORE' | 'EXTERNAL'; status: 'ACTIVE' | 'RETURNED' | 'BLOCKED' | 'ARCHIVED';
   brand: string; model: string; serialNumber: string | null; createdAt: string;
   imeis: Imei[]; registrationStatus: 'NOT_REGISTERED' | 'PARTIALLY_REGISTERED' | 'REGISTERED';
+  saleEquipment?: { id: string; unitPrice: string; isActive: boolean; sale: Sale }[];
 }
-export interface ClientDetails extends Client { equipment: Equipment[] }
+export interface ClientDetails extends Client { equipment: Equipment[]; purchases?: Sale[] }
 export interface HistoryEvent { id: string; equipmentId: string; imeiId: string | null; eventType: string; createdAt: string; metadata: Record<string, unknown> | null }
 export interface ImeiInput { slot: number; value: string; type: 'PHYSICAL' | 'ESIM' }
 export interface ClientInput { dni: string; firstName: string; lastName: string; phone?: string; email?: string }
@@ -25,3 +26,8 @@ export interface RegistrationInput {
   registration: { status: RegistrationStatus; method?: string | null };
   equipment?: EquipmentInput; expectedEquipmentId?: string; confirmAddImei?: boolean;
 }
+export type PaymentMethod = 'CASH' | 'YAPE' | 'PLIN' | 'CARD' | 'TRANSFER' | 'OTHER';
+export interface Sale { id: string; code: string; buyerId: string; buyer: Client; status: 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED'; subtotal?: string; discount: string; total: string; paymentMethod: PaymentMethod; notes: string | null; createdAt: string; createdBy: { id: string; name: string } | null; equipmentCount?: number; _count?: { equipment: number }; equipment?: { id: string; unitPrice: string; equipment: Equipment }[] }
+export type ClientReference = { id: string } | { client: ClientInput };
+export interface SaleItemInput { equipment?: EquipmentInput & { imeis: ImeiInput[] }; equipmentId?: string; owner?: ClientReference; unitPrice: string }
+export interface SaleInput { buyer: ClientReference; items: SaleItemInput[]; paymentMethod: PaymentMethod; discount: string; notes?: string }

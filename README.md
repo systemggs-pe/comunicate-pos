@@ -1,6 +1,6 @@
 # COMUNIC@TE POS
 
-Fase 2: núcleo funcional Cliente → Equipo → IMEI → Registro sobre la fundación independiente del POS anterior. React, Vite, TypeScript,
+Fase 3: ventas Cliente → Venta → Equipo → IMEI, compatible con Cliente → Equipo → IMEI → Registro sobre la fundación independiente del POS anterior. React, Vite, TypeScript,
 Tailwind CSS, Lucide React, API Express, Prisma y PostgreSQL. No contiene migración
 del sistema anterior ni integraciones comerciales.
 
@@ -38,11 +38,11 @@ Frontend: <http://127.0.0.1:5173>. API: <http://127.0.0.1:3001/api/health>.
 Vite redirige `/api` al servidor local. La salud de API indica que el proceso responde,
 no constituye una comprobación de disponibilidad de PostgreSQL.
 
-La navegación funcional incluye Inicio, Clientes, Equipos y Nuevo registro.
+La navegación funcional incluye Inicio, Clientes, Equipos, Registros y Ventas.
 Clientes permite listar/buscar/crear/editar y ver equipos asociados; equipo muestra
 propietario, IMEIs independientes e historial. La búsqueda global por IMEI está
 siempre visible. El asistente `/registros/nuevo` reutiliza entidades existentes
-y guarda nuevas entidades y estados atómicamente. No se amplía el módulo de ventas.
+y guarda nuevas entidades y estados atómicamente. `/ventas/nueva` permite seleccionar o crear comprador, agregar hasta 20 equipos, asignar propietarios, revisar precios y confirmar una venta atómica. Vender no registra los IMEIs. El dashboard muestra ventas completadas del día en America/Lima.
 
 ## Validaciones y pruebas
 
@@ -95,14 +95,23 @@ consumidores internos confiables, no una identidad verificada del operador.
 | GET | `/api/equipment/:id/history` | Trazabilidad |
 | PATCH | `/api/imeis/:value/registration` | Actualizar sólo el IMEI |
 | POST | `/api/registrations/external` | Buscar primero; crear sólo si es desconocido |
-| GET / POST | `/api/sales` | Listado / crear venta |
-| GET | `/api/sales/:id` | Venta con líneas relacionadas |
+| GET | `/api/dashboard` | Ventas, total neto y equipos vendidos hoy |
+| POST | `/api/sales/resolve` | Comprobar equipos/IMEIs y calcular resumen sin escribir |
+| GET / POST | `/api/sales` | Listado paginado / crear venta atómica |
+| GET | `/api/sales/:id` | Venta, comprador, propietario, equipos e IMEIs relacionados |
+| POST | `/api/sales/:id/cancel` | Confirmación y motivo, conserva entidades e historial |
 
 Listados de clientes/equipos paginados: `q`, `offset`, `limit` (20 por defecto,
 máximo 100). Clientes busca DNI/nombres; equipos busca código/marca/modelo/IMEI y
-admite `ownerId`. Las rutas de ventas conservan el comportamiento de Phase 1.
+admite `ownerId`. Ventas admite `q` (código, DNI, nombre o IMEI exacto),
+`status`, `from` y `to` (YYYY-MM-DD, fechas inclusivas en Lima), `offset` y `limit`.
+El contrato original `buyerId/items.equipmentId` sigue disponible; el nuevo contrato usa
+`buyer: {id}` o `buyer: {client}` y equipos nuevos o existentes.
+La UI crea ventas COMPLETED; API conserva PENDING para compatibilidad.
 Moneda inicial: soles (PEN), importes JSON como cadenas decimales. `total` se calcula
-en servidor a partir de las líneas. No aceptar totales del consumidor.
+en servidor a partir de las líneas menos el descuento de la venta. El subtotal
+se deriva de total + descuento, protegido por un trigger diferido que comprueba
+la suma de precios históricos. No aceptar totales del consumidor.
 
 Ejemplo para IMEI conocido:
 
@@ -147,7 +156,7 @@ server/app.ts          → HTTP y guardia de acceso
 server/services/       → reglas y transacciones
 server/repositories/   → consultas relacionadas
 server/db/             → Prisma reutilizable por proceso
-prisma/                → esquema y migración SQL inicial versionada
+prisma/                → esquema y migraciones SQL versionadas
 tests/unit/            → validaciones y HTTP
 tests/integration/     → invariantes en PostgreSQL real
 tests/e2e/             → Edge, flujo completo y pantallas responsive
@@ -184,3 +193,21 @@ con `error.code` y `error.message`; se mantiene `message` superior por compatibi
 E2E requiere Microsoft Edge instalado, usa backend 3002/Vite 5175 y DB local
 `communicate_pos_test`. No ejecutar E2E e integración simultáneamente: ambas
 limpian únicamente esa DB dedicada. Capturas ignoradas: `.test-results/visual`.
+
+## Phase 3
+
+[Flujo de ventas](docs/phase-3-sales-flow.md) y
+[verificación de Phase 3](docs/phase-3-verification.md).
+La migración nueva `20261008000100_sales_core` añade YAPE/PLIN, descuento y notas;
+no modifica la migración histórica de fundación. Para una base existente use
+`npm run db:deploy`. No use `db push`.
+
+El precio por equipo es histórico en SaleEquipment; los datos canónicos se leen
+mediante FKs. El descuento corresponde a la venta, sin reparto artificial por línea.
+Cancelar conserva comprador, propietario, equipo, IMEIs, precio e historial y libera
+únicamente la exclusividad de venta activa. No ejecuta un reembolso ni devuelve
+automáticamente el equipo al stock. No hay DELETE comercial de ventas.
+
+E2E de ventas: `.test-results/phase-3-visual`, 8 pantallas en 1280/375/390/430 px.
+Capturas y fixtures sólo locales; no se incluyen en Git ni en la base principal.
+TEMPORARY AUTH permanece sin sesiones/roles/identidad verificada de operador.

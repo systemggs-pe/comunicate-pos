@@ -40,9 +40,12 @@ app.patch('/api/imeis/:value/registration', async (req, res) => res.json(await s
 app.post('/api/registrations/external', async (req, res) => res.json(await service.registerExternalImei(req.body)));
 app.post('/api/registrations/resolve', async (req, res) => res.json(await service.resolveRegistration(req.body)));
 app.post('/api/registrations', async (req, res) => res.json(await service.submitRegistration(req.body)));
-app.get('/api/sales', async (_req, res) => res.json(await service.listSales()));
+app.get('/api/dashboard', async (_req, res) => res.json(await service.dashboard()));
+app.get('/api/sales', async (req, res) => res.json(await service.listSales(req.query)));
+app.post('/api/sales/resolve', async (req, res) => res.json(await service.resolveSale(req.body)));
 app.get('/api/sales/:id', async (req, res) => res.json(await service.getSaleById(req.params.id)));
 app.post('/api/sales', async (req, res) => res.status(201).json(await service.createSale(req.body)));
+app.post('/api/sales/:id/cancel', async (req, res) => res.json(await service.cancelSale(req.params.id, req.body)));
 app.use('/api', (_req, _res, next) => next(new DomainError(404, 'Ruta no encontrada.', 'ROUTE_NOT_FOUND')));
 const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   const result = publicError(error);
