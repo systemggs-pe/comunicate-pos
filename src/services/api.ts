@@ -2,13 +2,12 @@ export class ApiError extends Error {
   constructor(public status: number, public code: string, message: string) { super(message); }
 }
 export class ApiClient {
-  constructor(private token: string) {}
   async request<T>(path: string, method = 'GET', body?: unknown, signal?: AbortSignal): Promise<T> {
     let response: Response;
     try {
       response = await fetch(`/api${path}`, {
-        method, credentials: 'omit', signal: AbortSignal.any([AbortSignal.timeout(30000), ...(signal ? [signal] : [])]),
-        headers: { Authorization: `Bearer ${this.token}`, ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}) },
+        method, credentials: 'same-origin', signal: AbortSignal.any([AbortSignal.timeout(30000), ...(signal ? [signal] : [])]),
+        headers: { ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}) },
         body: body === undefined ? undefined : JSON.stringify(body),
       });
     } catch (error) {
@@ -16,6 +15,7 @@ export class ApiClient {
       throw new ApiError(0, 'NETWORK_ERROR', 'No se pudo conectar. Compruebe la conexión y vuelva a intentar.');
     }
     const data = await response.json().catch(() => null);
+    if (response.status === 401 && path !== '/auth/login') window.dispatchEvent(new Event('pos:unauthorized'));
     if (!response.ok) throw new ApiError(response.status, data?.error?.code ?? 'REQUEST_FAILED', data?.error?.message ?? data?.message ?? 'No se pudo completar la operación.');
     if (method !== 'GET') window.dispatchEvent(new Event('pos:datachanged'));
     return data as T;

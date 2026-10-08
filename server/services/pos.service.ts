@@ -3,9 +3,10 @@ import { clientSchema, clientEditSchema, dniSchema, equipmentSchema, equipmentEd
 import { deriveRegistrationStatus } from '../../shared/registration.js';
 import { repository, type Db } from '../repositories/pos.repository.js';
 import { createSalesService } from './sales.service.js';
+import { writeAudit, type AuditContext } from '../lib/audit.js';
 import { DomainError } from '../lib/errors.js';
 
-export function createPosService(db: PrismaClient) {
+export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
   // Reintentos acotados sólo cuando PostgreSQL aborta la transacción serializable.
   async function transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
     for (let attempt = 0; ; attempt++) {
@@ -15,8 +16,11 @@ export function createPosService(db: PrismaClient) {
       }
     }
   }
-  const audit = (tx: Db, action: string, entityType: string, entityId: string, userId?: string) => tx.auditLog.create({ data: { action, entityType, entityId, userId } });
-  const history = (tx: Db, equipmentId: string, eventType: EquipmentEventType, imeiId?: string, userId?: string, metadata?: Prisma.InputJsonValue) => tx.equipmentHistory.create({ data: { equipmentId, eventType, imeiId, userId, metadata, createdAt: new Date() } });
+  const audit = (tx: Db, action: string, entityType: string, entityId: string, userId?: string, metadata?: Prisma.InputJsonValue) => {
+    const actions: Record<string,string> = { 'CREATE:Client':'CLIENT_CREATED','UPDATE:Client':'CLIENT_UPDATED','CREATE:Equipment':'EQUIPMENT_CREATED','UPDATE:Equipment':'EQUIPMENT_UPDATED','REGISTRATION_UPDATE:Imei':'IMEI_REGISTRATION_UPDATED','CREATE:Sale':'SALE_CREATED','CANCEL:Sale':'SALE_CANCELLED' };
+    return writeAudit(tx,{...actor,userId:actor.userId ?? userId},actions[`${action}:${entityType}`] ?? `${entityType.toUpperCase()}_${action}`,entityType,entityId,metadata);
+  };
+  const history = (tx: Db, equipmentId: string, eventType: EquipmentEventType, imeiId?: string, userId?: string, metadata?: Prisma.InputJsonValue) => tx.equipmentHistory.create({ data: { equipmentId, eventType, imeiId, userId: actor.userId ?? userId, metadata, createdAt: new Date() } });
   function decorated<T extends { imeis: { registrationStatus: string }[] }>(equipment: T) {
     return { ...equipment, registrationStatus: deriveRegistrationStatus(equipment.imeis) };
   }
@@ -45,11 +49,11 @@ export function createPosService(db: PrismaClient) {
       registrationMethod: input.method,
       registrationStartedAt: input.status === 'NOT_REGISTERED' ? null : found.registrationStartedAt ?? now,
       registeredAt: input.status === 'REGISTERED' ? found.registeredAt ?? now : null,
-      registeredById: input.status === 'REGISTERED' ? input.userId ?? found.registeredById : null,
+      registeredById: input.status === 'REGISTERED' ? actor.userId ?? input.userId ?? found.registeredById : null,
     } });
     if (!found.registrationStartedAt && ['REGISTERED', 'REJECTED'].includes(input.status)) await history(tx, found.equipmentId, 'IMEI_REGISTRATION_STARTED', found.id, input.userId);
     await history(tx, found.equipmentId, events[input.status], found.id, input.userId, { from: found.registrationStatus, to: input.status, previousMethod: found.registrationMethod, method: input.method === undefined ? found.registrationMethod : input.method });
-    await audit(tx, 'REGISTRATION_UPDATE', 'Imei', found.id, input.userId);
+    await audit(tx, 'REGISTRATION_UPDATE', 'Imei', found.id, input.userId, { from: found.registrationStatus, to: input.status });
     return decorated(await repository.getEquipmentById(tx, found.equipmentId));
   }
   async function resolveInTx(tx: Db, raw: ReturnType<typeof resolveRegistrationSchema.parse>) {
@@ -169,7 +173,7 @@ export function createPosService(db: PrismaClient) {
       const { q, ownerId, offset, limit } = listQuerySchema.parse(raw);
       return (await db.equipment.findMany({ where: { ownerId, ...(q ? { OR: [{ code: { contains: q, mode: 'insensitive' } }, { brand: { contains: q, mode: 'insensitive' } }, { model: { contains: q, mode: 'insensitive' } }, { imeis: { some: { value: q.replace(/\s/g, '') } } }] } : {}) }, include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit })).map(decorated);
     },
-    ...createSalesService(db, { transaction, history, audit, createEquipmentInTx }),
+    ...createSalesService(db, { transaction, history, audit, createEquipmentInTx, actor }),
   };
 }
 import { z } from 'zod';

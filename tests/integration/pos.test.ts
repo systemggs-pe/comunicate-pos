@@ -1,9 +1,9 @@
+import {seedTestAdmin,loginAgent,testOrigin} from '../helpers/auth';
 import 'dotenv/config';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { PrismaClient } from '@prisma/client';
 import { createPosService } from '../../server/services/pos.service';
 import { createApp } from '../../server/app';
-import request from 'supertest';
 
 const url = process.env.TEST_DATABASE_URL;
 if (!url) throw new Error('TEST_DATABASE_URL requerido. Ejecute npm run db:test:prepare.');
@@ -22,7 +22,7 @@ beforeEach(async () => {
   // DELETE transaccional evita recrear archivos de cada tabla con TRUNCATE
   // en Docker Desktop, y mantiene todas las FKs y los triggers activados.
   await db.$transaction([
-    db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(),
+    db.session.deleteMany(), db.authRateLimit.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(),
     db.saleEquipment.deleteMany(), db.sale.deleteMany(),
     db.imei.deleteMany(), db.equipment.deleteMany(),
     db.client.deleteMany(), db.user.deleteMany(),
@@ -74,16 +74,14 @@ describe('Phase 2: clientes y registro atómico', () => {
 });
 describe('PostgreSQL real: reglas comerciales', () => {
   it('Phase 2 HTTP: errores únicos y ausentes con códigos concretos', async () => {
-    const previous = process.env.API_ACCESS_TOKEN; const token = 'phase-two-local-integration-token-32chars'; process.env.API_ACCESS_TOKEN = token;
-    try {
-      const app = createApp(db); const auth = `Bearer ${token}`; const equipment = await service.submitRegistration(flow);
-      const duplicate = await request(app).post('/api/clients').set('Authorization', auth).send(client); expect(duplicate.status).toBe(409); expect(duplicate.body.error.code).toBe('CLIENT_DNI_EXISTS');
-      const duplicateImei = await request(app).post('/api/equipment/external').set('Authorization', auth).send(external); expect(duplicateImei.status).toBe(409); expect(duplicateImei.body.error.code).toBe('IMEI_ALREADY_EXISTS');
+    await seedTestAdmin(db); const app=createApp(db),agent=await loginAgent(app); const equipment=await service.submitRegistration(flow);
+      const duplicate = await agent.post('/api/clients').set('Origin',testOrigin).send(client); expect(duplicate.status).toBe(409); expect(duplicate.body.error.code).toBe('CLIENT_DNI_EXISTS');
+      const duplicateImei = await agent.post('/api/equipment/external').set('Origin',testOrigin).send(external); expect(duplicateImei.status).toBe(409); expect(duplicateImei.body.error.code).toBe('IMEI_ALREADY_EXISTS');
       const missing = '00000000-0000-4000-8000-000000000001';
-      for (const [path, code] of [[`/api/clients/${missing}`, 'CLIENT_NOT_FOUND'], [`/api/equipment/${missing}`, 'EQUIPMENT_NOT_FOUND'], ['/api/equipment/by-imei/353333333333333', 'IMEI_NOT_FOUND']]) { const response = await request(app).get(path).set('Authorization', auth); expect(response.status).toBe(404); expect(response.body.error.code).toBe(code); expect(response.headers['cache-control']).toBe('no-store'); }
-      const mismatch = await request(app).post('/api/registrations').set('Authorization', auth).send({ ...flow, client: { ...client, dni: '87654321' } }); expect(mismatch.status).toBe(409); expect(mismatch.body.error.code).toBe('OWNER_MISMATCH');
-      const edited = await request(app).patch(`/api/equipment/${equipment.id}`).set('Authorization', auth).send({ brand: 'Samsung', model: 'S25', serialNumber: null }); expect(edited.status).toBe(200); expect(edited.body.ownerId).toBe(equipment.ownerId);
-    } finally { if (previous === undefined) delete process.env.API_ACCESS_TOKEN; else process.env.API_ACCESS_TOKEN = previous; }
+      for (const [path, code] of [[`/api/clients/${missing}`, 'CLIENT_NOT_FOUND'], [`/api/equipment/${missing}`, 'EQUIPMENT_NOT_FOUND'], ['/api/equipment/by-imei/353333333333333', 'IMEI_NOT_FOUND']]) { const response = await agent.get(path).set('Origin',testOrigin); expect(response.status).toBe(404); expect(response.body.error.code).toBe(code); expect(response.headers['cache-control']).toBe('no-store'); }
+      const mismatch = await agent.post('/api/registrations').set('Origin',testOrigin).send({ ...flow, client: { ...client, dni: '87654321' } }); expect(mismatch.status).toBe(409); expect(mismatch.body.error.code).toBe('OWNER_MISMATCH');
+      const edited = await agent.patch(`/api/equipment/${equipment.id}`).set('Origin',testOrigin).send({ brand: 'Samsung', model: 'S25', serialNumber: null }); expect(edited.status).toBe(200); expect(edited.body.ownerId).toBe(equipment.ownerId);
+
   });
   it('1. DNI único incluso fuera de API', async () => { await service.createClient(client); await expect(db.client.create({ data: client })).rejects.toMatchObject({ code: 'P2002' }); expect(await db.client.count()).toBe(1); });
   it('2. IMEI único incluso fuera de API', async () => {
@@ -165,20 +163,16 @@ describe('PostgreSQL real: reglas comerciales', () => {
     await expect(db.sale.create({ data: { buyerId: owner.id, total: '100', paymentMethod: 'CASH' } })).rejects.toBeDefined();
   });
   it('HTTP → validación → servicios → PostgreSQL → respuesta', async () => {
-    const previous = process.env.API_ACCESS_TOKEN;
-    const token = 'integration-access-token-at-least-32-characters';
-    process.env.API_ACCESS_TOKEN = token;
-    try {
-      const app = createApp(db);
-      const created = await request(app).post('/api/registrations/external').set('Authorization', `Bearer ${token}`).send({ value: imei1, registration: { status: 'REGISTERED' }, newEquipment: external });
+    await seedTestAdmin(db); const app=createApp(db),agent=await loginAgent(app);
+      const created = await agent.post('/api/registrations/external').set('Origin',testOrigin).send({ value: imei1, registration: { status: 'REGISTERED' }, newEquipment: external });
       expect(created.status).toBe(200); expect(created.body.registrationStatus).toBe('PARTIALLY_REGISTERED');
-      const found = await request(app).get(`/api/equipment/by-imei/${imei1}`).set('Authorization', `Bearer ${token}`);
+      const found = await agent.get(`/api/equipment/by-imei/${imei1}`).set('Origin',testOrigin);
       expect(found.status).toBe(200); expect(found.body.id).toBe(created.body.id);
-      const duplicate = await request(app).post('/api/clients').set('Authorization', `Bearer ${token}`).send(client);
+      const duplicate = await agent.post('/api/clients').set('Origin',testOrigin).send(client);
       expect(duplicate.status).toBe(409);
-      const updated = await request(app).patch(`/api/imeis/${imei2}/registration`).set('Authorization', `Bearer ${token}`).send({ status: 'REGISTERED' });
+      const updated = await agent.patch(`/api/imeis/${imei2}/registration`).set('Origin',testOrigin).send({ status: 'REGISTERED' });
       expect(updated.status).toBe(200); expect(updated.body.registrationStatus).toBe('REGISTERED');
       expect(await db.equipment.count()).toBe(1);
-    } finally { if (previous === undefined) delete process.env.API_ACCESS_TOKEN; else process.env.API_ACCESS_TOKEN = previous; }
+
   });
 });

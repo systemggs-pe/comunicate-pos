@@ -10,6 +10,7 @@ export function publicError(error: unknown): { status: number; code: string; mes
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === 'P2002') {
       const target = String(error.meta?.target ?? '');
+      if (target.includes('email')) return { status: 409, code: 'USER_EMAIL_EXISTS', message: 'Ya existe un usuario con ese correo.' };
       if (target.includes('dni')) return { status: 409, code: 'CLIENT_DNI_EXISTS', message: 'Ya existe un cliente registrado con este DNI.' };
       if (target.includes('slot')) return { status: 409, code: 'IMEI_SLOT_OCCUPIED', message: 'El slot de IMEI ya está ocupado.' };
       if (target.includes('value')) return { status: 409, code: 'IMEI_ALREADY_EXISTS', message: 'El IMEI ya está asociado a un equipo.' };

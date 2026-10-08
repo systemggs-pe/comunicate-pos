@@ -64,10 +64,22 @@ enum EquipmentEventType {
   EQUIPMENT_UPDATED
 }
 
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
 model User {
   id              String             @id @default(uuid()) @db.Uuid
+  code            String             @unique @default(dbgenerated("next_visible_code('user_code_seq'::regclass, 'USR-'::text)"))
   email           String             @unique
   name            String
+  passwordHash    String?
+  status          UserStatus         @default(DISABLED)
+  roleId          String?            @db.Uuid
+  role            Role?              @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  lastLoginAt     DateTime?          @db.Timestamptz(3)
+  sessions        Session[]
   createdAt       DateTime           @default(now()) @db.Timestamptz(3)
   updatedAt       DateTime           @updatedAt @db.Timestamptz(3)
   registeredImeis Imei[]
@@ -181,15 +193,54 @@ model EquipmentHistory {
 }
 
 model AuditLog {
+  ip         String?  @db.VarChar(100)
+  userAgent  String?  @db.VarChar(300)
   id         String   @id @default(uuid()) @db.Uuid
   userId     String?  @db.Uuid
   user       User?    @relation(fields: [userId], references: [id], onDelete: Restrict)
   action     String   @db.VarChar(100)
   entityType String   @db.VarChar(50)
-  entityId   String   @db.Uuid
+  entityId   String?  @db.Uuid
   metadata   Json?
   createdAt  DateTime @default(now()) @db.Timestamptz(3)
 
   @@index([entityType, entityId, createdAt])
   @@index([userId, createdAt])
+}
+
+model Role {
+  id          String @id @default(uuid()) @db.Uuid
+  code        String @unique @db.VarChar(30)
+  users       User[]
+  permissions RolePermission[]
+}
+model Permission {
+  key   String @id @db.VarChar(80)
+  roles RolePermission[]
+}
+model RolePermission {
+  roleId        String @db.Uuid
+  permissionKey String @db.VarChar(80)
+  role          Role @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  permission    Permission @relation(fields: [permissionKey], references: [key], onDelete: Restrict)
+  @@id([roleId, permissionKey])
+}
+model Session {
+  id         String @id @default(uuid()) @db.Uuid
+  userId     String @db.Uuid
+  user       User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  tokenHash  String @unique @db.VarChar(64)
+  expiresAt  DateTime @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  lastUsedAt DateTime? @db.Timestamptz(3)
+  ip         String? @db.VarChar(100)
+  userAgent  String? @db.VarChar(300)
+  @@index([userId])
+  @@index([expiresAt])
+}
+model AuthRateLimit {
+  key       String @id @db.VarChar(64)
+  attempts  Int
+  expiresAt DateTime @db.Timestamptz(3)
+  @@index([expiresAt])
 }

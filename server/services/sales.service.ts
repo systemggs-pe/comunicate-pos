@@ -4,14 +4,16 @@ import { equipmentSchema, idSchema, moneySchema } from '../../shared/validation.
 import { cancelSaleSchema, saleFlowSchema, saleRequestSchema, salesQuerySchema, type clientReferenceSchema } from '../../shared/sales.js';
 import { deriveRegistrationStatus } from '../../shared/registration.js';
 import { repository, saleSummaryInclude, type Db } from '../repositories/pos.repository.js';
+import type { AuditContext } from '../lib/audit.js';
 import { DomainError } from '../lib/errors.js';
 
 type Reference = z.infer<typeof clientReferenceSchema>;
 interface Dependencies {
+  actor?: AuditContext;
   transaction: <T>(fn: (tx: Db) => Promise<T>) => Promise<T>;
   createEquipmentInTx: (tx: Db, input: z.infer<typeof equipmentSchema>) => Promise<{ id: string }>;
   history: (tx: Db, id: string, event: EquipmentEventType, imeiId?: string, userId?: string, metadata?: Prisma.InputJsonValue) => Promise<unknown>;
-  audit: (tx: Db, action: string, entityType: string, id: string, userId?: string) => Promise<unknown>;
+  audit: (tx: Db, action: string, entityType: string, id: string, userId?: string, metadata?: Prisma.InputJsonValue) => Promise<unknown>;
 }
 function summary<T extends { total: Prisma.Decimal; discount: Prisma.Decimal; _count: { equipment: number } }>(sale: T) { return { ...sale, subtotal: sale.total.add(sale.discount), equipmentCount: sale._count.equipment }; }
 function dayRange(day: string) { const from = new Date(`${day}T00:00:00-05:00`); return { gte: from, lt: new Date(from.getTime() + 86400000) }; }
@@ -69,7 +71,7 @@ export function createSalesService(db: PrismaClient, helpers: Dependencies) {
             lines.push({ equipmentId: equipment.id, unitPrice: item.unitPrice });
           }
         }
-        const sale = await tx.sale.create({ data: { buyerId: buyer.id, status: input.status, paymentMethod: input.paymentMethod, discount, total: subtotal.sub(discount), notes: input.notes, createdById: input.createdById, equipment: { create: lines } } });
+        const sale = await tx.sale.create({ data: { buyerId: buyer.id, status: input.status, paymentMethod: input.paymentMethod, discount, total: subtotal.sub(discount), notes: input.notes, createdById: helpers.actor?.userId ?? input.createdById, equipment: { create: lines } } });
         for (const line of lines) await history(tx, line.equipmentId, 'SOLD', undefined, input.createdById, { saleId: sale.id, saleCode: sale.code });
         await audit(tx, 'CREATE', 'Sale', sale.id, input.createdById);
         return detail(tx, sale.id);
@@ -82,7 +84,7 @@ export function createSalesService(db: PrismaClient, helpers: Dependencies) {
       if (!['COMPLETED', 'PENDING'].includes(sale.status)) throw new DomainError(409, 'La venta no admite cancelación básica.', 'SALE_INVALID_STATUS');
       await tx.sale.update({ where: { id: saleId }, data: { status: 'CANCELLED' } });
       for (const line of sale.equipment) await history(tx, line.equipmentId, 'SALE_CANCELLED', undefined, undefined, { saleId, saleCode: sale.code, reason: input.reason });
-      await tx.auditLog.create({ data: { action: 'CANCEL', entityType: 'Sale', entityId: saleId, metadata: { reason: input.reason } } });
+      await audit(tx, 'CANCEL', 'Sale', saleId, undefined, { reason: input.reason });
       return detail(tx, saleId);
     }); },
     listSales: async (raw: unknown = {}) => {

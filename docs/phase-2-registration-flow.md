@@ -1,5 +1,8 @@
 # Phase 2 — Cliente → Equipo → IMEI → Registro
 
+Documento histórico de Phase 2. El acceso temporal descrito aquí fue retirado
+en Phase 4; consulte [autenticación vigente](phase-4-auth-and-permissions.md).
+
 ## Operación
 
 1. Abrir `/registros/nuevo`. Ingresar DNI de ocho dígitos: se busca automáticamente.

@@ -1,6 +1,6 @@
 # COMUNIC@TE POS
 
-Fase 3: ventas Cliente → Venta → Equipo → IMEI, compatible con Cliente → Equipo → IMEI → Registro sobre la fundación independiente del POS anterior. React, Vite, TypeScript,
+Fase 4: acceso privado con usuarios, sesiones, roles, permisos y auditoría; ventas Cliente → Venta → Equipo → IMEI, compatible con Cliente → Equipo → IMEI → Registro sobre la fundación independiente del POS anterior. React, Vite, TypeScript,
 Tailwind CSS, Lucide React, API Express, Prisma y PostgreSQL. No contiene migración
 del sistema anterior ni integraciones comerciales.
 
@@ -20,17 +20,21 @@ npm install
 Copy-Item .env.example .env
 ```
 
-Cambie `API_ACCESS_TOKEN` en `.env` por un valor aleatorio de al menos 32 caracteres.
-Es una clave privada temporal, nunca una variable `VITE_` ni un secreto incluido en el bundle.
-Para usar la UI local, ingrésela en Acceso temporal. Se verifica con `/api/access`
-y permanece sólo en memoria hasta recargar/cerrar la pestaña. **TEMPORARY AUTH**;
-no hay sesiones definitivas ni identidad por operador.
+Configure `AUTH_ALLOWED_ORIGINS` con los orígenes exactos del frontend. En desarrollo
+se admite localhost; en producción la lista es obligatoria y nunca debe contener `*`.
+Después de aplicar las migraciones, defina en el entorno privado `ADMIN_NAME`,
+`ADMIN_EMAIL` y `ADMIN_PASSWORD` (10–128 caracteres) y ejecute `npm run seed:admin`.
+El script crea el primer SUPERADMIN; si ya hay uno activo, no altera ninguna cuenta.
+No incluya credenciales reales en archivos versionados. Retire ADMIN_PASSWORD del
+entorno una vez terminado el bootstrap. La pantalla `/login` usa correo/contraseña.
+Las sesiones duran 12 horas, sobreviven a recargas y utilizan cookie HttpOnly.
 
 ```powershell
 docker compose up -d
 docker compose ps
 npm run db:generate
-npm run db:migrate
+npm run db:deploy
+npm run seed:admin
 npm run dev
 ```
 
@@ -38,7 +42,8 @@ Frontend: <http://127.0.0.1:5173>. API: <http://127.0.0.1:3001/api/health>.
 Vite redirige `/api` al servidor local. La salud de API indica que el proceso responde,
 no constituye una comprobación de disponibilidad de PostgreSQL.
 
-La navegación funcional incluye Inicio, Clientes, Equipos, Registros y Ventas.
+La navegación depende de permisos. SELLER ve Inicio, Clientes, Equipos, Registros
+y Ventas; SUPERADMIN también ve Usuarios, Roles y Auditoría.
 Clientes permite listar/buscar/crear/editar y ver equipos asociados; equipo muestra
 propietario, IMEIs independientes e historial. La búsqueda global por IMEI está
 siempre visible. El asistente `/registros/nuevo` reutiliza entidades existentes
@@ -69,17 +74,25 @@ hostname local y nombre exacto; nunca use una URL productiva para pruebas.
 
 ## API privada
 
-Todas las rutas comerciales requieren `Authorization: Bearer <API_ACCESS_TOKEN>`.
-Si falta configuración, la API deniega el acceso. El token temporal permite probar
-la fundación; no representa autenticación por usuario ni roles. `User` está preparado
-para una siguiente fase. No habilitar uso comercial multiusuario hasta implementar
-sesiones y autorización. `userId` y `createdById` son referencias opcionales para
-consumidores internos confiables, no una identidad verificada del operador.
+Las rutas privadas requieren una sesión real y permisos verificados en backend.
+Los cuerpos no pueden elegir userId/createdById/registeredById: el actor proviene de
+la sesión. Argon2id protege contraseñas; sólo SHA-256 del token aleatorio de sesión
+se almacena en PostgreSQL. Cookie HttpOnly, SameSite=Lax, Path=/; en producción
+Secure y prefijo __Host-. No hay tokens en localStorage ni autenticación compartida.
+Las mutaciones, incluido login, requieren un Origin exacto autorizado; clientes
+HTTP internos deben enviarlo y conservar cookie. CORS sólo refleja orígenes permitidos.
 
 | Método | Ruta | Operación |
 |---|---|---|
 | GET | `/api/health` | Salud pública de proceso |
-| GET | `/api/access` | Comprobar clave temporal, sin sesión |
+| POST | `/api/auth/login` | Validar credenciales y emitir cookie de sesión |
+| POST | `/api/auth/logout` | Invalidar sesión y limpiar cookie |
+| GET | `/api/auth/me` | Usuario/rol/permisos seguros |
+| GET / POST | `/api/users` | Listar / crear cuentas |
+| GET / PATCH | `/api/users/:id` | Consultar / actualizar |
+| POST | `/api/users/:id/disable`, `/enable`, `/reset-password` | Estado o contraseña; invalida sesiones |
+| GET / PATCH | `/api/roles`, `/api/roles/:id` | Consultar roles / editar permisos protegidos |
+| GET | `/api/audit` | Auditoría por usuario/acción/fecha |
 | PATCH | `/api/clients/:id` | Editar nombres/contacto, DNI inmutable |
 | PATCH | `/api/equipment/:id` | Editar marca/modelo/serie |
 | POST | `/api/registrations/resolve` | Comprobar todos los IMEIs sin altas |
@@ -168,7 +181,7 @@ docs/                  → decisiones y verificaciones
 `vercel.json` prepara build de Vite, ruta `/api/*` a la función única y fallback SPA.
 La función exporta la misma aplicación Express sin abrir un puerto. Prisma corre
 exclusivamente en servidor y se genera durante el build. Configure `DATABASE_URL`
-y `API_ACCESS_TOKEN` como secretos de Vercel. Use PostgreSQL administrado compatible
+y `AUTH_ALLOWED_ORIGINS` con el dominio real del frontend en Vercel. Use PostgreSQL administrado compatible
 con TLS y pooler; ajuste `connection_limit` al proveedor y número de instancias.
 El singleton evita duplicación por hot reload, pero no es un pool global entre funciones.
 
@@ -210,4 +223,28 @@ automáticamente el equipo al stock. No hay DELETE comercial de ventas.
 
 E2E de ventas: `.test-results/phase-3-visual`, 8 pantallas en 1280/375/390/430 px.
 Capturas y fixtures sólo locales; no se incluyen en Git ni en la base principal.
-TEMPORARY AUTH permanece sin sesiones/roles/identidad verificada de operador.
+Phase 3 utilizaba acceso temporal; Phase 4 lo reemplaza por sesiones y actor real.
+
+## Phase 4
+
+COMUNIC@TE POS is a private single-company application.
+It is not a SaaS or multi-tenant platform.
+
+[Autenticación y matriz de permisos](docs/phase-4-auth-and-permissions.md),
+[verificación de Phase 4](docs/phase-4-verification.md).
+Nueva migración `20261008000200_auth_permissions`; las anteriores permanecen intactas.
+Usuarios históricos sin credenciales quedan DISABLED, conservando ventas/historial.
+El administrador puede asignar rol, restablecer contraseña y habilitarlos.
+
+`npm run sessions:cleanup` elimina sesiones y contadores de login expirados.
+No requiere cron para negar sesiones vencidas; programar limpieza operacional después.
+El límite de login usa PostgreSQL y se comparte entre instancias. Express no confía
+ciegamente en X-Forwarded-For: antes de desplegar, validar la topología real de proxy;
+el límite por email seguirá funcionando y el bucket por IP puede agrupar clientes.
+No se ha realizado despliegue ni verificado TLS/proxy en producción.
+
+La gestión del último SUPERADMIN se protege mediante transacciones y bloqueo
+administrativo común, incluso con cambios concurrentes. ADMIN no gestiona SUPERADMIN.
+Editar permisos de ADMIN/SELLER requiere SUPERADMIN; invalidará las sesiones del rol.
+La auditoría identifica actor real sin guardar contraseñas, hashes o tokens.
+E2E y capturas de Phase 4 se guardan en `.test-results/phase-4-visual`, ignorado por Git.

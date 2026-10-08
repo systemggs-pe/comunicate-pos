@@ -1,20 +1,27 @@
-import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
+import { afterAll,describe,expect,it,vi } from 'vitest';
 import request from 'supertest';
 import { app } from '../../server/app';
 import { prisma } from '../../server/db/prisma';
-afterEach(() => vi.unstubAllEnvs());
-afterAll(() => prisma.$disconnect());
-describe('Frontera API', () => {
-  it('acceso temporal verificado sin crear sesión', async () => { const token = 'a'.repeat(32); vi.stubEnv('API_ACCESS_TOKEN', token); const result = await request(app).get('/api/access').set('Authorization', `Bearer ${token}`); expect(result.body).toEqual({ access: 'TEMPORARY AUTH' }); expect(result.headers['set-cookie']).toBeUndefined(); });
-  it('error de autenticación normalizado', async () => { vi.stubEnv('API_ACCESS_TOKEN', 'a'.repeat(32)); const result = await request(app).get('/api/clients'); expect(result.body.error).toEqual({ code: 'AUTH_REQUIRED', message: 'Acceso no autorizado.' }); });
-  it('error de cuerpo inválido normalizado sin stack', async () => { const token = 'a'.repeat(32); vi.stubEnv('API_ACCESS_TOKEN', token); const result = await request(app).post('/api/registrations').set('Authorization', `Bearer ${token}`).send({ client: { dni: 'abc' } }); expect(result.status).toBe(400); expect(result.body.error.code).toBe('VALIDATION_ERROR'); expect(result.body.stack).toBeUndefined(); });
-  it('edición de DNI rechazada en frontera HTTP', async () => { const token = 'a'.repeat(32); vi.stubEnv('API_ACCESS_TOKEN', token); const result = await request(app).patch('/api/clients/00000000-0000-4000-8000-000000000001').set('Authorization', `Bearer ${token}`).send({ firstName: 'A', lastName: 'B', dni: '12345678' }); expect(result.status).toBe(400); expect(result.body.error.code).toBe('VALIDATION_ERROR'); });
-  it('edición de ownerId rechazada en frontera HTTP', async () => { const token = 'a'.repeat(32); vi.stubEnv('API_ACCESS_TOKEN', token); const result = await request(app).patch('/api/equipment/00000000-0000-4000-8000-000000000001').set('Authorization', `Bearer ${token}`).send({ brand: 'A', model: 'B', ownerId: '00000000-0000-4000-8000-000000000001' }); expect(result.status).toBe(400); expect(result.body.error.code).toBe('VALIDATION_ERROR'); });
-  it('query paginada inválida rechazada antes de consulta', async () => { const token = 'a'.repeat(32); vi.stubEnv('API_ACCESS_TOKEN', token); const result = await request(app).get('/api/clients?limit=101&offset=-1').set('Authorization', `Bearer ${token}`); expect(result.status).toBe(400); expect(result.body.error.code).toBe('VALIDATION_ERROR'); });
-  it('health es público y no revela credenciales', async () => { const result = await request(app).get('/api/health'); expect(result.status).toBe(200); expect(result.body).toEqual({ name: 'COMUNIC@TE POS', status: 'ok' }); });
-  it('falla cerrado si no hay configuración', async () => { vi.stubEnv('API_ACCESS_TOKEN', ''); expect((await request(app).get('/api/clients')).status).toBe(503); });
-  it('rechaza el token placeholder de .env.example', async () => { vi.stubEnv('API_ACCESS_TOKEN', 'replace-with-a-random-token-at-least-32-characters'); expect((await request(app).get('/api/clients')).status).toBe(503); });
-  it('no acepta token ausente o incorrecto', async () => { vi.stubEnv('API_ACCESS_TOKEN', 'a'.repeat(32)); expect((await request(app).get('/api/clients')).status).toBe(401); expect((await request(app).get('/api/clients').set('Authorization', `Bearer ${'b'.repeat(32)}`)).status).toBe(401); });
-  it('valida cuerpo de nuevo cliente en servidor', async () => { const token = 'a'.repeat(32); vi.stubEnv('API_ACCESS_TOKEN', token); const result = await request(app).post('/api/clients').set('Authorization', `Bearer ${token}`).send({ dni: 'abc' }); expect(result.status).toBe(400); });
-  it('ruta no encontrada produce JSON 404', async () => { const token = 'a'.repeat(32); vi.stubEnv('API_ACCESS_TOKEN', token); expect((await request(app).get('/api/missing').set('Authorization', `Bearer ${token}`)).status).toBe(404); });
+import { permissionKeys } from '../../shared/auth';
+vi.mock('../../server/services/auth.service',async importOriginal=>{
+  const actual=await importOriginal<typeof import('../../server/services/auth.service')>();
+  return {...actual,createAuthService:(db:Parameters<typeof actual.createAuthService>[0])=>{
+    const service=actual.createAuthService(db);return {...service,authenticate:async(token?:string)=>token==='unit-session'?{sessionId:'unit-id',user:{id:'00000000-0000-4000-8000-000000000001',name:'Unit',email:'unit@example.com',code:'USR-UNIT',status:'ACTIVE' as const,role:{id:'role-unit',code:'SUPERADMIN'},permissions:[...permissionKeys],lastLoginAt:null,createdAt:'2026-10-08'}}:service.authenticate(token)};
+  }};
+});
+afterAll(()=>prisma.$disconnect());
+const origin='http://127.0.0.1:5175',cookie='pos_session=unit-session';
+describe('Frontera HTTP — validación sin DB; sesiones reales en integración',()=>{
+ it('token compartido ya no autentica',async()=>{const result=await request(app).get('/api/clients').set('Authorization',`Bearer ${'a'.repeat(32)}`);expect(result.status).toBe(401);});
+ it('error auth normalizado',async()=>{expect((await request(app).get('/api/clients')).body.error.code).toBe('AUTH_REQUIRED');});
+ it('cuerpo inválido sin stack',async()=>{const result=await request(app).post('/api/registrations').set('Origin',origin).set('Cookie',cookie).send({client:{dni:'abc'}});expect(result.status).toBe(400);expect(result.body.error.code).toBe('VALIDATION_ERROR');expect(result.body.stack).toBeUndefined();});
+ it('DNI inmutable',async()=>{const result=await request(app).patch('/api/clients/00000000-0000-4000-8000-000000000001').set('Origin',origin).set('Cookie',cookie).send({firstName:'A',lastName:'B',dni:'12345678'});expect(result.status).toBe(400);});
+ it('ownerId no editable por PATCH',async()=>{const result=await request(app).patch('/api/equipment/00000000-0000-4000-8000-000000000001').set('Origin',origin).set('Cookie',cookie).send({brand:'A',model:'B',ownerId:'00000000-0000-4000-8000-000000000001'});expect(result.status).toBe(400);});
+ it('paginación inválida',async()=>{expect((await request(app).get('/api/clients?limit=101&offset=-1').set('Cookie',cookie)).status).toBe(400);});
+ it('health público seguro',async()=>{expect((await request(app).get('/api/health')).body).toEqual({name:'COMUNIC@TE POS',status:'ok'});});
+ it('sin cookie falla cerrado',async()=>{expect((await request(app).get('/api/sales')).status).toBe(401);});
+ it('origen extraño bloqueado',async()=>{expect((await request(app).post('/api/auth/login').set('Origin','https://attacker.example').send({})).status).toBe(403);});
+ it('mutation sin Origin bloqueada',async()=>{expect((await request(app).post('/api/clients').set('Cookie',cookie).send({})).status).toBe(403);});
+ it('nuevo cliente inválido',async()=>{expect((await request(app).post('/api/clients').set('Origin',origin).set('Cookie',cookie).send({dni:'abc'})).status).toBe(400);});
+ it('ruta privada ausente normalizada',async()=>{expect((await request(app).get('/api/missing').set('Cookie',cookie)).status).toBe(404);});
 });

@@ -731,3 +731,17 @@ font-size:16px}
 .global-search{
 margin-bottom:10px}
 }
+
+.login-shell { min-height:100dvh; display:grid; place-items:center; padding:24px; }
+.login-panel { width:min(100%,440px); background:#fff; border:1px solid #c5d8d0; padding:36px; border-radius:8px; }
+.login-panel h1 { margin:36px 0 12px; } .login-panel form { margin-top:28px; } .login-panel label { display:block; margin-bottom:20px; } .login-panel button { width:100%; }
+.session-header { display:flex; align-items:center; gap:20px; } .session-header small { display:block; font-size:11px; color:#426a5c; }
+.permissions-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; margin:24px 0; } .audit-metadata { white-space:pre-wrap; overflow-wrap:anywhere; font-size:12px; max-width:320px; }
+.table-shell td { overflow-wrap:anywhere; } .form-panel + .form-panel { margin-top:24px; }
+@media(max-width:700px) { .permissions-grid { grid-template-columns:1fr; } .sidebar nav { grid-template-columns:repeat(4,minmax(0,1fr)); } .session-header { gap:10px; } .session-header>span { max-width:135px; overflow-wrap:anywhere; } .login-panel { padding:24px; } }
+
+@media(max-width:760px) {
+  .sidebar nav { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+  .sidebar nav:has(>.nav-item:nth-child(6)) { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .sidebar .nav-item { min-width:0; padding:10px 4px; overflow-wrap:anywhere; }
+}

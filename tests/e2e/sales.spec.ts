@@ -1,3 +1,4 @@
+import {seedTestAdmin,testEmail,testPassword} from '../helpers/auth';
 import 'dotenv/config';
 import { test, expect, type Page } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
@@ -5,15 +6,15 @@ import { mkdir } from 'node:fs/promises';
 const url = process.env.TEST_DATABASE_URL!; const target = new URL(url);
 if (!['localhost', '127.0.0.1'].includes(target.hostname) || target.pathname !== '/communicate_pos_test') throw new Error('Sólo base de prueba local');
 const db = new PrismaClient({ datasources: { db: { url } } });
-const token = 'e2e-test-only-token-communicate-pos-32chars', dni = '60765432', imei1 = '359607654320001', imei2 = '359607654320002';
-test.beforeAll(async () => { await db.$transaction([db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]); await db.client.create({ data: { dni, firstName: 'Brand', lastName: 'Peralta' } }); await mkdir('.test-results/phase-3-visual', { recursive: true }); });
+const dni = '60765432', imei1 = '359607654320001', imei2 = '359607654320002';
+test.beforeAll(async () => { await db.$transaction([db.session.deleteMany(), db.authRateLimit.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]); await db.client.create({ data: { dni, firstName: 'Brand', lastName: 'Peralta' } }); await seedTestAdmin(db); await mkdir('.test-results/phase-3-visual', { recursive: true }); });
 test.afterAll(() => db.$disconnect());
 async function nav(page: Page, name: string) { await page.getByRole('navigation').getByRole('link', { name, exact: true }).click(); }
 async function snap(page: Page, name: string, width: number) { await expect(page.getByRole('status').filter({ hasText: 'Cargando...' })).toHaveCount(0); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width); await page.screenshot({ path: `.test-results/phase-3-visual/${width}-${name}.png`, fullPage: true }); }
 async function fillItem(page: Page, index: number, brand: string, model: string, imei: string, price: string) { const row = page.getByTestId(`sale-item-${index}`); await row.getByLabel('Marca', { exact: true }).fill(brand); await row.getByLabel('Modelo', { exact: true }).fill(model); await row.getByLabel(`IMEI 1 del equipo ${index + 1}`, { exact: true }).fill(imei); await row.getByLabel(`Precio del equipo ${index + 1} (S/)`, { exact: true }).fill(price); }
 test('venta Yape, relaciones, dos equipos, propietario distinto, cancelación y responsive', async ({ page }) => {
   test.setTimeout(180000); const errors: string[] = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', message => { if (message.type() === 'error' && !message.text().includes('Failed to load resource')) errors.push(message.text()); });
-  await page.goto('/'); await page.getByLabel('Clave temporal').fill(token); await page.getByRole('button', { name: 'Conectar acceso' }).click();
+  await page.goto('/'); await page.getByLabel('Correo', {exact:true}).fill(testEmail); await page.getByLabel('Contraseña', {exact:true}).fill(testPassword); await page.getByRole('button', { name: 'Iniciar sesión', exact:true }).click();
   await page.getByRole('link', { name: 'Nueva venta', exact: true }).click(); await page.getByPlaceholder('DNI, nombres o apellidos').fill(dni); await page.getByRole('button', { name: 'Buscar comprador', exact: true }).click(); await page.getByRole('button', { name: /Brand Peralta/ }).click(); await expect(page.getByText('DNI 60765432', { exact: false })).toBeVisible();
   await fillItem(page, 0, 'Samsung', 'S25 Ultra', imei1, '3500'); await page.getByLabel('Segundo IMEI del equipo 1').check(); await page.getByLabel('IMEI 2 del equipo 1', { exact: true }).fill(imei2); await page.getByLabel('Método de pago').selectOption('YAPE');
   await page.getByRole('button', { name: 'Revisar venta', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Resumen de venta', exact: true })).toBeVisible(); await expect(page.getByText('Brand Peralta · DNI 60765432', { exact: true })).toBeVisible(); await page.getByRole('button', { name: 'Confirmar venta', exact: true }).click();

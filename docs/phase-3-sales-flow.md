@@ -1,5 +1,8 @@
 # Phase 3 — Sales core
 
+Documento histórico de Phase 3. El acceso temporal descrito aquí fue retirado
+en Phase 4; consulte [autenticación vigente](phase-4-auth-and-permissions.md).
+
 Baseline: `master`, `1e58117`. Se extiende la arquitectura existente; no se reconstruye
 Phase 1/2 ni se modifica la migración histórica.
 

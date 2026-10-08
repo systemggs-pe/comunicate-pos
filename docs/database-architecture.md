@@ -8,7 +8,8 @@ resuelve todos los IMEIs antes de escribir y exige confirmación ligada al equip
 canónico para agregar uno desconocido. El propietario se comprueba por DNI y, cuando
 se suministra, por ownerId. Nunca se transfiere automáticamente.
 Consulte [el flujo de Phase 2](phase-2-registration-flow.md) para atomicidad,
-reutilización, registro parcial, historial y TEMPORARY AUTH.
+reutilización, registro parcial e historial; su sección TEMPORARY AUTH es histórica
+y fue reemplazada en Phase 4.
 
 ```text
 Client 1 ── N Equipment 1 ── N Imei
@@ -30,7 +31,10 @@ ni IMEIs en JSON. Historial y auditoría son trazabilidad, no estado actual.
 - `SaleEquipment`: relación de muchas líneas por venta con precio unitario decimal.
 - `EquipmentHistory`: evento vinculado al equipo e IMEI opcional.
 - `AuditLog`: acciones exitosas persistidas en la misma transacción.
-- `User`: referencia para futuras sesiones; no implementa Google Auth ni contraseñas.
+- `User`: cuenta privada con rol, estado, hash de contraseña, código y último acceso.
+- `Role`, `Permission`, `RolePermission`: permisos persistidos por rol.
+- `Session`: hash del token y expiración absoluta.
+- `AuthRateLimit`: contadores de login compartidos entre instancias.
 
 `STORE` representa equipos de tienda; permite propietario nulo antes de asignación.
 `EXTERNAL` representa equipos traídos por clientes y exige propietario en PostgreSQL.
@@ -119,10 +123,8 @@ en la auditoría ejecutada; la actualización mayor se deja como mantenimiento e
 
 Cambiar DATABASE_URL basta para mover la conexión. Vercel sirve Vite y una función
 Express. La base gestionada debe soportar PostgreSQL, transacciones, secuencias,
-triggers y migraciones. No conectar producción en esta fase. No se han implementado
-sesiones por usuario, roles, retención/archivo de auditoría ni autorización fina;
-la API permanece protegida por un token privado temporal. La fundación no equivale
-a habilitar operación comercial en producción.
+triggers y migraciones. No conectar producción en esta fase. Phase 4 implementa sesiones y permisos por usuario; retención/archivo de auditoría
+sigue pendiente. La instalación local no equivale a un despliegue comercial verificado.
 
 ## Evolución Phase 3 — Sales core
 
@@ -157,3 +159,43 @@ posterior del mismo equipo usa equipmentId y conserva sus relaciones anteriores.
 El estado Equipment.ACTIVE indica vigencia del dispositivo, no disponibilidad de stock.
 
 Consulte [flujo y política de ventas](phase-3-sales-flow.md).
+
+## Evolución Phase 4 — Auth y permisos
+
+COMUNIC@TE POS is a private single-company application.
+It is not a SaaS or multi-tenant platform.
+
+La nueva migración agrega UserStatus, código USR-, passwordHash nullable, roleId,
+lastLoginAt, Role/Permission/RolePermission, Session y AuthRateLimit. AuditLog acepta
+entityId nulo para fallos de login y registra IP/user-agent acotados. No crea Tenant,
+Organization, Workspace, Membership ni companyId en tablas comerciales.
+CompanySettings no se agrega porque esta fase no requiere configuración empresarial.
+
+Los usuarios anteriores quedan DISABLED sin contraseña/rol. CHECK exige que ACTIVE
+posea ambos; el servicio sólo crea hashes Argon2id. Email se normaliza antes de UNIQUE,
+y CHECK impide mayúsculas/espacios en escrituras directas. Si existen emails que
+colisionan al normalizar, la migración falla en lugar de fusionar referencias.
+Las FKs históricas se conservan con RESTRICT; no hay DELETE comercial de usuarios.
+
+Las sesiones persisten tokenHash SHA-256 UNIQUE, userId FK, expiresAt, createdAt,
+lastUsedAt opcional, IP y userAgent. El token tiene 32 bytes aleatorios; no se guarda
+su texto en DB. Expiración absoluta de 12h; actualizar lastUsedAt cada cinco minutos
+no renueva expiresAt. Desactivar, cambiar rol/email o resetear password elimina
+sesiones del usuario. Editar permisos elimina sesiones del rol afectado; además,
+cada petición vuelve a leer permisos/estado actuales. No se cachea autorización.
+
+Las mutaciones administrativas y bootstrap usan el mismo advisory transaction lock
+para contar SUPERADMIN activos y preservar al último incluso ante carreras.
+La protección está en los servicios; SQL administrativo directo sigue siendo un
+acceso privilegiado y no debe usarse para alterar usuarios/roles en operación normal.
+Los flujos comerciales conservan sus transacciones serializables, triggers y reglas.
+El contexto de auditoría se pasa por petición, sin actor global compartido.
+
+LOGIN/LOGOUT/LOGIN_FAILED y acciones USER_* se agregan a la auditoría comercial.
+Las operaciones nuevas usan CLIENT_*, EQUIPMENT_*, IMEI_REGISTRATION_UPDATED,
+SALE_CREATED y SALE_CANCELLED. No se reescriben eventos históricos CREATE/UPDATE.
+EquipmentHistory continúa separado. Registro guarda estados anterior/nuevo y
+registeredById real; ventas guardan createdById real. Ni hashes ni contraseñas ni
+tokens aparecen en API/logs/metadata. Los usuarios desactivados conservan referencias.
+
+Matriz, seguridad cookie, bootstrap y límites: [Phase 4](phase-4-auth-and-permissions.md).

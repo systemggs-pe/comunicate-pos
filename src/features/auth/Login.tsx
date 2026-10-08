@@ -1,0 +1,7 @@
+import { useState } from 'react';
+import { useAuth } from '../../app/AuthProvider';
+import { navigate } from '../../app/router';
+import { useSubmit } from '../../hooks/useSubmit';
+import { ErrorNotice } from '../../components/common';
+import { loginSchema } from '../../../shared/auth';
+export function Login(){const {login}=useAuth();const submit=useSubmit();const [email,setEmail]=useState(''),[password,setPassword]=useState('');return <div className="login-shell"><section className="login-panel"><div className="brand">COMUNIC<span>@</span>TE <small>POS</small></div><h1>Iniciar sesión</h1><p>Accede a tu espacio de trabajo.</p><form onSubmit={async e=>{e.preventDefault();const result=await submit.run(async()=>{const input=loginSchema.parse({email,password});await login(input.email,input.password);return true;});if(result){setPassword('');navigate('/dashboard');}}}><fieldset disabled={submit.busy}><label>Correo<input type="email" autoComplete="username" required maxLength={254} value={email} onChange={e=>setEmail(e.target.value)}/></label><label>Contraseña<input type="password" autoComplete="current-password" required maxLength={128} value={password} onChange={e=>setPassword(e.target.value)}/></label><ErrorNotice message={submit.error}/><button className="primary-button">{submit.busy?'Iniciando sesión...':'Iniciar sesión'}</button></fieldset></form><p className="form-hint">Si necesitas acceso, contacta al administrador de COMUNIC@TE.</p></section></div>;}

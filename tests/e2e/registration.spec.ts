@@ -1,15 +1,16 @@
+import {seedTestAdmin,testEmail,testPassword} from '../helpers/auth';
 import 'dotenv/config';
 import { test, expect, type Page } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import { mkdir } from 'node:fs/promises';
-const token = 'e2e-test-only-token-communicate-pos-32chars';
+
 const url = process.env.TEST_DATABASE_URL!;
 if (!['127.0.0.1', 'localhost'].includes(new URL(url).hostname) || new URL(url).pathname !== '/communicate_pos_test') throw new Error('DB de prueba requerida');
 const db = new PrismaClient({ datasources: { db: { url } } });
 const dni = '60987654', imei1 = '359609876540001', imei2 = '359609876540002';
-test.beforeAll(async () => { await db.$transaction([db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]); await mkdir('.test-results/visual', { recursive: true }); });
+test.beforeAll(async () => { await db.$transaction([db.session.deleteMany(), db.authRateLimit.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]); await seedTestAdmin(db); await mkdir('.test-results/visual', { recursive: true }); });
 test.afterAll(() => db.$disconnect());
-async function login(page: Page) { await page.goto('/'); await page.getByLabel('Clave temporal').fill(token); await page.getByRole('button', { name: 'Conectar acceso' }).click(); await expect(page.getByRole('heading', { name: 'Registro de equipos', exact: true })).toBeVisible(); }
+async function login(page: Page) { await page.goto('/'); await page.getByLabel('Correo', {exact:true}).fill(testEmail); await page.getByLabel('Contraseña', {exact:true}).fill(testPassword); await page.getByRole('button', { name: 'Iniciar sesión', exact:true }).click(); await expect(page.getByRole('heading', { name: 'Registro de equipos', exact: true })).toBeVisible(); }
 async function next(page: Page) { await page.getByRole('button', { name: 'Continuar', exact: true }).click(); }
 async function screenshot(page: Page, label: string, width: number) { await expect(page.getByRole('status').filter({ hasText: 'Cargando...' })).toHaveCount(0); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width); await page.screenshot({ path: `.test-results/visual/${width}-${label}.png`, fullPage: true }); }
 test('criterio completo, relaciones canónicas, reutilización y revisión responsive', async ({ page }) => {
@@ -40,9 +41,9 @@ test('criterio completo, relaciones canónicas, reutilización y revisión respo
     await page.getByRole('link', { name: 'Clientes', exact: true }).first().click(); await expect(page.getByRole('link', { name: 'Ver cliente', exact: true })).toBeVisible(); await screenshot(page, 'clients-table', width); await page.getByRole('link', { name: 'Ver cliente', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Brand Peralta' })).toBeVisible(); await screenshot(page, 'client-detail', width); await page.getByRole('button', { name: 'Editar cliente' }).click(); await screenshot(page, 'client-edit', width); await page.getByRole('button', { name: 'Cancelar', exact: true }).click();
     await page.getByRole('link', { name: 'Equipos', exact: true }).first().click(); await expect(page.getByRole('link', { name: 'Ver equipo', exact: true })).toHaveCount(2); await screenshot(page, 'equipment-table', width);
     await page.getByRole('link', { name: 'Registros', exact: true }).first().click(); await page.getByLabel('DNI').fill('60987655'); await page.getByLabel('Nombres').fill('Visual'); await page.getByLabel('Apellidos').fill('Prueba'); await screenshot(page, 'wizard-client', width); await next(page); await page.getByLabel('IMEI 1', { exact: false }).first().fill('359609876540004'); await page.getByLabel('El equipo tiene un segundo IMEI').check(); await page.getByLabel('IMEI 2', { exact: false }).first().fill('359609876540005'); await screenshot(page, 'wizard-imeis', width); await next(page); await page.getByLabel('Marca', { exact: true }).fill('Samsung'); await page.getByLabel('Modelo', { exact: true }).fill('Galaxy'); await screenshot(page, 'wizard-equipment', width); await next(page); await screenshot(page, 'wizard-registration', width);
-    // Return using SPA navigation: authentication intentionally survives only in memory.
+    // Navegación SPA y sesión persistente por cookie HttpOnly.
     await page.getByRole('link', { name: 'Equipos', exact: true }).first().click(); await page.getByRole('row').filter({ hasText: 'Samsung Galaxy S25 Ultra' }).getByRole('link', { name: 'Ver equipo', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Samsung Galaxy S25 Ultra', exact: true })).toBeVisible();
   }
   expect(errors).toEqual([]);
-  await page.reload(); await expect(page.getByRole('heading', { name: 'Acceso temporal' })).toBeVisible(); expect(await page.evaluate(() => ({ local: localStorage.length, session: sessionStorage.length }))).toEqual({ local: 0, session: 0 });
+  await page.reload(); await expect(page.getByRole('heading', { name: 'Samsung Galaxy S25 Ultra',exact:true })).toBeVisible(); expect(await page.evaluate(() => ({ local: localStorage.length, session: sessionStorage.length }))).toEqual({ local: 0, session: 0 });
 });
