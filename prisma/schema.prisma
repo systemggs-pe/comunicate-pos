@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EquipmentOrigin {
+  STORE
+  EXTERNAL
+}
+
+enum EquipmentStatus {
+  ACTIVE
+  RETURNED
+  BLOCKED
+  ARCHIVED
+}
+
+enum ImeiType {
+  PHYSICAL
+  ESIM
+}
+
+enum RegistrationStatus {
+  NOT_REGISTERED
+  PENDING
+  PROCESSING
+  REGISTERED
+  REJECTED
+  CANCELLED
+}
+
+enum SaleStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  TRANSFER
+  OTHER
+}
+
+enum EquipmentEventType {
+  EQUIPMENT_CREATED
+  OWNER_ASSIGNED
+  OWNER_CHANGED
+  IMEI_ADDED
+  IMEI_REGISTRATION_STARTED
+  IMEI_REGISTERED
+  IMEI_REGISTRATION_REJECTED
+  IMEI_REGISTRATION_CANCELLED
+  IMEI_REGISTRATION_UPDATED
+  SOLD
+  SALE_CANCELLED
+  EQUIPMENT_UPDATED
+}
+
+model User {
+  id              String             @id @default(uuid()) @db.Uuid
+  email           String             @unique
+  name            String
+  createdAt       DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime           @updatedAt @db.Timestamptz(3)
+  registeredImeis Imei[]
+  sales           Sale[]
+  history         EquipmentHistory[]
+  auditLogs       AuditLog[]
+}
+
+model Client {
+  id        String      @id @default(uuid()) @db.Uuid
+  code      String      @unique @default(dbgenerated("next_visible_code('client_code_seq'::regclass, 'CL-'::text)"))
+  dni       String      @unique @db.VarChar(8)
+  firstName String      @db.VarChar(100)
+  lastName  String      @db.VarChar(100)
+  phone     String?     @db.VarChar(30)
+  email     String?     @db.VarChar(254)
+  createdAt DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime    @updatedAt @db.Timestamptz(3)
+  equipment Equipment[]
+  purchases Sale[]
+}
+
+model Equipment {
+  id            String             @id @default(uuid()) @db.Uuid
+  code          String             @unique @default(dbgenerated("next_visible_code('equipment_code_seq'::regclass, 'EQ-'::text)"))
+  ownerId       String?            @db.Uuid
+  owner         Client?            @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  origin        EquipmentOrigin
+  brand         String             @db.VarChar(100)
+  model         String             @db.VarChar(100)
+  serialNumber  String?            @db.VarChar(100)
+  status        EquipmentStatus    @default(ACTIVE)
+  createdAt     DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime           @updatedAt @db.Timestamptz(3)
+  imeis         Imei[]
+  saleEquipment SaleEquipment[]
+  history       EquipmentHistory[]
+
+  @@index([ownerId])
+  @@index([brand, model])
+}
+
+model Imei {
+  id                    String             @id @default(uuid()) @db.Uuid
+  equipmentId           String             @db.Uuid
+  equipment             Equipment          @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
+  slot                  Int
+  value                 String             @unique @db.VarChar(15)
+  type                  ImeiType           @default(PHYSICAL)
+  registrationStatus    RegistrationStatus @default(NOT_REGISTERED)
+  registrationMethod    String?            @db.VarChar(100)
+  registrationStartedAt DateTime?          @db.Timestamptz(3)
+  registeredAt          DateTime?          @db.Timestamptz(3)
+  registeredById        String?            @db.Uuid
+  registeredBy          User?              @relation(fields: [registeredById], references: [id], onDelete: Restrict)
+  createdAt             DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime           @updatedAt @db.Timestamptz(3)
+  history               EquipmentHistory[]
+
+  @@unique([equipmentId, slot])
+  @@unique([id, equipmentId])
+  @@index([registrationStatus])
+}
+
+model Sale {
+  id            String          @id @default(uuid()) @db.Uuid
+  code          String          @unique @default(dbgenerated("next_visible_code('sale_code_seq'::regclass, 'SALE-'::text)"))
+  buyerId       String          @db.Uuid
+  buyer         Client          @relation(fields: [buyerId], references: [id], onDelete: Restrict)
+  status        SaleStatus      @default(PENDING)
+  total         Decimal         @db.Decimal(12, 2)
+  paymentMethod PaymentMethod
+  createdById   String?         @db.Uuid
+  createdBy     User?           @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt     DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime        @updatedAt @db.Timestamptz(3)
+  equipment     SaleEquipment[]
+
+  @@index([buyerId, createdAt])
+}
+
+model SaleEquipment {
+  id          String    @id @default(uuid()) @db.Uuid
+  saleId      String    @db.Uuid
+  sale        Sale      @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  equipmentId String    @db.Uuid
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
+  unitPrice   Decimal   @db.Decimal(12, 2)
+  isActive    Boolean   @default(false)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@unique([saleId, equipmentId])
+  @@index([equipmentId])
+}
+
+model EquipmentHistory {
+  id          String             @id @default(uuid()) @db.Uuid
+  equipmentId String             @db.Uuid
+  equipment   Equipment          @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
+  eventType   EquipmentEventType
+  imeiId      String?            @db.Uuid
+  imei        Imei?              @relation(fields: [imeiId, equipmentId], references: [id, equipmentId], onDelete: Restrict)
+  userId      String?            @db.Uuid
+  user        User?              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  metadata    Json?
+  createdAt   DateTime           @default(now()) @db.Timestamptz(3)
+
+  @@index([equipmentId, createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @db.Uuid
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Restrict)
+  action     String   @db.VarChar(100)
+  entityType String   @db.VarChar(50)
+  entityId   String   @db.Uuid
+  metadata   Json?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([entityType, entityId, createdAt])
+  @@index([userId, createdAt])
+}

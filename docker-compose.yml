@@ -1,0 +1,22 @@
+name: communicate-pos
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: communicate
+      POSTGRES_PASSWORD: communicate_local
+      POSTGRES_DB: communicate_pos
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U communicate -d communicate_pos"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 600s
+    restart: unless-stopped
+    stop_grace_period: 120s
+volumes:
+  postgres_data:
