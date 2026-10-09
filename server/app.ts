@@ -33,6 +33,13 @@ app.get('/api/dni/:dni', async (req,res) => {
   if (!['clients.create', 'sales.create', 'registration.create'].some(permission => permissions.includes(permission as typeof permissions[number]))) throw new DomainError(403,'No tienes permisos para consultar DNI.','PERMISSION_REQUIRED');
   res.json(await dniLookup.lookup(req.params.dni));
 });
+app.get('/api/registration-requests',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).listRegistrationRequests(req.query)));
+app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>res.status(201).json(await pos(req,res).createRegistrationOperation(req.body)));
+app.post('/api/registration-requests/complete',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).completeRegistrationRequests(req.body)));
+app.get('/api/registration-requests/:id',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).getRegistrationRequest(req.params.id)));
+app.patch('/api/registration-requests/:id',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).updateRegistrationRequest(req.params.id,req.body)));
+app.post('/api/registration-requests/:id/transition',async(req,res,next)=>requirePermission(req.body?.status==='CANCELLED'?'registration.cancel':'registration.update')(req,res,next),async(req,res)=>res.json(await pos(req,res).transitionRegistrationRequest(req.params.id,req.body)));
+app.patch('/api/sales/:id',requirePermission('sales.update'),async(req,res)=>res.json(await pos(req,res).updateSaleNotes(req.params.id,req.body)));
 app.post('/api/auth/logout', async (req,res) => { const state=authState(res); await auth.logout(state.sessionId,requestContext(req,state.user.id)); clearSessionCookie(res); res.json({logout:true}); });
 app.get('/api/users',requirePermission('users.read'),async (req,res)=>res.json(await users(req,res).list(req.query)));
 app.get('/api/users/:id',requirePermission('users.read'),async (req,res)=>res.json(await users(req,res).get(req.params.id)));

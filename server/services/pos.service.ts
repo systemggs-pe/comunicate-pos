@@ -1,3 +1,4 @@
+import { createRegistrationRequestsService } from './registration-requests.service.js';
 import { Prisma, type PrismaClient, type EquipmentEventType } from '@prisma/client';
 import { clientSchema, clientEditSchema, dniSchema, equipmentSchema, equipmentEditSchema, externalEquipmentSchema, idSchema, imeiSchema, imeiValueSchema, listQuerySchema, registrationFlowSchema, registrationSchema, resolveRegistrationSchema } from '../../shared/validation.js';
 import { deriveRegistrationStatus } from '../../shared/registration.js';
@@ -33,9 +34,10 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
     await audit(tx, 'CREATE', 'Equipment', equipment.id);
     return decorated(await repository.getEquipmentById(tx, equipment.id));
   }
-  async function updateRegistrationInTx(tx: Db, value: string, input: ReturnType<typeof registrationSchema.parse>) {
+  async function updateRegistrationInTx(tx: Db, value: string, input: ReturnType<typeof registrationSchema.parse>, managed = false) {
     const found = await repository.findImei(tx, value);
     if (!found) throw new DomainError(404, 'IMEI no encontrado.', 'IMEI_NOT_FOUND');
+    if (!managed && await tx.registrationRequest.findFirst({where:{imeiId:found.id,status:{not:'CANCELLED'}}})) throw new DomainError(409,'Actualiza la solicitud vinculada a este IMEI.','REQUEST_MANAGED_IMEI');
     // Ambos IMEI comparten el mismo lock de equipo, también en registros individuales.
     await lockEquipmentInTx(tx, found.equipmentId);
     if (!found.equipment.ownerId) throw new DomainError(409, 'Asigne un propietario antes de registrar el equipo.');
@@ -179,6 +181,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
       const { q, ownerId, offset, limit } = listQuerySchema.parse(raw);
       return (await db.equipment.findMany({ where: { ownerId, ...(q ? { OR: [{ code: { contains: q, mode: 'insensitive' } }, { brand: { contains: q, mode: 'insensitive' } }, { model: { contains: q, mode: 'insensitive' } }, { imeis: { some: { value: q.replace(/\s/g, '') } } }] } : {}) }, include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit })).map(decorated);
     },
+    ...createRegistrationRequestsService(db, actor, { transaction, resolveInTx, createEquipmentInTx, updateRegistrationInTx }),
     ...createSalesService(db, { transaction, history, audit, createEquipmentInTx, actor }),
   };
 }
