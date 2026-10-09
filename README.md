@@ -8,12 +8,53 @@ del sistema anterior ni integraciones comerciales.
 
 - Node.js 22.12 o superior (validado con Node 24).
 - Docker Desktop con motor Linux y Docker Compose.
+- Alternativa en Windows: PostgreSQL nativo descargado automáticamente al usar `-SinDocker` (317 MB).
 - Puerto local 55432 disponible.
 
 La URL local usa `127.0.0.1` explícitamente: el contenedor publica sólo IPv4 y
 `localhost` puede resolverse a `::1` en Windows, produciendo errores P1001 intermitentes.
 
 ## Desarrollo local
+
+### Inicio rápido en Windows
+
+Inicia Docker Desktop y, desde la carpeta del proyecto, ejecuta:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\iniciar-local.ps1
+```
+
+Si acabas de descargar el proyecto, instala primero Node.js 22.12 o superior y
+ejecuta `npm install`. Con Node/npm disponibles también puedes usar `npm run local`.
+El lanzador de Windows admite el Node incluido con Codex si no está en PATH.
+
+El inicio copia `.env.example` sólo si falta `.env`, espera a PostgreSQL en Docker,
+genera Prisma, aplica las migraciones pendientes y levanta frontend y API.
+Abre <http://127.0.0.1:5173>. Si no existe un SUPERADMIN activo, crea uno local
+con una contraseña aleatoria y guarda el acceso en `.local-admin.txt`, excluido
+de Git. También respeta las variables privadas `ADMIN_NAME`, `ADMIN_EMAIL` y
+`ADMIN_PASSWORD`. Si ya existe una cuenta administradora, conserva sus credenciales.
+
+Usa Ctrl+C para detener frontend/API. La base persiste en el volumen de Docker;
+puedes detenerla con `docker compose stop`.
+
+El inicio automático sólo acepta
+la base `communicate_pos` en el puerto local 55432. Si 5173 o el puerto de API
+está ocupado, cierra el proceso anterior y vuelve a iniciar.
+
+Para ejecutar sin Docker en Windows, usa
+`powershell -ExecutionPolicy Bypass -File .\iniciar-local.ps1 -SinDocker`
+o `npm run local -- --native`. Detén primero el contenedor con `docker compose stop`:
+ambas opciones usan el puerto 55432 y bases independientes. La base nativa persiste
+en `.local/postgres/data`, excluida de Git. Para detenerla:
+
+```powershell
+& '.\.local\postgres\runtime\pgsql\bin\pg_ctl.exe' -D '.\.local\postgres\data' -m fast -w stop
+```
+
+El runtime nativo se descarga de los [binarios oficiales distribuidos por EDB](https://www.enterprisedb.com/download-postgresql-binaries).
+
+### Preparación manual
 
 ```powershell
 npm install

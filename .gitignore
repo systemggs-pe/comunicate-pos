@@ -6,5 +6,7 @@ dist/
 .vercel/
 coverage/
 *.log
+.local-admin.txt
+.local/
 .test-results/
 playwright-report/
