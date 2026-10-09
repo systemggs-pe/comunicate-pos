@@ -36,7 +36,7 @@ export const registrationFlowSchema = z.object({
   if (new Set(input.selectedImeis).size !== input.selectedImeis.length || input.selectedImeis.some(value => !input.imeis.some(i => i.value === value))) ctx.addIssue({ code: 'custom', message: 'Seleccione únicamente IMEIs incluidos en el equipo.', path: ['selectedImeis'] });
 });
 // Montos como cadenas decimales: nunca calcular dinero con float de JavaScript.
-export const moneySchema = z.string().regex(/^(0|[1-9]\d{0,9})(\.\d{1,2})?$/);
+export const moneySchema = z.string().regex(/^(0|[1-9]\d{0,9})(\.\d{1,2})?$/, 'Usa un precio no negativo con hasta dos decimales.');
 export const saleSchema = z.object({ buyerId: idSchema, status: z.enum(['PENDING', 'COMPLETED']).default('PENDING'), paymentMethod: z.enum(['CASH', 'YAPE', 'PLIN', 'CARD', 'TRANSFER', 'OTHER']), discount: moneySchema.default('0'), notes: z.string().trim().max(1000).optional(), createdById: idSchema.optional(), items: z.array(z.object({ equipmentId: idSchema, unitPrice: moneySchema }).strict()).min(1).max(100) }).strict().superRefine((v, ctx) => {
   if (new Set(v.items.map(i => i.equipmentId)).size !== v.items.length) ctx.addIssue({ code: 'custom', message: 'Equipo repetido en venta', path: ['items'] });
 });

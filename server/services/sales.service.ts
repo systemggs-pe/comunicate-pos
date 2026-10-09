@@ -177,7 +177,7 @@ export function createSalesService(db: PrismaClient, helpers: Dependencies) {
 
     },
 
-    updateSaleNotes: (id: unknown, raw: unknown) => { const saleId=idSchema.parse(id); const input=z.object({notes:z.string().trim().max(1000)}).strict().parse(raw); return transaction(async tx=>{ const sale=await repository.getSaleById(tx,saleId); if(!['PENDING','COMPLETED'].includes(sale.status))throw new DomainError(409,'La venta no admite correcciones.','SALE_INVALID_STATUS'); await tx.sale.update({where:{id:saleId},data:input}); await audit(tx,'UPDATE','Sale',saleId,undefined,{fields:['notes']}); return detail(tx,saleId); }); },
+    updateSaleNotes: (id: unknown, raw: unknown) => { const saleId=idSchema.parse(id); const input=z.object({notes:z.string().trim().max(1000)}).strict().parse(raw); return transaction(async tx=>{ await tx.$queryRaw`SELECT id FROM "Sale" WHERE id = ${saleId}::uuid FOR UPDATE`; const sale=await repository.getSaleById(tx,saleId); if(!['PENDING','COMPLETED'].includes(sale.status))throw new DomainError(409,'La venta no admite correcciones.','SALE_INVALID_STATUS'); await tx.sale.update({where:{id:saleId},data:input}); await audit(tx,'UPDATE','Sale',saleId,undefined,{fields:['notes']}); return detail(tx,saleId); }); },
 
     getSaleById: (id: unknown) => detail(db, idSchema.parse(id)),
 
