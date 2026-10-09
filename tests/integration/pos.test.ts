@@ -22,7 +22,7 @@ beforeEach(async () => {
   // DELETE transaccional evita recrear archivos de cada tabla con TRUNCATE
   // en Docker Desktop, y mantiene todas las FKs y los triggers activados.
   await db.$transaction([
-    db.session.deleteMany(), db.authRateLimit.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(),
+    db.session.deleteMany(), db.authRateLimit.deleteMany(), db.registrationRequestHistory.deleteMany(), db.registrationRequest.deleteMany(), db.registrationOperation.deleteMany(), db.saleAccessory.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(),
     db.saleEquipment.deleteMany(), db.sale.deleteMany(),
     db.imei.deleteMany(), db.equipment.deleteMany(),
     db.client.deleteMany(), db.user.deleteMany(),

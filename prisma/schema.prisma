@@ -86,6 +86,10 @@ model User {
   sales           Sale[]
   history         EquipmentHistory[]
   auditLogs       AuditLog[]
+  registrationOperations RegistrationOperation[]
+  registrationRequests RegistrationRequest[] @relation("RequestCreator")
+  updatedRequests RegistrationRequest[] @relation("RequestUpdater")
+  requestHistory RegistrationRequestHistory[]
 }
 
 model Client {
@@ -111,6 +115,10 @@ model Equipment {
   brand         String             @db.VarChar(100)
   model         String             @db.VarChar(100)
   serialNumber  String?            @db.VarChar(100)
+  commercialName String?           @db.VarChar(100)
+  color         String?           @db.VarChar(100)
+  ram           String?           @db.VarChar(100)
+  storage       String?           @db.VarChar(100)
   status        EquipmentStatus    @default(ACTIVE)
   createdAt     DateTime           @default(now()) @db.Timestamptz(3)
   updatedAt     DateTime           @updatedAt @db.Timestamptz(3)
@@ -138,6 +146,7 @@ model Imei {
   createdAt             DateTime           @default(now()) @db.Timestamptz(3)
   updatedAt             DateTime           @updatedAt @db.Timestamptz(3)
   history               EquipmentHistory[]
+  requests              RegistrationRequest[]
 
   @@unique([equipmentId, slot])
   @@unique([id, equipmentId])
@@ -153,12 +162,16 @@ model Sale {
   total         Decimal         @db.Decimal(12, 2)
   discount      Decimal         @default(0) @db.Decimal(12, 2)
   notes         String?         @db.VarChar(1000)
+  occurredAt    DateTime        @default(now()) @db.Timestamptz(3)
+  idempotencyKey String?        @unique @db.Uuid
+  requestHash   String?         @db.VarChar(64)
   paymentMethod PaymentMethod
   createdById   String?         @db.Uuid
   createdBy     User?           @relation(fields: [createdById], references: [id], onDelete: Restrict)
   createdAt     DateTime        @default(now()) @db.Timestamptz(3)
   updatedAt     DateTime        @updatedAt @db.Timestamptz(3)
   equipment     SaleEquipment[]
+  accessories   SaleAccessory[]
 
   @@index([buyerId, createdAt])
 }
@@ -243,4 +256,81 @@ model AuthRateLimit {
   attempts  Int
   expiresAt DateTime @db.Timestamptz(3)
   @@index([expiresAt])
+}
+
+enum RequestStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+enum OperationalBlockStatus {
+  BLOCKED
+  NOT_BLOCKED
+}
+enum Operator {
+  CLARO
+  MOVISTAR
+  ENTEL
+  BITEL
+}
+model RegistrationOperation {
+  id String @id @default(uuid()) @db.Uuid
+  idempotencyKey String @unique @db.Uuid
+  requestHash String @db.VarChar(64)
+  createdById String @db.Uuid
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  requests RegistrationRequest[]
+}
+model RegistrationRequest {
+  id String @id @default(uuid()) @db.Uuid
+  code String @unique @default(dbgenerated("next_visible_code('registration_code_seq'::regclass, 'RECO-'::text)"))
+  operationId String @db.Uuid
+  operation RegistrationOperation @relation(fields: [operationId], references: [id], onDelete: Restrict)
+  imeiId String @db.Uuid
+  imei Imei @relation(fields: [imeiId], references: [id], onDelete: Restrict)
+  status RequestStatus @default(PENDING)
+  blockStatus OperationalBlockStatus
+  operator Operator
+  phone String @db.VarChar(9)
+  referencePhone String? @db.VarChar(9)
+  address String @db.VarChar(300)
+  department String @db.VarChar(100)
+  email String @db.VarChar(254)
+  price Decimal @db.Decimal(12,2)
+  hasBox Boolean
+  conditions String @db.VarChar(1000)
+  occurredAt DateTime @db.Timestamptz(3)
+  completedAt DateTime? @db.Timestamptz(3)
+  createdById String @db.Uuid
+  createdBy User @relation("RequestCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedById String @db.Uuid
+  updatedBy User @relation("RequestUpdater", fields: [updatedById], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  history RegistrationRequestHistory[]
+  @@unique([operationId, imeiId])
+  @@index([imeiId, createdAt])
+  @@index([status, createdAt])
+}
+model RegistrationRequestHistory {
+  id String @id @default(uuid()) @db.Uuid
+  requestId String @db.Uuid
+  request RegistrationRequest @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  action String @db.VarChar(50)
+  metadata Json?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@index([requestId, createdAt])
+}
+model SaleAccessory {
+  id String @id @default(uuid()) @db.Uuid
+  saleId String @db.Uuid
+  sale Sale @relation(fields: [saleId], references: [id], onDelete: Restrict)
+  name String @db.VarChar(100)
+  quantity Int
+  unitPrice Decimal @db.Decimal(12,2)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  @@index([saleId])
 }

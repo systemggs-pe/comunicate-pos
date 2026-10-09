@@ -15,7 +15,7 @@ const db = new PrismaClient({ datasources: { db: { url } } });
 const provider = { lookup: vi.fn(new MockDniProvider().lookup.bind(new MockDniProvider())) };
 const app = createApp(db, { dniProvider: provider, dniOptions: { timeoutMs: 40, backoffMs: 1 } });
 beforeEach(async () => {
-  await db.$transaction([db.session.deleteMany(), db.authRateLimit.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]);
+  await db.$transaction([db.session.deleteMany(), db.authRateLimit.deleteMany(), db.registrationRequestHistory.deleteMany(), db.registrationRequest.deleteMany(), db.registrationOperation.deleteMany(), db.saleAccessory.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]);
   await db.rolePermission.deleteMany({ where: { role: { code: 'DNI_TEST' } } }); await db.role.deleteMany({ where: { code: 'DNI_TEST' } });
   provider.lookup.mockReset().mockImplementation(new MockDniProvider().lookup.bind(new MockDniProvider()));
   await seedTestAdmin(db);

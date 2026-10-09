@@ -10,7 +10,7 @@ const url=process.env.TEST_DATABASE_URL!;const target=new URL(url);if(!['localho
 const db=new PrismaClient({datasources:{db:{url}}});const sellerEmail='e2e-seller@example.com';
 test.describe.configure({mode:'serial'});
 test.beforeAll(async()=>{
- await db.$transaction([db.session.deleteMany(),db.authRateLimit.deleteMany(),db.equipmentHistory.deleteMany(),db.auditLog.deleteMany(),db.saleEquipment.deleteMany(),db.sale.deleteMany(),db.imei.deleteMany(),db.equipment.deleteMany(),db.client.deleteMany(),db.user.deleteMany()]);
+ await db.$transaction([db.session.deleteMany(),db.authRateLimit.deleteMany(),db.registrationRequestHistory.deleteMany(), db.registrationRequest.deleteMany(), db.registrationOperation.deleteMany(), db.saleAccessory.deleteMany(), db.equipmentHistory.deleteMany(),db.auditLog.deleteMany(),db.saleEquipment.deleteMany(),db.sale.deleteMany(),db.imei.deleteMany(),db.equipment.deleteMany(),db.client.deleteMany(),db.user.deleteMany()]);
  const require=createRequire(import.meta.url);const run=promisify(execFile);
  await run(process.execPath,[require.resolve('tsx/cli'),'scripts/seed-admin.ts'],{env:{...process.env,DATABASE_URL:url,ADMIN_NAME:'Administrador de prueba',ADMIN_EMAIL:testEmail,ADMIN_PASSWORD:testPassword}});
  await run(process.execPath,[require.resolve('tsx/cli'),'scripts/seed-admin.ts'],{env:{...process.env,DATABASE_URL:url,ADMIN_NAME:'Administrador de prueba',ADMIN_EMAIL:testEmail,ADMIN_PASSWORD:testPassword}});

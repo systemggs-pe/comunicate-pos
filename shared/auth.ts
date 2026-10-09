@@ -3,8 +3,8 @@ import { idSchema, listQuerySchema } from './validation.js';
 export const permissionKeys = [
   'clients.read', 'clients.create', 'clients.update',
   'equipment.read', 'equipment.create', 'equipment.update',
-  'registration.read', 'registration.create', 'registration.update',
-  'sales.read', 'sales.create', 'sales.cancel',
+  'registration.read', 'registration.create', 'registration.update', 'registration.cancel',
+  'sales.read', 'sales.create', 'sales.cancel', 'sales.update',
   'users.read', 'users.create', 'users.update', 'users.disable',
   'roles.read', 'roles.update', 'audit.read', 'settings.read', 'settings.update',
 ] as const;
