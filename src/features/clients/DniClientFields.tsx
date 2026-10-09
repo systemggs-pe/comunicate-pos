@@ -1,3 +1,4 @@
+import { ValidatedInput } from '../../components/FormValidation';
 import { ClientFields, emptyClient, type ClientFieldsValue } from './ClientFields';
 import type { DniLookupState } from '../../hooks/useDniLookup';
 import type { Client } from '../../types/pos';
@@ -8,7 +9,7 @@ export function DniClientFields({ value, onChange, lookup, onUse }: {
 }) {
   const local = lookup.localClient;
   return <div className="dni-client-fields">
-    <label>DNI<input name="dni" inputMode="numeric" autoComplete="off" maxLength={12} required value={value.dni} onChange={event => onChange({ ...emptyClient, dni: event.target.value })} /><span className="form-hint">8 dígitos. Primero buscamos el cliente existente.</span></label>
+    <label>DNI<ValidatedInput aria-label="DNI" name="dni" inputMode="numeric" autoComplete="off" maxLength={12} required value={value.dni} onChange={event => onChange({ ...emptyClient, dni: event.target.value })} /><span className="form-hint">8 dígitos. Primero buscamos el cliente existente.</span></label>
     {!!value.dni && !lookup.valid && <p className="form-hint">Completa ocho dígitos para consultar el DNI.</p>}
     {lookup.loading && <div className="dni-notice" role="status"><p>Consultando DNI...</p><button type="button" className="text-button" onClick={lookup.useManual}>Ingresar datos manualmente</button></div>}
     {local ? <div className="lookup-result" role="status"><strong>Cliente encontrado</strong><p>{local.firstName} {local.lastName}</p><p>{local.code} · DNI {local.dni}</p><p>{local.phone || 'Sin celular'}{local.email ? ` · ${local.email}` : ''}</p>{onUse && <button type="button" className="secondary-button" onClick={() => onUse(local)}>Usar cliente</button>}</div> : <>

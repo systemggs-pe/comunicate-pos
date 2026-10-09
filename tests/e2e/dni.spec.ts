@@ -50,12 +50,12 @@ test('C: provider caído permite crear cliente manual', async ({ page }) => {
   await page.getByRole('button', { name: 'Crear cliente', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Manual Pérez', exact: true })).toBeVisible(); expect(await db.client.count()).toBe(1);
 });
 test('criterio principal: registro por DNI externo, contactos, equipo/IMEI y posterior reutilización local', async ({ page }) => {
-  const fields = await openDraft(page, '/registros/nuevo'); await fields.getByLabel('DNI', { exact: false }).fill('12345678');
+  const fields = await openDraft(page, '/registros/tecnico'); await fields.getByLabel('DNI', { exact: false }).fill('12345678');
   await expect(fields.getByLabel('Nombres', { exact: true })).toHaveValue('Ana María'); await fields.getByLabel('Celular', { exact: false }).fill('999111222'); await fields.getByLabel('Correo', { exact: false }).fill('registration-fixture@example.test');
   expect(await db.client.count()).toBe(0); await completeRegistration(page, '359123456780001');
   const client = await db.client.findUniqueOrThrow({ where: { dni: '12345678' } }); expect(client.phone).toBe('999111222'); expect(client.email).toBe('registration-fixture@example.test');
   expect(await db.equipment.count()).toBe(1); expect(await db.imei.count()).toBe(1);
-  const repeated = await openDraft(page, '/registros/nuevo'); const response = page.waitForResponse(res => res.url().endsWith('/api/dni/12345678'));
+  const repeated = await openDraft(page, '/registros/tecnico'); const response = page.waitForResponse(res => res.url().endsWith('/api/dni/12345678'));
   await repeated.getByLabel('DNI', { exact: false }).fill('12345678'); expect((await (await response).json()).source).toBe('LOCAL');
   await expect(repeated.getByText('Cliente encontrado', { exact: true })).toBeVisible(); await page.getByRole('button', { name: 'Continuar', exact: true }).click();
   await page.getByLabel('IMEI 1', { exact: false }).first().fill('359123456780001'); await page.getByRole('button', { name: 'Continuar', exact: true }).click();
@@ -63,13 +63,13 @@ test('criterio principal: registro por DNI externo, contactos, equipo/IMEI y pos
   await expect(page.getByRole('heading', { name: 'Honor DNI Fixture', exact: true })).toBeVisible(); expect(await db.client.count()).toBe(1); expect(await db.equipment.count()).toBe(1);
 });
 test('registro manual funciona con provider caído', async ({ page }) => {
-  const fields = await openDraft(page, '/registros/nuevo'); await fields.getByLabel('DNI', { exact: false }).fill('99999999');
+  const fields = await openDraft(page, '/registros/tecnico'); await fields.getByLabel('DNI', { exact: false }).fill('99999999');
   await expect(fields.getByText('No pudimos consultar el DNI', { exact: false })).toBeVisible(); await fields.getByLabel('Nombres', { exact: true }).fill('Manual'); await fields.getByLabel('Apellidos', { exact: true }).fill('Registro');
   await completeRegistration(page, '359999999990001'); expect(await db.client.count()).toBe(1); expect(await db.imei.count()).toBe(1);
 });
 test('ventas reutiliza consulta para comprador nuevo y propietario diferente', async ({ page }) => {
   const buyer = await openDraft(page, '/ventas/nueva'); await buyer.getByLabel('DNI', { exact: false }).fill('12345678'); await expect(buyer.getByLabel('Nombres', { exact: true })).toHaveValue('Ana María');
-  const item = page.getByTestId('sale-item-0'); await item.getByLabel('Marca', { exact: true }).fill('Xiaomi'); await item.getByLabel('Modelo', { exact: true }).fill('DNI Venta'); await item.getByLabel('IMEI 1 del equipo 1', { exact: true }).fill('359123456780001'); await item.getByLabel('Precio del equipo 1 (S/)', { exact: true }).fill('1000');
+  const item = page.getByTestId('sale-item-0'); await item.getByLabel('Nombre comercial',{exact:true}).fill('Equipo fixture');await item.getByLabel('Marca', { exact: true }).fill('Xiaomi'); await item.getByLabel('Modelo', { exact: true }).fill('DNI Venta'); await item.getByLabel('IMEI 1 del equipo 1', { exact: true }).fill('359123456780001'); await item.getByLabel('Precio del equipo 1 (S/)', { exact: true }).fill('1000');
   await item.getByLabel('Propietario distinto del comprador para equipo 1').check(); await item.getByRole('button', { name: 'Crear propietario del equipo 1 nuevo', exact: true }).click();
   const owner = item.locator('.dni-client-fields'); await owner.getByLabel('DNI', { exact: false }).fill('12345679'); await expect(owner.getByLabel('Nombres', { exact: true })).toHaveValue('Luis Andrés');
   expect(await db.client.count()).toBe(0); await page.getByRole('button', { name: 'Revisar venta', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Resumen de venta', exact: true })).toBeVisible(); expect(await db.client.count()).toBe(0);
@@ -79,7 +79,7 @@ test('ventas reutiliza consulta para comprador nuevo y propietario diferente', a
 test('venta manual sigue operativa ante caída del provider', async ({ page }) => {
   const buyer = await openDraft(page, '/ventas/nueva'); await buyer.getByLabel('DNI', { exact: false }).fill('99999999'); await expect(buyer.getByText('No pudimos consultar el DNI', { exact: false })).toBeVisible();
   await buyer.getByLabel('Nombres', { exact: true }).fill('Manual'); await buyer.getByLabel('Apellidos', { exact: true }).fill('Venta');
-  const item = page.getByTestId('sale-item-0'); await item.getByLabel('Marca', { exact: true }).fill('Apple'); await item.getByLabel('Modelo', { exact: true }).fill('iPhone'); await item.getByLabel('IMEI 1 del equipo 1', { exact: true }).fill('359999999990001'); await item.getByLabel('Precio del equipo 1 (S/)', { exact: true }).fill('1000');
+  const item = page.getByTestId('sale-item-0'); await item.getByLabel('Nombre comercial',{exact:true}).fill('Equipo fixture');await item.getByLabel('Marca', { exact: true }).fill('Apple'); await item.getByLabel('Modelo', { exact: true }).fill('iPhone'); await item.getByLabel('IMEI 1 del equipo 1', { exact: true }).fill('359999999990001'); await item.getByLabel('Precio del equipo 1 (S/)', { exact: true }).fill('1000');
   await page.getByRole('button', { name: 'Revisar venta', exact: true }).click(); await page.getByRole('button', { name: 'Confirmar venta', exact: true }).click(); await expect(page.getByText('Venta registrada correctamente.', { exact: false })).toBeVisible(); expect(await db.client.count()).toBe(1);
 });
 test('consulta tardía no sobrescribe correcciones manuales ni datos de otro DNI', async ({ page }) => {
@@ -90,6 +90,8 @@ test('consulta tardía no sobrescribe correcciones manuales ni datos de otro DNI
   await expect(fields.getByLabel('Nombres', { exact: true })).toHaveValue('Lucía Elena'); await expect(fields.getByLabel('Apellidos', { exact: true })).toHaveValue('Peña del Río');
 });
 test('DNI compartido responsive: loading, autofill y fallback en los tres formularios', async ({ page }) => {
+  // Esta matriz abandona borradores intencionalmente; aceptar la advertencia de salida.
+  page.on('dialog',dialog=>dialog.accept());
   await page.route('**/api/dni/*', async route => { await new Promise(resolve => setTimeout(resolve, 800)); await route.continue().catch(() => {}); });
   for (const width of [1280, 375, 390, 430]) {
     await page.setViewportSize({ width, height: 900 });

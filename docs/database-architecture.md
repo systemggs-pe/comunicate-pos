@@ -216,3 +216,24 @@ ni almacena respuestas crudas, token, teléfono/correo externos o campos duplica
 Ante fallo externo la captura manual sigue operativa.
 
 Detalles de proveedor, seguridad, límites y contrato: [Phase 5](phase-5-dni-automation.md).
+
+## Evolución — Atención operativa por IMEI y accesorios
+
+Nueva migración `20261009000100_operational_workflows`, sin modificar las previas.
+RegistrationOperation agrupa una confirmación idempotente por actor/hash y
+RegistrationRequest enlaza cada atención a Imei; RegistrationRequestHistory
+conserva correcciones/transiciones. El precio, teléfono, dirección/correo y
+condiciones son snapshots operativos legítimos, separados de Client.
+UNIQUE parcial protege una solicitud vigente por IMEI; UNIQUE por operación/phone
+impide celulares iguales en un registro doble. CHECK y triggers diferidos verifican
+teléfonos, precio, completedAt y sincronización con Imei.registrationStatus.
+Las dos solicitudes y las altas necesarias se confirman en una transacción.
+
+SaleAccessory guarda cantidades y precios históricos sin Equipment ni IMEI.
+Los triggers diferidos de total incluyen equipos y accesorios menos descuento;
+se conservan la exclusividad de venta activa y FKs RESTRICT. Sale.occurredAt
+separa fecha comercial de createdAt y se inicializa desde las fechas históricas.
+Equipment agrega nombre comercial, RAM/ROM/color opcionales para datos anteriores.
+No se migra la identidad DNI, no se duplican datos canónicos ni se almacenan fotos.
+
+Política, endpoints, estados, edición y límites: [Flujos operativos](operational-workflows.md).

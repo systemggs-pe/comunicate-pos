@@ -24,7 +24,7 @@ for (const [index, brand] of ['Samsung', 'Honor', 'Xiaomi', 'Motorola', 'Apple',
     await page.getByLabel('Contraseña', { exact: true }).fill(testPassword);
     await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Registro de equipos', exact: true })).toBeVisible();
-    await page.goto('/registros/nuevo');
+    await page.goto('/registros/tecnico');
     await page.getByLabel('DNI', { exact: false }).fill(dni);
     await page.getByLabel('Nombres').fill('Prueba'); await page.getByLabel('Apellidos').fill(brand);
     await page.getByRole('button', { name: 'Continuar', exact: true }).click();
@@ -43,7 +43,7 @@ for (const [index, brand] of ['Samsung', 'Honor', 'Xiaomi', 'Motorola', 'Apple',
     await expect(page.getByTestId('imei-card-1').getByText('Registrado', { exact: true })).toBeVisible();
     await expect(page.getByTestId('imei-card-2').getByText('No registrado', { exact: true })).toBeVisible();
     // Buscar únicamente IMEI 2 debe ofrecer también IMEI 1 ya asociado.
-    await page.goto('/registros/nuevo'); await page.getByLabel('DNI', { exact: false }).fill(dni);
+    await page.goto('/registros/tecnico'); await page.getByLabel('DNI', { exact: false }).fill(dni);
     await expect(page.getByText('Cliente encontrado', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Continuar', exact: true }).click();
     await page.getByLabel('IMEI 1', { exact: false }).first().fill(second);

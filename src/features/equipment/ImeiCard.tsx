@@ -1,3 +1,4 @@
+import { Link } from '../../app/router';
 import { useAuth } from '../../app/AuthProvider';
 import { useState } from 'react';
 import { useApi } from '../../app/ApiProvider';
@@ -17,7 +18,7 @@ export function ImeiCard({ imei, equipment, onSaved }: { imei: Imei; equipment: 
     <div className="section-heading"><h3>IMEI {imei.slot}</h3><StatusBadge status={imei.registrationStatus} /></div>
     <p className="imei-value">{imei.value}</p><p className="muted">{statusLabels[imei.type]}{imei.registrationMethod ? ` · ${imei.registrationMethod}` : ''}</p>
     {imei.registeredAt && <p className="form-hint">Registrado: {formatDate(imei.registeredAt)}</p>}
-    {can('registration.update') && (!editing ? <button className="secondary-button" disabled={!equipment.ownerId} onClick={() => setEditing(true)}>Actualizar IMEI {imei.slot}</button> : <form onSubmit={async event => {
+    {imei.requests?.some(r=>r.status!=='CANCELLED')?<p><Link className="inline-link" to={`/registros/${imei.requests.find(r=>r.status!=='CANCELLED')!.id}`}>Gestionar solicitud vinculada</Link></p>:can('registration.update') && (!editing ? <button className="secondary-button" disabled={!equipment.ownerId} onClick={() => setEditing(true)}>Actualizar IMEI {imei.slot}</button> : <form onSubmit={async event => {
       event.preventDefault(); const result = await submit.run(() => api.patch<Equipment>(`/imeis/${imei.value}/registration`, registrationSchema.parse({ status, method: method.trim() || null, ownerId: equipment.ownerId })));
       if (result) { setEditing(false); onSaved(); }
     }}><RegistrationFields status={status} method={method} onStatus={setStatus} onMethod={setMethod} /><ErrorNotice message={submit.error} /><div className="form-actions"><button className="primary-button" disabled={submit.busy}>{submit.busy ? 'Guardando...' : `Guardar IMEI ${imei.slot}`}</button><button className="text-button" type="button" disabled={submit.busy} onClick={() => setEditing(false)}>Cancelar</button></div></form>)}

@@ -305,3 +305,20 @@ DNI_API_TOKEN, DNI_TIMEOUT_MS y DNI_CACHE_TTL_MS solo en servidor, según
 `.env.example`. Nunca use variables VITE para credenciales. El adaptador API
 está preparado y probado con fetch simulado; proveedor comercial real no verificado.
 Sin cambio de esquema ni migración. Capturas: `.test-results/phase-5-dni`.
+
+## Flujos operativos — Registros y ventas
+
+[Análisis de diferencias](docs/workflow-gap-analysis.md) y
+[modelo, operación y políticas](docs/operational-workflows.md).
+Nueva migración `20261009000100_operational_workflows`: solicitudes por IMEI,
+contacto histórico de atención, accesorios de venta y fecha comercial. Para la
+base local existente ejecute `npm run db:deploy` o el arranque local habitual.
+Las migraciones anteriores se conservan; no use db push.
+
+`/registros` ofrece seguimiento y `/registros/nuevo` revisión explícita de cliente,
+equipo, objetivos, condiciones y evidencias temporales. Registrar ambos IMEIs
+crea dos solicitudes atómicas con celulares distintos. Realizar uno conserva
+pendiente el otro. Fotos no se suben ni se respaldan; PDF/ticket no disponibles.
+Ventas conserva múltiples equipos y propietarios independientes, agrega accesorios
+con cantidades/precios exactos y advierte IMEIs ya vendidos. DNI es el documento
+actualmente habilitado; CE/pasaporte/RUC requieren una ampliación futura segura.
