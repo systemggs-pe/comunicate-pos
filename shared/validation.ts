@@ -7,22 +7,22 @@ export const idSchema = z.uuid();
 const text = z.string().trim().transform(v => v.replace(/\s+/g, ' ')).pipe(z.string().min(1, 'Este campo es obligatorio.').max(100, 'Máximo 100 caracteres.'));
 export const clientSchema = z.object({ dni: dniSchema, firstName: text, lastName: text, phone: z.string().trim().max(30).optional(), email: z.email().max(254).optional() }).strict();
 export const imeiSchema = z.object({ slot: z.number().int().min(1).max(2), value: imeiValueSchema, type: z.enum(['PHYSICAL', 'ESIM']).default('PHYSICAL') }).strict();
-export const equipmentSchema = z.object({ ownerId: idSchema.optional(), origin: z.enum(['STORE', 'EXTERNAL']), brand: text, model: text, serialNumber: text.optional(), imeis: z.array(imeiSchema).min(1).max(2) }).strict().superRefine((v, ctx) => {
+// Un segundo campo vacío no crea un IMEI. Un valor no vacío inválido se rechaza.
+export const imeiListSchema = z.preprocess(value => Array.isArray(value) && value.length <= 2
+  ? value.filter(imei => !(imei?.slot === 2 && typeof imei.value === 'string' && !imei.value.trim()))
+  : value, z.array(imeiSchema).min(1).max(2).superRefine((imeis, ctx) => {
+  if (new Set(imeis.map(i => i.value)).size !== imeis.length) ctx.addIssue({ code: 'custom', message: 'Los IMEIs deben ser diferentes.' });
+  if (new Set(imeis.map(i => i.slot)).size !== imeis.length) ctx.addIssue({ code: 'custom', message: 'Los slots deben ser diferentes.' });
+}));
+export const equipmentSchema = z.object({ ownerId: idSchema.optional(), origin: z.enum(['STORE', 'EXTERNAL']), brand: text, model: text, serialNumber: text.optional(), imeis: imeiListSchema }).strict().superRefine((v, ctx) => {
   if (v.origin === 'EXTERNAL' && !v.ownerId) ctx.addIssue({ code: 'custom', message: 'Equipo externo requiere propietario', path: ['ownerId'] });
-  if (new Set(v.imeis.map(i => i.value)).size !== v.imeis.length) ctx.addIssue({ code: 'custom', message: 'Los IMEIs deben ser diferentes', path: ['imeis'] });
-  if (new Set(v.imeis.map(i => i.slot)).size !== v.imeis.length) ctx.addIssue({ code: 'custom', message: 'Los slots deben ser diferentes', path: ['imeis'] });
 });
-export const externalEquipmentSchema = z.object({ client: clientSchema, brand: text, model: text, serialNumber: text.optional(), imeis: z.array(imeiSchema).min(1).max(2) }).strict().superRefine((v, ctx) => {
-  if (new Set(v.imeis.map(i => i.value)).size !== v.imeis.length || new Set(v.imeis.map(i => i.slot)).size !== v.imeis.length) ctx.addIssue({ code: 'custom', message: 'IMEIs y slots deben ser diferentes', path: ['imeis'] });
-});
+export const externalEquipmentSchema = z.object({ client: clientSchema, brand: text, model: text, serialNumber: text.optional(), imeis: imeiListSchema }).strict();
 export const registrationSchema = z.object({ status: z.enum(['NOT_REGISTERED', 'PENDING', 'PROCESSING', 'REGISTERED', 'REJECTED', 'CANCELLED']), method: text.nullable().optional(), userId: idSchema.optional(), ownerId: idSchema.optional() }).strict();
 export const clientEditSchema = z.object({ firstName: text, lastName: text, phone: z.string().trim().max(30).nullable().optional(), email: z.string().trim().pipe(z.email().max(254)).nullable().optional() }).strict();
 export const equipmentEditSchema = z.object({ brand: text, model: text, serialNumber: text.nullable().optional() }).strict();
 export const listQuerySchema = z.object({ q: z.string().trim().max(100).default(''), ownerId: idSchema.optional(), offset: z.coerce.number().int().min(0).max(1000000).default(0), limit: z.coerce.number().int().min(1).max(100).default(20) }).strict();
-const imeisInput = z.array(imeiSchema).min(1).max(2).superRefine((imeis, ctx) => {
-  if (new Set(imeis.map(i => i.value)).size !== imeis.length) ctx.addIssue({ code: 'custom', message: 'Los IMEIs deben ser diferentes.' });
-  if (new Set(imeis.map(i => i.slot)).size !== imeis.length) ctx.addIssue({ code: 'custom', message: 'Los slots deben ser diferentes.' });
-});
+const imeisInput = imeiListSchema;
 export const resolveRegistrationSchema = z.object({ dni: dniSchema, imeis: imeisInput }).strict();
 export const registrationFlowSchema = z.object({
   client: clientSchema,

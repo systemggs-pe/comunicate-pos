@@ -36,6 +36,8 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
   async function updateRegistrationInTx(tx: Db, value: string, input: ReturnType<typeof registrationSchema.parse>) {
     const found = await repository.findImei(tx, value);
     if (!found) throw new DomainError(404, 'IMEI no encontrado.', 'IMEI_NOT_FOUND');
+    // Ambos IMEI comparten el mismo lock de equipo, también en registros individuales.
+    await lockEquipmentInTx(tx, found.equipmentId);
     if (!found.equipment.ownerId) throw new DomainError(409, 'Asigne un propietario antes de registrar el equipo.');
     if (input.ownerId && input.ownerId !== found.equipment.ownerId) throw new DomainError(409, 'Este equipo ya está asociado a otro cliente.', 'OWNER_MISMATCH');
     if (found.registrationStatus === input.status && (input.method === undefined || input.method === found.registrationMethod)) return decorated(found.equipment);
@@ -55,6 +57,9 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
     await history(tx, found.equipmentId, events[input.status], found.id, input.userId, { from: found.registrationStatus, to: input.status, previousMethod: found.registrationMethod, method: input.method === undefined ? found.registrationMethod : input.method });
     await audit(tx, 'REGISTRATION_UPDATE', 'Imei', found.id, input.userId, { from: found.registrationStatus, to: input.status });
     return decorated(await repository.getEquipmentById(tx, found.equipmentId));
+  }
+  async function lockEquipmentInTx(tx: Db, equipmentId: string) {
+    await tx.$queryRaw`SELECT id FROM "Equipment" WHERE id = ${equipmentId}::uuid FOR UPDATE`;
   }
   async function resolveInTx(tx: Db, raw: ReturnType<typeof resolveRegistrationSchema.parse>) {
     const matches = await tx.imei.findMany({ where: { value: { in: raw.imeis.map(i => i.value) } }, include: { equipment: { include: { owner: true } } } });
@@ -109,6 +114,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
           if (!client) { client = await tx.client.create({ data: input.client }); await audit(tx, 'CREATE', 'Client', client.id); }
           equipment = await createEquipmentInTx(tx, equipmentSchema.parse({ ...input.equipment, serialNumber: input.equipment.serialNumber ?? undefined, ownerId: client.id, origin: 'EXTERNAL', imeis: input.imeis }));
         } else {
+          await lockEquipmentInTx(tx, equipment.id);
           for (const imei of resolved.additions) {
             const created = await tx.imei.create({ data: { ...imei, equipmentId: equipment.id } });
             await history(tx, equipment.id, 'IMEI_ADDED', created.id);
@@ -140,7 +146,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
     findEquipmentByImei: async (value: unknown) => { const imei = await repository.findImei(db, imeiValueSchema.parse(value)); return imei ? decorated(imei.equipment) : null; },
     addImeiToEquipment: (id: unknown, raw: unknown) => {
       const equipmentId = idSchema.parse(id); const input = imeiSchema.parse(raw);
-      return transaction(async tx => { await repository.getEquipmentById(tx, equipmentId); const imei = await tx.imei.create({ data: { equipmentId, ...input } }); await history(tx, equipmentId, 'IMEI_ADDED', imei.id); await audit(tx, 'CREATE', 'Imei', imei.id); return decorated(await repository.getEquipmentById(tx, equipmentId)); });
+      return transaction(async tx => { await lockEquipmentInTx(tx, equipmentId); await repository.getEquipmentById(tx, equipmentId); const imei = await tx.imei.create({ data: { equipmentId, ...input } }); await history(tx, equipmentId, 'IMEI_ADDED', imei.id); await audit(tx, 'CREATE', 'Imei', imei.id); return decorated(await repository.getEquipmentById(tx, equipmentId)); });
     },
     updateImeiRegistrationStatus: (value: unknown, raw: unknown) => {
       const normalized = imeiValueSchema.parse(value); const input = registrationSchema.parse(raw);
