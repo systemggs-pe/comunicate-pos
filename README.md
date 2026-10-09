@@ -289,3 +289,19 @@ administrativo común, incluso con cambios concurrentes. ADMIN no gestiona SUPER
 Editar permisos de ADMIN/SELLER requiere SUPERADMIN; invalidará las sesiones del rol.
 La auditoría identifica actor real sin guardar contraseñas, hashes o tokens.
 E2E y capturas de Phase 4 se guardan en `.test-results/phase-4-visual`, ignorado por Git.
+
+## Phase 5 — Consulta DNI
+
+[Arquitectura, configuración y pruebas](docs/phase-5-dni-automation.md).
+Clientes, registros, comprador y propietario distinto comparten consulta DNI.
+Primero PostgreSQL: los datos locales tienen prioridad y nunca se sobrescriben
+con datos externos. Si no existe Client, se prellenan nombres editables y los
+contactos se ingresan manualmente. La confirmación mantiene la creación canónica;
+consultar no crea clientes. Una caída del proveedor permite continuar manualmente.
+
+Desarrollo usa datos ficticios: DNI `12345678`, `12345679` o `12345680`;
+`99999999` simula indisponibilidad. Configure DNI_PROVIDER, DNI_API_URL,
+DNI_API_TOKEN, DNI_TIMEOUT_MS y DNI_CACHE_TTL_MS solo en servidor, según
+`.env.example`. Nunca use variables VITE para credenciales. El adaptador API
+está preparado y probado con fetch simulado; proveedor comercial real no verificado.
+Sin cambio de esquema ni migración. Capturas: `.test-results/phase-5-dni`.

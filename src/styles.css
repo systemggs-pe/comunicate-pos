@@ -745,3 +745,6 @@ margin-bottom:10px}
   .sidebar nav:has(>.nav-item:nth-child(6)) { grid-template-columns:repeat(4,minmax(0,1fr)); }
   .sidebar .nav-item { min-width:0; padding:10px 4px; overflow-wrap:anywhere; }
 }
+.dni-client-fields > label { display: block; margin-bottom: 20px; }
+.dni-notice { margin: 16px 0; padding: 14px; background: #eef5f1; border-radius: 5px; overflow-wrap: anywhere; }
+.dni-notice p { margin: 0 0 8px; }

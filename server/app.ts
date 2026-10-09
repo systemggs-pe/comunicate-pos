@@ -8,9 +8,13 @@ import type { PrismaClient } from '@prisma/client';
 import { prisma } from './db/prisma.js';
 import { createPosService } from './services/pos.service.js';
 import { publicError, DomainError } from './lib/errors.js';
+import { createDniProvider } from './dni/providers.js';
+import { createDniLookupService, dniLookupOptions, type DniLookupOptions } from './dni/lookup.service.js';
+import type { DniProvider } from './dni/provider.js';
 
-export function createApp(db: PrismaClient) {
+export function createApp(db: PrismaClient, options: { dniProvider?: DniProvider; dniOptions?: DniLookupOptions } = {}) {
 const auth = createAuthService(db);
+const dniLookup = createDniLookupService(dni => db.client.findUnique({ where: { dni } }), options.dniProvider ?? createDniProvider(), options.dniOptions ?? dniLookupOptions());
 const pos = (req: Request,res: Response) => createPosService(db,requestContext(req,authState(res).user.id));
 const users = (req: Request,res: Response) => createUsersService(db,authState(res).user,requestContext(req,authState(res).user.id));
 const app = express();
@@ -24,6 +28,11 @@ app.post('/api/auth/login', async (req,res) => { const result=await auth.login(r
 app.use('/api',requireAuth(auth));
 app.use('/api',rejectActorInput);
 app.get('/api/auth/me', (_req,res) => res.json(authState(res).user));
+app.get('/api/dni/:dni', async (req,res) => {
+  const permissions = authState(res).user.permissions;
+  if (!['clients.create', 'sales.create', 'registration.create'].some(permission => permissions.includes(permission as typeof permissions[number]))) throw new DomainError(403,'No tienes permisos para consultar DNI.','PERMISSION_REQUIRED');
+  res.json(await dniLookup.lookup(req.params.dni));
+});
 app.post('/api/auth/logout', async (req,res) => { const state=authState(res); await auth.logout(state.sessionId,requestContext(req,state.user.id)); clearSessionCookie(res); res.json({logout:true}); });
 app.get('/api/users',requirePermission('users.read'),async (req,res)=>res.json(await users(req,res).list(req.query)));
 app.get('/api/users/:id',requirePermission('users.read'),async (req,res)=>res.json(await users(req,res).get(req.params.id)));

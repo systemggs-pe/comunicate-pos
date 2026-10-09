@@ -199,3 +199,20 @@ registeredById real; ventas guardan createdById real. Ni hashes ni contraseñas 
 tokens aparecen en API/logs/metadata. Los usuarios desactivados conservan referencias.
 
 Matriz, seguridad cookie, bootstrap y límites: [Phase 4](phase-4-auth-and-permissions.md).
+
+## Evolución Phase 5 — Consulta DNI y captura de clientes
+
+Sin cambios al esquema Client ni nuevas migraciones. PostgreSQL conserva DNI único,
+datos canónicos y relaciones existentes. La consulta autenticada busca primero
+Client; un cliente local impide consultar al proveedor y nunca se sobrescribe.
+También se verifica Client después de la respuesta externa para priorizar altas
+concurrentes. El proveedor solo prellena nombres/apellidos; no inserta clientes.
+
+La caché temporal de resultados normalizados vive en memoria, máximo 512 entradas
+con TTL de 60 segundos. No es una tabla ni fuente persistente/distribuida; no evita
+la búsqueda local. Confirmar cliente, registro o venta mantiene los servicios,
+transacciones, UNIQUE por DNI y auditoría con actor real. Lookup no genera AuditLog
+ni almacena respuestas crudas, token, teléfono/correo externos o campos duplicados.
+Ante fallo externo la captura manual sigue operativa.
+
+Detalles de proveedor, seguridad, límites y contrato: [Phase 5](phase-5-dni-automation.md).
