@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "local": "node scripts/local.mjs",
@@ -22,7 +22,8 @@
     "db:test:prepare": "tsx scripts/prepare-test-db.ts",
     "preview": "vite preview --host 127.0.0.1",
     "seed:admin": "tsx scripts/seed-admin.ts",
-    "sessions:cleanup": "tsx scripts/cleanup-sessions.ts"
+    "sessions:cleanup": "tsx scripts/cleanup-sessions.ts",
+    "test:pdf": "node scripts/verify-declaration.mjs"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
@@ -33,6 +34,7 @@
     "jsbarcode": "^3.12.3",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.468.0",
+    "pdfjs-dist": "^6.4.299",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "zod": "^4.1.12"

@@ -6,7 +6,7 @@ import { hashPassword, verifyPassword, dummyPasswordHash } from '../lib/password
 import { writeAudit, type AuditContext } from '../lib/audit.js';
 export const sessionHours = 12;
 export const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
-export const userSelect = { id: true, code: true, name: true, email: true, status: true, lastLoginAt: true, createdAt: true, role: { select: { id: true, code: true, permissions: { select: { permissionKey: true } } } } } satisfies Prisma.UserSelect;
+export const userSelect = { identityDocument:true, id: true, code: true, name: true, email: true, status: true, lastLoginAt: true, createdAt: true, role: { select: { id: true, code: true, permissions: { select: { permissionKey: true } } } } } satisfies Prisma.UserSelect;
 type SafeRow = Prisma.UserGetPayload<{ select: typeof userSelect }>;
 export function publicUser(row: SafeRow) {
   const role = row.role;

@@ -1,0 +1,2 @@
+import type {DeclarationData} from '../../shared/declaration';
+export const declarationFixture:DeclarationData={requestId:'00000000-0000-4000-8000-000000000001',code:'RECO-999001',fingerprint:'a'.repeat(64),applicantName:'PERSONA FICTICIA DE PRUEBA',documentType:'DNI',clientDocument:'12345678',address:'DIRECCIÓN FICTICIA 123',phone:'912345678',brand:'SAMSUNG',model:'S25',imei:'359708765430001',date:'10/10/2026',agentName:'AGENTE FICTICIO DE PRUEBA',agentDocument:'87654321'};

@@ -6,7 +6,7 @@ del sistema anterior ni integraciones comerciales.
 
 ## Requisitos
 
-- Node.js 22.12 o superior (validado con Node 24).
+- Node.js 22.13 o superior (validado con Node 24).
 - Docker Desktop con motor Linux y Docker Compose.
 - Alternativa en Windows: PostgreSQL nativo descargado automáticamente al usar `-SinDocker` (317 MB).
 - Puerto local 55432 disponible.
@@ -24,7 +24,7 @@ Inicia Docker Desktop y, desde la carpeta del proyecto, ejecuta:
 powershell -ExecutionPolicy Bypass -File .\iniciar-local.ps1
 ```
 
-Si acabas de descargar el proyecto, instala primero Node.js 22.12 o superior y
+Si acabas de descargar el proyecto, instala primero Node.js 22.13 o superior y
 ejecuta `npm install`. Con Node/npm disponibles también puedes usar `npm run local`.
 El lanzador de Windows admite el Node incluido con Codex si no está en PATH.
 
@@ -333,7 +333,7 @@ Las migraciones anteriores se conservan; no use db push.
 `/registros` ofrece seguimiento y `/registros/nuevo` revisión explícita de cliente,
 equipo, objetivos, condiciones y evidencias temporales. Registrar ambos IMEIs
 crea dos solicitudes atómicas con celulares distintos. Realizar uno conserva
-pendiente el otro. Fotos no se suben ni se respaldan; PDF/ticket no disponibles.
+pendiente el otro. Fotos no se suben ni se respaldan. Declaraciones A4 disponibles según Phase 6B.
 Ventas conserva múltiples equipos y propietarios independientes, agrega accesorios
 con cantidades/precios exactos y advierte IMEIs ya vendidos. DNI es el documento
 actualmente habilitado; CE/pasaporte/RUC requieren una ampliación futura segura.
@@ -342,3 +342,15 @@ actualmente habilitado; CE/pasaporte/RUC requieren una ampliación futura segura
 En **Configuración → Datos de la empresa**, SUPERADMIN puede guardar la información comercial y las preferencias de tickets en PostgreSQL. En ventas, **VER TICKET / IMPRIMIR / DESCARGAR PDF** permiten seleccionar 48 u 80 mm y abrir automáticamente una vista previa con impresión y descarga PDF. Las nuevas generaciones usan la configuración guardada sin reiniciar. Son tickets internos, sin facturación electrónica.
 
 Consulta [la guía de impresión](docs/phase-6a-thermal-printing.md) para márgenes, diferencia entre papel y área imprimible, límites del navegador y pruebas físicas. Aplicar la nueva migración con el inicio local o `npm run db:deploy`. Compatibilidad física con impresoras: **NOT VERIFIED**.
+
+## Phase 6B — Declaración jurada A4 por IMEI
+
+Desde el detalle de cada registro, **GENERAR DECLARACIÓN JURADA** permite revisar,
+confirmar y abrir un PDF A4 para ese IMEI, con descarga e impresión. El agente
+debe tener nombre real y DNI de ocho dígitos en **Usuarios → Administrar**.
+Un registro doble tiene dos declaraciones independientes. Aplicar la nueva
+migración con `npm run db:deploy` o el inicio local habitual.
+
+[Plantilla, validaciones y verificación visual](docs/phase-6b-declaration-template.md).
+Se conserva la distribución del original con fuentes Lato de licencia abierta;
+la diferencia tipográfica se documenta. El POS no realiza validaciones externas.

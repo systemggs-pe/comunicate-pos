@@ -65,6 +65,7 @@ model User {
   email           String             @unique
   name            String
   passwordHash    String?
+  identityDocument String? @db.VarChar(8)
   status          UserStatus         @default(DISABLED)
   roleId          String?            @db.Uuid
   role            Role?              @relation(fields: [roleId], references: [id], onDelete: Restrict)

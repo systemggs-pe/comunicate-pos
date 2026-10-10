@@ -1,0 +1,1434 @@
+{
+ "referencePage": [
+  595,
+  842
+ ],
+ "words": [
+  {
+   "text": "DECLARACIÓN",
+   "x": 66.87,
+   "y": 35.84,
+   "width": 92.196,
+   "size": 13.0,
+   "bold": true
+  },
+  {
+   "text": "JURADA",
+   "x": 162.524,
+   "y": 35.84,
+   "width": 54.028,
+   "size": 13.0,
+   "bold": true
+  },
+  {
+   "text": "DE",
+   "x": 220.01,
+   "y": 35.84,
+   "width": 17.563,
+   "size": 13.0,
+   "bold": true
+  },
+  {
+   "text": "INGRESO",
+   "x": 241.031,
+   "y": 35.84,
+   "width": 56.979,
+   "size": 13.0,
+   "bold": true
+  },
+  {
+   "text": "DE",
+   "x": 301.468,
+   "y": 35.84,
+   "width": 17.563,
+   "size": 13.0,
+   "bold": true
+  },
+  {
+   "text": "EQUIPO",
+   "x": 322.489,
+   "y": 35.84,
+   "width": 49.933,
+   "size": 13.0,
+   "bold": true
+  },
+  {
+   "text": "ADQUIRIDO",
+   "x": 375.88,
+   "y": 35.84,
+   "width": 75.036,
+   "size": 13.0,
+   "bold": true
+  },
+  {
+   "text": "EN",
+   "x": 454.374,
+   "y": 35.84,
+   "width": 17.758,
+   "size": 13.0,
+   "bold": true
+  },
+  {
+   "text": "EL",
+   "x": 216.6,
+   "y": 52.32,
+   "width": 15.431,
+   "size": 13.0,
+   "bold": true
+  },
+  {
+   "text": "EXTRANJERO",
+   "x": 235.489,
+   "y": 52.32,
+   "width": 86.918,
+   "size": 13.0,
+   "bold": true
+  },
+  {
+   "text": "Por",
+   "x": 15.0,
+   "y": 97.5,
+   "width": 16.92,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "el",
+   "x": 35.4,
+   "y": 97.5,
+   "width": 8.69,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "presente",
+   "x": 47.57,
+   "y": 97.5,
+   "width": 42.71,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "documento,",
+   "x": 93.76,
+   "y": 97.5,
+   "width": 56.8,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "yo",
+   "x": 154.04,
+   "y": 97.5,
+   "width": 12.39,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "identificado(a)",
+   "x": 339.539,
+   "y": 97.5,
+   "width": 70.31,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "con",
+   "x": 413.329,
+   "y": 97.5,
+   "width": 17.26,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "documento",
+   "x": 434.069,
+   "y": 97.5,
+   "width": 54.38,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "de",
+   "x": 491.929,
+   "y": 97.5,
+   "width": 11.97,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "identidad",
+   "x": 507.379,
+   "y": 97.5,
+   "width": 46.32,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "(DNI,",
+   "x": 557.179,
+   "y": 97.5,
+   "width": 23.79,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "Carné",
+   "x": 15.0,
+   "y": 110.18,
+   "width": 28.05,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "de",
+   "x": 47.115,
+   "y": 110.18,
+   "width": 11.97,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "Extranjería,",
+   "x": 63.15,
+   "y": 110.18,
+   "width": 56.57,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "Pasaporte,",
+   "x": 123.786,
+   "y": 110.18,
+   "width": 51.42,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "otro",
+   "x": 179.271,
+   "y": 110.18,
+   "width": 20.42,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "especificar)",
+   "x": 203.756,
+   "y": 110.18,
+   "width": 56.01,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": ",",
+   "x": 282.031,
+   "y": 110.18,
+   "width": 2.42,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "N°",
+   "x": 288.516,
+   "y": 110.18,
+   "width": 11.21,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "con",
+   "x": 360.177,
+   "y": 110.18,
+   "width": 17.26,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "domicilio",
+   "x": 381.502,
+   "y": 110.18,
+   "width": 44.77,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "en",
+   "x": 430.337,
+   "y": 110.18,
+   "width": 11.89,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": ",",
+   "x": 578.548,
+   "y": 110.18,
+   "width": 2.42,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "con",
+   "x": 15.0,
+   "y": 122.86,
+   "width": 17.26,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "número",
+   "x": 38.539,
+   "y": 122.86,
+   "width": 37.54,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "telefónico",
+   "x": 82.359,
+   "y": 122.86,
+   "width": 48.75,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "celular",
+   "x": 137.388,
+   "y": 122.86,
+   "width": 32.76,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "(Línea",
+   "x": 241.566,
+   "y": 122.86,
+   "width": 29.58,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "a",
+   "x": 277.426,
+   "y": 122.86,
+   "width": 5.68,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "ser",
+   "x": 289.385,
+   "y": 122.86,
+   "width": 15.0,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "vinculada",
+   "x": 310.664,
+   "y": 122.86,
+   "width": 47.16,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "al",
+   "x": 364.104,
+   "y": 122.86,
+   "width": 8.64,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "equipo",
+   "x": 379.023,
+   "y": 122.86,
+   "width": 33.39,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "terminal",
+   "x": 418.692,
+   "y": 122.86,
+   "width": 40.99,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "móvil",
+   "x": 465.962,
+   "y": 122.86,
+   "width": 27.57,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "adquirido",
+   "x": 499.811,
+   "y": 122.86,
+   "width": 47.05,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "en",
+   "x": 553.14,
+   "y": 122.86,
+   "width": 11.89,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "el",
+   "x": 571.309,
+   "y": 122.86,
+   "width": 8.69,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "extranjero),",
+   "x": 15.0,
+   "y": 135.55,
+   "width": 56.54,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "declaro:",
+   "x": 77.819,
+   "y": 135.55,
+   "width": 38.5,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "-",
+   "x": 15.0,
+   "y": 170.18,
+   "width": 4.14,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "Que",
+   "x": 24.209,
+   "y": 170.18,
+   "width": 19.15,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "el",
+   "x": 48.428,
+   "y": 170.18,
+   "width": 8.69,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "equipo",
+   "x": 62.186,
+   "y": 170.18,
+   "width": 33.39,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "terminal",
+   "x": 100.645,
+   "y": 170.18,
+   "width": 40.99,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "móvil",
+   "x": 146.704,
+   "y": 170.18,
+   "width": 27.57,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "con",
+   "x": 179.343,
+   "y": 170.18,
+   "width": 17.26,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "marca:",
+   "x": 201.672,
+   "y": 170.18,
+   "width": 32.3,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "modelo:",
+   "x": 272.219,
+   "y": 170.18,
+   "width": 38.67,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "e",
+   "x": 417.464,
+   "y": 170.18,
+   "width": 5.73,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "IMEI:",
+   "x": 428.263,
+   "y": 170.18,
+   "width": 24.11,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": ",",
+   "x": 560.611,
+   "y": 170.18,
+   "width": 2.42,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "ha",
+   "x": 568.1,
+   "y": 170.18,
+   "width": 11.9,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "ingresado",
+   "x": 15.0,
+   "y": 182.86,
+   "width": 47.9,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "legalmente",
+   "x": 67.969,
+   "y": 182.86,
+   "width": 53.61,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "al",
+   "x": 126.648,
+   "y": 182.86,
+   "width": 8.64,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "país",
+   "x": 140.356,
+   "y": 182.86,
+   "width": 19.88,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "para",
+   "x": 165.305,
+   "y": 182.86,
+   "width": 21.95,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "mi",
+   "x": 192.324,
+   "y": 182.86,
+   "width": 12.22,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "uso",
+   "x": 209.613,
+   "y": 182.86,
+   "width": 17.04,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "personal.",
+   "x": 231.722,
+   "y": 182.86,
+   "width": 44.53,
+   "size": 10.0,
+   "bold": false
+  },
+  {
+   "text": "-",
+   "x": 15.0,
+   "y": 232.66,
+   "width": 3.726,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Que",
+   "x": 21.606,
+   "y": 232.66,
+   "width": 17.235,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "dicho",
+   "x": 41.721,
+   "y": 232.66,
+   "width": 23.976,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "equipo",
+   "x": 68.577,
+   "y": 232.66,
+   "width": 30.051,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "cuenta",
+   "x": 101.508,
+   "y": 232.66,
+   "width": 29.25,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "con",
+   "x": 133.638,
+   "y": 232.66,
+   "width": 15.534,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "IMEI",
+   "x": 152.052,
+   "y": 232.66,
+   "width": 19.521,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "válido,",
+   "x": 174.453,
+   "y": 232.66,
+   "width": 29.493,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "habiéndose",
+   "x": 206.826,
+   "y": 232.66,
+   "width": 50.499,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "realizado",
+   "x": 260.205,
+   "y": 232.66,
+   "width": 40.743,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "satisfactoriamente",
+   "x": 303.828,
+   "y": 232.66,
+   "width": 81.783,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "la",
+   "x": 388.491,
+   "y": 232.66,
+   "width": 7.776,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "validación",
+   "x": 15.0,
+   "y": 244.06,
+   "width": 45.252,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "por",
+   "x": 63.132,
+   "y": 244.06,
+   "width": 15.012,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "el",
+   "x": 81.024,
+   "y": 244.06,
+   "width": 7.821,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Concesionario",
+   "x": 91.725,
+   "y": 244.06,
+   "width": 61.695,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Móvil",
+   "x": 156.3,
+   "y": 244.06,
+   "width": 24.786,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "que",
+   "x": 183.966,
+   "y": 244.06,
+   "width": 16.2,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "me",
+   "x": 203.046,
+   "y": 244.06,
+   "width": 13.383,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "brinda",
+   "x": 219.309,
+   "y": 244.06,
+   "width": 28.629,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "el",
+   "x": 250.818,
+   "y": 244.06,
+   "width": 7.821,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "servicio",
+   "x": 261.519,
+   "y": 244.06,
+   "width": 34.704,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "público",
+   "x": 299.103,
+   "y": 244.06,
+   "width": 32.121,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "móvil.",
+   "x": 334.104,
+   "y": 244.06,
+   "width": 26.991,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "-",
+   "x": 15.0,
+   "y": 266.87,
+   "width": 3.726,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Que",
+   "x": 22.481,
+   "y": 266.87,
+   "width": 17.235,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "tengo",
+   "x": 43.47,
+   "y": 266.87,
+   "width": 24.75,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "pleno",
+   "x": 71.975,
+   "y": 266.87,
+   "width": 24.444,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "conocimiento",
+   "x": 100.174,
+   "y": 266.87,
+   "width": 58.959,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "que",
+   "x": 162.888,
+   "y": 266.87,
+   "width": 16.2,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "solo",
+   "x": 182.842,
+   "y": 266.87,
+   "width": 18.036,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "puedo",
+   "x": 204.633,
+   "y": 266.87,
+   "width": 27.297,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "ingresar",
+   "x": 235.685,
+   "y": 266.87,
+   "width": 35.946,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "y",
+   "x": 275.385,
+   "y": 266.87,
+   "width": 5.67,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "registrar",
+   "x": 284.81,
+   "y": 266.87,
+   "width": 37.818,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "hasta",
+   "x": 326.383,
+   "y": 266.87,
+   "width": 23.715,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "cinco",
+   "x": 353.853,
+   "y": 266.87,
+   "width": 22.815,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "(5)",
+   "x": 380.422,
+   "y": 266.87,
+   "width": 11.592,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "equipos",
+   "x": 395.769,
+   "y": 266.87,
+   "width": 34.461,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "adquiridos",
+   "x": 433.985,
+   "y": 266.87,
+   "width": 46.755,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "en",
+   "x": 484.494,
+   "y": 266.87,
+   "width": 10.701,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "el",
+   "x": 498.95,
+   "y": 266.87,
+   "width": 7.821,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "extranjero",
+   "x": 510.526,
+   "y": 266.87,
+   "width": 45.855,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "a",
+   "x": 560.135,
+   "y": 266.87,
+   "width": 5.112,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "mi",
+   "x": 569.002,
+   "y": 266.87,
+   "width": 10.998,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "nombre",
+   "x": 15.0,
+   "y": 278.28,
+   "width": 33.993,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "por",
+   "x": 52.748,
+   "y": 278.28,
+   "width": 15.012,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "año.",
+   "x": 71.514,
+   "y": 278.28,
+   "width": 18.315,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "En",
+   "x": 93.584,
+   "y": 278.28,
+   "width": 11.178,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "ese",
+   "x": 108.517,
+   "y": 278.28,
+   "width": 14.724,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "sentido,",
+   "x": 126.996,
+   "y": 278.28,
+   "width": 34.641,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "el",
+   "x": 165.391,
+   "y": 278.28,
+   "width": 7.821,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "sexto",
+   "x": 176.967,
+   "y": 278.28,
+   "width": 23.841,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "equipo",
+   "x": 204.563,
+   "y": 278.28,
+   "width": 30.051,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "ingresado",
+   "x": 238.368,
+   "y": 278.28,
+   "width": 43.11,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "al",
+   "x": 15.0,
+   "y": 289.68,
+   "width": 7.776,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "país",
+   "x": 25.656,
+   "y": 289.68,
+   "width": 17.892,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "y",
+   "x": 46.428,
+   "y": 289.68,
+   "width": 5.67,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "registrado",
+   "x": 54.978,
+   "y": 289.68,
+   "width": 44.982,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "a",
+   "x": 102.84,
+   "y": 289.68,
+   "width": 5.112,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "mi",
+   "x": 110.832,
+   "y": 289.68,
+   "width": 10.998,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "nombre",
+   "x": 124.71,
+   "y": 289.68,
+   "width": 33.993,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "ante",
+   "x": 161.583,
+   "y": 289.68,
+   "width": 19.296,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "cualquier",
+   "x": 183.759,
+   "y": 289.68,
+   "width": 40.635,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Concesionario",
+   "x": 227.274,
+   "y": 289.68,
+   "width": 61.695,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Móvil,",
+   "x": 291.849,
+   "y": 289.68,
+   "width": 26.964,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "será",
+   "x": 321.693,
+   "y": 289.68,
+   "width": 18.612,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "bloqueado.",
+   "x": 343.185,
+   "y": 289.68,
+   "width": 48.384,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Fecha",
+   "x": 18.0,
+   "y": 323.67,
+   "width": 25.731,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "(dd/mm/aaaa):",
+   "x": 46.611,
+   "y": 323.67,
+   "width": 63.756,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Firma",
+   "x": 81.98,
+   "y": 433.67,
+   "width": 25.398,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "y",
+   "x": 110.258,
+   "y": 433.67,
+   "width": 5.67,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "huella",
+   "x": 118.808,
+   "y": 433.67,
+   "width": 26.64,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "de",
+   "x": 148.328,
+   "y": 433.67,
+   "width": 10.773,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Solicitante",
+   "x": 161.981,
+   "y": 433.67,
+   "width": 46.044,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Nombre",
+   "x": 15.0,
+   "y": 448.67,
+   "width": 35.325,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "y",
+   "x": 53.205,
+   "y": 448.67,
+   "width": 5.67,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "apellidos:",
+   "x": 61.755,
+   "y": 448.67,
+   "width": 41.652,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Número",
+   "x": 15.0,
+   "y": 479.67,
+   "width": 35.118,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "de",
+   "x": 52.998,
+   "y": 479.67,
+   "width": 10.773,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Documento",
+   "x": 66.651,
+   "y": 479.67,
+   "width": 49.986,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "de",
+   "x": 119.517,
+   "y": 479.67,
+   "width": 10.773,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Identidad:",
+   "x": 133.17,
+   "y": 479.67,
+   "width": 43.938,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Nombre",
+   "x": 295.0,
+   "y": 448.67,
+   "width": 35.325,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "y",
+   "x": 333.205,
+   "y": 448.67,
+   "width": 5.67,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "apellidos:",
+   "x": 341.755,
+   "y": 448.67,
+   "width": 41.652,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Número",
+   "x": 295.0,
+   "y": 479.67,
+   "width": 35.118,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "de",
+   "x": 332.998,
+   "y": 479.67,
+   "width": 10.773,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Documento",
+   "x": 346.651,
+   "y": 479.67,
+   "width": 49.986,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "de",
+   "x": 399.517,
+   "y": 479.67,
+   "width": 10.773,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Identidad:",
+   "x": 413.17,
+   "y": 479.67,
+   "width": 43.938,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Firma",
+   "x": 388.68,
+   "y": 433.67,
+   "width": 25.398,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "de",
+   "x": 416.958,
+   "y": 433.67,
+   "width": 10.773,
+   "size": 9.0,
+   "bold": false
+  },
+  {
+   "text": "Agente",
+   "x": 430.611,
+   "y": 433.67,
+   "width": 30.708,
+   "size": 9.0,
+   "bold": false
+  }
+ ],
+ "slots": [
+  {
+   "key": "applicantName",
+   "x": 169.91,
+   "y": 97.5,
+   "width": 166.15,
+   "size": 10.0,
+   "top": 89.63
+  },
+  {
+   "key": "documentType",
+   "x": 263.83,
+   "y": 110.18,
+   "width": 18.2,
+   "size": 10.0,
+   "top": 102.31
+  },
+  {
+   "key": "clientDocument",
+   "x": 303.79,
+   "y": 110.18,
+   "width": 52.32,
+   "size": 10.0,
+   "top": 102.31
+  },
+  {
+   "key": "address",
+   "x": 446.29,
+   "y": 110.18,
+   "width": 132.26,
+   "size": 10.0,
+   "top": 102.31
+  },
+  {
+   "key": "phone",
+   "x": 176.43,
+   "y": 122.86,
+   "width": 58.86,
+   "size": 10.0,
+   "top": 114.99
+  },
+  {
+   "key": "brand",
+   "x": 239.04,
+   "y": 170.18,
+   "width": 28.11,
+   "size": 10.0,
+   "top": 162.31
+  },
+  {
+   "key": "model",
+   "x": 315.96,
+   "y": 170.18,
+   "width": 96.44,
+   "size": 10.0,
+   "top": 162.31
+  },
+  {
+   "key": "imei",
+   "x": 457.44,
+   "y": 170.18,
+   "width": 98.1,
+   "size": 10.0,
+   "top": 162.31
+  },
+  {
+   "key": "applicantSignature",
+   "x": 15,
+   "y": 464.52,
+   "width": 260,
+   "size": 10.0,
+   "top": 456.65
+  },
+  {
+   "key": "agentName",
+   "x": 295,
+   "y": 464.52,
+   "width": 260,
+   "size": 10.0,
+   "top": 456.65
+  },
+  {
+   "key": "clientSignatureDocument",
+   "x": 15,
+   "y": 495.52,
+   "width": 260,
+   "size": 10.0,
+   "top": 487.65
+  },
+  {
+   "key": "agentDocument",
+   "x": 295,
+   "y": 495.52,
+   "width": 260,
+   "size": 10.0,
+   "top": 487.65
+  },
+  {
+   "key": "date",
+   "x": 113.247,
+   "y": 323.67,
+   "width": 54.828,
+   "size": 9.0,
+   "top": 316.59
+  }
+ ]
+}

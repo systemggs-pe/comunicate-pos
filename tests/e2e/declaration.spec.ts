@@ -1,0 +1,36 @@
+import 'dotenv/config';
+import {test,expect} from '@playwright/test';
+import {PrismaClient} from '@prisma/client';
+import {mkdir,readFile} from 'node:fs/promises';
+import {seedTestAdmin,testEmail,testPassword,testOrigin} from '../helpers/auth';
+import {workflowInput} from '../helpers/workflow';
+import {inspectDeclarationPdf} from '../helpers/declaration-pdf';
+import {permissionKeys,adminPermissions,sellerPermissions} from '../../shared/auth';
+const url=process.env.TEST_DATABASE_URL!,target=new URL(url);
+if(!['127.0.0.1','localhost'].includes(target.hostname)||target.pathname!=='/communicate_pos_test')throw new Error('DB dedicada requerida');
+const db=new PrismaClient({datasources:{db:{url}}});
+test.beforeEach(async({page})=>{
+ await db.$transaction([db.companySettings.deleteMany(),db.session.deleteMany(),db.authRateLimit.deleteMany(),db.registrationRequestHistory.deleteMany(),db.registrationRequest.deleteMany(),db.registrationOperation.deleteMany(),db.saleAccessory.deleteMany(),db.equipmentHistory.deleteMany(),db.auditLog.deleteMany(),db.saleEquipment.deleteMany(),db.sale.deleteMany(),db.imei.deleteMany(),db.equipment.deleteMany(),db.client.deleteMany(),db.user.deleteMany()]);
+ for(const [code,permissions] of [['SUPERADMIN',permissionKeys],['ADMIN',adminPermissions],['SELLER',sellerPermissions]] as const){const role=await db.role.findUniqueOrThrow({where:{code}});await db.rolePermission.deleteMany({where:{roleId:role.id}});await db.rolePermission.createMany({data:permissions.map(permissionKey=>({roleId:role.id,permissionKey}))});}
+ await seedTestAdmin(db);await mkdir('.test-results/phase6b',{recursive:true});await page.goto('/login');await page.getByLabel('Correo',{exact:true}).fill(testEmail);await page.getByLabel('Contraseña',{exact:true}).fill(testPassword);await page.getByRole('button',{name:'Iniciar sesión',exact:true}).click();await expect(page.getByRole('heading',{name:'Registro de equipos',exact:true})).toBeVisible();
+});
+test.afterAll(()=>db.$disconnect());
+test('identidad administrativa, dos declaraciones, preview automático, descarga e impresión A4',async({page})=>{
+ const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
+ const created=await page.request.post('/api/registration-operations',{headers:{Origin:testOrigin},data:workflowInput()});expect(created.status()).toBe(201);const operation=await created.json();
+ await page.goto(`/registros/${operation.requests[0].id}`);await page.getByRole('button',{name:'GENERAR DECLARACIÓN JURADA',exact:true}).click();await expect(page.getByRole('alert')).toContainText('COMPLETA EL NOMBRE Y DNI');await expect(page.getByRole('dialog')).toHaveCount(0);
+ const user=await db.user.findUniqueOrThrow({where:{email:testEmail}});await page.goto(`/usuarios/${user.id}`);await page.getByLabel('DNI del agente').fill('87654321');await page.getByRole('button',{name:'Guardar usuario',exact:true}).click();await expect(page.getByRole('status')).toContainText('Usuario actualizado');await page.reload();await expect(page.getByLabel('DNI del agente')).toHaveValue('87654321');
+ for(const [index,row] of operation.requests.entries()){
+  await page.goto(`/registros/${row.id}`);await page.getByRole('button',{name:'GENERAR DECLARACIÓN JURADA',exact:true}).click();const confirmation=page.getByRole('dialog',{name:'CONFIRMAR DECLARACIÓN JURADA A4'});
+  await expect(confirmation).toContainText('ADMINISTRADOR DE PRUEBA');await expect(confirmation).toContainText('87654321');await expect(confirmation).toContainText(row.imei.value);await expect(confirmation).toContainText('SAMSUNG S25');await expect(confirmation.getByRole('button',{name:'GENERAR PDF A4',exact:true})).toBeDisabled();
+  for(const width of [375,390,430]){await page.setViewportSize({width,height:900});expect((await confirmation.boundingBox())!.width).toBeLessThanOrEqual(width);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);}
+  const checks=confirmation.getByRole('checkbox');for(let i=0;i<3;i++)await checks.nth(i).check();await confirmation.getByRole('button',{name:'GENERAR PDF A4',exact:true}).click();const preview=page.getByRole('dialog',{name:'PREVISUALIZACIÓN DECLARACIÓN JURADA A4'});await expect(preview).toBeVisible();await expect(preview.locator('iframe')).toHaveAttribute('src',/^blob:/);const canvas=preview.getByRole('img',{name:'PREVISUALIZACIÓN DEL PDF A4'});await expect(canvas).toHaveAttribute('data-ready','true');expect(await canvas.evaluate(node=>{const c=node as HTMLCanvasElement,ctx=c.getContext('2d')!,pixels=ctx.getImageData(0,0,c.width,c.height).data;let ink=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i]<180&&pixels[i+3]>0)ink++;return ink;})).toBeGreaterThan(5000);await expect(page.getByLabel('FORMATO',{exact:true})).toHaveCount(0);
+  await page.setViewportSize({width:1280,height:900});await page.screenshot({path:`.test-results/phase6b/preview-${index+1}.png`,fullPage:true});
+  const downloading=page.waitForEvent('download');await preview.getByRole('link',{name:'DESCARGAR PDF A4',exact:true}).click();const download=await downloading;expect(download.suggestedFilename()).toBe(`${row.code}.pdf`);const path=`.test-results/phase6b/${row.code}.pdf`;await download.saveAs(path);const parsed=inspectDeclarationPdf(await readFile(path));expect(parsed.pages).toBe(1);expect(parsed.text.match(/\b\d{15}\b/g)).toEqual([row.imei.value]);expect(parsed.text).not.toContain(operation.requests[1-index].imei.value);
+  await page.evaluate(()=>{const frame=document.querySelector<HTMLIFrameElement>('.declaration-preview iframe');if(!frame?.contentWindow)throw new Error('No preview');frame.contentWindow.print=()=>{document.documentElement.dataset.declarationPrinted='yes';};});await preview.getByRole('button',{name:'IMPRIMIR A4',exact:true}).click();expect(await page.locator('html').getAttribute('data-declaration-printed')).toBe('yes');await preview.getByRole('button',{name:'CERRAR',exact:true}).click();await expect(preview).not.toBeVisible();
+ }
+ expect(await db.registrationRequest.count()).toBe(2);expect(await db.equipment.count()).toBe(1);expect(await db.imei.count()).toBe(2);expect(await db.client.count()).toBe(1);expect(await db.sale.count()).toBe(0);expect((await db.imei.findMany()).every(i=>i.registrationStatus==='PENDING')).toBe(true);expect(errors).toEqual([]);
+});
+test('datos cambiados impiden generar con confirmaciones anteriores',async({page})=>{
+ await db.user.update({where:{email:testEmail},data:{identityDocument:'87654321'}});const created=await page.request.post('/api/registration-operations',{headers:{Origin:testOrigin},data:workflowInput()});const operation=await created.json();await page.goto(`/registros/${operation.requests[0].id}`);await page.getByRole('button',{name:'GENERAR DECLARACIÓN JURADA',exact:true}).click();const dialog=page.getByRole('dialog',{name:'CONFIRMAR DECLARACIÓN JURADA A4'});for(let i=0;i<3;i++)await dialog.getByRole('checkbox').nth(i).check();await db.user.update({where:{email:testEmail},data:{identityDocument:'87654320'}});await dialog.getByRole('button',{name:'GENERAR PDF A4',exact:true}).click();await expect(dialog.getByRole('alert')).toContainText('LOS DATOS CAMBIARON');await expect(page.getByRole('dialog',{name:'PREVISUALIZACIÓN DECLARACIÓN JURADA A4'})).not.toBeVisible();
+});

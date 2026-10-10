@@ -285,3 +285,14 @@ Política, endpoints, estados, edición y límites: [Flujos operativos](operatio
 `CompanySettings` utiliza id 1 protegido por PRIMARY KEY y CHECK, con campos comerciales, footer, formato predeterminado 48/80, márgenes independientes y visibilidad. `updatedById` referencia al usuario autenticado; `updatedAt` y AuditLog se guardan en la misma transacción de actualización. No agrega tenants ni duplica clientes, equipos o ventas. Nueva migración `20261010000100_company_settings`; migraciones históricas intactas.
 
 El servicio de tickets consulta la venta relacionada y la configuración actual con permiso `sales.read`; la administración usa `settings.read/settings.update`. Las reimpresiones reflejan la empresa vigente; no crean snapshots ni comprobantes fiscales. [Guía Phase 6A](phase-6a-thermal-printing.md).
+
+## Phase 6B — Identidad del agente y declaraciones
+
+`20261010000200_agent_identity` agrega `User.identityDocument` nullable VARCHAR(8)
+con CHECK de ocho dígitos. Usuarios históricos permanecen sin DNI hasta que un
+administrador autorizado complete su identidad real. Generar una declaración
+consulta RegistrationRequest → Imei → Equipment → Client y el User autenticado
+en PostgreSQL. No agrega tablas ni modifica estados. La confirmación de datos
+y la auditoría de emisión se ejecutan en una transacción SERIALIZABLE.
+
+[Plantilla A4, identidad y pruebas](phase-6b-declaration-template.md).

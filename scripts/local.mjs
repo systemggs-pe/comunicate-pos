@@ -22,7 +22,7 @@ function checkPort(port) {
 
 try {
   if (!existsSync('node_modules/tsx/dist/cli.mjs')) {
-    throw new Error('Instala Node.js 22.12 o superior y ejecuta npm install antes de iniciar.');
+    throw new Error('Instala Node.js 22.13 o superior y ejecuta npm install antes de iniciar.');
   }
   if (!existsSync('.env')) copyFileSync('.env.example', '.env');
   const { config } = await import('dotenv');

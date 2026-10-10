@@ -1,5 +1,6 @@
 import { normalizeOperationalResponse } from '../shared/normalization.js';
 import {createCompanyService} from './services/company.service.js';
+import {createDeclarationService} from './services/declaration.service.js';
 import express, { type ErrorRequestHandler } from 'express';
 import helmet from 'helmet';
 import { createAuthService } from './services/auth.service.js';
@@ -31,6 +32,8 @@ app.post('/api/auth/login', async (req,res) => { const result=await auth.login(r
 app.use('/api',requireAuth(auth));
 app.use('/api',rejectActorInput);
 app.get('/api/auth/me', (_req,res) => res.json(authState(res).user));
+app.get('/api/registration-requests/:id/declaration-data',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).data(req.params.id)));
+app.post('/api/registration-requests/:id/declaration',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).generate(req.params.id,req.body)));
 app.get('/api/settings/company',requirePermission('settings.read'),async(_req,res)=>res.json(await createCompanyService(db).get()));
 app.patch('/api/settings/company',requirePermission('settings.update'),async(req,res)=>res.json(await createCompanyService(db,requestContext(req,authState(res).user.id)).update(req.body)));
 app.get('/api/sales/:id/receipt',requirePermission('sales.read'),async(req,res)=>{
