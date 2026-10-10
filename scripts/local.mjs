@@ -44,6 +44,8 @@ try {
   }
   run(process.execPath, ['node_modules/prisma/build/index.js', 'generate']);
   run(process.execPath, ['node_modules/prisma/build/index.js', 'migrate', 'deploy']);
+  run('docker', ['compose', 'up', '-d', '--wait', '--wait-timeout', '180', 'minio'], 900_000);
+  run(process.execPath, ['node_modules/tsx/dist/cli.mjs', 'scripts/provision-evidence.ts']);
   run(process.execPath, ['node_modules/tsx/dist/cli.mjs', 'scripts/local-admin.ts']);
 
   console.log('\nAbre http://127.0.0.1:5173 — Ctrl+C para detener la aplicación.');

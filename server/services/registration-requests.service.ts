@@ -1,3 +1,4 @@
+import {attachOperationEvidence} from '../evidence/lifecycle.js';
 import { createHash } from 'node:crypto';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { equipmentSchema, idSchema, type resolveRegistrationSchema, type registrationSchema } from '../../shared/validation.js';
@@ -14,7 +15,7 @@ interface Helpers {
   updateRegistrationInTx:(tx:Db,value:string,input:z.infer<typeof registrationSchema>, managed?:boolean)=>Promise<unknown>;
 }
 const requestInclude = { imei:{include:{equipment:{include:{owner:true,imeis:{orderBy:{slot:'asc' as const}},saleEquipment:{include:{sale:true}}}}}}, createdBy:{select:{id:true,name:true}}, updatedBy:{select:{id:true,name:true}},completedBy:{select:{id:true,name:true}} } satisfies Prisma.RegistrationRequestInclude;
-export function createRegistrationRequestsService(db:PrismaClient, actor:AuditContext, helpers:Helpers) {
+export function createRegistrationRequestsService(db:PrismaClient, actor:AuditContext, helpers:Helpers, sessionId?:string) {
   const actorId = () => { if (!actor.userId) throw new DomainError(401,'Sesión requerida.','AUTH_REQUIRED'); return actor.userId; };
   async function detail(tx:Db,id:string) {
     const request=await tx.registrationRequest.findUnique({where:{id},include:{...requestInclude,history:{include:{user:{select:{id:true,name:true}}},orderBy:{createdAt:'asc'}}}});
@@ -62,6 +63,7 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('registration-number'))`;
         const sequence=await tx.$queryRaw<{last_value:bigint;is_called:boolean}[]>`SELECT last_value,is_called FROM registration_code_seq`;
         if(Number(sequence[0].last_value)+(sequence[0].is_called?input.requests.length:input.requests.length-1)>999999)throw new DomainError(409,'NUMERACIÓN RECO AGOTADA; SE REQUIERE AMPLIACIÓN CONTROLADA.','REGISTRATION_CODE_EXHAUSTED');
+        const createdRequests:{id:string;value:string}[]=[];
         for(const item of input.requests){
           const imei=await tx.imei.findUniqueOrThrow({where:{value:item.value}});
           if(imei.equipmentId!==equipment.id)throw new DomainError(409,'IMEI de otro equipo.','IMEI_EQUIPMENT_CONFLICT');
@@ -71,7 +73,9 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
           await helpers.updateRegistrationInTx(tx,value,{status,method:item.operator,ownerId:equipment.ownerId??undefined},true);
           await tx.registrationRequestHistory.create({data:{requestId:request.id,userId,action:'CREATED',metadata:{status}}});
           await audit(tx,'REGISTRATION_REQUEST_CREATED',request.id,{operationId:operation.id,status});
+          createdRequests.push({id:request.id,value});
         }
+        await attachOperationEvidence(tx,input.evidence??[],input.idempotencyKey,createdRequests,actor,sessionId);
         return replay(tx);
       }); }catch(error){
         if(error instanceof Prisma.PrismaClientKnownRequestError&&error.code==='P2002'){const previous=await replay(db);if(previous)return previous;}throw error;

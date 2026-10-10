@@ -1,3 +1,5 @@
+import {createEvidenceService} from './evidence/service.js';
+import type {EvidenceStorageProvider} from './storage/provider.js';
 import { normalizeOperationalResponse } from '../shared/normalization.js';
 import {createCompanyService} from './services/company.service.js';
 import {createDeclarationService} from './services/declaration.service.js';
@@ -15,11 +17,12 @@ import { createDniProvider } from './dni/providers.js';
 import { createDniLookupService, dniLookupOptions, type DniLookupOptions } from './dni/lookup.service.js';
 import type { DniProvider } from './dni/provider.js';
 
-export function createApp(db: PrismaClient, options: { dniProvider?: DniProvider; dniOptions?: DniLookupOptions } = {}) {
+export function createApp(db: PrismaClient, options: { dniProvider?: DniProvider; dniOptions?: DniLookupOptions; evidenceStorage?:EvidenceStorageProvider } = {}) {
 const auth = createAuthService(db);
 const dniLookup = createDniLookupService(dni => db.client.findUnique({ where: { dni } }), options.dniProvider ?? createDniProvider(), options.dniOptions ?? dniLookupOptions());
-const pos = (req: Request,res: Response) => createPosService(db,requestContext(req,authState(res).user.id));
+const pos = (req: Request,res: Response) => createPosService(db,requestContext(req,authState(res).user.id),authState(res).sessionId,authState(res).user.permissions.includes('registration.evidence.delete'));
 const users = (req: Request,res: Response) => createUsersService(db,authState(res).user,requestContext(req,authState(res).user.id));
+const evidence=(req:Request,res:Response)=>createEvidenceService(db,authState(res),requestContext(req,authState(res).user.id),options.evidenceStorage);
 const app = express();
 app.disable('x-powered-by');
 app.use((_req,res,next)=>{const json=res.json.bind(res);res.json=value=>json(normalizeOperationalResponse(value));next();});
@@ -32,6 +35,15 @@ app.post('/api/auth/login', async (req,res) => { const result=await auth.login(r
 app.use('/api',requireAuth(auth));
 app.use('/api',rejectActorInput);
 app.get('/api/auth/me', (_req,res) => res.json(authState(res).user));
+app.post('/api/evidence/uploads',async(req,res)=>res.status(201).json(await evidence(req,res).init(req.body)));
+app.post('/api/evidence/uploads/:id/verify',async(req,res)=>res.json(await evidence(req,res).verify(req.params.id)));
+app.delete('/api/evidence/uploads/:id',async(req,res)=>res.json(await evidence(req,res).abandon(req.params.id)));
+app.post('/api/evidence/cleanup',async(req,res)=>res.json(await evidence(req,res).cleanup()));
+app.get('/api/registration-requests/:id/evidence',async(req,res)=>res.json(await evidence(req,res).list(req.params.id)));
+app.get('/api/registration-requests/:id/evidence/:linkId/access',async(req,res)=>res.json(await evidence(req,res).access(req.params.id,req.params.linkId,req.query.download==='true')));
+app.post('/api/registration-requests/:id/evidence',async(req,res)=>res.json(await evidence(req,res).attach(req.params.id,req.body)));
+app.delete('/api/registration-requests/:id/evidence/:linkId',async(req,res)=>res.json(await evidence(req,res).remove(req.params.id,req.params.linkId,req.body)));
+
 app.get('/api/registration-requests/:id/declaration-data',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).data(req.params.id)));
 app.post('/api/registration-requests/:id/declaration',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).generate(req.params.id,req.body)));
 app.get('/api/settings/company',requirePermission('settings.read'),async(_req,res)=>res.json(await createCompanyService(db).get()));
@@ -47,10 +59,10 @@ app.get('/api/dni/:dni', async (req,res) => {
 });
 for(const [path,kind,permission] of [['sales','sale','sales.delete'],['registration-requests','request','registration.delete'],['equipment','equipment','equipment.delete']] as const){
  app.get(`/api/${path}/:id/deletion-preview`,requirePermission(permission),async(req,res)=>res.json(await pos(req,res).deletionPreview(kind,req.params.id,req.query.removeOrphanEquipment==='true')));
- app.delete(`/api/${path}/:id`,requirePermission(permission),async(req,res)=>res.json(await pos(req,res).deletePermanently(kind,req.params.id,req.body)));
+ app.delete(`/api/${path}/:id`,requirePermission(permission),async(req,res)=>{const preview=await pos(req,res).deletionPreview(kind,req.params.id,req.body?.removeOrphanEquipment===true);if(preview.counts.evidence>0&&!authState(res).user.permissions.includes('registration.evidence.delete'))throw new DomainError(403,'LA ELIMINACIÓN INCLUYE FOTOS Y REQUIERE PERMISO PARA ELIMINAR EVIDENCIAS.','PERMISSION_REQUIRED');res.json(await pos(req,res).deletePermanently(kind,req.params.id,req.body));});
 }
 app.get('/api/registration-requests',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).listRegistrationRequests(req.query)));
-app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>res.status(201).json(await pos(req,res).createRegistrationOperation(req.body)));
+app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>{if(req.body?.evidence?.length&&!authState(res).user.permissions.includes('registration.evidence.upload'))throw new DomainError(403,'NO TIENES PERMISOS PARA ADJUNTAR EVIDENCIAS.','PERMISSION_REQUIRED');res.status(201).json(await pos(req,res).createRegistrationOperation(req.body));});
 app.post('/api/registration-requests/complete',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).completeRegistrationRequests(req.body)));
 app.get('/api/registration-requests/:id',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).getRegistrationRequest(req.params.id)));
 app.patch('/api/registration-requests/:id',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).updateRegistrationRequest(req.params.id,req.body)));

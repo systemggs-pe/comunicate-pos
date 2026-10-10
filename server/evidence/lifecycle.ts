@@ -39,7 +39,8 @@ export async function cleanupEvidence(db:PrismaClient,provider?:EvidenceStorageP
    if(asset.status==='READY'){if(asset.stagingKey&&asset.uploadExpiresAt.getTime()+5000<Date.now()){await storage.delete(asset.stagingKey);await tx.evidenceAsset.update({where:{id:asset.id},data:{stagingKey:null}});}return;}
    if(asset.status!=='DELETING'||await tx.registrationEvidence.count({where:{evidenceAssetId:asset.id}}))return;
    await storage.delete(asset.storageKey);if(asset.stagingKey)await storage.delete(asset.stagingKey);
-   if(asset.uploadExpiresAt.getTime()+5000>=Date.now()){pending.push(asset.id);await tx.evidenceAsset.update({where:{id:asset.id},data:{lastDeleteErrorCode:'UPLOAD_WINDOW_OPEN'}});return;}
+   const verificationWindow=!!asset.verificationStartedAt&&asset.verificationStartedAt.getTime()+120000>=Date.now();
+   if(asset.uploadExpiresAt.getTime()+5000>=Date.now()||verificationWindow){pending.push(asset.id);await tx.evidenceAsset.update({where:{id:asset.id},data:{lastDeleteErrorCode:verificationWindow?'VERIFICATION_WINDOW_OPEN':'UPLOAD_WINDOW_OPEN'}});return;}
    await tx.evidenceAsset.delete({where:{id:asset.id}});deleted++;
   },{timeout:20000});
  }catch{pending.push(candidate.id);await db.evidenceAsset.updateMany({where:{id:candidate.id},data:{deleteAttempts:{increment:1},lastDeleteErrorCode:'STORAGE_DELETE_RETRY'}});}}

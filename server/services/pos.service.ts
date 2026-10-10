@@ -8,7 +8,7 @@ import { createSalesService } from './sales.service.js';
 import { writeAudit, type AuditContext } from '../lib/audit.js';
 import { DomainError } from '../lib/errors.js';
 
-export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
+export function createPosService(db: PrismaClient, actor: AuditContext = {}, sessionId?:string, allowEvidenceDeletion=false) {
   // Reintentos acotados sólo cuando PostgreSQL aborta la transacción serializable.
   async function transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
     for (let attempt = 0; ; attempt++) {
@@ -79,7 +79,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
     return { kind: 'EXISTING' as const, equipment, additions, requiresConfirmation: additions.length > 0 };
   }
   return {
-    ...createDeletionService(db,actor,transaction),
+    ...createDeletionService(db,actor,transaction,allowEvidenceDeletion),
     findClientByDni: (dni: unknown) => repository.findClientByDni(db, dniSchema.parse(dni)),
     getClientById: async (id: unknown) => { const client = await repository.getClientById(db, idSchema.parse(id)); return { ...client, equipment: client.equipment.map(decorated) }; },
     createClient: (raw: unknown) => {
@@ -183,7 +183,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
       const { q, ownerId, offset, limit } = listQuerySchema.parse(raw);
       return (await db.equipment.findMany({ where: { ownerId, ...(q ? { OR: [{ code: { contains: q, mode: 'insensitive' } }, { brand: { contains: q, mode: 'insensitive' } }, { model: { contains: q, mode: 'insensitive' } }, { imeis: { some: { value: q.replace(/\s/g, '') } } }] } : {}) }, include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit })).map(decorated);
     },
-    ...createRegistrationRequestsService(db, actor, { transaction, resolveInTx, createEquipmentInTx, updateRegistrationInTx }),
+    ...createRegistrationRequestsService(db, actor, { transaction, resolveInTx, createEquipmentInTx, updateRegistrationInTx }, sessionId),
     ...createSalesService(db, { transaction, history, audit, createEquipmentInTx, actor }),
   };
 }
