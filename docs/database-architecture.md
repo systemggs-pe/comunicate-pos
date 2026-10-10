@@ -1,3 +1,46 @@
+# Arquitectura actual — refinamiento operativo
+
+Migración 20261009000200_operational_refinement: RequestStatus y RegistrationStatus
+contienen BLOCKED/PENDING/REGISTERED. Imei sin solicitud tiene estado NULL (ausencia
+operativa). Registro y bloqueo nuevos corresponden a PENDING y BLOCKED; los cambios
+MARK_REGISTERED y UNBLOCK finalizan en REGISTERED. Cada solicitud y cada IMEI tienen
+su estado independiente; triggers diferidos comprueban sincronización.
+
+Sale no tiene status ni enum comercial. SaleEquipment.equipmentId es único: un equipo
+solo pertenece a una venta. La API solo crea equipos nuevos, sin inventario ni reventa.
+Los importes y accesorios continúan en Decimal con comprobación diferida de totales.
+
+Client conserva identidad única y añade dirección y departamento. El DNI local rellena
+nombres y contacto sin duplicar ni sobrescribir el cliente. Los nuevos datos se normalizan
+en mayúsculas Unicode, salvo correo canónico y secretos técnicos.
+
+RegistrationRequest mantiene createdById, updatedById y completedById separados. RECO
+usa secuencia PostgreSQL MAXVALUE 999999 NO CYCLE, independiente de DELETE. Las columnas
+legacyStatus/legacyBlockStatus/legacyConditions y legacyRegistrationStatus/legacyRegisteredAt
+preservan datos anteriores. La decisión del usuario deja su solicitud histórica BLOCKED
+con UNBLOCK pendiente. No se reinterpretan ventas inconclusas: la migración las bloquea.
+
+La eliminación realiza preflight, conteos, huella SHA256 y revalidación serializable.
+Los clientes no se borran. Solicitud individual borra solo su historial y atención; el
+expediente completo elimina equipos, IMEIs, solicitudes, eventos, líneas, accesorios y
+operaciones huérfanas exclusivas. Un equipo con venta obliga a confirmar el conjunto
+completo de la venta. Una relación compartida fuera del conjunto bloquea el borrado.
+
+Auditoría previa de entidades eliminadas se purga. PERMANENT_DELETION mantiene FK al
+usuario, UUIDs, conteos y confirmación del motivo, sin snapshots ni texto libre sensible.
+No hay documentos fiscales o adjuntos persistentes; nuevas dependencias deben incluirse
+en el preflight antes de habilitar su eliminación. Toda la migración se validó sobre
+una copia restaurada del respaldo antes de aplicarla localmente.
+
+Los documentos Phase 2–5 y workflow-verification son informes históricos del baseline;
+la política vigente está en operational-refinement-analysis y el informe final de esta etapa.
+
+---
+
+## Referencia histórica del baseline ea505c1
+
+Las reglas reemplazadas de estados, inventario y cancelación que siguen abajo describen únicamente el baseline anterior. El modelo vigente se describe arriba.
+
 # Arquitectura de datos
 
 Phase 2 conservó íntegros schema.prisma y la migración de fundación. No requirió

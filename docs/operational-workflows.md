@@ -1,5 +1,7 @@
 # COMUNIC@TE POS — Workflow alignment
 
+Documento histórico del baseline ea505c1. Sus reglas de condiciones, cancelación y estados fueron reemplazadas por [operational-refinement-analysis.md](operational-refinement-analysis.md) y [database-architecture.md](database-architecture.md).
+
 ## Base y entrega por bloques
 
 Rama master, commit inicial e404c1b, descendiente de Phase 4 acff326.

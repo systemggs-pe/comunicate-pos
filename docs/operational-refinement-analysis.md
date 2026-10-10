@@ -2,7 +2,7 @@
 
 Baseline master / ea505c1, Git limpio. Respaldo privado .local/operational-refinement.dump restaurado y verificado en communicate_pos_refinement_copy: 1 cliente, 2 equipos, 4 IMEIs, 0 ventas y 2 solicitudes. No se realizan purgas de datos locales durante el desarrollo.
 
-La copia conserva el baseline y sirve para validar la migración antes de aplicarla a la base de uso. Un caso COMPLETED/BLOCKED requiere decisión humana: se conserva toda la información histórica y la migración debe bloquear mientras no haya una resolución explícita. Ventas PENDING/CANCELLED/REFUNDED o equipos compartidos entre ventas bloquean la migración de ventas; no se reinterpretan como ventas realizadas.
+La copia conserva el baseline y sirve para validar la migración antes de aplicarla a la base de uso. El usuario resolvió el caso histórico COMPLETED/BLOCKED: BLOQUEADO y acción DESBLOQUEAR pendiente. Se conservan el estado y la fecha anteriores en columnas históricas. Ventas PENDING/CANCELLED/REFUNDED o equipos compartidos entre ventas bloquean la migración de ventas; no se reinterpretan como ventas realizadas.
 
 IMEI sin solicitud y sin atención histórica usa NULL (sin solicitud); no es un cuarto estado operativo. Los tres estados de atención son BLOCKED/PENDING/REGISTERED. Los estados y condiciones previos permanecen en columnas históricas privadas; no son entradas operativas. PROCESSING/REJECTED/CANCELLED ambiguos bloquean migración. REGISTERED/PENDING conservan significado.
 

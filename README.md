@@ -1,6 +1,6 @@
 # COMUNIC@TE POS
 
-Fase 4: acceso privado con usuarios, sesiones, roles, permisos y auditoría; ventas Cliente → Venta → Equipo → IMEI, compatible con Cliente → Equipo → IMEI → Registro sobre la fundación independiente del POS anterior. React, Vite, TypeScript,
+Refinamiento operativo: tres estados por IMEI, ventas con equipos nuevos y eliminación definitiva autorizada. Acceso privado con usuarios, sesiones, roles, permisos y auditoría; ventas Cliente → Venta → Equipo → IMEI, compatible con Cliente → Equipo → IMEI → Registro sobre la fundación independiente del POS anterior. React, Vite, TypeScript,
 Tailwind CSS, Lucide React, API Express, Prisma y PostgreSQL. No contiene migración
 del sistema anterior ni integraciones comerciales.
 
@@ -153,15 +153,30 @@ HTTP internos deben enviarlo y conservar cookie. CORS sólo refleja orígenes pe
 | POST | `/api/sales/resolve` | Comprobar equipos/IMEIs y calcular resumen sin escribir |
 | GET / POST | `/api/sales` | Listado paginado / crear venta atómica |
 | GET | `/api/sales/:id` | Venta, comprador, propietario, equipos e IMEIs relacionados |
-| POST | `/api/sales/:id/cancel` | Confirmación y motivo, conserva entidades e historial |
+| GET | `/api/{sales,registration-requests,equipment}/:id/deletion-preview` | Revisar dependencias y huella de confirmación |
+| DELETE | `/api/{sales,registration-requests,equipment}/:id` | ELIMINAR, motivo y huella; transacción y permiso explícito |
 
 Listados de clientes/equipos paginados: `q`, `offset`, `limit` (20 por defecto,
 máximo 100). Clientes busca DNI/nombres; equipos busca código/marca/modelo/IMEI y
 admite `ownerId`. Ventas admite `q` (código, DNI, nombre o IMEI exacto),
-`status`, `from` y `to` (YYYY-MM-DD, fechas inclusivas en Lima), `offset` y `limit`.
-El contrato original `buyerId/items.equipmentId` sigue disponible; el nuevo contrato usa
-`buyer: {id}` o `buyer: {client}` y equipos nuevos o existentes.
-La UI crea ventas COMPLETED; API conserva PENDING para compatibilidad.
+`from` y `to` (YYYY-MM-DD, fechas inclusivas en Lima), `offset` y `limit`.
+La venta acepta `buyer: {id}` o `buyer: {client}` y cada línea requiere un equipo
+nuevo: `items[].equipment` con uno o dos IMEIs únicos. No acepta `status`,
+`items[].equipmentId`, cancelación ni reembolso. Conserva los accesorios y los precios.
+
+El registro operativo nace PENDING con modalidad REGISTRATION, o BLOCKED con modalidad
+BLOCKED. PENDING permite MARK_REGISTERED; BLOCKED permite UNBLOCK. Ambas acciones
+confirmadas pasan solamente el IMEI objetivo a REGISTERED. BITEL es el operador por
+defecto; referencia vacía usa el celular de cada solicitud. La numeración RECO de seis
+dígitos usa secuencia PostgreSQL que no reutiliza números. Las condiciones antiguas
+quedan históricas, fuera del formulario y del contrato operativo.
+
+DELETE exige permiso específico (SUPERADMIN por defecto), resumen previo, huella,
+texto ELIMINAR y motivo. Nunca elimina clientes. Un equipo con venta obliga a eliminar
+la venta completa; una solicitud individual mantiene los demás IMEIs y solicitudes.
+La auditoría de entidades borradas se purga y se conserva solo UUIDs, conteos y actor.
+Consulta [la política y respaldo](docs/operational-refinement-analysis.md).
+
 Moneda inicial: soles (PEN), importes JSON como cadenas decimales. `total` se calcula
 en servidor a partir de las líneas menos el descuento de la venta. El subtotal
 se deriva de total + descuento, protegido por un trigger diferido que comprueba
