@@ -1,5 +1,24 @@
 name: communicate-pos
 services:
+  minio:
+    build: ./ops/minio
+    image: communicate-pos-minio:7aac2a2
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: evidence_dev_admin
+      MINIO_ROOT_PASSWORD: evidence_local_only_2026
+      MINIO_API_CORS_ALLOW_ORIGIN: http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:5175
+    ports:
+      - "127.0.0.1:59000:9000"
+      - "127.0.0.1:59001:9001"
+    volumes:
+      - evidence_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
   postgres:
     image: postgres:16-alpine
     environment:
@@ -20,3 +39,4 @@ services:
     stop_grace_period: 120s
 volumes:
   postgres_data:
+  evidence_data:

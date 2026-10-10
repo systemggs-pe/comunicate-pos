@@ -83,6 +83,8 @@ model User {
   completedRequests RegistrationRequest[] @relation("RequestCompleter")
   requestHistory RegistrationRequestHistory[]
   companyUpdates CompanySettings[]
+  evidenceAssets EvidenceAsset[]
+  evidenceLinks RegistrationEvidence[]
 }
 
 model CompanySettings {
@@ -265,6 +267,7 @@ model Session {
   ip         String? @db.VarChar(100)
   userAgent  String? @db.VarChar(300)
   @@index([userId])
+  evidenceUploads EvidenceAsset[]
   @@index([expiresAt])
 }
 model AuthRateLimit {
@@ -325,6 +328,7 @@ model RegistrationRequest {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
   history RegistrationRequestHistory[]
+  evidence RegistrationEvidence[]
   @@unique([operationId, imeiId])
   @@unique([imeiId], map: "request_one_per_imei")
   @@index([imeiId, createdAt])
@@ -350,4 +354,65 @@ model SaleAccessory {
   unitPrice Decimal @db.Decimal(12,2)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   @@index([saleId])
+}
+
+
+enum EvidenceStatus {
+ PENDING
+ READY
+ FAILED
+ DELETING
+}
+enum EvidenceCategory {
+ DNI_FRONT
+ DNI_BACK
+ DEVICE_BOX
+ PURCHASE_RECEIPT
+ LOGICAL_IMEI
+}
+model EvidenceAsset {
+ id String @id @default(uuid()) @db.Uuid
+ storageKey String @unique @db.VarChar(200)
+ stagingKey String? @unique @db.VarChar(200)
+ mimeType String @default("image/webp") @db.VarChar(30)
+ fileSize Int @default(0)
+ checksum String? @db.VarChar(64)
+ width Int?
+ height Int?
+ status EvidenceStatus @default(PENDING)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ createdById String? @db.Uuid
+ createdBy User? @relation(fields:[createdById],references:[id],onDelete:SetNull)
+ ownerSessionId String? @db.Uuid
+ ownerSession Session? @relation(fields:[ownerSessionId],references:[id],onDelete:SetNull)
+ operationKey String? @db.Uuid
+ sourceRequestId String? @db.Uuid
+ category EvidenceCategory
+ idempotencyKey String @unique @db.Uuid
+ expectedMimeType String @db.VarChar(30)
+ expectedSize Int
+ expectedChecksum String @db.VarChar(64)
+ expiresAt DateTime @db.Timestamptz(3)
+ uploadExpiresAt DateTime @db.Timestamptz(3)
+ verifiedAt DateTime? @db.Timestamptz(3)
+ verificationStartedAt DateTime? @db.Timestamptz(3)
+ deleteAttempts Int @default(0)
+ lastDeleteErrorCode String? @db.VarChar(40)
+ links RegistrationEvidence[]
+ @@index([status,expiresAt])
+ @@index([ownerSessionId,status])
+}
+model RegistrationEvidence {
+ id String @id @default(uuid()) @db.Uuid
+ registrationRequestId String @db.Uuid
+ registrationRequest RegistrationRequest @relation(fields:[registrationRequestId],references:[id],onDelete:Restrict)
+ evidenceAssetId String @db.Uuid
+ evidenceAsset EvidenceAsset @relation(fields:[evidenceAssetId],references:[id],onDelete:Restrict)
+ category EvidenceCategory
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ createdById String? @db.Uuid
+ createdBy User? @relation(fields:[createdById],references:[id],onDelete:SetNull)
+ @@unique([registrationRequestId,category])
+ @@index([evidenceAssetId])
 }

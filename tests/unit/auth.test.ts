@@ -13,5 +13,5 @@ describe('Fronteras puras de autenticación',()=>{
  it('token hash SHA256 estable y diferente',()=>{expect(hashToken('a')).toHaveLength(64);expect(hashToken('a')).not.toBe('a');expect(hashToken('a')).not.toBe(hashToken('b'));});
  it('cookie productiva segura y Host prefijo',()=>{vi.stubEnv('NODE_ENV','production');expect(cookieOptions()).toEqual({httpOnly:true,secure:true,sameSite:'lax',path:'/'});expect(cookieName()).toBe('__Host-pos_session');});
  it('cookie localhost compatible',()=>{vi.stubEnv('NODE_ENV','test');expect(cookieOptions().secure).toBe(false);});
- it('permisos desconocidos/repetidos rechazados',()=>{expect(roleUpdateSchema.safeParse({permissions:['sales.create','sales.create']}).success).toBe(false);expect(roleUpdateSchema.safeParse({permissions:['tenant.admin']}).success).toBe(false);expect(permissionKeys).toHaveLength(24);});
+ it('permisos desconocidos/repetidos rechazados',()=>{expect(roleUpdateSchema.safeParse({permissions:['sales.create','sales.create']}).success).toBe(false);expect(roleUpdateSchema.safeParse({permissions:['tenant.admin']}).success).toBe(false);expect(permissionKeys).toHaveLength(28);});
 });
