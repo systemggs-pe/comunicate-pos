@@ -11,7 +11,7 @@ import { useDniLookup } from '../../hooks/useDniLookup';
 export { ClientFields, emptyClient, asClientInput, type ClientFieldsValue } from './ClientFields';
 export function ClientForm({ initial, onSaved, onCancel }: { initial?: Client; onSaved: (client: Client) => void; onCancel?: () => void }) {
   const { api } = useApi();
-  const [value, setValue] = useState<ClientFieldsValue>(initial ? { dni: initial.dni, firstName: initial.firstName, lastName: initial.lastName, phone: initial.phone ?? '', email: initial.email ?? '' } : emptyClient);
+  const [value, setValue] = useState<ClientFieldsValue>(initial ? { dni: initial.dni, firstName: initial.firstName, lastName: initial.lastName, phone: initial.phone ?? '', email: initial.email ?? '',address:initial.address??'',department:initial.department??'' } : emptyClient);
   const lookup = useDniLookup(initial ? emptyClient : value, setValue);
   const [duplicate, setDuplicate] = useState<Client | null>(null); const submit = useSubmit();
   return <form className="form-panel" onSubmit={async event => {

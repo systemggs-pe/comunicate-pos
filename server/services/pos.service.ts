@@ -1,3 +1,4 @@
+import { createDeletionService } from './deletion.service.js';
 import { createRegistrationRequestsService } from './registration-requests.service.js';
 import { Prisma, type PrismaClient, type EquipmentEventType } from '@prisma/client';
 import { clientSchema, clientEditSchema, dniSchema, equipmentSchema, equipmentEditSchema, externalEquipmentSchema, idSchema, imeiSchema, imeiValueSchema, listQuerySchema, registrationFlowSchema, registrationSchema, resolveRegistrationSchema } from '../../shared/validation.js';
@@ -18,11 +19,11 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
     }
   }
   const audit = (tx: Db, action: string, entityType: string, entityId: string, userId?: string, metadata?: Prisma.InputJsonValue) => {
-    const actions: Record<string,string> = { 'CREATE:Client':'CLIENT_CREATED','UPDATE:Client':'CLIENT_UPDATED','CREATE:Equipment':'EQUIPMENT_CREATED','UPDATE:Equipment':'EQUIPMENT_UPDATED','REGISTRATION_UPDATE:Imei':'IMEI_REGISTRATION_UPDATED','CREATE:Sale':'SALE_CREATED','CANCEL:Sale':'SALE_CANCELLED' };
+    const actions: Record<string,string> = { 'CREATE:Client':'CLIENT_CREATED','UPDATE:Client':'CLIENT_UPDATED','CREATE:Equipment':'EQUIPMENT_CREATED','UPDATE:Equipment':'EQUIPMENT_UPDATED','REGISTRATION_UPDATE:Imei':'IMEI_REGISTRATION_UPDATED','CREATE:Sale':'SALE_CREATED' };
     return writeAudit(tx,{...actor,userId:actor.userId ?? userId},actions[`${action}:${entityType}`] ?? `${entityType.toUpperCase()}_${action}`,entityType,entityId,metadata);
   };
   const history = (tx: Db, equipmentId: string, eventType: EquipmentEventType, imeiId?: string, userId?: string, metadata?: Prisma.InputJsonValue) => tx.equipmentHistory.create({ data: { equipmentId, eventType, imeiId, userId: actor.userId ?? userId, metadata, createdAt: new Date() } });
-  function decorated<T extends { imeis: { registrationStatus: string }[] }>(equipment: T) {
+  function decorated<T extends { imeis: { registrationStatus: string|null }[] }>(equipment: T) {
     return { ...equipment, registrationStatus: deriveRegistrationStatus(equipment.imeis) };
   }
   async function createEquipmentInTx(tx: Db, input: ReturnType<typeof equipmentSchema.parse>) {
@@ -37,25 +38,25 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
   async function updateRegistrationInTx(tx: Db, value: string, input: ReturnType<typeof registrationSchema.parse>, managed = false) {
     const found = await repository.findImei(tx, value);
     if (!found) throw new DomainError(404, 'IMEI no encontrado.', 'IMEI_NOT_FOUND');
-    if (!managed && await tx.registrationRequest.findFirst({where:{imeiId:found.id,status:{not:'CANCELLED'}}})) throw new DomainError(409,'Actualiza la solicitud vinculada a este IMEI.','REQUEST_MANAGED_IMEI');
+    if (!managed && await tx.registrationRequest.findFirst({where:{imeiId:found.id}})) throw new DomainError(409,'Actualiza la solicitud vinculada a este IMEI.','REQUEST_MANAGED_IMEI');
     // Ambos IMEI comparten el mismo lock de equipo, también en registros individuales.
     await lockEquipmentInTx(tx, found.equipmentId);
     if (!found.equipment.ownerId) throw new DomainError(409, 'Asigne un propietario antes de registrar el equipo.');
     if (input.ownerId && input.ownerId !== found.equipment.ownerId) throw new DomainError(409, 'Este equipo ya está asociado a otro cliente.', 'OWNER_MISMATCH');
     if (found.registrationStatus === input.status && (input.method === undefined || input.method === found.registrationMethod)) return decorated(found.equipment);
     const events: Record<string, EquipmentEventType> = {
-      PENDING: 'IMEI_REGISTRATION_STARTED', PROCESSING: 'IMEI_REGISTRATION_STARTED',
-      REGISTERED: 'IMEI_REGISTERED', REJECTED: 'IMEI_REGISTRATION_REJECTED', CANCELLED: 'IMEI_REGISTRATION_CANCELLED', NOT_REGISTERED: 'IMEI_REGISTRATION_UPDATED',
+      PENDING: 'IMEI_REGISTRATION_STARTED', BLOCKED: 'IMEI_REGISTRATION_UPDATED',
+      REGISTERED: 'IMEI_REGISTERED',
     };
     const now = new Date();
     await tx.imei.update({ where: { id: found.id }, data: {
       registrationStatus: input.status,
       registrationMethod: input.method,
-      registrationStartedAt: input.status === 'NOT_REGISTERED' ? null : found.registrationStartedAt ?? now,
+      registrationStartedAt: found.registrationStartedAt ?? now,
       registeredAt: input.status === 'REGISTERED' ? found.registeredAt ?? now : null,
       registeredById: input.status === 'REGISTERED' ? actor.userId ?? input.userId ?? found.registeredById : null,
     } });
-    if (!found.registrationStartedAt && ['REGISTERED', 'REJECTED'].includes(input.status)) await history(tx, found.equipmentId, 'IMEI_REGISTRATION_STARTED', found.id, input.userId);
+    if (!found.registrationStartedAt && ['REGISTERED'].includes(input.status)) await history(tx, found.equipmentId, 'IMEI_REGISTRATION_STARTED', found.id, input.userId);
     await history(tx, found.equipmentId, events[input.status], found.id, input.userId, { from: found.registrationStatus, to: input.status, previousMethod: found.registrationMethod, method: input.method === undefined ? found.registrationMethod : input.method });
     await audit(tx, 'REGISTRATION_UPDATE', 'Imei', found.id, input.userId, { from: found.registrationStatus, to: input.status });
     return decorated(await repository.getEquipmentById(tx, found.equipmentId));
@@ -78,6 +79,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
     return { kind: 'EXISTING' as const, equipment, additions, requiresConfirmation: additions.length > 0 };
   }
   return {
+    ...createDeletionService(db,actor,transaction),
     findClientByDni: (dni: unknown) => repository.findClientByDni(db, dniSchema.parse(dni)),
     getClientById: async (id: unknown) => { const client = await repository.getClientById(db, idSchema.parse(id)); return { ...client, equipment: client.equipment.map(decorated) }; },
     createClient: (raw: unknown) => {
@@ -174,7 +176,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}) {
     getEquipmentHistory: async (id: unknown) => { const equipmentId = idSchema.parse(id); await repository.getEquipmentById(db, equipmentId); return repository.getHistory(db, equipmentId); },
     listClients: async (raw: unknown = {}) => {
       const { q, offset, limit } = listQuerySchema.parse(raw);
-      const rows = await db.client.findMany({ where: { AND: q.split(/\s+/).filter(Boolean).map(term => ({ OR: [{ dni: { contains: term } }, { code: { contains: term, mode: 'insensitive' as const } }, { firstName: { contains: term, mode: 'insensitive' as const } }, { lastName: { contains: term, mode: 'insensitive' as const } }] })) }, include: { _count: { select: { equipment: true } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit });
+      const rows = await db.client.findMany({ where: { AND: q.split(/\s+/).filter(Boolean).map(term => ({ OR: [{ dni: { contains: term } }, { code: { contains: term, mode: 'insensitive' as const } }, { firstName: { contains: term, mode: 'insensitive' as const } }, { lastName: { contains: term, mode: 'insensitive' as const } }, { email: { contains: term, mode: 'insensitive' as const } }] })) }, include: { _count: { select: { equipment: true } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit });
       return rows.map(({ _count, ...client }) => ({ ...client, equipmentCount: _count.equipment }));
     },
     listEquipment: async (raw: unknown = {}) => {

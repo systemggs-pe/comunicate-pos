@@ -755,3 +755,8 @@ margin-bottom:10px}
 .request-fields,.accessory-line { border-bottom:1px solid #d9e5df; padding:16px 0; }
 .evidence-preview { max-width:100%; max-height:240px; object-fit:contain; margin:12px 0; }
 .history-metadata { white-space:pre-wrap; overflow-wrap:anywhere; max-width:100%; }
+
+body, button, input, textarea, select, option { text-transform: uppercase; }
+input[type="password"], .technical-value, .history-metadata { text-transform: none; }
+.delete-dialog { width: min(94vw, 620px); max-height: 90vh; overflow: auto; border: 1px solid #c5d5ce; border-radius: 12px; padding: 24px; }
+.delete-dialog::backdrop { background: #142d2580; }

@@ -38,10 +38,10 @@ for (const [index, brand] of ['Samsung', 'Honor', 'Xiaomi', 'Motorola', 'Apple',
     // Mantener el comportamiento anterior: IMEI 1 seleccionado por defecto.
     await page.getByLabel('Estado de registro').selectOption('REGISTERED');
     await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();
-    await expect(page.getByRole('heading', { name: `${brand} Dual`, exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: `${brand.toUpperCase()} DUAL`, exact: true })).toBeVisible();
     const id = new URL(page.url()).pathname.split('/').pop()!;
     await expect(page.getByTestId('imei-card-1').getByText('Registrado', { exact: true })).toBeVisible();
-    await expect(page.getByTestId('imei-card-2').getByText('No registrado', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('imei-card-2').getByText('SIN SOLICITUD', { exact: true })).toBeVisible();
     // Buscar únicamente IMEI 2 debe ofrecer también IMEI 1 ya asociado.
     await page.goto('/registros/tecnico'); await page.getByLabel('DNI', { exact: false }).fill(dni);
     await expect(page.getByText('Cliente encontrado', { exact: true })).toBeVisible();
@@ -52,7 +52,7 @@ for (const [index, brand] of ['Samsung', 'Honor', 'Xiaomi', 'Motorola', 'Apple',
     await page.getByRole('button', { name: 'Continuar', exact: true }).click();
     await expect(page.locator('.selection-row')).toHaveCount(2);
     await expect(page.locator('.selection-row').filter({ hasText: first }).getByText('Registrado', { exact: true })).toBeVisible();
-    await expect(page.locator('.selection-row').filter({ hasText: second }).getByText('No registrado', { exact: true })).toBeVisible();
+    await expect(page.locator('.selection-row').filter({ hasText: second }).getByText('SIN SOLICITUD', { exact: true })).toBeVisible();
     if (brand === 'Honor') {
       for (const width of [375, 390, 430]) {
         await page.setViewportSize({ width, height: 900 });
@@ -65,7 +65,7 @@ for (const [index, brand] of ['Samsung', 'Honor', 'Xiaomi', 'Motorola', 'Apple',
     await expect(page.locator('.selection-row input:checked')).toHaveCount(2);
     await page.getByLabel('Estado de registro').selectOption('REGISTERED');
     await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();
-    await expect(page.getByRole('heading', { name: `${brand} Dual`, exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: `${brand.toUpperCase()} DUAL`, exact: true })).toBeVisible();
     const equipment = await db.equipment.findUniqueOrThrow({ where: { id }, include: { imeis: true } });
     expect(equipment.imeis).toHaveLength(2); expect(equipment.imeis.every(i => i.registrationStatus === 'REGISTERED')).toBe(true);
     expect(await db.equipmentHistory.count({ where: { equipmentId: id, eventType: 'IMEI_REGISTERED' } })).toBe(2);

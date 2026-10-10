@@ -21,6 +21,7 @@ export function useDniLookup(value: ClientFieldsValue, onChange: (value: ClientF
       api.get<DniLookupResponse<Client>>(`/dni/${dni}`, controller.signal).then(data => {
         if (controller.signal.aborted) return;
         setResult({ key, data, error: null });
+        if(data.source==='LOCAL'&&dniSchema.safeParse(latest.current.value.dni).data===dni){latest.current.onChange({...latest.current.value,firstName:data.client.firstName,lastName:data.client.lastName,phone:data.client.phone??'',email:data.client.email??'',address:data.client.address??'',department:data.client.department??''});}
         if (data.source === 'EXTERNAL' && dniSchema.safeParse(latest.current.value.dni).data === dni) {
           const draft = latest.current.value;
           // No sobrescribir correcciones ya escritas mientras se consultaba.

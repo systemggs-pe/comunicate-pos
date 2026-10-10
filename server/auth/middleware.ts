@@ -20,7 +20,7 @@ export const originGuard: RequestHandler = (req,res,next) => {
   if(origin && !allowed.includes(origin)) throw new DomainError(403,'Origen no autorizado.','CSRF_ORIGIN_REJECTED');
   if(!['GET','HEAD','OPTIONS'].includes(req.method) && !origin) throw new DomainError(403,'La operación requiere un origen autorizado.','CSRF_ORIGIN_REQUIRED');
   if(origin) { res.set('Access-Control-Allow-Origin',origin); res.set('Access-Control-Allow-Credentials','true'); res.vary('Origin'); }
-  if(req.method==='OPTIONS') { res.set('Access-Control-Allow-Methods','GET,POST,PATCH,OPTIONS'); res.set('Access-Control-Allow-Headers','Content-Type'); res.status(204).end(); return; }
+  if(req.method==='OPTIONS') { res.set('Access-Control-Allow-Methods','GET,POST,PATCH,DELETE,OPTIONS'); res.set('Access-Control-Allow-Headers','Content-Type'); res.status(204).end(); return; }
   next();
 };
 export function requireAuth(auth: ReturnType<typeof createAuthService>): RequestHandler { return async (req,res,next) => {

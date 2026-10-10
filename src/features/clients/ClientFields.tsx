@@ -1,14 +1,16 @@
 import { ValidatedInput } from '../../components/FormValidation';
 import type { ClientInput } from '../../types/pos';
-export interface ClientFieldsValue { dni: string; firstName: string; lastName: string; phone: string; email: string }
-export const emptyClient: ClientFieldsValue = { dni: '', firstName: '', lastName: '', phone: '', email: '' };
-export function asClientInput(value: ClientFieldsValue): ClientInput { return { dni: value.dni, firstName: value.firstName, lastName: value.lastName, phone: value.phone.trim() || undefined, email: value.email.trim() || undefined }; }
-export function ClientFields({ value, onChange, showDni = true, readOnlyDni = false }: { value: ClientFieldsValue; onChange: (value: ClientFieldsValue) => void; showDni?: boolean; readOnlyDni?: boolean }) {
+export interface ClientFieldsValue { dni: string; firstName: string; lastName: string; phone: string; email: string; address:string; department:string }
+export const emptyClient: ClientFieldsValue = { dni: '', firstName: '', lastName: '', phone: '', email: '', address:'', department:'' };
+export function asClientInput(value: ClientFieldsValue): ClientInput { return { dni: value.dni, firstName: value.firstName, lastName: value.lastName, phone: value.phone.trim() || undefined, email: value.email.trim() || undefined,address:(value.address??'').trim()||undefined,department:(value.department??'').trim()||undefined }; }
+export function ClientFields({ value, onChange, showDni = true, readOnlyDni = false, readOnly=false }: { value: ClientFieldsValue; onChange: (value: ClientFieldsValue) => void; showDni?: boolean; readOnlyDni?: boolean; readOnly?:boolean }) {
   return <div className="form-grid">
-    {showDni && <label>DNI<ValidatedInput aria-label="DNI" name="dni" inputMode="numeric" autoComplete="off" maxLength={12} required readOnly={readOnlyDni} value={value.dni} onChange={e => onChange({ ...value, dni: e.target.value })} /><span className="form-hint">8 dígitos{readOnlyDni ? ', no editable' : ''}.</span></label>}
-    <label>Nombres<ValidatedInput aria-label="Nombres" name="firstName" autoComplete="given-name" maxLength={100} required value={value.firstName} onChange={e => onChange({ ...value, firstName: e.target.value })} /></label>
-    <label>Apellidos<ValidatedInput aria-label="Apellidos" name="lastName" autoComplete="family-name" maxLength={100} required value={value.lastName} onChange={e => onChange({ ...value, lastName: e.target.value })} /></label>
-    <label>Celular <span className="optional">opcional</span><ValidatedInput aria-label="Celular opcional" name="phone" type="tel" autoComplete="tel" maxLength={30} value={value.phone} onChange={e => onChange({ ...value, phone: e.target.value })} /></label>
-    <label>Correo <span className="optional">opcional</span><ValidatedInput aria-label="Correo opcional" name="email" type="email" autoComplete="email" maxLength={254} value={value.email} onChange={e => onChange({ ...value, email: e.target.value })} /></label>
+    {showDni && <label>DNI<ValidatedInput aria-label="DNI" name="dni" inputMode="numeric" autoComplete="off" maxLength={12} required readOnly={readOnly||readOnlyDni} value={value.dni} onChange={e => onChange({ ...value, dni: e.target.value })} /><span className="form-hint">8 dígitos{readOnlyDni ? ', no editable' : ''}.</span></label>}
+    <label>Nombres<ValidatedInput readOnly={readOnly} aria-label="Nombres" name="firstName" autoComplete="given-name" maxLength={100} required value={value.firstName} onChange={e => onChange({ ...value, firstName: e.target.value })} /></label>
+    <label>Apellidos<ValidatedInput readOnly={readOnly} aria-label="Apellidos" name="lastName" autoComplete="family-name" maxLength={100} required value={value.lastName} onChange={e => onChange({ ...value, lastName: e.target.value })} /></label>
+    <label>Celular <span className="optional">opcional</span><ValidatedInput readOnly={readOnly} aria-label="Celular opcional" name="phone" type="tel" autoComplete="tel" maxLength={30} value={value.phone} onChange={e => onChange({ ...value, phone: e.target.value })} /></label>
+    <label>Correo <span className="optional">opcional</span><ValidatedInput readOnly={readOnly} aria-label="Correo opcional" name="email" type="email" autoComplete="email" maxLength={254} value={value.email} onChange={e => onChange({ ...value, email: e.target.value })} /></label>
+    <label>DIRECCIÓN <span className="optional">OPCIONAL</span><ValidatedInput name="address" aria-label="Dirección" readOnly={readOnly} maxLength={300} value={value.address} onChange={e=>onChange({...value,address:e.target.value})}/></label>
+    <label>DEPARTAMENTO <span className="optional">OPCIONAL</span><ValidatedInput name="department" aria-label="Departamento" readOnly={readOnly} maxLength={100} value={value.department} onChange={e=>onChange({...value,department:e.target.value})}/></label>
   </div>;
 }

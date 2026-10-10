@@ -33,13 +33,13 @@ describe('DNI API, PostgreSQL y flujos comerciales', () => {
     const agent = await loginAgent(app); const invalid = await agent.get('/api/dni/abc'); expect(invalid.status).toBe(400); expect(invalid.body.error.code).toBe('DNI_INVALID'); expect(provider.lookup).not.toHaveBeenCalled();
   });
   it('local-first, nombres corregidos y DNI normalizado', async () => {
-    const existing = await db.client.create({ data: { dni: '12345678', firstName: 'Nombre local corregido', lastName: 'Peña', phone: '999000111' } });
+    const existing = await db.client.create({ data: { dni: '12345678', firstName: 'NOMBRE LOCAL CORREGIDO', lastName: 'Peña', phone: '999000111' } });
     const agent = await loginAgent(app); const result = await agent.get('/api/dni/%201234%205678%20');
     expect(result.status).toBe(200); expect(result.body).toMatchObject({ source: 'LOCAL', client: { id: existing.id, firstName: existing.firstName } }); expect(provider.lookup).not.toHaveBeenCalled();
   });
   it('consulta externa no crea cliente ni auditoría; confirmar crea e impide duplicado', async () => {
     const agent = await loginAgent(app); const auditCount = await db.auditLog.count();
-    const result = await agent.get('/api/dni/12345678'); expect(result.body).toMatchObject({ source: 'EXTERNAL', data: { firstName: 'Ana María', lastName: 'Muñoz Álvarez' } });
+    const result = await agent.get('/api/dni/12345678'); expect(result.body).toMatchObject({ source: 'EXTERNAL', data: { firstName: 'ANA MARÍA', lastName: 'MUÑOZ ÁLVAREZ' } });
     expect(await db.client.count()).toBe(0); expect(await db.auditLog.count()).toBe(auditCount);
     const created = await agent.post('/api/clients').set('Origin', testOrigin).send({ ...result.body.data, phone: '999111222', email: 'fixture@example.test' }); expect(created.status).toBe(201);
     expect((await agent.post('/api/clients').set('Origin', testOrigin).send(result.body.data)).status).toBe(409);

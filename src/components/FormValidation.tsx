@@ -1,3 +1,4 @@
+import { normalizeTypedText,normalizeEmail } from '../../shared/normalization';
 import { createContext, useContext, useId, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 
 const Fields = createContext<{ errors: Record<string, string>; prefix: string }>({ errors: {}, prefix: '' });
@@ -13,5 +14,5 @@ export function ValidatedInput({ name, onChange, onInvalid, ...props }: InputHTM
   const [nativeError, setNativeError] = useState('');
   const path = name ? [prefix, name].filter(Boolean).join('.') : undefined;
   const message = (path ? errors[path] : undefined) || nativeError;
-  return <><input {...props} name={path} aria-invalid={!!message} aria-describedby={message ? id : props['aria-describedby']} onInvalid={event => { setNativeError(event.currentTarget.validationMessage); onInvalid?.(event); }} onChange={event => { setNativeError(''); onChange?.(event); }} />{message && <span id={id} className="field-error" role="alert">{message}</span>}</>;
+  return <><input {...props} name={path} aria-invalid={!!message} aria-describedby={message ? id : props['aria-describedby']} onInvalid={event => { setNativeError(event.currentTarget.validationMessage); onInvalid?.(event); }} onChange={event => { setNativeError('');const field=event.currentTarget;if(name&&['firstName','lastName','address','department','brand','model','commercialName','color','ram','storage'].includes(name)){const position=field.selectionStart;field.value=normalizeTypedText(field.value);if(position!==null)field.setSelectionRange(Math.min(position,field.value.length),Math.min(position,field.value.length));}else if(name==='email')field.value=normalizeEmail(field.value);onChange?.(event); }} />{message && <span id={id} className="field-error" role="alert">{message}</span>}</>;
 }

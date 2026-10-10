@@ -14,8 +14,8 @@ describe('Validaciones compartidas', () => {
   it('acepta sólo dinero decimal no negativo', () => { expect(moneySchema.parse('120.50')).toBe('120.50'); for (const value of ['-1', '1.001', '1e4', 'NaN']) expect(moneySchema.safeParse(value).success).toBe(false); });
   it('deriva estado desde cada IMEI', () => {
     expect(deriveRegistrationStatus([])).toBe('NOT_REGISTERED');
-    expect(deriveRegistrationStatus([{ registrationStatus: 'PROCESSING' }])).toBe('NOT_REGISTERED');
-    expect(deriveRegistrationStatus([{ registrationStatus: 'REGISTERED' }, { registrationStatus: 'NOT_REGISTERED' }])).toBe('PARTIALLY_REGISTERED');
+    expect(deriveRegistrationStatus([{ registrationStatus: 'PENDING' }])).toBe('NOT_REGISTERED');
+    expect(deriveRegistrationStatus([{ registrationStatus: 'REGISTERED' }, { registrationStatus: null }])).toBe('PARTIALLY_REGISTERED');
     expect(deriveRegistrationStatus([{ registrationStatus: 'REGISTERED' }, { registrationStatus: 'REGISTERED' }])).toBe('REGISTERED');
   });
 });

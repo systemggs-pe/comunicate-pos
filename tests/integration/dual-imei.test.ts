@@ -36,7 +36,7 @@ describe('Doble IMEI real, todas las marcas', () => {
     const result = await service.submitRegistration({ ...flow, selectedImeis: [values[selected]] });
     expect(result.registrationStatus).toBe('PARTIALLY_REGISTERED');
     expect(result.imeis[selected].registrationStatus).toBe('REGISTERED');
-    expect(result.imeis[1 - selected].registrationStatus).toBe('NOT_REGISTERED');
+    expect(result.imeis[1 - selected].registrationStatus).toBeNull();
   });
   it('segundo vacío es single, segundo inválido e iguales no escriben', async () => {
     for (const value of ['ABC', values[0]]) expect(() => service.submitRegistration({ ...flow, imeis: [imeis[0], { slot: 2, value }] })).toThrow();
@@ -90,7 +90,7 @@ describe('Doble IMEI real, todas las marcas', () => {
     const first = await service.createExternalEquipment({ client, brand, model: 'Legacy local', imeis });
     await service.registerExternalImei({ value: values[1], registration: { status: 'REGISTERED' } });
     const resolved = await service.resolveRegistration({ dni: client.dni, imeis: [{ slot: 1, value: values[1] }] });
-    expect(resolved.equipment?.id).toBe(first.id); expect(resolved.equipment?.imeis.map(i => i.registrationStatus)).toEqual(['NOT_REGISTERED', 'REGISTERED']);
+    expect(resolved.equipment?.id).toBe(first.id); expect(resolved.equipment?.imeis.map(i => i.registrationStatus)).toEqual([null, 'REGISTERED']);
     expect(await db.equipment.count()).toBe(1);
   });
 });

@@ -1,3 +1,4 @@
+import { normalizeOperationalResponse } from '../shared/normalization.js';
 import express, { type ErrorRequestHandler } from 'express';
 import helmet from 'helmet';
 import { createAuthService } from './services/auth.service.js';
@@ -19,6 +20,7 @@ const pos = (req: Request,res: Response) => createPosService(db,requestContext(r
 const users = (req: Request,res: Response) => createUsersService(db,authState(res).user,requestContext(req,authState(res).user.id));
 const app = express();
 app.disable('x-powered-by');
+app.use((_req,res,next)=>{const json=res.json.bind(res);res.json=value=>json(normalizeOperationalResponse(value));next();});
 app.use(helmet());
 app.use(express.json({ limit: '32kb' }));
 app.get('/api/health', (_req, res) => res.json({ name: 'COMUNIC@TE POS', status: 'ok' }));
@@ -33,12 +35,16 @@ app.get('/api/dni/:dni', async (req,res) => {
   if (!['clients.create', 'sales.create', 'registration.create'].some(permission => permissions.includes(permission as typeof permissions[number]))) throw new DomainError(403,'No tienes permisos para consultar DNI.','PERMISSION_REQUIRED');
   res.json(await dniLookup.lookup(req.params.dni));
 });
+for(const [path,kind,permission] of [['sales','sale','sales.delete'],['registration-requests','request','registration.delete'],['equipment','equipment','equipment.delete']] as const){
+ app.get(`/api/${path}/:id/deletion-preview`,requirePermission(permission),async(req,res)=>res.json(await pos(req,res).deletionPreview(kind,req.params.id,req.query.removeOrphanEquipment==='true')));
+ app.delete(`/api/${path}/:id`,requirePermission(permission),async(req,res)=>res.json(await pos(req,res).deletePermanently(kind,req.params.id,req.body)));
+}
 app.get('/api/registration-requests',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).listRegistrationRequests(req.query)));
 app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>res.status(201).json(await pos(req,res).createRegistrationOperation(req.body)));
 app.post('/api/registration-requests/complete',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).completeRegistrationRequests(req.body)));
 app.get('/api/registration-requests/:id',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).getRegistrationRequest(req.params.id)));
 app.patch('/api/registration-requests/:id',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).updateRegistrationRequest(req.params.id,req.body)));
-app.post('/api/registration-requests/:id/transition',async(req,res,next)=>requirePermission(req.body?.status==='CANCELLED'?'registration.cancel':'registration.update')(req,res,next),async(req,res)=>res.json(await pos(req,res).transitionRegistrationRequest(req.params.id,req.body)));
+app.post('/api/registration-requests/:id/transition',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).transitionRegistrationRequest(req.params.id,req.body)));
 app.patch('/api/sales/:id',requirePermission('sales.update'),async(req,res)=>res.json(await pos(req,res).updateSaleNotes(req.params.id,req.body)));
 app.post('/api/auth/logout', async (req,res) => { const state=authState(res); await auth.logout(state.sessionId,requestContext(req,state.user.id)); clearSessionCookie(res); res.json({logout:true}); });
 app.get('/api/users',requirePermission('users.read'),async (req,res)=>res.json(await users(req,res).list(req.query)));
@@ -77,7 +83,6 @@ app.get('/api/sales', requirePermission('sales.read'), async (req, res) => res.j
 app.post('/api/sales/resolve', requirePermission('sales.create'), async (req, res) => res.json(await pos(req,res).resolveSale(req.body)));
 app.get('/api/sales/:id', requirePermission('sales.read'), async (req, res) => res.json(await pos(req,res).getSaleById(req.params.id)));
 app.post('/api/sales', requirePermission('sales.create','clients.create','equipment.create'), async (req, res) => res.status(201).json(await pos(req,res).createSale(req.body)));
-app.post('/api/sales/:id/cancel', requirePermission('sales.cancel'), async (req, res) => res.json(await pos(req,res).cancelSale(req.params.id, req.body)));
 app.use('/api', (_req, _res, next) => next(new DomainError(404, 'Ruta no encontrada.', 'ROUTE_NOT_FOUND')));
 const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   const result = publicError(error);
