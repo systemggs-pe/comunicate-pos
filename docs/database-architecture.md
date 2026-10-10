@@ -296,3 +296,16 @@ en PostgreSQL. No agrega tablas ni modifica estados. La confirmación de datos
 y la auditoría de emisión se ejecutan en una transacción SERIALIZABLE.
 
 [Plantilla A4, identidad y pruebas](phase-6b-declaration-template.md).
+
+## Phase 7 — Evidencias privadas
+
+EvidenceAsset contiene metadatos de objetos S3/MinIO; RegistrationEvidence
+contiene los vínculos por RECO/categoría. PENDING corresponde a una carga privada
+con usuario/sesión/alcance y expiración. READY requiere verificación técnica y
+permite asociaciones. FAILED/DELETING se reconcilian con cleanup. Las FKs,
+restricciones y triggers impiden vínculos huérfanos, cambios de metadatos de un
+archivo compartido, reutilización de IMEI lógico y cruces de operación/equipo.
+La eliminación del último vínculo encola el borrado físico en la misma transacción.
+Las migraciones nuevas son 20261010000300_private_evidence y
+20261010000400_evidence_integrity_guards; las anteriores permanecen intactas.
+[Detalles de compensación y seguridad](phase-7-evidence-storage.md).

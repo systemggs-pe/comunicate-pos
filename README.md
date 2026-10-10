@@ -331,9 +331,9 @@ base local existente ejecute `npm run db:deploy` o el arranque local habitual.
 Las migraciones anteriores se conservan; no use db push.
 
 `/registros` ofrece seguimiento y `/registros/nuevo` revisión explícita de cliente,
-equipo, objetivos, condiciones y evidencias temporales. Registrar ambos IMEIs
+equipo, objetivos, condiciones y evidencias privadas opcionales. Registrar ambos IMEIs
 crea dos solicitudes atómicas con celulares distintos. Realizar uno conserva
-pendiente el otro. Fotos no se suben ni se respaldan. Declaraciones A4 disponibles según Phase 6B.
+pendiente el otro. Las fotografías se almacenan permanentemente en MinIO privado conforme a Phase 7. Declaraciones A4 disponibles según Phase 6B.
 Ventas conserva múltiples equipos y propietarios independientes, agrega accesorios
 con cantidades/precios exactos y advierte IMEIs ya vendidos. DNI es el documento
 actualmente habilitado; CE/pasaporte/RUC requieren una ampliación futura segura.
@@ -354,3 +354,25 @@ migración con `npm run db:deploy` o el inicio local habitual.
 [Plantilla, validaciones y verificación visual](docs/phase-6b-declaration-template.md).
 Se conserva la distribución del original con fuentes Lato de licencia abierta;
 la diferencia tipográfica se documenta. El POS no realiza validaciones externas.
+
+## Phase 7 — Evidencias fotográficas privadas
+
+El registro ofrece DNI frontal/reverso, caja, boleta e IMEI lógico; ninguna foto
+es obligatoria. Las imágenes comunes pueden compartirse explícitamente entre ambos
+IMEIs. Cada IMEI lógico conserva una fotografía independiente. El expediente
+permite consultar, descargar, reemplazar con confirmación y eliminar con permisos.
+SUPERADMIN tiene acceso completo; ADMIN/SELLER requieren permisos explícitos.
+
+Además de PostgreSQL, el desarrollo requiere MinIO Docker en 127.0.0.1:59000,
+con volumen persistente separado. Agrega las variables S3 de `.env.example` a tu
+`.env` existente, ejecuta `docker compose up -d --wait postgres minio`,
+`npm run db:deploy`, `npm run evidence:provision` y `npm run dev`.
+`npm run local` automatiza la preparación. PostgreSQL nativo también requiere
+Docker para el almacenamiento de imágenes. MinIO se compila desde código fuente
+oficial fijado; la primera construcción puede tardar varios minutos.
+
+[Arquitectura, configuración, permisos, cleanup y limitaciones](docs/phase-7-evidence-storage.md).
+[Reporte de verificación Phase 7](docs/phase-7-verification.md).
+No ejecutar `docker compose down -v`: borraría los volúmenes persistentes.
+Las pruebas de integración y E2E comparten fixtures dedicados: ejecutarlas
+secuencialmente, nunca al mismo tiempo. Cámara física y producción: NOT VERIFIED.
