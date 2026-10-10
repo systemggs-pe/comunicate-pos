@@ -12,7 +12,7 @@ export const operationalRegistrationSchema=z.object({idempotencyKey:idSchema,cli
  if(new Set(value.requests.map(r=>r.phone)).size!==value.requests.length)ctx.addIssue({code:'custom',path:['requests',1,'phone'],message:'LOS CELULARES DE AMBOS IMEIS DEBEN SER DISTINTOS.'});
  if(!value.expectedEquipmentId&&!value.equipment?.commercialName)ctx.addIssue({code:'custom',path:['equipment','commercialName'],message:'COMPLETA EL NOMBRE COMERCIAL.'});
 });
-export const requestEditSchema=requestFieldsSchema.partial().strict().refine(v=>Object.keys(v).length>0,'INDICA UNA CORRECCIÓN.');
+export const requestEditSchema=requestFieldsSchema.omit({operator:true}).partial().extend({operator:z.enum(operators).optional()}).strict().refine(v=>Object.keys(v).length>0,'INDICA UNA CORRECCIÓN.');
 export const requestTransitionSchema=z.object({confirm:z.literal(true),action:z.enum(['MARK_REGISTERED','UNBLOCK']),reason:nonempty(500)}).strict();
 export const requestQuerySchema=listQuerySchema.omit({ownerId:true}).extend({status:z.enum(requestStatuses).optional(),equipmentId:idSchema.optional(),clientId:idSchema.optional()});
 export const requestBulkSchema=z.object({confirm:z.literal(true),ids:z.array(idSchema).min(1).max(100).refine(ids=>new Set(ids).size===ids.length),reason:nonempty(500)}).strict();
