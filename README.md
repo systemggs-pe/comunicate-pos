@@ -337,3 +337,8 @@ pendiente el otro. Fotos no se suben ni se respaldan; PDF/ticket no disponibles.
 Ventas conserva múltiples equipos y propietarios independientes, agrega accesorios
 con cantidades/precios exactos y advierte IMEIs ya vendidos. DNI es el documento
 actualmente habilitado; CE/pasaporte/RUC requieren una ampliación futura segura.
+# Tickets térmicos y empresa (Phase 6A)
+
+En **Configuración → Datos de la empresa**, SUPERADMIN puede guardar la información comercial y las preferencias de tickets en PostgreSQL. En ventas, **VER TICKET / IMPRIMIR / DESCARGAR PDF** permiten seleccionar 48 u 80 mm y abrir automáticamente una vista previa con impresión y descarga PDF. Las nuevas generaciones usan la configuración guardada sin reiniciar. Son tickets internos, sin facturación electrónica.
+
+Consulta [la guía de impresión](docs/phase-6a-thermal-printing.md) para márgenes, diferencia entre papel y área imprimible, límites del navegador y pruebas físicas. Aplicar la nueva migración con el inicio local o `npm run db:deploy`. Compatibilidad física con impresoras: **NOT VERIFIED**.

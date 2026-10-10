@@ -280,3 +280,8 @@ Equipment agrega nombre comercial, RAM/ROM/color opcionales para datos anteriore
 No se migra la identidad DNI, no se duplican datos canónicos ni se almacenan fotos.
 
 Política, endpoints, estados, edición y límites: [Flujos operativos](operational-workflows.md).
+# Ampliación Phase 6A: empresa única y tickets internos
+
+`CompanySettings` utiliza id 1 protegido por PRIMARY KEY y CHECK, con campos comerciales, footer, formato predeterminado 48/80, márgenes independientes y visibilidad. `updatedById` referencia al usuario autenticado; `updatedAt` y AuditLog se guardan en la misma transacción de actualización. No agrega tenants ni duplica clientes, equipos o ventas. Nueva migración `20261010000100_company_settings`; migraciones históricas intactas.
+
+El servicio de tickets consulta la venta relacionada y la configuración actual con permiso `sales.read`; la administración usa `settings.read/settings.update`. Las reimpresiones reflejan la empresa vigente; no crean snapshots ni comprobantes fiscales. [Guía Phase 6A](phase-6a-thermal-printing.md).

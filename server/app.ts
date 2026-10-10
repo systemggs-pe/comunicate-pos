@@ -1,4 +1,5 @@
 import { normalizeOperationalResponse } from '../shared/normalization.js';
+import {createCompanyService} from './services/company.service.js';
 import express, { type ErrorRequestHandler } from 'express';
 import helmet from 'helmet';
 import { createAuthService } from './services/auth.service.js';
@@ -30,6 +31,12 @@ app.post('/api/auth/login', async (req,res) => { const result=await auth.login(r
 app.use('/api',requireAuth(auth));
 app.use('/api',rejectActorInput);
 app.get('/api/auth/me', (_req,res) => res.json(authState(res).user));
+app.get('/api/settings/company',requirePermission('settings.read'),async(_req,res)=>res.json(await createCompanyService(db).get()));
+app.patch('/api/settings/company',requirePermission('settings.update'),async(req,res)=>res.json(await createCompanyService(db,requestContext(req,authState(res).user.id)).update(req.body)));
+app.get('/api/sales/:id/receipt',requirePermission('sales.read'),async(req,res)=>{
+ const sale=await pos(req,res).getSaleById(req.params.id);
+ res.json({sale,company:await createCompanyService(db).get()});
+});
 app.get('/api/dni/:dni', async (req,res) => {
   const permissions = authState(res).user.permissions;
   if (!['clients.create', 'sales.create', 'registration.create'].some(permission => permissions.includes(permission as typeof permissions[number]))) throw new DomainError(403,'No tienes permisos para consultar DNI.','PERMISSION_REQUIRED');

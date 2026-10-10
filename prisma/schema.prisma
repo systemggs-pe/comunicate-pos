@@ -81,6 +81,27 @@ model User {
   updatedRequests RegistrationRequest[] @relation("RequestUpdater")
   completedRequests RegistrationRequest[] @relation("RequestCompleter")
   requestHistory RegistrationRequestHistory[]
+  companyUpdates CompanySettings[]
+}
+
+model CompanySettings {
+ id Int @id @default(1)
+ businessName String @db.VarChar(100)
+ businessType String @default("") @db.VarChar(150)
+ address String @default("") @db.VarChar(300)
+ city String @default("") @db.VarChar(100)
+ phone String @default("") @db.VarChar(30)
+ email String @default("") @db.VarChar(254)
+ receiptFooter String @default("") @db.VarChar(500)
+ defaultFormat Int?
+ margin48 Float @default(1)
+ margin80 Float @default(2)
+ showClientContact Boolean @default(true)
+ showSerial Boolean @default(true)
+ showSeller Boolean @default(true)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ updatedById String? @db.Uuid
+ updatedBy User? @relation(fields:[updatedById],references:[id],onDelete:SetNull)
 }
 
 model Client {
