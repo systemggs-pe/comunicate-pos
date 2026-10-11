@@ -1,5 +1,9 @@
 # COMUNIC@TE POS
 
+Phase 8: dashboard real y reportes en `/reportes`, filtros de Lima, CSV seguro y
+permisos `reports.read` / `reports.export` (SUPERADMIN por defecto).
+Documentación: [Dashboard y reportes](docs/phase-8-reports-dashboard.md).
+
 Refinamiento operativo: tres estados por IMEI, ventas con equipos nuevos y eliminación definitiva autorizada. Acceso privado con usuarios, sesiones, roles, permisos y auditoría; ventas Cliente → Venta → Equipo → IMEI, compatible con Cliente → Equipo → IMEI → Registro sobre la fundación independiente del POS anterior. React, Vite, TypeScript,
 Tailwind CSS, Lucide React, API Express, Prisma y PostgreSQL. No contiene migración
 del sistema anterior ni integraciones comerciales.

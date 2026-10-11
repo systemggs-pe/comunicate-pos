@@ -1,5 +1,11 @@
 # Arquitectura actual — refinamiento operativo
 
+Phase 8 agrega únicamente índices y permisos de reportes en la migración
+20261010000500_reports_analytics. Los agregados se calculan en PostgreSQL con
+transacciones REPEATABLE READ y SUM numeric serializado como texto exacto.
+No se duplican tablas ni datos comerciales. Fechas de negocio occurredAt y fechas
+de creación/finalización son independientes. Véase phase-8-reports-dashboard.md.
+
 Migración 20261009000200_operational_refinement: RequestStatus y RegistrationStatus
 contienen BLOCKED/PENDING/REGISTERED. Imei sin solicitud tiene estado NULL (ausencia
 operativa). Registro y bloqueo nuevos corresponden a PENDING y BLOCKED; los cambios
