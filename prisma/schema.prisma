@@ -120,6 +120,7 @@ model Client {
   createdAt DateTime    @default(now()) @db.Timestamptz(3)
   updatedAt DateTime    @updatedAt @db.Timestamptz(3)
   equipment Equipment[]
+  @@index([createdAt])
   purchases Sale[]
 }
 
@@ -143,6 +144,7 @@ model Equipment {
   saleEquipment SaleEquipment[]
   history       EquipmentHistory[]
 
+  @@index([createdAt])
   @@index([ownerId])
   @@index([brand, model])
 }
@@ -192,6 +194,8 @@ model Sale {
   accessories   SaleAccessory[]
 
   @@index([buyerId, createdAt])
+  @@index([occurredAt])
+  @@index([createdById, occurredAt])
 }
 
 model SaleEquipment {
@@ -333,6 +337,11 @@ model RegistrationRequest {
   @@unique([imeiId], map: "request_one_per_imei")
   @@index([imeiId, createdAt])
   @@index([status, createdAt])
+  @@index([occurredAt])
+  @@index([operator, status, occurredAt])
+  @@index([createdById, createdAt])
+  @@index([completedAt])
+  @@index([completedById, completedAt])
 }
 model RegistrationRequestHistory {
   id String @id @default(uuid()) @db.Uuid

@@ -1,4 +1,6 @@
 import {createEvidenceService} from './evidence/service.js';
+import { registerReportRoutes } from './routes/reports.routes.js';
+import { createReportsService } from './services/reports.service.js';
 import type {EvidenceStorageProvider} from './storage/provider.js';
 import { normalizeOperationalResponse } from '../shared/normalization.js';
 import {createCompanyService} from './services/company.service.js';
@@ -34,6 +36,7 @@ app.use('/api', originGuard);
 app.post('/api/auth/login', async (req,res) => { const result=await auth.login(req.body,requestContext(req)); res.cookie(cookieName(),result.token,{...cookieOptions(),expires:result.expiresAt}); res.json(result.user); });
 app.use('/api',requireAuth(auth));
 app.use('/api',rejectActorInput);
+registerReportRoutes(app, db);
 app.get('/api/auth/me', (_req,res) => res.json(authState(res).user));
 app.post('/api/evidence/uploads',async(req,res)=>res.status(201).json(await evidence(req,res).init(req.body)));
 app.post('/api/evidence/uploads/:id/verify',async(req,res)=>res.json(await evidence(req,res).verify(req.params.id)));
@@ -100,7 +103,7 @@ app.patch('/api/imeis/:value/registration', requirePermission('registration.upda
 app.post('/api/registrations/external', requirePermission('registration.create','registration.update','clients.create','equipment.create'), async (req, res) => res.json(await pos(req,res).registerExternalImei(req.body)));
 app.post('/api/registrations/resolve', requirePermission('registration.read'), async (req, res) => res.json(await pos(req,res).resolveRegistration(req.body)));
 app.post('/api/registrations', requirePermission('registration.create','registration.update','clients.create','equipment.create'), async (req, res) => res.json(await pos(req,res).submitRegistration(req.body)));
-app.get('/api/dashboard', requirePermission('sales.read'), async (req, res) => res.json(await pos(req,res).dashboard()));
+app.get('/api/dashboard', requirePermission('reports.read'), async (_req, res) => { const data = await createReportsService(db).read('general', {preset:'today'}); res.json({day:data.period.from,salesToday:data.summary.salesCount,revenueToday:data.summary.salesRevenue,equipmentSoldToday:data.summary.equipmentSold}); });
 app.get('/api/sales', requirePermission('sales.read'), async (req, res) => res.json(await pos(req,res).listSales(req.query)));
 app.post('/api/sales/resolve', requirePermission('sales.create'), async (req, res) => res.json(await pos(req,res).resolveSale(req.body)));
 app.get('/api/sales/:id', requirePermission('sales.read'), async (req, res) => res.json(await pos(req,res).getSaleById(req.params.id)));
