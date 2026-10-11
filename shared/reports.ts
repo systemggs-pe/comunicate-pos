@@ -6,7 +6,7 @@ export const presetLabels = { today: 'HOY', yesterday: 'AYER', last7: 'ÚLTIMOS 
 export type DatePreset = keyof typeof presetLabels;
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
   const date = new Date(`${value}T00:00:00Z`);
-  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  return Number.isFinite(date.getTime()) && date.getUTCFullYear()>0 && value!=='9999-12-31' && date.toISOString().slice(0, 10) === value;
 }, 'FECHA INVÁLIDA.');
 export function limaDay(now = new Date()) {
   return new Date(now.getTime() - 5 * 3600000).toISOString().slice(0, 10);

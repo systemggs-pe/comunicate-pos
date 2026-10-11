@@ -315,3 +315,14 @@ La eliminación del último vínculo encola el borrado físico en la misma trans
 Las migraciones nuevas son 20261010000300_private_evidence y
 20261010000400_evidence_integrity_guards; las anteriores permanecen intactas.
 [Detalles de compensación y seguridad](phase-7-evidence-storage.md).
+
+## Phase 9 — Recuperación e integridad
+
+No se altera el schema ni las 11 migraciones históricas. La recuperación probada
+incluye PostgreSQL y archivos físicos con sus links, checksums, restricciones y
+secuencias en recursos nuevos. Las sesiones de un backup quedan revocadas al
+restaurarlo. Clientes permanecen al eliminar operaciones, cada equipo conserva
+IMEIs únicos por valor/slot y el dinero conserva Decimal, verificados por regresión.
+Los contadores AuthRateLimit existentes también sirven a límites atómicos por
+usuario/grupo de API. [Procedimiento de recuperación](phase-9-backup-restore.md) y
+[plan de PostgreSQL administrado/pool](phase-9-production-preflight.md).

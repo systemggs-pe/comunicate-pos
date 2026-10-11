@@ -83,6 +83,7 @@ export function createReportsService(db: PrismaClient, ctx: AuditContext = {}) {
     async export(type: ReportType, raw: unknown) {
       const data = await read(type, raw, true);
       const csv = reportCsv(data);
+      if(Buffer.byteLength(csv,'utf8')>4*1024*1024)throw new DomainError(413,'EXPORTACIÓN DEMASIADO GRANDE. REDUCE EL PERIODO O LOS FILTROS.','REPORT_EXPORT_SIZE_LIMIT');
       await writeAudit(db, ctx, 'REPORT_EXPORTED', 'Report', undefined, { type, from: data.period.from, to: data.period.to, rowCount: data.total, generatedAt: data.generatedAt });
       return { filename: `COMUNICATE-${type}-${data.period.from}-${data.period.to}.csv`, csv };
     },

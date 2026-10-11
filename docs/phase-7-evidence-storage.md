@@ -134,3 +134,13 @@ El resultado y números finales se registran en `phase-7-verification.md`.
 Cámara física, permisos nativos, vuelta de cámara en Android/iPhone, HEIC nativo y
 proveedores productivos: **NOT VERIFIED**. Los inputs ofrecen capture=environment
 y una galería independiente; el navegador decide si puede abrir cámara física.
+# Actualización Phase 9
+
+La configuración S3 valida endpoints y cifrado de forma cerrada. Cuando se
+configura SSE/KMS, los headers se firman para staging y también se aplican al
+objeto final. MinIO local permanece sin TLS/SSE verificado; no se migraron fotos.
+La recuperación conjunta cifrada y la evaluación de S3/R2 están en
+[backup/restore](phase-9-backup-restore.md) y [preflight](phase-9-production-preflight.md).
+El mantenimiento pausa todo el API privado y el timer de cleanup local; otros workers
+deben pausarse explícitamente para un snapshot coherente. Producción requiere
+trabajador programado, política privada, TLS/cifrado verificables y respaldo externo.

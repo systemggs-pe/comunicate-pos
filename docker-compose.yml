@@ -1,4 +1,7 @@
 name: communicate-pos
+# Exclusivamente desarrollo local. Puertos en loopback, volúmenes persistentes.
+# Las credenciales de ejemplo son públicas y no son válidas para producción.
+# Producción usa PostgreSQL administrado y storage privado externo; no desplegar este Compose.
 services:
   minio:
     build: ./ops/minio

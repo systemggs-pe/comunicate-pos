@@ -380,3 +380,26 @@ oficial fijado; la primera construcción puede tardar varios minutos.
 No ejecutar `docker compose down -v`: borraría los volúmenes persistentes.
 Las pruebas de integración y E2E comparten fixtures dedicados: ejecutarlas
 secuencialmente, nunca al mismo tiempo. Cámara física y producción: NOT VERIFIED.
+
+## Phase 9 — Estabilización previa a producción
+
+La operación local conserva sus flujos. Producción permanece **PARTIAL**, pendiente
+de infraestructura, respaldos externos, proveedor DNI real y hardware. Esta fase
+no realiza deploy ni push. Las credenciales de Compose son exclusivamente locales.
+
+- [Auditoría de seguridad y privacidad](docs/phase-9-security-audit.md).
+- [Respaldo cifrado y recuperación conjunta de DB y fotografías](docs/phase-9-backup-restore.md).
+- [Rendimiento antes/después y carga reproducible](docs/phase-9-performance.md).
+- [Preflight, variables, Vercel, storage y rollback](docs/phase-9-production-preflight.md).
+- [Decisión de readiness y bloqueos de lanzamiento](docs/phase-9-release-readiness.md).
+
+`npm run preflight:production -- --local` comprueba el entorno local sin cambiar
+datos. El perfil productivo sin `--local` devuelve código no-cero hasta completar
+las verificaciones externas. `npm run test:recovery` ensaya DB + fotografías en
+recursos sintéticos nuevos; `npm run test:load -- final` usa una fixture aislada.
+`npm run test:production-ui` comprueba el build/CSP a cuatro tamaños de pantalla.
+El directorio `.test-results/phase9` contiene resultados locales ignorados por Git.
+
+Para respaldar/restaurar, seguir el procedimiento documentado antes de ejecutar
+`backup:create` o `backup:restore`: exigen configuración explícita, passphrase
+privada y destino nuevo. No sustituyen un sistema de backups externo productivo.

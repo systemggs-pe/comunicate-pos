@@ -25,7 +25,14 @@
     "sessions:cleanup": "tsx scripts/cleanup-sessions.ts",
     "test:pdf": "node scripts/verify-declaration.mjs",
     "evidence:provision": "tsx scripts/provision-evidence.ts",
-    "evidence:cleanup": "tsx scripts/cleanup-evidence.ts"
+    "evidence:cleanup": "tsx scripts/cleanup-evidence.ts",
+    "backup:create": "tsx scripts/backup.ts create",
+    "backup:restore": "tsx scripts/backup.ts restore",
+    "test:recovery": "vitest run --project integration tests/integration/recovery.test.ts",
+    "test:load": "tsx scripts/phase9-load.ts",
+    "test:production-ui": "tsx scripts/verify-production-ui.ts",
+    "bundle:measure": "node scripts/measure-bundle.mjs",
+    "preflight:production": "tsx scripts/production-preflight.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1149.0",

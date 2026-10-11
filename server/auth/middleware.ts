@@ -3,17 +3,18 @@ import type { AuthUser, PermissionKey } from '../../shared/auth.js';
 import { DomainError } from '../lib/errors.js';
 import type { createAuthService } from '../services/auth.service.js';
 import type { AuditContext } from '../lib/audit.js';
+import {authorizedOrigins} from '../ops/security.js';
+import {isIP} from 'node:net';
 export const cookieName = () => process.env.NODE_ENV === 'production' ? '__Host-pos_session' : 'pos_session';
 export const cookieOptions = () => ({ httpOnly:true, secure:process.env.NODE_ENV === 'production', sameSite:'lax' as const, path:'/' });
 export function cookieToken(req: Request) { const pairs=(req.headers.cookie ?? '').split(';').map(v=>v.trim()); const entry=pairs.find(v=>v.startsWith(`${cookieName()}=`)); return entry?.slice(cookieName().length+1); }
 export function clearSessionCookie(res: Response) { res.clearCookie(cookieName(),cookieOptions()); }
-export function requestContext(req: Request, userId?: string): AuditContext { return { userId, ip:(req.ip ?? 'unknown').slice(0,100), userAgent:req.get('user-agent')?.slice(0,300) }; }
+export function requestIp(req:Request){const platform=process.env.NODE_ENV==='production'&&process.env.VERCEL==='1'?req.get('x-vercel-forwarded-for')?.split(',')[0]?.trim():undefined;return platform&&isIP(platform)?platform:req.ip??'unknown';}
+export function requestContext(req: Request, userId?: string): AuditContext { return { userId, ip:requestIp(req).slice(0,100), userAgent:req.get('user-agent')?.slice(0,300) }; }
 export interface AuthState { user: AuthUser; sessionId: string }
 export function authState(res: Response): AuthState { return res.locals.auth as AuthState; }
 function origins() {
-  const configured=process.env.AUTH_ALLOWED_ORIGINS;
-  if(!configured && process.env.NODE_ENV==='production') throw new DomainError(503,'Configura el origen autorizado del POS.','AUTH_NOT_CONFIGURED');
-  return (configured ?? 'http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:5175').split(',').map(v=>v.trim()).filter(Boolean);
+  return authorizedOrigins(process.env.AUTH_ALLOWED_ORIGINS,process.env.NODE_ENV==='production');
 }
 export const originGuard: RequestHandler = (req,res,next) => {
   const origin=req.get('origin'), allowed=origins();
@@ -24,7 +25,7 @@ export const originGuard: RequestHandler = (req,res,next) => {
   next();
 };
 export function requireAuth(auth: ReturnType<typeof createAuthService>): RequestHandler { return async (req,res,next) => {
-  try { res.locals.auth=await auth.authenticate(cookieToken(req)); next(); } catch(error) { clearSessionCookie(res); throw error; }
+  try { res.locals.auth=await auth.authenticate(cookieToken(req)); next(); } catch(error) { if(error instanceof DomainError&&error.status===401)clearSessionCookie(res); throw error; }
 }; }
 export function requirePermission(...permissions: PermissionKey[]): RequestHandler { return (_req,res,next) => { const {user}=authState(res); if(permissions.some(p=>!user.permissions.includes(p))) throw new DomainError(403,'No tienes permisos para realizar esta operación.','PERMISSION_REQUIRED'); next(); }; }
 export const rejectActorInput: RequestHandler = (req,_res,next) => {

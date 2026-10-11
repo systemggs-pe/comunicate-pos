@@ -11,7 +11,8 @@ import {checksum,prepareEvidenceImage} from './image.js';
 import {lockAsset,assertPrepared,cleanupEvidence} from './lifecycle.js';
 
 export function createEvidenceService(db:PrismaClient,state:AuthState,actor:AuditContext,provider?:EvidenceStorageProvider){
- const storage=()=>provider??createEvidenceStorage();
+ let resolved=provider;
+ const storage=()=>resolved??=createEvidenceStorage();
  const permission=(...keys:typeof state.user.permissions[number][])=>{if(keys.some(k=>!state.user.permissions.includes(k)))throw new DomainError(403,'NO TIENES PERMISOS PARA ESTA EVIDENCIA.','PERMISSION_REQUIRED');};
  const prepared=(a:EvidenceAsset)=>({assetId:a.id,category:a.category,fileSize:a.fileSize,width:a.width!,height:a.height!});
  async function request(id:string){const found=await db.registrationRequest.findUnique({where:{id}});if(!found)throw new DomainError(404,'SOLICITUD NO ENCONTRADA.','REQUEST_NOT_FOUND');return found;}

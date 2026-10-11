@@ -1,5 +1,8 @@
 import {createEvidenceService} from './evidence/service.js';
 import { registerReportRoutes } from './routes/reports.routes.js';
+import {observeHttp,maintenanceGuard,apiThrottle} from './ops/security.js';
+import {HeadBucketCommand} from '@aws-sdk/client-s3';
+import {createEvidenceStorage,S3EvidenceStorage} from './storage/s3.js';
 import { createReportsService } from './services/reports.service.js';
 import type {EvidenceStorageProvider} from './storage/provider.js';
 import { normalizeOperationalResponse } from '../shared/normalization.js';
@@ -27,15 +30,23 @@ const users = (req: Request,res: Response) => createUsersService(db,authState(re
 const evidence=(req:Request,res:Response)=>createEvidenceService(db,authState(res),requestContext(req,authState(res).user.id),options.evidenceStorage);
 const app = express();
 app.disable('x-powered-by');
+app.use(observeHttp);
 app.use((_req,res,next)=>{const json=res.json.bind(res);res.json=value=>json(normalizeOperationalResponse(value));next();});
 app.use(helmet());
 app.use(express.json({ limit: '32kb' }));
-app.get('/api/health', (_req, res) => res.json({ name: 'COMUNIC@TE POS', status: 'ok' }));
 app.use('/api', (_req,res,next) => { res.set('Cache-Control','no-store'); next(); });
+app.get('/api/health', (_req, res) => res.json({ name: 'COMUNIC@TE POS', status: 'ok' }));
 app.use('/api', originGuard);
+app.use('/api',maintenanceGuard);
 app.post('/api/auth/login', async (req,res) => { const result=await auth.login(req.body,requestContext(req)); res.cookie(cookieName(),result.token,{...cookieOptions(),expires:result.expiresAt}); res.json(result.user); });
 app.use('/api',requireAuth(auth));
 app.use('/api',rejectActorInput);
+app.use('/api',apiThrottle(db));
+app.get('/api/readiness',requirePermission('settings.read'),async(_req,res)=>{
+ const checks:{database:string;storage:string;deletionQueue?:number}={database:'NOT AVAILABLE',storage:'NOT AVAILABLE'};
+ try{await db.$queryRaw`SELECT 1`;checks.database='PASS';checks.deletionQueue=await db.evidenceAsset.count({where:{status:'DELETING'}});}catch{res.status(503).json({status:'degraded',checks});return;}
+ const storage=options.evidenceStorage??createEvidenceStorage();try{if(!(storage instanceof S3EvidenceStorage))throw new Error('STORAGE_PROBE_UNAVAILABLE');await storage.client.send(new HeadBucketCommand({Bucket:storage.config.bucket}));checks.storage='PASS';res.json({status:'ready',checks});}catch{res.status(503).json({status:'degraded',checks});}finally{if(!options.evidenceStorage&&(storage instanceof S3EvidenceStorage))storage.client.destroy();}
+});
 registerReportRoutes(app, db);
 app.get('/api/auth/me', (_req,res) => res.json(authState(res).user));
 app.post('/api/evidence/uploads',async(req,res)=>res.status(201).json(await evidence(req,res).init(req.body)));
@@ -111,8 +122,9 @@ app.post('/api/sales', requirePermission('sales.create','clients.create','equipm
 app.use('/api', (_req, _res, next) => next(new DomainError(404, 'Ruta no encontrada.', 'ROUTE_NOT_FOUND')));
 const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   const result = publicError(error);
+  res.locals.errorCode=result.code;
   // Sin cuerpos, credenciales, DNI, IMEI ni stack en logs públicos.
-  if (result.status === 500) console.error('API_ERROR', error instanceof Error ? error.name : 'UnknownError');
+  if (result.status === 500) console.error(JSON.stringify({event:'api.error',requestId:res.get('X-Request-Id'),code:result.code,status:result.status}));
   res.status(result.status).json({ error: { code: result.code, message: result.message }, message: result.message });
 };
 app.use(errorHandler);
