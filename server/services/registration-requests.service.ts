@@ -1,4 +1,5 @@
 import {attachOperationEvidence} from '../evidence/lifecycle.js';
+import {reuseClientDocuments} from '../documents/reuse.js';
 import { createHash } from 'node:crypto';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { equipmentSchema, idSchema, type resolveRegistrationSchema, type registrationSchema } from '../../shared/validation.js';
@@ -76,6 +77,7 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
           createdRequests.push({id:request.id,value});
         }
         await attachOperationEvidence(tx,input.evidence??[],input.idempotencyKey,createdRequests,actor,sessionId);
+        if(input.documentEvidence.length){if(!equipment.ownerId)throw new DomainError(409,'CLIENTE REQUERIDO.','CLIENT_DOCUMENT_SCOPE');await reuseClientDocuments(tx,input.documentEvidence,equipment.ownerId,createdRequests,actor);}
         return replay(tx);
       }); }catch(error){
         if(error instanceof Prisma.PrismaClientKnownRequestError&&error.code==='P2002'){const previous=await replay(db);if(previous)return previous;}throw error;

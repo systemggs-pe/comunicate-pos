@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import {documentReuseSchema} from './client-documents.js';
 import {evidenceLinksSchema} from './evidence.js';
 import { normalizeText,normalizeEmail } from './normalization.js';
 import { clientSchema,equipmentEditSchema,idSchema,imeiListSchema,imeiValueSchema,listQuerySchema,moneySchema } from './validation.js';
@@ -8,7 +9,7 @@ export const phoneSchema=z.string().trim().regex(/^9\d{8}$/,'CELULAR: NUEVE DÍG
 export const occurredAtSchema=z.iso.datetime({offset:true});
 const nonempty=(max:number)=>z.string().transform(normalizeText).pipe(z.string().min(1,'ESTE CAMPO ES OBLIGATORIO.').max(max));
 export const requestFieldsSchema=z.object({operator:z.enum(operators).default('BITEL'),phone:phoneSchema,referencePhone:z.preprocess(v=>v===''?null:v,phoneSchema.nullable().optional()),address:nonempty(300),department:nonempty(100),email:z.string().transform(normalizeEmail).pipe(z.email().max(254)),price:moneySchema,hasBox:z.boolean(),occurredAt:occurredAtSchema}).strict();
-export const operationalRegistrationSchema=z.object({idempotencyKey:idSchema,evidence:evidenceLinksSchema.optional(),client:clientSchema,imeis:imeiListSchema,equipment:equipmentEditSchema.optional(),expectedEquipmentId:idSchema.optional(),confirmAddImei:z.boolean().default(false),requests:z.array(requestFieldsSchema.extend({value:imeiValueSchema,mode:z.enum(['REGISTRATION','BLOCKED']).default('REGISTRATION')}).strict()).min(1).max(2)}).strict().superRefine((value,ctx)=>{
+export const operationalRegistrationSchema=z.object({idempotencyKey:idSchema,documentEvidence:documentReuseSchema,evidence:evidenceLinksSchema.optional(),client:clientSchema,imeis:imeiListSchema,equipment:equipmentEditSchema.optional(),expectedEquipmentId:idSchema.optional(),confirmAddImei:z.boolean().default(false),requests:z.array(requestFieldsSchema.extend({value:imeiValueSchema,mode:z.enum(['REGISTRATION','BLOCKED']).default('REGISTRATION')}).strict()).min(1).max(2)}).strict().superRefine((value,ctx)=>{
  if(value.evidence?.some(row=>row.imeiValues.some(imei=>!value.requests.some(request=>request.value===imei))))ctx.addIssue({code:'custom',path:['evidence'],message:'LA EVIDENCIA DEBE CORRESPONDER A LOS IMEIS SELECCIONADOS.'});
  if(new Set(value.requests.map(r=>r.value)).size!==value.requests.length||value.requests.some(r=>!value.imeis.some(i=>i.value===r.value)))ctx.addIssue({code:'custom',path:['requests'],message:'SELECCIONA SOLO IMEIS DISTINTOS DEL EQUIPO.'});
  if(new Set(value.requests.map(r=>r.phone)).size!==value.requests.length)ctx.addIssue({code:'custom',path:['requests',1,'phone'],message:'LOS CELULARES DE AMBOS IMEIS DEBEN SER DISTINTOS.'});

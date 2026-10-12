@@ -1,4 +1,8 @@
 import {createEvidenceService} from './evidence/service.js';
+import {clientVault} from './documents/client-vault.js';
+import type {IdentityPhotoProvider} from './integrations/codart.js';
+import {scannerService} from './integrations/scanner-service.js';
+import type {BoxScannerProvider} from './integrations/gemini.js';
 import { registerReportRoutes } from './routes/reports.routes.js';
 import {observeHttp,maintenanceGuard,apiThrottle} from './ops/security.js';
 import {HeadBucketCommand} from '@aws-sdk/client-s3';
@@ -22,13 +26,15 @@ import { createDniProvider } from './dni/providers.js';
 import { createDniLookupService, dniLookupOptions, type DniLookupOptions } from './dni/lookup.service.js';
 import type { DniProvider } from './dni/provider.js';
 
-export function createApp(db: PrismaClient, options: { dniProvider?: DniProvider; dniOptions?: DniLookupOptions; evidenceStorage?:EvidenceStorageProvider } = {}) {
+export function createApp(db: PrismaClient, options: { dniProvider?: DniProvider; dniOptions?: DniLookupOptions; evidenceStorage?:EvidenceStorageProvider;boxScanner?:BoxScannerProvider;identityPhotos?:IdentityPhotoProvider } = {}) {
 const auth = createAuthService(db);
 const dniLookup = createDniLookupService(dni => db.client.findUnique({ where: { dni } }), options.dniProvider ?? createDniProvider(), options.dniOptions ?? dniLookupOptions());
 const pos = (req: Request,res: Response) => createPosService(db,requestContext(req,authState(res).user.id),authState(res).sessionId,authState(res).user.permissions.includes('registration.evidence.delete'));
 const users = (req: Request,res: Response) => createUsersService(db,authState(res).user,requestContext(req,authState(res).user.id));
 const evidence=(req:Request,res:Response)=>createEvidenceService(db,authState(res),requestContext(req,authState(res).user.id),options.evidenceStorage);
 const app = express();
+const scan=scannerService(db,options.boxScanner);
+const vault=clientVault(db,options.evidenceStorage,options.identityPhotos);
 app.disable('x-powered-by');
 app.use(observeHttp);
 app.use((_req,res,next)=>{const json=res.json.bind(res);res.json=value=>json(normalizeOperationalResponse(value));next();});
@@ -48,6 +54,13 @@ app.get('/api/readiness',requirePermission('settings.read'),async(_req,res)=>{
  const storage=options.evidenceStorage??createEvidenceStorage();try{if(!(storage instanceof S3EvidenceStorage))throw new Error('STORAGE_PROBE_UNAVAILABLE');await storage.client.send(new HeadBucketCommand({Bucket:storage.config.bucket}));checks.storage='PASS';res.json({status:'ready',checks});}catch{res.status(503).json({status:'degraded',checks});}finally{if(!options.evidenceStorage&&(storage instanceof S3EvidenceStorage))storage.client.destroy();}
 });
 registerReportRoutes(app, db);
+app.get('/api/clients/:clientId/documents',async(req,res)=>res.json(await vault.list(authState(res),req.params.clientId)));
+app.get('/api/clients/:clientId/documents/:id/access',async(req,res)=>res.json(await vault.access(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.id,req.query.download==='true')));
+app.post('/api/clients/:clientId/documents',express.raw({type:['image/jpeg','image/png','image/webp'],limit:'10mb'}),async(req,res)=>res.status(201).json(await vault.upload(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.body,req.get('content-type')??'',{...req.query,confirmed:req.query.confirmed==='true'})));
+app.post('/api/clients/:clientId/identity-photos',async(req,res)=>res.json(await vault.lookupPhotos(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.body)));
+app.patch('/api/clients/:clientId/documents/:id',async(req,res)=>res.json(await vault.classify(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.id,req.body)));
+app.delete('/api/clients/:clientId/documents/:id',async(req,res)=>res.json(await vault.remove(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.id,req.body)));
+app.post('/api/scans/box',express.raw({type:['image/jpeg','image/png','image/webp'],limit:'10mb'}),async(req,res)=>{const state=authState(res);if(!state.user.permissions.some(p=>p==='sales.create'||p==='registration.create'))throw new DomainError(403,'NO TIENES PERMISO PARA ESCANEAR EQUIPOS.','PERMISSION_REQUIRED');const controller=new AbortController();const stop=()=>{if(!res.writableEnded)controller.abort();};res.once('close',stop);try{res.json(await scan(state.user.id,req.body,req.get('content-type')??'',controller.signal));}finally{res.off('close',stop);}});
 app.get('/api/auth/me', (_req,res) => res.json(authState(res).user));
 app.post('/api/evidence/uploads',async(req,res)=>res.status(201).json(await evidence(req,res).init(req.body)));
 app.post('/api/evidence/uploads/:id/verify',async(req,res)=>res.json(await evidence(req,res).verify(req.params.id)));
@@ -76,7 +89,7 @@ for(const [path,kind,permission] of [['sales','sale','sales.delete'],['registrat
  app.delete(`/api/${path}/:id`,requirePermission(permission),async(req,res)=>{const preview=await pos(req,res).deletionPreview(kind,req.params.id,req.body?.removeOrphanEquipment===true);if(preview.counts.evidence>0&&!authState(res).user.permissions.includes('registration.evidence.delete'))throw new DomainError(403,'LA ELIMINACIÓN INCLUYE FOTOS Y REQUIERE PERMISO PARA ELIMINAR EVIDENCIAS.','PERMISSION_REQUIRED');res.json(await pos(req,res).deletePermanently(kind,req.params.id,req.body));});
 }
 app.get('/api/registration-requests',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).listRegistrationRequests(req.query)));
-app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>{if(req.body?.evidence?.length&&!authState(res).user.permissions.includes('registration.evidence.upload'))throw new DomainError(403,'NO TIENES PERMISOS PARA ADJUNTAR EVIDENCIAS.','PERMISSION_REQUIRED');res.status(201).json(await pos(req,res).createRegistrationOperation(req.body));});
+app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>{if((req.body?.evidence?.length||req.body?.documentEvidence?.length)&&!authState(res).user.permissions.includes('registration.evidence.upload'))throw new DomainError(403,'NO TIENES PERMISOS PARA ADJUNTAR EVIDENCIAS.','PERMISSION_REQUIRED');if(req.body?.documentEvidence?.length&&!authState(res).user.permissions.includes('client.documents.read'))throw new DomainError(403,'SE REQUIERE PERMISO DE DOCUMENTACIÓN.','PERMISSION_REQUIRED');res.status(201).json(await pos(req,res).createRegistrationOperation(req.body));});
 app.post('/api/registration-requests/complete',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).completeRegistrationRequests(req.body)));
 app.get('/api/registration-requests/:id',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).getRegistrationRequest(req.params.id)));
 app.patch('/api/registration-requests/:id',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).updateRegistrationRequest(req.params.id,req.body)));

@@ -85,6 +85,7 @@ model User {
   companyUpdates CompanySettings[]
   evidenceAssets EvidenceAsset[]
   evidenceLinks RegistrationEvidence[]
+  clientDocuments ClientDocument[]
 }
 
 model CompanySettings {
@@ -113,6 +114,7 @@ model Client {
   dni       String      @unique @db.VarChar(8)
   firstName String      @db.VarChar(100)
   lastName  String      @db.VarChar(100)
+  fullName  String?     @db.VarChar(201)
   phone     String?     @db.VarChar(30)
   address   String?     @db.VarChar(300)
   department String?    @db.VarChar(100)
@@ -122,6 +124,8 @@ model Client {
   equipment Equipment[]
   @@index([createdAt])
   purchases Sale[]
+  documents ClientDocument[]
+  identityAssets EvidenceAsset[]
 }
 
 model Equipment {
@@ -373,6 +377,7 @@ enum EvidenceStatus {
  DELETING
 }
 enum EvidenceCategory {
+ IDENTITY_IMAGE
  DNI_FRONT
  DNI_BACK
  DEVICE_BOX
@@ -409,8 +414,33 @@ model EvidenceAsset {
  deleteAttempts Int @default(0)
  lastDeleteErrorCode String? @db.VarChar(40)
  links RegistrationEvidence[]
+ clientDocuments ClientDocument[]
+ ownerClientId String? @db.Uuid
+ ownerClient Client? @relation(fields:[ownerClientId],references:[id],onDelete:Restrict)
  @@index([status,expiresAt])
  @@index([ownerSessionId,status])
+}
+model ClientDocument {
+ id String @id @default(uuid()) @db.Uuid
+ clientId String @db.Uuid
+ client Client @relation(fields:[clientId],references:[id],onDelete:Restrict)
+ evidenceAssetId String @db.Uuid
+ evidenceAsset EvidenceAsset @relation(fields:[evidenceAssetId],references:[id],onDelete:Restrict)
+ category String @db.VarChar(30)
+ documentType String @db.VarChar(20)
+ source String @db.VarChar(30)
+ sourceOrdinal Int?
+ status String @default("CURRENT") @db.VarChar(20)
+ purpose String @db.VarChar(200)
+ authorizationReference String @db.VarChar(200)
+ expiresAt DateTime @db.Timestamptz(3)
+ createdAt DateTime @default(now()) @db.Timestamptz(3)
+ updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ createdById String? @db.Uuid
+ createdBy User? @relation(fields:[createdById],references:[id],onDelete:SetNull)
+ @@unique([clientId,evidenceAssetId,documentType,source])
+ @@index([clientId,status,documentType])
+ @@index([evidenceAssetId])
 }
 model RegistrationEvidence {
  id String @id @default(uuid()) @db.Uuid

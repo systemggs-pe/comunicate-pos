@@ -27,10 +27,10 @@ export async function attachOperationEvidence(tx:Db,rows:{assetId:string;categor
 // a staging tombstone remains until every previously issued PUT has expired.
 export async function cleanupEvidence(db:PrismaClient,provider?:EvidenceStorageProvider,ids?:string[],limits?:{maxCandidates:number;deadline:number;signal?:AbortSignal}){
  const scope=ids?{id:{in:ids}}:{};
- const expired={...scope,status:{in:['PENDING','FAILED'] as ('PENDING'|'FAILED')[]},expiresAt:{lte:new Date()},links:{none:{}}};
+ const expired={...scope,status:{in:['PENDING','FAILED'] as ('PENDING'|'FAILED')[]},expiresAt:{lte:new Date()},links:{none:{}},clientDocuments:{none:{}}};
  if(limits){const batch=await db.evidenceAsset.findMany({where:expired,select:{id:true},take:Math.max(1,Math.min(100,limits.maxCandidates)),orderBy:{createdAt:'asc'}});if(batch.length)await db.evidenceAsset.updateMany({where:{...expired,id:{in:batch.map(a=>a.id)}},data:{status:'DELETING'}});}
  else await db.evidenceAsset.updateMany({where:expired,data:{status:'DELETING'}});
- const candidates=await db.evidenceAsset.findMany({where:{...scope,OR:[{status:'DELETING',links:{none:{}}},{status:'READY',stagingKey:{not:null},uploadExpiresAt:{lt:new Date(Date.now()-5000)}}]},select:{id:true},take:Math.max(1,Math.min(100,limits?.maxCandidates??100)),orderBy:{createdAt:'asc'}});
+ const candidates=await db.evidenceAsset.findMany({where:{...scope,OR:[{status:'DELETING',links:{none:{}},clientDocuments:{none:{}}},{status:'READY',stagingKey:{not:null},uploadExpiresAt:{lt:new Date(Date.now()-5000)}}]},select:{id:true},take:Math.max(1,Math.min(100,limits?.maxCandidates??100)),orderBy:{createdAt:'asc'}});
  const pending:string[]=[];let deleted=0;
  if(!candidates.length)return {deleted,pending};
  let storage:EvidenceStorageProvider;
@@ -39,7 +39,7 @@ export async function cleanupEvidence(db:PrismaClient,provider?:EvidenceStorageP
   await db.$transaction(async tx=>{
    const asset=await lockAsset(tx,candidate.id);if(!asset)return;
    if(asset.status==='READY'){if(asset.stagingKey&&asset.uploadExpiresAt.getTime()+5000<Date.now()){await storage.delete(asset.stagingKey);await tx.evidenceAsset.update({where:{id:asset.id},data:{stagingKey:null}});}return;}
-   if(asset.status!=='DELETING'||await tx.registrationEvidence.count({where:{evidenceAssetId:asset.id}}))return;
+   if(asset.status!=='DELETING'||await tx.registrationEvidence.count({where:{evidenceAssetId:asset.id}})||await tx.clientDocument.count({where:{evidenceAssetId:asset.id}}))return;
    await storage.delete(asset.storageKey);if(asset.stagingKey)await storage.delete(asset.stagingKey);
    const verificationWindow=!!asset.verificationStartedAt&&asset.verificationStartedAt.getTime()+120000>=Date.now();
    if(asset.uploadExpiresAt.getTime()+5000>=Date.now()||verificationWindow){pending.push(asset.id);await tx.evidenceAsset.update({where:{id:asset.id},data:{lastDeleteErrorCode:verificationWindow?'VERIFICATION_WINDOW_OPEN':'UPLOAD_WINDOW_OPEN'}});return;}

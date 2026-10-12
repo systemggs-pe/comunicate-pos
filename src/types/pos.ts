@@ -1,6 +1,6 @@
 export type RegistrationStatus = 'BLOCKED' | 'PENDING' | 'REGISTERED';
 export interface Client {
-  id: string; code: string; dni: string; firstName: string; lastName: string;
+  id: string; code: string; dni: string; firstName: string; lastName: string;fullName?:string|null;
   phone: string | null; email: string | null; address?:string|null; department?:string|null; createdAt: string; updatedAt: string; equipmentCount?: number;
 }
 export interface Imei {
@@ -19,7 +19,7 @@ export interface Equipment {
 export interface ClientDetails extends Client { equipment: Equipment[]; purchases?: Sale[] }
 export interface HistoryEvent { id: string; equipmentId: string; imeiId: string | null; eventType: string; createdAt: string; metadata: Record<string, unknown> | null }
 export interface ImeiInput { slot: number; value: string; type: 'PHYSICAL' | 'ESIM' }
-export interface ClientInput { dni: string; firstName: string; lastName: string; phone?: string; email?: string; address?:string; department?:string }
+export interface ClientInput { dni: string; firstName: string; lastName: string; fullName?:string;phone?: string; email?: string; address?:string; department?:string }
 export interface EquipmentInput { commercialName?:string|null; color?:string|null; ram?:string|null; storage?:string|null; brand: string; model: string; serialNumber?: string | null }
 export interface RegistrationResolution { kind: 'NEW' | 'EXISTING'; equipment: Equipment | null; additions: ImeiInput[]; requiresConfirmation: boolean }
 export interface RegistrationInput {

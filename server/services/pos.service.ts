@@ -176,7 +176,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
     getEquipmentHistory: async (id: unknown) => { const equipmentId = idSchema.parse(id); await repository.getEquipmentById(db, equipmentId); return repository.getHistory(db, equipmentId); },
     listClients: async (raw: unknown = {}) => {
       const { q, offset, limit } = listQuerySchema.parse(raw);
-      const rows = await db.client.findMany({ where: { AND: q.split(/\s+/).filter(Boolean).map(term => ({ OR: [{ dni: { contains: term } }, { code: { contains: term, mode: 'insensitive' as const } }, { firstName: { contains: term, mode: 'insensitive' as const } }, { lastName: { contains: term, mode: 'insensitive' as const } }, { email: { contains: term, mode: 'insensitive' as const } }] })) }, include: { _count: { select: { equipment: true } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit });
+      const rows = await db.client.findMany({ where: { AND: q.split(/\s+/).filter(Boolean).map(term => ({ OR: [{ dni: { contains: term } }, { code: { contains: term, mode: 'insensitive' as const } }, { firstName: { contains: term, mode: 'insensitive' as const } }, { lastName: { contains: term, mode: 'insensitive' as const } },{ fullName:{contains:term,mode:'insensitive' as const}}, { email: { contains: term, mode: 'insensitive' as const } }] })) }, include: { _count: { select: { equipment: true } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit });
       return rows.map(({ _count, ...client }) => ({ ...client, equipmentCount: _count.equipment }));
     },
     listEquipment: async (raw: unknown = {}) => {

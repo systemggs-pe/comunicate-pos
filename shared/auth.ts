@@ -2,6 +2,7 @@ import { normalizeText } from './normalization.js';
 import { z } from 'zod';
 import { idSchema, listQuerySchema } from './validation.js';
 export const permissionKeys = [
+  'client.documents.read','client.documents.upload','client.documents.replace','client.documents.delete','client.identity_photo.lookup',
   'reports.read', 'reports.export',
   'registration.evidence.read','registration.evidence.upload','registration.evidence.replace','registration.evidence.delete',
   'clients.read', 'clients.create', 'clients.update',
@@ -13,7 +14,7 @@ export const permissionKeys = [
 ] as const;
 export type PermissionKey = typeof permissionKeys[number];
 export const sellerPermissions = permissionKeys.filter(p => ['clients.read','clients.create','clients.update','equipment.read','equipment.create','registration.read','registration.create','registration.update','sales.read','sales.create'].includes(p));
-export const adminPermissions = permissionKeys.filter(p => !p.startsWith('reports.')&&!p.startsWith('registration.evidence.')&&!['roles.update','settings.update','registration.delete','sales.delete','equipment.delete'].includes(p));
+export const adminPermissions = permissionKeys.filter(p => !p.startsWith('client.')&&!p.startsWith('reports.')&&!p.startsWith('registration.evidence.')&&!['roles.update','settings.update','registration.delete','sales.delete','equipment.delete'].includes(p));
 export const emailSchema = z.string().trim().toLowerCase().email().max(254);
 export const passwordSchema = z.string().min(10, 'Usa al menos 10 caracteres.').max(128, 'Usa como máximo 128 caracteres.');
 export const loginSchema = z.object({ email: emailSchema, password: z.string().min(1).max(128) }).strict();

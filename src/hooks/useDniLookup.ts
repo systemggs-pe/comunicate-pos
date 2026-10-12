@@ -21,11 +21,11 @@ export function useDniLookup(value: ClientFieldsValue, onChange: (value: ClientF
       api.get<DniLookupResponse<Client>>(`/dni/${dni}`, controller.signal).then(data => {
         if (controller.signal.aborted) return;
         setResult({ key, data, error: null });
-        if(data.source==='LOCAL'&&dniSchema.safeParse(latest.current.value.dni).data===dni){latest.current.onChange({...latest.current.value,firstName:data.client.firstName,lastName:data.client.lastName,phone:data.client.phone??'',email:data.client.email??'',address:data.client.address??'',department:data.client.department??''});}
+        if(data.source==='LOCAL'&&dniSchema.safeParse(latest.current.value.dni).data===dni){latest.current.onChange({...latest.current.value,firstName:data.client.firstName,lastName:data.client.lastName,fullName:data.client.fullName,phone:data.client.phone??'',email:data.client.email??'',address:data.client.address??'',department:data.client.department??''});}
         if (data.source === 'EXTERNAL' && dniSchema.safeParse(latest.current.value.dni).data === dni) {
           const draft = latest.current.value;
           // No sobrescribir correcciones ya escritas mientras se consultaba.
-          latest.current.onChange({ ...draft, firstName: draft.firstName || data.data.firstName, lastName: draft.lastName || data.data.lastName });
+          latest.current.onChange({ ...draft,...(!draft.firstName&&!draft.lastName&&!draft.fullName&&data.data.fullName?{fullName:data.data.fullName}:{}),firstName:draft.firstName||data.data.firstName,lastName:draft.lastName||data.data.lastName });
         }
       }).catch(error => {
         if (!controller.signal.aborted) setResult({ key, data: null, error: error instanceof ApiError ? error : new ApiError(0, 'DNI_PROVIDER_UNAVAILABLE', 'No pudimos consultar el DNI. Puedes ingresar los datos manualmente.') });

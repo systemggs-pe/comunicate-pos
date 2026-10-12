@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import {normalizeText} from '../../shared/normalization.js';
 import { dniSchema } from '../../shared/validation.js';
 import type { DniData, DniLookupResponse } from '../../shared/dni.js';
 import { DomainError } from '../lib/errors.js';
@@ -6,6 +7,7 @@ import { dniError, DniProviderError, type DniLookupResult, type DniProvider } fr
 
 const name = z.string().trim().transform(value => value.replace(/\s+/g, ' ')).pipe(z.string().min(1).max(100));
 function normalize(raw: DniLookupResult, dni: string): DniData {
+  if(raw.source==='codart'&&raw.dni===dni&&typeof raw.fullName==='string'&&raw.fullName.trim()&&raw.fullName.length<=201)return {dni,fullName:normalizeText(raw.fullName),firstName:'',lastName:''};
   const parsedDni = dniSchema.safeParse(raw.dni);
   const first = name.safeParse(raw.firstName);
   const last = name.safeParse(raw.lastName ?? [raw.paternalLastName, raw.maternalLastName].filter(Boolean).join(' '));
