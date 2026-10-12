@@ -1,0 +1,15 @@
+node_modules
+dist
+build-server
+.git
+.env
+.env.*
+.local
+.local-admin.txt
+.test-results
+output
+tmp
+coverage
+playwright-report
+*.log
+.codex

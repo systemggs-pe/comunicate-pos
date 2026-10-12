@@ -5,7 +5,7 @@ export class DomainError extends Error {
   constructor(public status: number, message: string, public code = 'OPERATION_FAILED') { super(message); }
 }
 export function publicError(error: unknown): { status: number; code: string; message: string } {
-  if ((error instanceof Prisma.PrismaClientKnownRequestError&&['P1001','P1002','P1008','P1017','P2024'].includes(error.code)) || (error instanceof Prisma.PrismaClientInitializationError&&['P1001','P1002'].includes(error.errorCode??''))) return {status:503,code:'DATABASE_UNAVAILABLE',message:'Servicio temporalmente no disponible. Conserva tus datos y reintenta.'};
+  if ((error instanceof Prisma.PrismaClientKnownRequestError&&['P1001','P1002','P1008','P1017','P2024'].includes(error.code)) || error instanceof Prisma.PrismaClientInitializationError) return {status:503,code:'DATABASE_UNAVAILABLE',message:'Servicio temporalmente no disponible. Conserva tus datos y reintenta.'};
   if (error instanceof DomainError) return { status: error.status, code: error.code, message: error.message };
   if (error instanceof ZodError) return { status: 400, code: 'VALIDATION_ERROR', message: error.issues.map(i => i.message).join('; ') };
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

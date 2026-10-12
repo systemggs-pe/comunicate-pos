@@ -1,0 +1,17 @@
+/ /index.html 200
+/login /index.html 200
+/dashboard /index.html 200
+/clientes /index.html 200
+/clientes/* /index.html 200
+/equipos /index.html 200
+/equipos/* /index.html 200
+/registros /index.html 200
+/registros/* /index.html 200
+/ventas /index.html 200
+/ventas/* /index.html 200
+/reportes /index.html 200
+/configuracion /index.html 200
+/usuarios /index.html 200
+/usuarios/* /index.html 200
+/roles /index.html 200
+/auditoria /index.html 200

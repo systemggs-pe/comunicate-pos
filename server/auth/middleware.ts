@@ -9,7 +9,7 @@ export const cookieName = () => process.env.NODE_ENV === 'production' ? '__Host-
 export const cookieOptions = () => ({ httpOnly:true, secure:process.env.NODE_ENV === 'production', sameSite:'lax' as const, path:'/' });
 export function cookieToken(req: Request) { const pairs=(req.headers.cookie ?? '').split(';').map(v=>v.trim()); const entry=pairs.find(v=>v.startsWith(`${cookieName()}=`)); return entry?.slice(cookieName().length+1); }
 export function clearSessionCookie(res: Response) { res.clearCookie(cookieName(),cookieOptions()); }
-export function requestIp(req:Request){const platform=process.env.NODE_ENV==='production'&&process.env.VERCEL==='1'?req.get('x-vercel-forwarded-for')?.split(',')[0]?.trim():undefined;return platform&&isIP(platform)?platform:req.ip??'unknown';}
+export function requestIp(req:Request){const localProxy=process.env.NODE_ENV==='production'&&process.env.TRUST_LOOPBACK_PROXY==='true'&&['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket.remoteAddress??'');const platform=process.env.NODE_ENV==='production'&&process.env.VERCEL==='1'?req.get('x-vercel-forwarded-for')?.split(',')[0]?.trim():localProxy?req.get('x-real-ip'):undefined;return platform&&isIP(platform)?platform:req.ip??'unknown';}
 export function requestContext(req: Request, userId?: string): AuditContext { return { userId, ip:requestIp(req).slice(0,100), userAgent:req.get('user-agent')?.slice(0,300) }; }
 export interface AuthState { user: AuthUser; sessionId: string }
 export function authState(res: Response): AuthState { return res.locals.auth as AuthState; }

@@ -403,3 +403,13 @@ El directorio `.test-results/phase9` contiene resultados locales ignorados por G
 Para respaldar/restaurar, seguir el procedimiento documentado antes de ejecutar
 `backup:create` o `backup:restore`: exigen configuración explícita, passphrase
 privada y destino nuevo. No sustituyen un sistema de backups externo productivo.
+# Preparación cloud Phase 10A
+
+Arquitectura: Pages estático + Oracle ARM64/systemd + Neon + R2 privado + B2 cifrado.
+Preparación local; no recursos cloud ni publicación automática. Ver
+[arquitectura](docs/phase-10a-architecture.md), [cuotas](docs/phase-10a-free-tier-limits.md),
+[verificación](docs/phase-10a-verification.md) y [checklist10B](docs/phase-10a-manual-checklist.md).
+`npm run build:api`, `npm run worker:run`, `npm run backup:cloud -- estimate`,
+`npm run test:cloud-ui`, `npm run preflight:cloud`. Worker requiere destino explícito;
+otros comandos backup cloud requieren autorización, nunca ejecutarlos con datos reales para probar.
+Frontend sólo VITE_API_BASE_URL pública; cookies Lax requieren app/API HTTPS same-site.

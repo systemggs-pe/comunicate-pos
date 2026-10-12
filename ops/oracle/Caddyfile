@@ -1,0 +1,20 @@
+{$API_HOST} {
+    request_body {
+        max_size 32KB
+    }
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        -Server
+    }
+    reverse_proxy 127.0.0.1:3001 {
+        header_up X-Real-IP {remote_host}
+        header_up -X-Vercel-Forwarded-For
+        transport http {
+            dial_timeout 5s
+            response_header_timeout 35s
+        }
+    }
+    # No access log: URLs can contain DNI; use sanitized API events/journal.
+}

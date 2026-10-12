@@ -1,3 +1,6 @@
+import {apiBase} from '../../shared/cloud';
+const base = apiBase(import.meta.env.VITE_API_BASE_URL, import.meta.env.PROD);
+export const apiUrl = (path: string) => { if (!path.startsWith('/') || path.startsWith('//')) throw new Error('INVALID_API_PATH'); return `${base}${path}`; };
 export class ApiError extends Error {
   constructor(public status: number, public code: string, message: string) { super(message); }
 }
@@ -5,8 +8,8 @@ export class ApiClient {
   async request<T>(path: string, method = 'GET', body?: unknown, signal?: AbortSignal): Promise<T> {
     let response: Response;
     try {
-      response = await fetch(`/api${path}`, {
-        method, credentials: 'same-origin', signal: AbortSignal.any([AbortSignal.timeout(30000), ...(signal ? [signal] : [])]),
+      response = await fetch(apiUrl(path), {
+        method, credentials: 'include', signal: AbortSignal.any([AbortSignal.timeout(30000), ...(signal ? [signal] : [])]),
         headers: { ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}) },
         body: body === undefined ? undefined : JSON.stringify(body),
       });
@@ -25,7 +28,7 @@ export class ApiClient {
   patch<T>(path: string, body: unknown) { return this.request<T>(path, 'PATCH', body); }
 }
 export async function getApiHealth(signal?: AbortSignal): Promise<boolean> {
-  const response = await fetch('/api/health', { signal });
+  const response = await fetch(apiUrl('/health'), { signal, credentials: 'include' });
   if (!response.ok) throw new Error('API no disponible');
   const data: unknown = await response.json();
   return typeof data === 'object' && data !== null && 'status' in data && data.status === 'ok';

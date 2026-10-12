@@ -4,6 +4,7 @@ import { navigate, Link } from '../../app/router';
 import { useApiQuery } from '../../hooks/useApiQuery';
 import { ErrorNotice, Loading } from '../../components/common';
 import { money } from '../sales/common';
+import {apiUrl} from '../../services/api';
 import { presetLabels, presetRange, reportLabels, reportTypes, stateLabels, reportPaymentLabels, type DatePreset, type ReportData, type ReportRow, type ReportTable, type ReportType } from '../../../shared/reports';
 const SalesChart = lazy(() => import('./Charts').then(m => ({ default: m.SalesChart })));
 const StateChart = lazy(() => import('./Charts').then(m => ({ default: m.StateChart })));
@@ -51,7 +52,7 @@ export function Analytics({ dashboard = false }: { dashboard?: boolean }) {
   async function download() {
     setExportState({ busy: true, error: '' });
     try {
-      const response = await fetch(`/api/reports/export?type=${type}&${apiParams}`, { credentials: 'same-origin', signal: AbortSignal.timeout(30000) });
+      const response = await fetch(apiUrl(`/reports/export?type=${type}&${apiParams}`), { credentials: 'include', signal: AbortSignal.timeout(30000) });
       if (!response.ok) { const data = await response.json(); throw new Error(data.error?.message ?? 'NO SE PUDO EXPORTAR.'); }
       const blob = await response.blob(), url = URL.createObjectURL(blob), anchor = document.createElement('a');
       anchor.href = url; anchor.download = `COMUNICATE-${type}-${query.data?.period.from}-${query.data?.period.to}.csv`; anchor.click();

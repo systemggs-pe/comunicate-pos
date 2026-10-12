@@ -1,0 +1,14 @@
+import 'dotenv/config';
+import {app} from './app.js';
+import {prisma} from './db/prisma.js';
+import {startHttp} from './ops/runtime.js';
+import {authorizedOrigins} from './ops/security.js';
+import {storageConfig} from './storage/s3.js';
+import {neonConnection} from './ops/cloud-configuration.js';
+if (process.env.NODE_ENV !== 'production') throw new Error('PRODUCTION_MODE_REQUIRED');
+authorizedOrigins(process.env.AUTH_ALLOWED_ORIGINS, true);
+neonConnection(process.env.DATABASE_URL,true);
+storageConfig();
+const port = Number(process.env.PORT ?? 3001);
+if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('INVALID_API_PORT');
+startHttp(app, port, () => prisma.$disconnect());
