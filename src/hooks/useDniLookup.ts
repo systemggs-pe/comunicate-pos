@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useApi } from '../app/ApiProvider';
 import { ApiError } from '../services/api';
 import { dniSchema } from '../../shared/validation';
@@ -13,19 +13,25 @@ export function useDniLookup(value: ClientFieldsValue, onChange: (value: ClientF
   const key = `${dni}:${revision}`;
   const [result, setResult] = useState<{ key: string; data: DniLookupResponse<Client> | null; error: ApiError | null }>({ key: '', data: null, error: null });
   const latest = useRef({ value, onChange });
-  useEffect(() => { latest.current = { value, onChange }; }, [value, onChange]);
+  const versions=useRef<Partial<Record<keyof ClientFieldsValue,number>>>({});
+  useLayoutEffect(()=>{if(latest.current.value.dni!==value.dni)versions.current={};else for(const field of ['firstName','lastName','fullName','phone','email','address','department'] as const)if(latest.current.value[field]!==value[field])versions.current[field]=(versions.current[field]??0)+1;latest.current={value,onChange};});
   useEffect(() => {
     if (!dni || manualDni === dni) return;
-    const controller = new AbortController();
+    const controller = new AbortController(),baseline={...versions.current};
     const timer = setTimeout(() => {
       api.get<DniLookupResponse<Client>>(`/dni/${dni}`, controller.signal).then(data => {
         if (controller.signal.aborted) return;
         setResult({ key, data, error: null });
-        if(data.source==='LOCAL'&&dniSchema.safeParse(latest.current.value.dni).data===dni){latest.current.onChange({...latest.current.value,firstName:data.client.firstName,lastName:data.client.lastName,fullName:data.client.fullName,phone:data.client.phone??'',email:data.client.email??'',address:data.client.address??'',department:data.client.department??''});}
-        if (data.source === 'EXTERNAL' && dniSchema.safeParse(latest.current.value.dni).data === dni) {
-          const draft = latest.current.value;
-          // No sobrescribir correcciones ya escritas mientras se consultaba.
-          latest.current.onChange({ ...draft,...(!draft.firstName&&!draft.lastName&&!draft.fullName&&data.data.fullName?{fullName:data.data.fullName}:{}),firstName:draft.firstName||data.data.firstName,lastName:draft.lastName||data.data.lastName });
+        if((data.source==='LOCAL'||data.source==='EXTERNAL')&&dniSchema.safeParse(latest.current.value.dni).data===dni){
+          const draft=latest.current.value,incoming=data.source==='LOCAL'?data.client:data.data;
+          const next={...draft};
+          const nameFields=['firstName','lastName','fullName'] as const;
+          const nameDirty=nameFields.some(field=>(versions.current[field]??0)!==(baseline[field]??0));
+          for(const field of ['firstName','lastName','fullName','phone','email','address','department'] as const){
+            if(nameFields.some(f=>f===field)&&(nameDirty||draft.firstName||draft.lastName||draft.fullName))continue;
+            if(!draft[field]&&(versions.current[field]??0)===(baseline[field]??0)&&field in incoming){const v=(incoming as Partial<ClientFieldsValue>)[field];if(v)next[field]=v;}
+          }
+          latest.current.onChange(next);
         }
       }).catch(error => {
         if (!controller.signal.aborted) setResult({ key, data: null, error: error instanceof ApiError ? error : new ApiError(0, 'DNI_PROVIDER_UNAVAILABLE', 'No pudimos consultar el DNI. Puedes ingresar los datos manualmente.') });

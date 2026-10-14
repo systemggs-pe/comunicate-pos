@@ -88,7 +88,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
     },
     updateClient: (id: unknown, raw: unknown) => {
       const clientId = idSchema.parse(id), data = clientEditSchema.parse(raw);
-      return transaction(async tx => { await repository.getClientById(tx, clientId); const client = await tx.client.update({ where: { id: clientId }, data }); await audit(tx, 'UPDATE', 'Client', clientId); return client; });
+      return transaction(async tx => { await repository.getClientById(tx, clientId); const client = await tx.client.update({ where: { id: clientId }, data:{...data,...(data.fullName===undefined?{fullName:null}:{})} }); await audit(tx, 'UPDATE', 'Client', clientId); return client; });
     },
     updateEquipment: (id: unknown, raw: unknown) => {
       const equipmentId = idSchema.parse(id), data = equipmentEditSchema.parse(raw);

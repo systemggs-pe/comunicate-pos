@@ -19,3 +19,5 @@ export async function registerContact(page:Page,dni='70876543'){
  await page.getByLabel('Celular de este registro',{exact:true}).fill('912345678');await page.getByLabel('Dirección de atención',{exact:true}).fill('Dirección ficticia');await page.getByRole('textbox',{name:'Departamento',exact:true}).last().fill('Lima');await page.getByLabel('Correo de atención',{exact:true}).fill('fixture@example.test');await page.getByRole('button',{name:'Continuar',exact:true}).click();
 }
 export async function widthsMvp(page:Page){for(const width of [1280,375,390,430]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);}await page.setViewportSize({width:1280,height:900});}
+
+export async function finishMvp(){await clearEvidenceFixtures(mvpDb);await mvpDb.$disconnect();}

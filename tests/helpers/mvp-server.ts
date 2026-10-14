@@ -19,7 +19,7 @@ const fetcher:typeof fetch=async(input)=>{
  control.photoCalls++;if(control.photo==='credits')return Response.json({}, {status:402});
  return Response.json({success:true,data:{images:[{data_uri:'data:image/png;base64,'+png.toString('base64')},{data_uri:'data:image/jpeg;base64,'+jpeg.toString('base64')}]},credits_deducted:2});
 };
-const provider=new CodartProvider('synthetic-test-token',fetcher);
+const provider=new CodartProvider('synthetic-test-token',fetcher,true);
 const app=createApp(db,{dniProvider:provider,identityPhotos:provider,boxScanner:{simulated:true,scan:async(bytes)=>{
  control.scanCalls++;const mode=control.scanner,delay=control.delay;await new Promise(r=>setTimeout(r,delay));
  if(mode==='error')throw new DomainError(503,'FALLO SIMULADO DEL ESCÁNER. CONTINÚA MANUALMENTE.','SCANNER_UNAVAILABLE');

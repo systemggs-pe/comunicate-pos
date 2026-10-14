@@ -4,7 +4,7 @@ export function normalizeEmail(value: string): string { return value.trim().norm
 const textKeys=new Set(['fullName','firstName','lastName','name','brand','model','commercialName','color','ram','storage','address','department','notes','conditions']);
 export function normalizeOperationalResponse(value:unknown):unknown {
  if(Array.isArray(value))return value.map(normalizeOperationalResponse);
- if(value&&typeof value==='object'&&'fullName' in value&&typeof value.fullName==='string'&&'dni' in value&&'firstName' in value){value={...value,firstName:value.fullName,lastName:''};}
+ if(value&&typeof value==='object'&&'fullName' in value&&typeof value.fullName==='string'&&'id' in value&&'dni' in value&&'firstName' in value){value={...value,firstName:value.fullName,lastName:''};}
  if(value&&typeof value==='object'&&Object.getPrototypeOf(value)===Object.prototype)return Object.fromEntries(Object.entries(value).map(([key,item])=>[key,typeof item==='string'&&textKeys.has(key)?normalizeText(item):normalizeOperationalResponse(item)]));
  return value;
 }

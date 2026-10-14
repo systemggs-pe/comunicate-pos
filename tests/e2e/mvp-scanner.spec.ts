@@ -1,8 +1,8 @@
 import {test,expect} from '@playwright/test';
 import sharp from 'sharp';
-import {mvpDb,resetMvp,loginMvp,registerContact,widthsMvp} from '../helpers/mvp-browser';
+import {finishMvp,mvpDb,resetMvp,loginMvp,registerContact,widthsMvp} from '../helpers/mvp-browser';
 test.beforeEach(async({page})=>{await resetMvp();await page.request.post('/api/_test/control',{data:{scanner:'ok',delay:0,scanCalls:0}});await loginMvp(page);});
-test.afterAll(()=>mvpDb.$disconnect());
+test.afterAll(finishMvp);
 const photo=async(red=true)=>({name:'synthetic-box.png',mimeType:'image/png',buffer:await sharp({create:{width:120,height:100,channels:3,background:red?'#dd1133':'#1122dd'}}).png().toBuffer()});
 test('venta: autocompleta dos IMEI sin Aplicar, conserva edición y guarda sólo al confirmar',async({page})=>{
  await page.request.post('/api/_test/control',{data:{delay:600}});await page.goto('/ventas/nueva');
