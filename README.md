@@ -432,3 +432,10 @@ Ambos usan PostgreSQL/MinIO de prueba y datos sintéticos. No ejecute integraci�
 E2E al mismo tiempo: comparten la base dedicada. Para las pruebas PDF, configure
 `PDF_TEST_PYTHON` con el ejecutable Python que tenga instaladas las dependencias
 utilizadas por `scripts/inspect-declaration-pdf.py`.
+
+Para consultar CODART real configure `DNI_PROVIDER=codart`, `CODART_ENABLED=true`
+y `CODART_API_KEY` sólo en `.env` del backend. Si `DNI_PROVIDER` no está definido,
+`CODART_ENABLED=true` selecciona CODART automáticamente; un proveedor explícito
+tiene prioridad. Reinicie la API después de editar `.env`. Añadir la clave por sí
+sola no habilita consultas. `CODART_PHOTO_STORAGE_AUTHORIZED` sigue siendo un
+requisito independiente para fotografías y no se activa con la consulta de nombres.

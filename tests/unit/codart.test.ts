@@ -1,6 +1,7 @@
 import {beforeEach,afterEach,it,expect,vi} from 'vitest';
 import sharp from 'sharp';
 import {CodartProvider,decodeIdentityImage,readProviderJson} from '../../server/integrations/codart';
+import {createDniProvider,MockDniProvider} from '../../server/dni/providers';
 import {createDniLookupService} from '../../server/dni/lookup.service';
 let old:string|undefined;
 beforeEach(()=>{old=process.env.CODART_ENABLED;process.env.CODART_ENABLED='true';});
@@ -29,3 +30,9 @@ it('limita JSON inválido o excesivo',async()=>{await expect(readProviderJson(ne
 it('cliente local evita CODART; concurrentes comparten petición; no reintenta cargos fallidos',async()=>{
  const fetcher=vi.fn<typeof fetch>().mockImplementation(async()=>{await new Promise(r=>setTimeout(r,20));return Response.json({success:true,result:{full_name:'SINTÉTICO'}});});const provider=new CodartProvider('token',fetcher),local={dni:'70876543'};expect((await createDniLookupService(async()=>local,provider).lookup(local.dni)).source).toBe('LOCAL');expect(fetcher).not.toHaveBeenCalled();const service=createDniLookupService(async()=>null,provider);const results=await Promise.all([service.lookup(local.dni),service.lookup(local.dni)]);expect(results.every(r=>r.source==='EXTERNAL')).toBe(true);expect(fetcher).toHaveBeenCalledTimes(1);const failed=vi.fn<typeof fetch>().mockResolvedValue(Response.json({}, {status:429}));await createDniLookupService(async()=>null,new CodartProvider('token',failed)).lookup(local.dni);expect(failed).toHaveBeenCalledTimes(1);
 });
+
+it('habilitar CODART sin DNI_PROVIDER selecciona CODART, nunca el mock por defecto',()=>{expect(createDniProvider({CODART_ENABLED:'true',CODART_API_KEY:'synthetic-token'})).toBeInstanceOf(CodartProvider);});
+it('habilitar CODART sin clave falla cerrado en su adaptador, sin recurrir al mock',()=>{expect(createDniProvider({CODART_ENABLED:'true'})).toBeInstanceOf(CodartProvider);});
+it.each(['mock','disabled','api'])('proveedor explícito %s prevalece sobre habilitación CODART',kind=>{const provider=createDniProvider({DNI_PROVIDER:kind,CODART_ENABLED:'true',CODART_API_KEY:'synthetic-token'});expect(provider).not.toBeInstanceOf(CodartProvider);if(kind==='mock')expect(provider).toBeInstanceOf(MockDniProvider);});
+
+it('las pruebas no activan implícitamente el proveedor real por claves de .env',()=>{expect(createDniProvider({NODE_ENV:'test',CODART_ENABLED:'true',CODART_API_KEY:'synthetic-token'})).toBeInstanceOf(MockDniProvider);});

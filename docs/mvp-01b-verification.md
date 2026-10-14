@@ -21,3 +21,18 @@ los metadatos de archivos referenciados por ClientDocument.
 CODART real, sus créditos efectivos y autorización contractual/base legal real:
 NOT VERIFIED. Las imágenes y datos de las pruebas son sintéticos. El servidor
 de pruebas inyecta respuestas controladas y las identifica como simuladas.
+## Corrección de activación — 14/10/2026
+
+Se detectó que `CODART_ENABLED=true` y una clave válida podían coexistir con el
+proveedor mock predeterminado cuando `DNI_PROVIDER` estaba ausente. La selección
+ahora usa CODART en ese caso. Un proveedor explícito conserva prioridad y las
+pruebas no activan implícitamente una integración real por claves locales.
+
+Después de recargar la API se realizó una única consulta real de nombre con el
+DNI indicado por el usuario: HTTP 200 y `result.full_name` válido. No se guardaron
+el nombre, el DNI ni la clave en este reporte ni se creó un cliente. La verificación
+real de fotografías sigue pendiente; su conservación permanece desactivada.
+
+Regresión dirigida: 70 pruebas unitarias DNI/CODART y 19 de integración con datos
+sintéticos y proveedores inyectados. La consulta real fue un diagnóstico manual
+separado de las pruebas automatizadas.
