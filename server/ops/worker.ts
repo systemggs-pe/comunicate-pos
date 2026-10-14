@@ -31,7 +31,7 @@ export async function runWorker(db:PrismaClient, storage:S3EvidenceStorage, opti
     result.orphans=keys.filter(k=>!known.has(k)).length;result.scanTruncated=!!page.IsTruncated;
    }
    const remaining=await db.evidenceAsset.count({where:{status:'DELETING'}});result.pending=Math.max(result.pending,remaining);
-   result.inconsistent=await db.evidenceAsset.count({where:{status:'READY',links:{none:{}}}});
+   result.inconsistent=await db.evidenceAsset.count({where:{status:'READY',links:{none:{}},clientDocuments:{none:{}}}});
    if(result.pending||result.orphans||result.inconsistent||result.scanTruncated||options.signal?.aborted){result.status='PARTIAL';result.reason??='REVIEW_OR_RETRY';}
   },{timeout:options.timeoutMs+25000,maxWait:5000});
  }catch{result.status='FAILED';result.reason='WORKER_RETRY';}

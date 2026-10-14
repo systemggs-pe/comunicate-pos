@@ -29,7 +29,7 @@ import type { DniProvider } from './dni/provider.js';
 export function createApp(db: PrismaClient, options: { dniProvider?: DniProvider; dniOptions?: DniLookupOptions; evidenceStorage?:EvidenceStorageProvider;boxScanner?:BoxScannerProvider;identityPhotos?:IdentityPhotoProvider } = {}) {
 const auth = createAuthService(db);
 const dniLookup = createDniLookupService(dni => db.client.findUnique({ where: { dni } }), options.dniProvider ?? createDniProvider(), options.dniOptions ?? dniLookupOptions());
-const pos = (req: Request,res: Response) => createPosService(db,requestContext(req,authState(res).user.id),authState(res).sessionId,authState(res).user.permissions.includes('registration.evidence.delete'));
+const pos = (req: Request,res: Response) => createPosService(db,requestContext(req,authState(res).user.id),authState(res).sessionId,authState(res).user.permissions.includes('registration.evidence.delete'),options.evidenceStorage);
 const users = (req: Request,res: Response) => createUsersService(db,authState(res).user,requestContext(req,authState(res).user.id));
 const evidence=(req:Request,res:Response)=>createEvidenceService(db,authState(res),requestContext(req,authState(res).user.id),options.evidenceStorage);
 const app = express();
@@ -55,6 +55,7 @@ app.get('/api/readiness',requirePermission('settings.read'),async(_req,res)=>{
 });
 registerReportRoutes(app, db);
 app.get('/api/clients/:clientId/documents',async(req,res)=>res.json(await vault.list(authState(res),req.params.clientId)));
+app.post('/api/clients/:clientId/documents/history/:linkId',async(req,res)=>res.status(201).json(await vault.incorporate(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.linkId,req.body)));
 app.get('/api/clients/:clientId/documents/:id/access',async(req,res)=>res.json(await vault.access(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.id,req.query.download==='true')));
 app.post('/api/clients/:clientId/documents',express.raw({type:['image/jpeg','image/png','image/webp'],limit:'10mb'}),async(req,res)=>res.status(201).json(await vault.upload(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.body,req.get('content-type')??'',{...req.query,confirmed:req.query.confirmed==='true'})));
 app.post('/api/clients/:clientId/identity-photos',async(req,res)=>res.json(await vault.lookupPhotos(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.body)));

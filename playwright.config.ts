@@ -5,7 +5,7 @@ if (!database) throw new Error('TEST_DATABASE_URL requerido');
 const target = new URL(database);
 if (!['localhost', '127.0.0.1'].includes(target.hostname) || target.pathname !== '/communicate_pos_test') throw new Error('E2E sólo en PostgreSQL local de prueba');
 export default defineConfig({
-  testDir: './tests/e2e', workers: 1, timeout: 120000, expect: { timeout: 15000 },
+  testDir: './tests/e2e', testIgnore: 'mvp-*.spec.ts', workers: 1, timeout: 120000, expect: { timeout: 15000 },
   outputDir: '.test-results/e2e', reporter: 'list',
   use: { actionTimeout: 15000, screenshot: 'only-on-failure', baseURL: 'http://127.0.0.1:5175', channel: 'msedge', viewport: { width: 1280, height: 900 } },
   webServer: [

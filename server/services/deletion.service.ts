@@ -1,3 +1,4 @@
+import type {EvidenceStorageProvider} from '../storage/provider.js';
 import {cleanupEvidence} from '../evidence/lifecycle.js';
 import {createHash} from 'node:crypto';
 import {type PrismaClient} from '@prisma/client';
@@ -7,7 +8,7 @@ import {writeAudit,type AuditContext} from '../lib/audit.js';
 import {DomainError} from '../lib/errors.js';
 import type {Db} from '../repositories/pos.repository.js';
 type Kind='sale'|'request'|'equipment';
-export function createDeletionService(db:PrismaClient,actor:AuditContext,transaction:<T>(fn:(tx:Db)=>Promise<T>)=>Promise<T>,allowEvidenceDeletion=false){
+export function createDeletionService(db:PrismaClient,actor:AuditContext,transaction:<T>(fn:(tx:Db)=>Promise<T>)=>Promise<T>,allowEvidenceDeletion=false,evidenceStorage?:EvidenceStorageProvider){
  async function plan(tx:Db,kind:Kind,id:string,removeOrphanEquipment=false){
   const sale=kind==='sale'?await tx.sale.findUnique({where:{id},include:{equipment:true,accessories:true}}):null;
   const request=kind==='request'?await tx.registrationRequest.findUnique({where:{id},include:{imei:true}}):null;
@@ -24,8 +25,8 @@ export function createDeletionService(db:PrismaClient,actor:AuditContext,transac
   const requestIds=requests.map(r=>r.id),histories=await tx.registrationRequestHistory.findMany({where:{requestId:{in:requestIds}}});
   const operationIds=[...new Set(requests.map(r=>r.operationId))];const operations=await tx.registrationOperation.findMany({where:{id:{in:operationIds}},include:{requests:true}});const orphanOperations=operations.filter(o=>o.requests.every(r=>requestIds.includes(r.id))).map(o=>o.id);
   const individualHistory=request&&!equipmentIds.length?await tx.equipmentHistory.findMany({where:{imeiId:request.imeiId,createdAt:{gte:request.createdAt},eventType:{in:['IMEI_REGISTRATION_STARTED','IMEI_REGISTRATION_UPDATED','IMEI_REGISTERED']}}}):[];
-  const evidenceLinks=await tx.registrationEvidence.findMany({where:{registrationRequestId:{in:requestIds}},include:{evidenceAsset:{include:{links:true}}}});
-  const unreferencedAssets=[...new Set(evidenceLinks.filter(e=>e.evidenceAsset.links.every(link=>requestIds.includes(link.registrationRequestId))).map(e=>e.evidenceAssetId))];
+  const evidenceLinks=await tx.registrationEvidence.findMany({where:{registrationRequestId:{in:requestIds}},include:{evidenceAsset:{include:{links:true,clientDocuments:{select:{id:true}}}}}});
+  const unreferencedAssets=[...new Set(evidenceLinks.filter(e=>!e.evidenceAsset.clientDocuments.length&&e.evidenceAsset.links.every(link=>requestIds.includes(link.registrationRequestId))).map(e=>e.evidenceAssetId))];
   const entities={evidence:evidenceLinks.map(e=>e.id),evidenceAssets:unreferencedAssets,sales:sale?[sale.id]:[],saleLines:sale?sale.equipment.map(l=>l.id):[],accessories:sale?sale.accessories.map(l=>l.id):[],equipment:equipmentIds,imeis:imeiIds,requests:requestIds,requestHistory:histories.map(h=>h.id),equipmentHistory:[...devices.flatMap(d=>d.history.map(h=>h.id)),...individualHistory.map(h=>h.id)],operations:orphanOperations};
   const revisions=[...(sale?[sale.updatedAt.toISOString()]:[]),...devices.map(d=>d.updatedAt.toISOString()),...requests.map(r=>r.updatedAt.toISOString())].sort();
   const counts=Object.fromEntries(Object.entries(entities).map(([key,ids])=>[key,ids.length]));
@@ -52,6 +53,6 @@ export function createDeletionService(db:PrismaClient,actor:AuditContext,transac
   await writeAudit(tx,{userId:actor.userId},'PERMANENT_DELETION',kind==='sale'?'Sale':kind==='request'?'RegistrationRequest':'Equipment',key,{counts:current.counts,ids:deletedIds,reasonProvided:true});
   return {deleted:true,counts:current.counts,clientPreserved:true,assetIds:e.evidenceAssets};
  });
- const cleanup=await cleanupEvidence(db,undefined,result.assetIds);const {assetIds: _ids,...publicResult}=result;void _ids;return {...publicResult,cleanup};}
+ const cleanup=await cleanupEvidence(db,evidenceStorage,result.assetIds);const {assetIds: _ids,...publicResult}=result;void _ids;return {...publicResult,cleanup};}
  };
 }

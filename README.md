@@ -413,3 +413,22 @@ Preparación local; no recursos cloud ni publicación automática. Ver
 `npm run test:cloud-ui`, `npm run preflight:cloud`. Worker requiere destino explícito;
 otros comandos backup cloud requieren autorización, nunca ejecutarlos con datos reales para probar.
 Frontend sólo VITE_API_BASE_URL pública; cookies Lax requieren app/API HTTPS same-site.
+## MVP EXTENSION 01
+
+La implementación local incluye escaneo automático de cajas en ventas/registros,
+consulta CODART de nombre completo y fotografías, y CLIENTES → DETALLE → DOCUMENTACIÓN.
+El registro ofrece reutilización explícita de identidad vigente; los archivos privados
+se comparten sin duplicar y mantienen sus referencias al eliminar operaciones.
+
+Consulte [estado y límites](docs/mvp-01-integration-status.md),
+[Gemini](docs/mvp-01a-verification.md), [CODART](docs/mvp-01b-verification.md) y
+[expediente, privacidad y retención](docs/mvp-01c-verification.md).
+Las APIs reales permanecen NOT VERIFIED; los mocks se identifican como simulados.
+No habilite conservación de fotos CODART sin comprobar contrato, base legal y autorización.
+
+`npm run test:e2e` ejecuta primero la regresión y después los escenarios MVP.
+`npm run test:e2e:mvp` ejecuta únicamente el servidor simulado de pruebas.
+Ambos usan PostgreSQL/MinIO de prueba y datos sintéticos. No ejecute integración y
+E2E al mismo tiempo: comparten la base dedicada. Para las pruebas PDF, configure
+`PDF_TEST_PYTHON` con el ejecutable Python que tenga instaladas las dependencias
+utilizadas por `scripts/inspect-declaration-pdf.py`.
