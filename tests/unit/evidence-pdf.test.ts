@@ -1,0 +1,7 @@
+import {it,expect} from 'vitest';
+import sharp from 'sharp';
+import {createEvidencePdf,type EvidencePdfData} from '../../server/documents/evidence.pdf';
+import {inspectEvidencePdf} from '../helpers/evidence-pdf';
+const data:EvidencePdfData={businessName:'COMUNIC@TE PRUEBA',code:'RECO-000001',date:'17/10/2026',client:'CLIENTE SINTÉTICO',dni:'70876543',equipment:'EQUIPO SINTÉTICO',brand:'MARCA',imei:'359708765448001',operator:'BITEL',status:'REGISTRO PENDIENTE',responsible:'AGENTE SINTÉTICO',photos:[]};
+it('expediente sin fotografías es A4 independiente y no contiene el texto de la declaración',()=>{const parsed=inspectEvidencePdf(createEvidencePdf(data));expect(parsed.pages).toHaveLength(1);expect(parsed.text).toContain('EXPEDIENTE DE EVIDENCIAS');expect(parsed.text).not.toContain('DECLARACIÓN JURADA');expect(parsed.text).toContain(data.imei);});
+it.each([[50,180],[180,50],[100,100]])('fotografía %ix%i se inserta completa y proporcionada en página propia',async(width,height)=>{const bytes=await sharp({create:{width,height,channels:3,background:'#123456'}}).jpeg().toBuffer();const parsed=inspectEvidencePdf(createEvidencePdf({...data,client:'NOMBRE SINTÉTICO '.repeat(12).trim(),equipment:'MODELO SINTÉTICO '.repeat(10).trim(),photos:[{category:'DNI_BACK',bytes,width,height}]}));expect(parsed.pages).toHaveLength(2);expect(parsed.pages[1].images).toEqual([{width,height}]);expect(parsed.pages[1].text).toContain('DNI POSTERIOR');});

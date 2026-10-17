@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {idSchema,imeiValueSchema} from './validation.js';
 export const evidenceCategories=['DNI_FRONT','DNI_BACK','DEVICE_BOX','PURCHASE_RECEIPT','LOGICAL_IMEI'] as const;
 export type EvidenceCategory=typeof evidenceCategories[number];
-export const evidenceLabels:Record<EvidenceCategory,string>={DNI_FRONT:'DNI FRONTAL',DNI_BACK:'DNI REVERSO',DEVICE_BOX:'CAJA DEL EQUIPO',PURCHASE_RECEIPT:'BOLETA DE VENTA',LOGICAL_IMEI:'IMEI LÓGICO'};
+export const evidenceLabels:Record<EvidenceCategory,string>={DNI_FRONT:'DNI FRONTAL',DNI_BACK:'DNI POSTERIOR',DEVICE_BOX:'CAJA DEL EQUIPO',PURCHASE_RECEIPT:'BOLETA DE VENTA',LOGICAL_IMEI:'IMEI LÓGICO'};
 export const maxEvidenceBytes=10*1024*1024,maxEvidencePixels=20_000_000;
 export const evidenceLinkSchema=z.object({assetId:idSchema,category:z.enum(evidenceCategories),imeiValues:z.array(imeiValueSchema).min(1).max(2)}).strict();
 export const evidenceLinksSchema=z.array(evidenceLinkSchema).max(10).superRefine((rows,ctx)=>{const pairs=new Set<string>(),assets=new Set<string>();for(const [index,row] of rows.entries()){if(assets.has(row.assetId)||new Set(row.imeiValues).size!==row.imeiValues.length||row.category==='LOGICAL_IMEI'&&row.imeiValues.length!==1)ctx.addIssue({code:'custom',path:[index],message:'ASOCIACIÓN DE EVIDENCIA INVÁLIDA.'});assets.add(row.assetId);for(const value of row.imeiValues){const key=row.category+value;if(pairs.has(key))ctx.addIssue({code:'custom',path:[index],message:'SOLO UNA IMAGEN POR CATEGORÍA Y SOLICITUD.'});pairs.add(key);}}});

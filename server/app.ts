@@ -1,3 +1,4 @@
+import {createEvidencePdfService} from './services/evidence-pdf.service.js';
 import {createEvidenceService} from './evidence/service.js';
 import {clientVault} from './documents/client-vault.js';
 import type {IdentityPhotoProvider} from './integrations/codart.js';
@@ -72,6 +73,7 @@ app.get('/api/registration-requests/:id/evidence/:linkId/access',async(req,res)=
 app.post('/api/registration-requests/:id/evidence',async(req,res)=>res.json(await evidence(req,res).attach(req.params.id,req.body)));
 app.delete('/api/registration-requests/:id/evidence/:linkId',async(req,res)=>res.json(await evidence(req,res).remove(req.params.id,req.params.linkId,req.body)));
 
+app.post('/api/registration-requests/:id/evidence-pdf',requirePermission('registration.read','registration.evidence.read'),async(req,res)=>res.json(await createEvidencePdfService(db,requestContext(req,authState(res).user.id),options.evidenceStorage).generate(req.params.id)));
 app.get('/api/registration-requests/:id/declaration-data',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).data(req.params.id)));
 app.post('/api/registration-requests/:id/declaration',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).generate(req.params.id,req.body)));
 app.get('/api/settings/company',requirePermission('settings.read'),async(_req,res)=>res.json(await createCompanyService(db).get()));
@@ -90,7 +92,7 @@ for(const [path,kind,permission] of [['sales','sale','sales.delete'],['registrat
  app.delete(`/api/${path}/:id`,requirePermission(permission),async(req,res)=>{const preview=await pos(req,res).deletionPreview(kind,req.params.id,req.body?.removeOrphanEquipment===true);if(preview.counts.evidence>0&&!authState(res).user.permissions.includes('registration.evidence.delete'))throw new DomainError(403,'LA ELIMINACIÓN INCLUYE FOTOS Y REQUIERE PERMISO PARA ELIMINAR EVIDENCIAS.','PERMISSION_REQUIRED');res.json(await pos(req,res).deletePermanently(kind,req.params.id,req.body));});
 }
 app.get('/api/registration-requests',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).listRegistrationRequests(req.query)));
-app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>{if((req.body?.evidence?.length||req.body?.documentEvidence?.length)&&!authState(res).user.permissions.includes('registration.evidence.upload'))throw new DomainError(403,'NO TIENES PERMISOS PARA ADJUNTAR EVIDENCIAS.','PERMISSION_REQUIRED');if(req.body?.documentEvidence?.length&&!authState(res).user.permissions.includes('client.documents.read'))throw new DomainError(403,'SE REQUIERE PERMISO DE DOCUMENTACIÓN.','PERMISSION_REQUIRED');res.status(201).json(await pos(req,res).createRegistrationOperation(req.body));});
+app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>{if(req.body?.clientNameCorrection&&!authState(res).user.permissions.includes('clients.update'))throw new DomainError(403,'SE REQUIERE PERMISO PARA CORREGIR EL CLIENTE.','PERMISSION_REQUIRED');if((req.body?.evidence?.length||req.body?.documentEvidence?.length)&&!authState(res).user.permissions.includes('registration.evidence.upload'))throw new DomainError(403,'NO TIENES PERMISOS PARA ADJUNTAR EVIDENCIAS.','PERMISSION_REQUIRED');if(req.body?.documentEvidence?.length&&!authState(res).user.permissions.includes('client.documents.read'))throw new DomainError(403,'SE REQUIERE PERMISO DE DOCUMENTACIÓN.','PERMISSION_REQUIRED');res.status(201).json(await pos(req,res).createRegistrationOperation(req.body));});
 app.post('/api/registration-requests/complete',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).completeRegistrationRequests(req.body)));
 app.get('/api/registration-requests/:id',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).getRegistrationRequest(req.params.id)));
 app.patch('/api/registration-requests/:id',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).updateRegistrationRequest(req.params.id,req.body)));

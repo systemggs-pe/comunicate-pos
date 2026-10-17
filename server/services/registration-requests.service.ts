@@ -55,10 +55,19 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
           if(!input.equipment)throw new DomainError(400,'Complete el equipo.','VALIDATION_ERROR');
           let client=await repository.findClientByDni(tx,input.client.dni);
           if(!client){client=await tx.client.create({data:input.client});await writeAudit(tx,actor,'CLIENT_CREATED','Client',client.id);}
-          equipment=await helpers.createEquipmentInTx(tx,equipmentSchema.parse({...input.equipment,serialNumber:input.equipment.serialNumber??undefined,ownerId:client.id,origin:'EXTERNAL',imeis:input.imeis}));
+          equipment=await helpers.createEquipmentInTx(tx,equipmentSchema.parse({...input.equipment,serialNumber:input.equipment.serialNumber??undefined,ownerId:client.id,origin:input.origin??'EXTERNAL',imeis:input.imeis}));
         }else{
           await tx.$queryRaw`SELECT id FROM "Equipment" WHERE id=${equipment.id}::uuid FOR UPDATE`;
           for(const imei of resolved.additions){const added=await tx.imei.create({data:{...imei,equipmentId:equipment.id}});await tx.equipmentHistory.create({data:{equipmentId:equipment.id,imeiId:added.id,eventType:'IMEI_ADDED',userId}});await writeAudit(tx,actor,'IMEI_CREATED','Imei',added.id);}
+        }
+        if(input.clientNameCorrection){
+          const correction=input.clientNameCorrection;
+          const client=await tx.client.findUnique({where:{id:correction.clientId}});
+          if(!client||client.dni!==input.client.dni||equipment.ownerId!==client.id)throw new DomainError(409,'LA CORRECCIÓN NO CORRESPONDE AL CLIENTE.','CLIENT_CORRECTION_SCOPE');
+          await tx.$queryRaw`SELECT id FROM "Client" WHERE id=${client.id}::uuid FOR UPDATE`;
+          if((client.fullName||[client.firstName,client.lastName].filter(Boolean).join(' '))!==correction.expectedName)throw new DomainError(409,'EL NOMBRE CAMBIÓ. CONSULTA EL CLIENTE NUEVAMENTE.','CLIENT_CORRECTION_CONFLICT');
+          await tx.client.update({where:{id:client.id},data:{fullName:correction.fullName,firstName:'',lastName:''}});
+          await writeAudit(tx,actor,'CLIENT_NAME_CORRECTED','Client',client.id,{fields:['fullName']});
         }
         const operation=await tx.registrationOperation.create({data:{idempotencyKey:input.idempotencyKey,requestHash,createdById:userId}});
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('registration-number'))`;
