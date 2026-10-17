@@ -1,3 +1,4 @@
+import {saveSale} from '../helpers/sale-form';
 import 'dotenv/config';
 import { test, expect, type Page } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
@@ -17,7 +18,6 @@ test.beforeEach(async ({ page }) => {
 test.afterAll(() => db.$disconnect());
 async function openDraft(page: Page, path: string) {
   await page.goto(path);
-  if (path === '/ventas/nueva') await page.getByRole('button', { name: 'Crear comprador nuevo', exact: true }).click();
   return page.locator('.dni-client-fields').first();
 }
 async function completeRegistration(page: Page, imei: string) {
@@ -68,19 +68,18 @@ test('registro manual funciona con provider caído', async ({ page }) => {
   await completeRegistration(page, '359999999990001'); expect(await db.client.count()).toBe(1); expect(await db.imei.count()).toBe(1);
 });
 test('ventas reutiliza consulta para comprador nuevo y propietario diferente', async ({ page }) => {
-  const buyer = await openDraft(page, '/ventas/nueva'); await buyer.getByLabel('DNI', { exact: false }).fill('12345678'); await expect(buyer.getByLabel('Nombres', { exact: true })).toHaveValue('ANA MARÍA');
+  const buyer = await openDraft(page, '/ventas/nueva'); await buyer.getByLabel('DNI', { exact: false }).fill('12345678'); await expect(buyer.getByLabel('Nombre completo', { exact: true })).toHaveValue('ANA MARÍA MUÑOZ ÁLVAREZ');await page.getByRole('button',{name:'Siguiente',exact:true}).click();
   const item = page.getByTestId('sale-item-0'); await item.getByLabel('Nombre comercial',{exact:true}).fill('Equipo fixture');await item.getByLabel('Marca', { exact: true }).fill('Xiaomi'); await item.getByLabel('Modelo', { exact: true }).fill('DNI Venta'); await item.getByLabel('IMEI 1 del equipo 1', { exact: true }).fill('359123456780001'); await item.getByLabel('Precio del equipo 1 (S/)', { exact: true }).fill('1000');
-  await item.getByLabel('PROPIETARIO DISTINTO DEL COMPRADOR PARA EQUIPO 1').check(); await item.getByRole('button', { name: 'Crear propietario del equipo 1 nuevo', exact: true }).click();
+  await page.getByTestId('sale-item-0').locator('.sale-owner-options>summary').click();await item.getByLabel('PROPIETARIO DISTINTO DEL COMPRADOR PARA EQUIPO 1').check(); await item.getByRole('button', { name: 'Crear propietario del equipo 1 nuevo', exact: true }).click();
   const owner = item.locator('.dni-client-fields'); await owner.getByLabel('DNI', { exact: false }).fill('12345679'); await expect(owner.getByLabel('Nombres', { exact: true })).toHaveValue('LUIS ANDRÉS');
-  expect(await db.client.count()).toBe(0); await page.getByRole('button', { name: 'Revisar venta', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Resumen de venta', exact: true })).toBeVisible(); expect(await db.client.count()).toBe(0);
-  await page.getByRole('button', { name: 'Confirmar venta', exact: true }).click(); await expect(page.getByText('Venta registrada correctamente.', { exact: false })).toBeVisible();
+  expect(await db.client.count()).toBe(0); expect(await db.client.count()).toBe(0);await saveSale(page); await expect(page.getByText('Venta registrada correctamente.', { exact: false })).toBeVisible();
   const sale = await db.sale.findFirstOrThrow({ include: { equipment: { include: { equipment: true } } } }); expect(sale.buyerId).not.toBe(sale.equipment[0].equipment.ownerId); expect(await db.client.count()).toBe(2);
 });
 test('venta manual sigue operativa ante caída del provider', async ({ page }) => {
   const buyer = await openDraft(page, '/ventas/nueva'); await buyer.getByLabel('DNI', { exact: false }).fill('99999999'); await expect(buyer.getByText('No pudimos consultar el DNI', { exact: false })).toBeVisible();
-  await buyer.getByLabel('Nombres', { exact: true }).fill('Manual'); await buyer.getByLabel('Apellidos', { exact: true }).fill('Venta');
+  await buyer.getByLabel('Nombre completo', { exact: true }).fill('Manual Venta');await page.getByRole('button',{name:'Siguiente',exact:true}).click();
   const item = page.getByTestId('sale-item-0'); await item.getByLabel('Nombre comercial',{exact:true}).fill('Equipo fixture');await item.getByLabel('Marca', { exact: true }).fill('Apple'); await item.getByLabel('Modelo', { exact: true }).fill('iPhone'); await item.getByLabel('IMEI 1 del equipo 1', { exact: true }).fill('359999999990001'); await item.getByLabel('Precio del equipo 1 (S/)', { exact: true }).fill('1000');
-  await page.getByRole('button', { name: 'Revisar venta', exact: true }).click(); await page.getByRole('button', { name: 'Confirmar venta', exact: true }).click(); await expect(page.getByText('Venta registrada correctamente.', { exact: false })).toBeVisible(); expect(await db.client.count()).toBe(1);
+  await saveSale(page); await expect(page.getByText('Venta registrada correctamente.', { exact: false })).toBeVisible(); expect(await db.client.count()).toBe(1);
 });
 test('consulta tardía no sobrescribe correcciones manuales ni datos de otro DNI', async ({ page }) => {
   await page.route('**/api/dni/*', async route => { await new Promise(resolve => setTimeout(resolve, 600)); await route.continue().catch(() => {}); });
@@ -98,7 +97,7 @@ test('DNI compartido responsive: loading, autofill y fallback en los tres formul
     for (const [name, path] of [['clients', '/clientes/nuevo'], ['registrations', '/registros/nuevo'], ['sales', '/ventas/nueva']]) {
       const fields = await openDraft(page, path); await fields.getByLabel('DNI', { exact: false }).fill('12345678'); await expect(fields.getByText('Consultando DNI...', { exact: true })).toBeVisible();
       await page.screenshot({ path: `.test-results/phase-5-dni/${width}-${name}-loading.png`, fullPage: true });
-      await expect(fields.getByLabel(name==='registrations'?'Nombre completo':'Nombres', { exact: true })).toHaveValue(name==='registrations'?'ANA MARÍA MUÑOZ ÁLVAREZ':'ANA MARÍA'); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      await expect(fields.getByLabel(name==='clients'?'Nombres':'Nombre completo', { exact: true })).toHaveValue(name==='clients'?'ANA MARÍA':'ANA MARÍA MUÑOZ ÁLVAREZ'); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
       await page.screenshot({ path: `.test-results/phase-5-dni/${width}-${name}-autofill.png`, fullPage: true });
       await fields.getByLabel('DNI', { exact: false }).fill('99999999'); await expect(fields.getByText('No pudimos consultar el DNI', { exact: false })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width); await page.screenshot({ path: `.test-results/phase-5-dni/${width}-${name}-fallback.png`, fullPage: true });
