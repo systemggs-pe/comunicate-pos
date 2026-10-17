@@ -1,0 +1,72 @@
+.registration-workspace { --reg-line:#dce7e1; --reg-muted:#52685e; --reg-soft:#eff7f2; min-width:0; }
+.registration-workspace .page-heading { margin-bottom:24px; }
+.registration-eyebrow { color:var(--color-brand); font-weight:800; font-size:13px; letter-spacing:.08em; margin:0 0 8px; }
+.registration-progress { margin:0 0 24px; }
+.registration-progress>p { font-size:14px; color:var(--reg-muted); margin:0 0 12px; }
+.registration-progress ol { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); padding:0; margin:0; gap:10px; list-style:none; }
+.registration-progress button { display:flex; align-items:center; gap:10px; background:white; border:1px solid var(--reg-line); border-radius:12px; padding:14px; width:100%; text-align:left; min-height:72px; }
+.registration-progress button.active { border-color:var(--color-brand); background:var(--reg-soft); box-shadow:inset 0 -3px var(--color-brand); }
+.registration-progress button.complete { color:var(--color-brand); }
+.registration-progress button:disabled { color:var(--reg-muted); opacity:1; cursor:default; }
+.registration-progress small,.registration-progress strong { display:block; font-size:11px; }
+.registration-progress strong { font-size:13px; }
+.step-symbol { display:grid; place-items:center; width:32px; height:32px; border-radius:50%; background:var(--reg-soft); flex-shrink:0; }
+.registration-layout { display:grid; grid-template-columns:minmax(0,2.15fr) minmax(240px,1fr); gap:24px; align-items:start; }
+.registration-layout>*,.registration-layout fieldset { min-width:0; }
+.registration-layout .form-panel { padding:24px; border:1px solid var(--reg-line); border-radius:16px; margin-bottom:18px; box-shadow:0 2px 5px #173c2610; }
+.registration-layout h2 { font-size:20px; line-height:1.3; margin:0 0 8px; }
+.registration-layout h3 { font-size:14px; margin:24px 0 12px; }
+.registration-layout label { font-size:12px; }
+.registration-layout input,.registration-layout select { min-height:46px; font-size:15px; }
+.registration-layout input[type=checkbox],.registration-layout input[type=radio] { min-height:0; }
+.registration-layout :focus-visible { outline:3px solid var(--color-brand); outline-offset:3px; }
+.registration-layout .form-hint { color:var(--reg-muted); font-size:12px; }
+.step-description { color:var(--reg-muted); font-size:14px; margin:0 0 24px; }
+.registration-summary { position:sticky; top:24px; border:1px solid var(--reg-line); background:white; border-radius:16px; overflow:hidden; }
+.registration-summary summary { display:flex; gap:10px; align-items:center; cursor:pointer; font-size:13px; font-weight:800; padding:20px; border-bottom:1px solid var(--reg-line); }
+.summary-body { padding:18px 20px; }
+.summary-body dl { margin:0; display:grid; gap:14px; }
+.summary-body dt { font-size:11px; color:var(--reg-muted); }
+.summary-body dd { margin:3px 0 0; font-size:14px; font-weight:600; overflow-wrap:anywhere; }
+.summary-output { font-size:12px; color:var(--reg-muted); background:var(--reg-soft); padding:14px; border-radius:10px; margin:20px 0 0; }
+.related-equipment-grid { display:grid; gap:10px; }
+.related-equipment-card { background:white; border:1px solid var(--reg-line); padding:16px; border-radius:12px; text-align:left; width:100%; min-height:64px; font-size:13px; }
+.related-equipment-card p { margin:4px 0; font-size:12px; overflow-wrap:anywhere; }
+.related-equipment-card.selected { border:2px solid var(--color-brand); background:var(--reg-soft); }
+.segmented { border:0!important; padding:0!important; margin:20px 0!important; }
+.segmented legend { font-size:12px; font-weight:700; margin-bottom:8px; }
+.segmented>div { display:flex; gap:8px; }
+.segmented label { display:flex; align-items:center; gap:8px; flex:1; border:1px solid var(--reg-line); border-radius:10px; min-height:48px; padding:12px; font-size:12px; cursor:pointer; }
+.segmented label.selected { border-color:var(--color-brand); background:var(--reg-soft); color:var(--color-brand); font-weight:700; }
+.segmented input { width:16px; height:16px; flex-shrink:0; accent-color:var(--color-brand); margin:0; }
+.imei-selection { padding-top:6px; border-top:1px solid var(--reg-line); margin-top:24px; }
+.registration-review { display:grid; gap:12px; }
+.registration-review article { border:1px solid var(--reg-line); border-radius:10px; padding:16px; overflow-wrap:anywhere; }
+.registration-review article h3 { margin:0; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.registration-review p { margin:8px 0; font-size:13px; }
+.registration-actions { padding-bottom:max(12px,env(safe-area-inset-bottom)); }
+.registration-actions .primary-button { min-height:48px; }
+.registration-success { max-width:880px; }
+.registration-success article { margin:16px 0; }
+.evidence-pdf-preview { width:min(900px,calc(100% - 24px)); max-height:90dvh; border:1px solid #dce7e1; border-radius:16px; padding:24px; }
+.evidence-pdf-preview canvas { width:100%; height:auto; display:block; background:white; }
+.evidence-pdf-pages { display:flex; align-items:center; justify-content:center; gap:14px; margin:16px 0; }
+@media(max-width:1100px) { .registration-layout { grid-template-columns:minmax(0,1fr); } .registration-summary { position:static; } }
+@media(max-width:600px) { .registration-progress ol { gap:6px; } .registration-progress button { min-height:44px; padding:8px; justify-content:center; } .registration-progress button>span:last-child { display:none; } .step-symbol { width:26px; height:26px; } .registration-layout .form-panel { padding:18px; } .registration-layout .form-grid { grid-template-columns:minmax(0,1fr); } .registration-layout .segmented>div { flex-direction:column; } .registration-layout .form-actions { gap:8px; } .registration-actions .primary-button { width:100%; order:-1; } .registration-summary summary { padding:14px 18px; } .evidence-pdf-preview { padding:16px; } }
+@media(prefers-reduced-motion:reduce) { .registration-workspace * { scroll-behavior:auto; transition:none!important; } }
+
+.registration-layout .form-panel { margin-top:0; }
+.scanner-card .form-panel { padding:0; border:0; box-shadow:none; }
+.client-document-disclosure { margin:16px 0; }
+.client-document-disclosure>summary { cursor:pointer; min-height:44px; font-size:12px; padding:12px 0; }
+.registration-layout .document-picker { margin:16px 0 0; padding:16px; background:var(--reg-soft); box-shadow:none; }
+
+.registration-layout .segmented label { flex-direction:row; }
+.registration-layout input,.registration-layout select { font-size:16px; }
+.segmented label svg { flex-shrink:0; }
+.segmented label.warning.selected { background:#fff5df; border-color:#94631b; color:#724805; }
+.registration-summary summary::after { content:"⌄"; margin-left:auto; }
+.registration-workspace .scanner-card label { position:relative; min-height:48px; overflow:hidden; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+.registration-workspace .scanner-card input[type=file] { position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer; }
+
+.registration-workspace .scanner-card label:focus-within,.registration-workspace .evidence-actions label:focus-within { outline:3px solid var(--color-brand); outline-offset:3px; }

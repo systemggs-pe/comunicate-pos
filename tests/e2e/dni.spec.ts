@@ -98,7 +98,7 @@ test('DNI compartido responsive: loading, autofill y fallback en los tres formul
     for (const [name, path] of [['clients', '/clientes/nuevo'], ['registrations', '/registros/nuevo'], ['sales', '/ventas/nueva']]) {
       const fields = await openDraft(page, path); await fields.getByLabel('DNI', { exact: false }).fill('12345678'); await expect(fields.getByText('Consultando DNI...', { exact: true })).toBeVisible();
       await page.screenshot({ path: `.test-results/phase-5-dni/${width}-${name}-loading.png`, fullPage: true });
-      await expect(fields.getByLabel('Nombres', { exact: true })).toHaveValue('ANA MARÍA'); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      await expect(fields.getByLabel(name==='registrations'?'Nombre completo':'Nombres', { exact: true })).toHaveValue(name==='registrations'?'ANA MARÍA MUÑOZ ÁLVAREZ':'ANA MARÍA'); expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
       await page.screenshot({ path: `.test-results/phase-5-dni/${width}-${name}-autofill.png`, fullPage: true });
       await fields.getByLabel('DNI', { exact: false }).fill('99999999'); await expect(fields.getByText('No pudimos consultar el DNI', { exact: false })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width); await page.screenshot({ path: `.test-results/phase-5-dni/${width}-${name}-fallback.png`, fullPage: true });
