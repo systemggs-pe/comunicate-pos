@@ -28,10 +28,10 @@ export interface RegistrationInput {
   equipment?: EquipmentInput; expectedEquipmentId?: string; confirmAddImei?: boolean;
 }
 export type PaymentMethod = 'CASH' | 'YAPE' | 'PLIN' | 'CARD' | 'TRANSFER' | 'OTHER';
-export interface Sale { accessories?:SaleAccessory[]; occurredAt?:string; id: string; code: string; buyerId: string; buyer: Client;  subtotal?: string; discount: string; total: string; paymentMethod: PaymentMethod; notes: string | null; createdAt: string; createdBy: { id: string; name: string } | null; equipmentCount?: number; _count?: { equipment: number }; equipment?: { id: string; unitPrice: string; equipment: Equipment }[] }
+export interface Sale { buyerPhone?:string|null;buyerEmail?:string|null; accessories?:SaleAccessory[]; occurredAt?:string; id: string; code: string; buyerId: string; buyer: Client;  subtotal?: string; discount: string; total: string; paymentMethod: PaymentMethod; notes: string | null; createdAt: string; createdBy: { id: string; name: string } | null; equipmentCount?: number; _count?: { equipment: number }; equipment?: { id: string; unitPrice: string; equipment: Equipment }[] }
 export type ClientReference = { id: string } | { client: ClientInput };
-export interface SaleItemInput { equipment: EquipmentInput & { imeis: ImeiInput[] }; owner?: ClientReference; unitPrice: string }
-export interface SaleInput { buyer: ClientReference; items: SaleItemInput[]; paymentMethod: PaymentMethod; discount: string; notes?: string; accessories?:SaleAccessory[]; occurredAt?:string; idempotencyKey?:string }
+export interface SaleItemInput { equipment: EquipmentInput & { imeis: ImeiInput[]; origin?:'STORE'|'EXTERNAL' }; owner?: ClientReference; unitPrice: string }
+export interface SaleInput { buyerPhone?:string;buyerEmail?:string; buyer: ClientReference; items: SaleItemInput[]; paymentMethod: PaymentMethod; discount: string; notes?: string; accessories?:SaleAccessory[]; occurredAt?:string; idempotencyKey?:string }
 
 export interface SaleAccessory { id?:string; name:string; quantity:number; unitPrice:string }
 export interface RegistrationRequest { id:string; code:string; operationId:string; imeiId:string; status:RegistrationStatus; completedBy?:{id:string;name:string}|null; operator:string; phone:string; referencePhone:string|null; address:string; department:string; email:string; price:string; hasBox:boolean; occurredAt:string; completedAt:string|null; createdAt:string; createdBy?:{id:string;name:string}; updatedBy?:{id:string;name:string}; imei?:Imei & {equipment:Equipment}; history?:{id:string; action:string; createdAt:string; metadata:Record<string,unknown>|null;user:{name:string}}[] }

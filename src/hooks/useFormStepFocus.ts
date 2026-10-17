@@ -11,7 +11,7 @@ export function useFormStepFocus(step:number,container:RefObject<HTMLElement|nul
   useEffect(()=>{
     if(previous.current===step)return;
     previous.current=step;
-    const frame=requestAnimationFrame(()=>focusFormHeading(container.current?.querySelector<HTMLElement>('[data-step-heading]')??null,(container.current?.closest('.registration-workspace')??container.current?.parentElement)?.querySelector<HTMLElement>('.form-progress')??null));
+    const frame=requestAnimationFrame(()=>focusFormHeading(Array.from(container.current?.querySelectorAll<HTMLElement>('[data-step-heading]')??[]).find(node=>node.getClientRects().length>0)??null,(container.current?.closest('.registration-workspace')??container.current?.parentElement)?.querySelector<HTMLElement>('.form-progress')??null));
     return()=>cancelAnimationFrame(frame);
   },[step,container]);
 }

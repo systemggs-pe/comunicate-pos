@@ -1,0 +1,27 @@
+.sales-workspace .sale-item {position:relative;border:0;border-bottom:1px solid var(--design-line);border-radius:0;padding:0 0 20px;margin:0 0 22px;box-shadow:none;background:transparent;}
+.sales-workspace .box-scanner {margin-bottom:16px;}
+.sales-workspace .box-scanner-actions {justify-content:flex-end;}
+.sales-workspace .sale-item>.form-grid {margin-top:16px;}
+.sales-workspace .accessories-panel {background:var(--design-soft)!important;border:1px solid var(--design-line)!important;border-radius:8px!important;padding:14px!important;}
+.sales-workspace .accessories-panel h2 {border:0;margin:0;padding:0;text-transform:none;}
+.sales-workspace .accessories-panel .section-heading p {font-size:11px;color:var(--design-muted);margin:4px 0;}
+.sales-workspace .form-actions {justify-content:space-between;border-top:1px solid var(--design-line);padding:16px 0;margin:16px 0 0;}
+.sales-workspace .sale-total {display:flex;justify-content:space-between;background:var(--design-soft);padding:16px;border-radius:8px;}
+.sales-workspace .sale-total strong {color:#008567;}
+.sales-workspace [hidden] {display:none!important;}
+@media(max-width:600px){.sales-workspace .form-grid{grid-template-columns:1fr;}.sales-workspace .document-number{grid-template-columns:80px minmax(0,1fr);}.sales-workspace .sale-item .section-heading{align-items:flex-start;}.sales-workspace .sale-item .box-scanner-actions{justify-content:stretch;}}
+
+.design-shell .sales-workspace {max-width:800px;}
+.sales-workspace .form-grid {align-items:end;}
+.sales-workspace .document-number {align-items:end;}
+.sales-workspace .sale-fields {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px;}
+.sales-workspace .sale-fields>.form-grid {display:contents;}
+.sale-owner-options {font-size:12px;margin:16px 0;}
+.sale-owner-options summary {min-height:32px;cursor:pointer;color:var(--design-muted);}
+.sale-equipment-heading {display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.sales-workspace .box-scanner {margin:0 0 20px;}
+@media(min-width:600px){.sales-workspace .box-scanner-actions {position:absolute;top:0;right:0;}.sales-workspace .sale-equipment-heading {min-height:44px;margin-bottom:8px;padding-right:300px;}.sales-workspace .box-scanner>.form-hint {font-size:10px;}}
+@media(max-width:600px){.sales-workspace .sale-fields {grid-template-columns:1fr;}.sales-workspace .box-scanner-actions {justify-content:flex-start;}.sales-workspace .registration-progress>p {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}}
+
+.sales-workspace .registration-progress .active button {color:#147a3a;}
+.sales-workspace .registration-progress .active .step-symbol {border-color:#20c76a;background:#effff3;}

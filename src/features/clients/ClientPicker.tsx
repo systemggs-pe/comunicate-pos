@@ -8,7 +8,7 @@ import { ErrorNotice, Loading } from '../../components/common';
 import type { Client, ClientReference } from '../../types/pos';
 
 export function ClientPicker({ label, value, onChange }: { label: string; value: ClientReference | null; onChange: (value: ClientReference | null) => void }) {
-  const [draft, setDraft] = useState(emptyClient), [search, setSearch] = useState(''), [query, setQuery] = useState(''), [creating, setCreating] = useState(value !== null && 'client' in value);
+  const [draft, setDraft] = useState(()=>value&&'client'in value?{...emptyClient,...value.client,phone:value.client.phone??'',email:value.client.email??'',address:value.client.address??'',department:value.client.department??''}:emptyClient), [search, setSearch] = useState(''), [query, setQuery] = useState(''), [creating, setCreating] = useState(value !== null && 'client' in value);
   const updateDraft = (next: typeof draft) => { setDraft(next); onChange({ client: asClientInput(next) }); };
   const lookup = useDniLookup(creating ? draft : emptyClient, updateDraft);
   const results = useApiQuery<Client[]>(query ? `/clients?q=${encodeURIComponent(query)}&limit=10` : null);

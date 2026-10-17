@@ -11,8 +11,8 @@ export function receiptRows({sale,company:c}:ReceiptData,format:ReceiptFormat):R
  add(c.businessName,'center',true);[c.businessType,c.address,c.city,c.phone,c.email].forEach(t=>add(t,'center'));
  add('TICKET INTERNO DE VENTA','center');add('NO ES COMPROBANTE TRIBUTARIO','center');add(sale.code,'center',true);
  add(`FECHA: ${new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',dateStyle:'short',timeStyle:'medium',hour12:false}).format(new Date(sale.occurredAt??sale.createdAt))}`);
- add(`CLIENTE: ${normalizeText(sale.buyer.firstName+' '+sale.buyer.lastName)}`);add(`DNI: ${sale.buyer.dni}`);
- if(c.showClientContact){add(sale.buyer.phone?`TEL: ${sale.buyer.phone}`:'');add(sale.buyer.address?normalizeText(sale.buyer.address):'');}
+ add(`CLIENTE: ${normalizeText(sale.buyer.fullName||sale.buyer.firstName+' '+sale.buyer.lastName)}`);add(`DNI: ${sale.buyer.dni}`);
+ if(c.showClientContact){const phone=sale.buyerPhone??sale.buyer.phone;add(phone?`TEL: ${phone}`:'');add(sale.buyer.address?normalizeText(sale.buyer.address):'');}
  sale.equipment?.forEach((line,index)=>{const e=line.equipment;
   add(`EQUIPO ${index+1}`,'center',true);add(normalizeText(`${e.brand} ${e.model}`),undefined,true);
   if(format===48){for(const [key,value] of [['NOMBRE',e.commercialName],['COLOR',e.color],['RAM',e.ram],['MEMORIA',e.storage]])if(value)add(`${key}: ${normalizeText(value)}`);}

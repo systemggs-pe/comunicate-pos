@@ -1,3 +1,4 @@
+import {Printer} from 'lucide-react';
 import {useState,useRef,useEffect} from 'react';
 import {useAuth} from '../../app/AuthProvider';
 import {useApiQuery} from '../../hooks/useApiQuery';
@@ -14,11 +15,11 @@ function ReceiptDocument({data,format}:{data:ReceiptData;format:ReceiptFormat}){
 }
 export function SaleReceipt48mm({data}:{data:ReceiptData}){return <ReceiptDocument data={data} format={48}/>;}
 export function SaleReceipt80mm({data}:{data:ReceiptData}){return <ReceiptDocument data={data} format={80}/>;}
-export function ReceiptActions({id}:{id:string}){
+export function ReceiptActions({id,compact=false}:{id:string;compact?:boolean}){
  const {api}=useAuth(),dialog=useRef<HTMLDialogElement>(null);const [format,setFormat]=useState<ReceiptFormat>(48),[error,setError]=useState('');
  async function select(){setError('');try{const data=await api.get<ReceiptData>(`/sales/${encodeURIComponent(id)}/receipt`);setFormat(data.company.defaultFormat??48);dialog.current?.showModal();}catch(e){setError((e as Error).message);}}
  function open(){const url=`/ventas/${encodeURIComponent(id)}/ticket?format=${format}`;const tab=window.open(url,'_blank');dialog.current?.close();if(tab)tab.opener=null;else navigate(url);}
- return <div className="receipt-actions"><button className="secondary-button" onClick={()=>void select()}>VER TICKET</button><button className="secondary-button" onClick={()=>void select()}>IMPRIMIR</button><button className="secondary-button" onClick={()=>void select()}>DESCARGAR PDF</button><ErrorNotice message={error}/><dialog ref={dialog} className="receipt-dialog" aria-label="SELECCIONAR FORMATO DE IMPRESIÓN"><h2>SELECCIONAR FORMATO DE IMPRESIÓN</h2><label>FORMATO<select aria-label="FORMATO" value={format} onChange={e=>setFormat(Number(e.target.value) as ReceiptFormat)}><option value={48}>48 MM — TICKET COMPACTO</option><option value={80}>80 MM — TICKET ESTÁNDAR</option></select></label><p>PUEDES CAMBIAR EL FORMATO ANTES DE ABRIR EL TICKET.</p><div className="form-actions"><button className="secondary-button" onClick={()=>dialog.current?.close()}>CANCELAR</button><button className="primary-button" onClick={open}>ABRIR TICKET</button></div></dialog></div>;
+ return <div className="receipt-actions">{compact?<button className="icon-button" aria-label="Imprimir ticket" title="Imprimir ticket" onClick={()=>void select()}><Printer size={17}/></button>:<><button className="secondary-button" onClick={()=>void select()}>VER TICKET</button><button className="secondary-button" onClick={()=>void select()}>IMPRIMIR</button><button className="secondary-button" onClick={()=>void select()}>DESCARGAR PDF</button></>}<ErrorNotice message={error}/><dialog ref={dialog} className="receipt-dialog" aria-label="SELECCIONAR FORMATO DE IMPRESIÓN"><h2>SELECCIONAR FORMATO DE IMPRESIÓN</h2><label>FORMATO<select aria-label="FORMATO" value={format} onChange={e=>setFormat(Number(e.target.value) as ReceiptFormat)}><option value={48}>48 MM — TICKET COMPACTO</option><option value={80}>80 MM — TICKET ESTÁNDAR</option></select></label><p>PUEDES CAMBIAR EL FORMATO ANTES DE ABRIR EL TICKET.</p><div className="form-actions"><button className="secondary-button" onClick={()=>dialog.current?.close()}>CANCELAR</button><button className="primary-button" onClick={open}>ABRIR TICKET</button></div></dialog></div>;
 }
 export function SaleReceiptPreview({id}:{id:string}){
  const query=useApiQuery<ReceiptData>(`/sales/${encodeURIComponent(id)}/receipt`),raw=new URLSearchParams(window.location.search).get('format'),format:ReceiptFormat=raw==='80'?80:48;

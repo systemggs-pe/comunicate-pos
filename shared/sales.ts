@@ -1,13 +1,14 @@
-import {normalizeText} from './normalization.js';
+import {normalizeText,normalizeEmail} from './normalization.js';
 import { z } from 'zod';
-import { clientSchema, equipmentEditSchema, idSchema, imeiSchema, listQuerySchema, moneySchema } from './validation.js';
+import { clientSchema, equipmentEditSchema, idSchema, imeiListSchema, listQuerySchema, moneySchema } from './validation.js';
 import { occurredAtSchema } from './workflow.js';
 export const accessorySchema = z.object({ name:z.string().transform(normalizeText).pipe(z.string().min(1).max(100)), quantity:z.number().int().min(1).max(10000), unitPrice:moneySchema }).strict();
 export const paymentMethods = ['CASH', 'YAPE', 'PLIN', 'CARD', 'TRANSFER', 'OTHER'] as const;
 export const clientReferenceSchema = z.union([z.object({ id: idSchema }).strict(), z.object({ client: clientSchema }).strict()]);
-export const saleEquipmentInputSchema = equipmentEditSchema.extend({ imeis: z.array(imeiSchema).min(1).max(2) });
+export const saleEquipmentInputSchema = equipmentEditSchema.extend({ imeis: imeiListSchema, origin:z.enum(['STORE','EXTERNAL']).optional() });
 export const saleFlowSchema = z.object({
   buyer: clientReferenceSchema,
+  buyerPhone:z.string().trim().max(30).optional(), buyerEmail:z.union([z.literal(''),z.string().transform(normalizeEmail).pipe(z.email().max(254))]).optional(),
   items: z.array(z.object({ equipment: saleEquipmentInputSchema, owner: clientReferenceSchema.optional(), unitPrice: moneySchema,  }).strict()).min(1, 'Agregue al menos un equipo.').max(20),
   paymentMethod: z.enum(paymentMethods), discount: moneySchema.default('0'), notes: z.string().max(1000).transform(normalizeText).optional(),
 

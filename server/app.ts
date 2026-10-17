@@ -1,3 +1,4 @@
+import {createClientDirectory} from './services/client-directory.service.js';
 import {createEvidencePdfService} from './services/evidence-pdf.service.js';
 import {createEvidenceService} from './evidence/service.js';
 import {clientVault} from './documents/client-vault.js';
@@ -116,6 +117,9 @@ app.post('/api/users/:id/reset-password',requirePermission('users.update'),async
 app.get('/api/roles',requirePermission('roles.read'),async (req,res)=>res.json(await users(req,res).roles()));
 app.patch('/api/roles/:id',requirePermission('roles.update'),async (req,res)=>res.json(await users(req,res).updateRole(req.params.id,req.body)));
 app.get('/api/audit',requirePermission('audit.read'),async (req,res)=>res.json(await users(req,res).audit(req.query)));
+app.get('/api/client-directory', requirePermission('clients.read'), async(req,res)=>res.json(await createClientDirectory(db,authState(res).user.permissions).list(req.query)));
+app.get('/api/client-directory/:id', requirePermission('clients.read'), async(req,res)=>res.json(await createClientDirectory(db,authState(res).user.permissions).detail(req.params.id as string)));
+app.get('/api/sales-summary',requirePermission('sales.read'),async(_req,res)=>res.json({total:await db.sale.count()}));
 app.get('/api/clients', requirePermission('clients.read'), async (req, res) => res.json(await pos(req,res).listClients(req.query)));
 app.get('/api/clients/by-dni/:dni', requirePermission('clients.read'), async (req, res) => { const client = await pos(req,res).findClientByDni(req.params.dni); if (!client) throw new DomainError(404, 'Cliente no encontrado.', 'CLIENT_NOT_FOUND'); res.json(client); });
 app.get('/api/clients/:id', requirePermission('clients.read'), async (req, res) => res.json(await pos(req,res).getClientById(req.params.id)));
