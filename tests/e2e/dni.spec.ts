@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
   await db.$transaction([db.session.deleteMany(), db.authRateLimit.deleteMany(), db.registrationRequestHistory.deleteMany(), db.registrationRequest.deleteMany(), db.registrationOperation.deleteMany(), db.saleAccessory.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]);
   await seedTestAdmin(db); await mkdir('.test-results/phase-5-dni', { recursive: true });
   await page.goto('/login'); await page.getByLabel('Correo', { exact: true }).fill(testEmail); await page.getByLabel('Contraseña', { exact: true }).fill(testPassword);
-  await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Registro de equipos', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click(); await expect(page.locator('.home-reference')).toBeVisible();
 });
 test.afterAll(() => db.$disconnect());
 async function openDraft(page: Page, path: string) {

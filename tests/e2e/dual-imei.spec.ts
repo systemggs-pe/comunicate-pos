@@ -23,7 +23,7 @@ for (const [index, brand] of ['Samsung', 'Honor', 'Xiaomi', 'Motorola', 'Apple',
     await page.getByLabel('Correo', { exact: true }).fill(testEmail);
     await page.getByLabel('Contraseña', { exact: true }).fill(testPassword);
     await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Registro de equipos', exact: true })).toBeVisible();
+    await expect(page.locator('.home-reference')).toBeVisible();
     await page.goto('/registros/tecnico');
     await page.getByLabel('DNI', { exact: false }).fill(dni);
     await page.getByLabel('Nombres').fill('Prueba'); await page.getByLabel('Apellidos').fill(brand);
