@@ -36,6 +36,7 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
     await audit(tx,'REGISTRATION_REQUEST_REGISTERED',id,metadata);
     return detail(tx,id);
   }
+  function search(raw:unknown){const {q,status,equipmentId,clientId,limit,offset}=requestQuerySchema.parse(raw);const where:Prisma.RegistrationRequestWhereInput={status,imei:{equipmentId,equipment:{ownerId:clientId}},...(q?{AND:q.split(/\s+/).map(term=>({OR:[{code:{contains:term,mode:'insensitive' as const}},{imei:{value:{contains:term}}},{imei:{equipment:{owner:{OR:[{dni:{contains:term}},{fullName:{contains:term,mode:'insensitive' as const}},{firstName:{contains:term,mode:'insensitive' as const}},{lastName:{contains:term,mode:'insensitive' as const}}]}}}}]}))}:{})};return {where,limit,offset};}
   return {
     createRegistrationOperation: async(raw:unknown)=>{
       const input=operationalRegistrationSchema.parse(raw), userId=actorId();
@@ -92,10 +93,8 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
         if(error instanceof Prisma.PrismaClientKnownRequestError&&error.code==='P2002'){const previous=await replay(db);if(previous)return previous;}throw error;
       }
     },
-    listRegistrationRequests:async(raw:unknown={})=>{
-      const {q,status,equipmentId,clientId,limit,offset}=requestQuerySchema.parse(raw);
-      return db.registrationRequest.findMany({where:{status,imei:{equipmentId,equipment:{ownerId:clientId}},...(q?{AND:q.split(/\s+/).map(term=>({OR:[{code:{contains:term,mode:'insensitive' as const}},{imei:{value:{contains:term}}},{imei:{equipment:{owner:{OR:[{dni:{contains:term}},{firstName:{contains:term,mode:'insensitive' as const}},{lastName:{contains:term,mode:'insensitive' as const}}]}}}}]}))}:{})},include:requestInclude,orderBy:[{createdAt:'desc'},{id:'asc'}],take:limit,skip:offset});
-    },
+    listRegistrationRequests:async(raw:unknown={})=>{const {where,limit,offset}=search(raw);return db.registrationRequest.findMany({where,include:requestInclude,orderBy:[{createdAt:'desc'},{id:'asc'}],take:limit,skip:offset});},
+    registrationSummary:async(raw:unknown={})=>{const {where}=search(raw);const [total,filtered]=await Promise.all([db.registrationRequest.count(),db.registrationRequest.count({where})]);return {total,filtered};},
     getRegistrationRequest:(id:unknown)=>detail(db,idSchema.parse(id)),
     updateRegistrationRequest:(id:unknown,raw:unknown)=>{
       const requestId=idSchema.parse(id),input=requestEditSchema.parse(raw),userId=actorId();
