@@ -170,3 +170,15 @@ La compilación frontend emitió dos avisos no bloqueantes de anotaciones PURE e
 - Dos commits locales organizados para implementación y pruebas/documentación. **Push: NO. Deploy: NO.**
 
 Estado Git: rama `master`, baseline real `816a032`, implementación en `3f7caaa`; este documento y las pruebas se incluyen en el commit local de cierre. El inventario anterior comprende ambos commits.
+
+## Corrección posterior — desbloqueo en listado y cámara predeterminada
+
+Sobre el baseline `5dbe88a`:
+
+- Las filas BLOCKED muestran un botón rojo **Desbloquear**, con permiso `registration.update`, y una sola insignia de bloqueo. Abre un diálogo centrado con RECO e IMEI, motivo obligatorio, confirmación explícita y cancelación. Reutiliza la transición existente UNBLOCK, conserva auditoría e historial y marca únicamente ese IMEI como REGISTERED. No realiza trámites externos ante el operador.
+- El escáner compartido por Registros y Ventas presenta **Escanear con cámara** como acción principal, primera y con `capture="environment"`; **Galería** es una alternativa separada sin captura forzada. Ambos inician el análisis al recibir la foto y conservan las correcciones manuales, cancelación de respuestas tardías y deduplicación existentes. En escritorio se conserva la selección nativa de archivos. La elección de cámara física depende del soporte del navegador móvil.
+- Adaptación a 375, 390, 430, 768, 1280 y 1440 px; los mensajes de análisis reservan su espacio sobre el recuadro de equipos vinculados.
+- Validación del alcance: 11 E2E únicos superados (9 de diseño/escáner y 2 de regresión operativa), sin sumar repeticiones; TypeScript, ESLint y build frontend correctos. Capturas sintéticas en `.test-results/camera-unblock/`; incluye diálogo, controles y estado de análisis.
+- Prueba de permisos con usuario lector real en la base de pruebas: botón oculto, API 403 y estado BLOCKED conservado. La política existente de SUPERADMIN no se modifica.
+- Integridad de la base comercial, historiales, usuarios, permisos y configuración verificada contra snapshot propio de esta corrección. Sin migraciones, cambios de credenciales, push ni deploy.
+- Cámara de un teléfono físico y Gemini real: pendientes de verificación; la automatización usa imágenes sintéticas y proveedor explícitamente simulado.

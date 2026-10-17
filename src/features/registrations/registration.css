@@ -32,7 +32,7 @@
 .registration-layout .dni-notice { padding:8px 10px; margin:8px 0 14px; color:#2563eb; background:#eff6ff; font-size:12px; }
 .registration-layout .dni-notice p { margin:0; }
 .registration-layout .form-hint { font-size:11px; line-height:1.5; }
-.registration-layout .linked-documents { padding:16px; background:#ecf1f6; border:1px solid #d7e0eb; border-radius:7px; margin:18px 0; }
+.registration-layout .linked-documents { clear:both; padding:16px; background:#ecf1f6; border:1px solid #d7e0eb; border-radius:7px; margin:18px 0; }
 .linked-documents>p { margin:0 0 12px; color:#637086; font-size:12px; }
 .related-equipment-grid { display:grid; gap:8px; }
 .related-equipment-card { padding:9px 12px; border:1px solid #d5deea; background:#fbfdfe; border-radius:6px; color:#64748b; text-align:left; font-size:12px; }
@@ -110,3 +110,6 @@
 .imei-choice-copy>strong,.imei-choice-copy>span { display:block; }
 .imei-choice-copy>span { margin-top:3px; font-size:11px; font-weight:650; }
 @media(min-width:701px){.registration-layout .selection-row input { margin-left:20%; }}
+
+.registration-layout .scanner-card .box-scanner-actions label { position:relative; min-height:40px; padding:8px 10px; font-size:12px; }
+@media(max-width:700px){.registration-layout .scanner-card { float:none; margin:0 0 16px; }.registration-layout .scanner-card .box-scanner-actions { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); }.registration-layout .scanner-card .box-scanner-actions label { min-width:0; min-height:44px; font-size:11px; }.registration-layout .scanner-card p[role=status]:not(:empty) { max-width:none; }}

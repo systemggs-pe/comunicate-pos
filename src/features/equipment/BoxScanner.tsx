@@ -1,3 +1,4 @@
+import {Camera,Images} from 'lucide-react';
 import {useLayoutEffect,useEffect,useRef,useState} from 'react';
 import {apiUrl} from '../../services/api';
 import {validateDetection,mergeDetection,scanFields,type ScanField,type BoxScan} from '../../../shared/scanner';
@@ -16,5 +17,5 @@ export function BoxScanner({equipment,imeis,onDetected}:{equipment:EquipmentInpu
    setStatus(Object.values(raw.data).some(Boolean)?`ESCANEO COMPLETADO${raw.simulated?' (PROVEEDOR SIMULADO)':''}`:'NO SE PUDO IDENTIFICAR LA INFORMACIÓN');setNotice(conflicts.length?'SE CONSERVARON TUS DATOS. REVISA LAS DIFERENCIAS DETECTADAS.':raw.warnings?.length?'ALGUNOS DATOS NO SON VÁLIDOS; COMPLETA LOS CAMPOS PENDIENTES.':'');
   }catch(error){if(id!==request.current)return;active.current?.controller.abort();active.current=null;setStatus(error instanceof Error?error.message:'NO SE PUDO ANALIZAR. CONTINÚA MANUALMENTE.');}
  }
- return <div className="form-panel"><label className="secondary-button">Escanear<input aria-label="Escanear caja" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)void choose(file);}}/></label><p className="form-hint">Sólo fotos de cajas; no documentos de identidad. El formulario sigue editable.</p><p role="status">{status}</p>{notice&&<p role="status">{notice}</p>}</div>;
+ return <div className="form-panel box-scanner"><div className="box-scanner-actions">{[true,false].map(camera=><label className={camera?'primary-button scanner-camera':'secondary-button'} key={String(camera)}>{camera?<Camera size={16} aria-hidden="true"/>:<Images size={16} aria-hidden="true"/>}{camera?'Escanear con cámara':'Galería'}<input aria-label={camera?'Escanear caja':'Escanear caja desde galería'} type="file" accept="image/jpeg,image/png,image/webp" capture={camera?'environment':undefined} onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)void choose(file);}}/></label>)}</div><p className="form-hint">La cámara trasera es la opción predeterminada en celulares. Sólo fotos de cajas; el análisis empieza al tomar o elegir la foto.</p><p role="status">{status}</p>{notice&&<p role="status">{notice}</p>}</div>;
 }

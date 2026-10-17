@@ -138,3 +138,12 @@ html { scroll-padding-bottom:110px; }
 .design-shell .report-tabs button[aria-pressed=true] { background:var(--color-brand); border-color:var(--color-brand); }
 .design-shell .picker-option.selected { background:var(--design-blue-soft); }
 .design-shell .totals { background:var(--design-soft); }
+
+.design-shell .unblock-row { background:#b52d28; border-color:#b52d28; min-height:34px; padding:7px 12px; }
+.design-shell .unblock-row:hover { background:#98231f; border-color:#98231f; }
+.box-scanner-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.design-shell .box-scanner-actions label { position:relative; overflow:hidden; cursor:pointer; flex-direction:row; }
+.box-scanner-actions input[type=file] { position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer; }
+.box-scanner-actions label:focus-within { outline:3px solid #60a5fa; outline-offset:3px; }
+.design-shell .unblock-dialog { position:fixed; inset:0; margin:auto; width:min(560px,calc(100% - 32px)); height:fit-content; max-height:85dvh; overflow-y:auto; border-color:var(--design-line); background:var(--design-surface); }
+.unblock-dialog::backdrop { background:#17243a55; }
