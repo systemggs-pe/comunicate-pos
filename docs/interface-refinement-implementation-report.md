@@ -108,6 +108,10 @@ Se sustituye la cabecera de gran tamaño por una línea breve, se corrige la her
 
 No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy, siguiendo la fase indicada. No se modificaron los datos comerciales.
 
+## Corrección posterior — celular del segundo IMEI
+
+Al seleccionar registrar dos IMEI, el paso de equipo muestra inmediatamente «Celular del IMEI 2», obligatorio, de nueve dígitos y distinto del celular del primer IMEI. Se valida antes de continuar y se conserva asociado al valor del segundo IMEI al pasar al precio y al confirmar. Se mantienen la validación del backend por solicitud y la prohibición de celulares repetidos. No se ejecutaron pruebas ni compilaciones; sin push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
