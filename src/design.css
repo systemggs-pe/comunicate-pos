@@ -39,7 +39,7 @@
 .design-shell .status-registered { color:#166534; background:#dcf7e5; border-color:#aad6b9; }
 .design-shell .status-blocked { color:#9f3427; background:#fde9e5; border-color:#e4b4ad; }
 .design-shell .status-badge { display:inline-block; white-space:normal; padding:3px 8px; border-radius:99px; border:1px solid transparent; font-size:11px; font-weight:700; }
-.bottom-navigation { position:fixed; left:50%; transform:translateX(-50%); bottom:max(16px,env(safe-area-inset-bottom)); z-index:30; display:flex; flex-direction:row; gap:5px; width:560px; max-width:calc(100% - 24px); padding:6px; border:1px solid rgb(255 255 255 / 85%); border-radius:24px; background:rgb(244 247 251 / 20%); -webkit-backdrop-filter:blur(18px) saturate(140%); backdrop-filter:blur(18px) saturate(140%); box-shadow:0 6px 20px rgb(31 41 55 / 12%); }
+.bottom-navigation { position:fixed; left:50%; transform:translateX(-50%); bottom:max(16px,env(safe-area-inset-bottom)); z-index:30; display:flex; flex-direction:row; gap:5px; width:560px; max-width:calc(100% - 24px); padding:6px; border:1px solid rgb(255 255 255 / 85%); border-radius:24px; background:transparent; -webkit-backdrop-filter:blur(18px) saturate(140%); backdrop-filter:blur(18px) saturate(140%); box-shadow:0 6px 20px rgb(31 41 55 / 12%); }
 .bottom-navigation a,.bottom-navigation>button { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:5px; min-width:0; min-height:58px; border:1px solid transparent; border-radius:19px; color:#45546a; background:transparent; font-size:11px; font-weight:650; transition:background-color 150ms,color 150ms,border-color 150ms,transform 100ms; }
 .bottom-navigation [aria-current=page],.bottom-navigation>button.selected { color:var(--color-brand); border-color:rgb(126 172 232 / 45%); background:rgb(248 251 255 / 76%); box-shadow:0 1px 4px #1c4c9110; }
 .design-shell .more-navigation { width:min(480px,calc(100% - 32px)); border:1px solid var(--design-line); border-radius:16px; padding:24px; color:var(--design-ink); background:var(--design-surface); max-height:85dvh; }
@@ -252,5 +252,5 @@ html { scroll-padding-bottom:110px; }
 .bottom-navigation a:hover,.bottom-navigation>button:hover{color:var(--color-brand);background-color:rgb(255 255 255 / 55%)}
 .bottom-navigation a:focus-visible,.bottom-navigation>button:focus-visible{outline:2px solid var(--color-brand);outline-offset:1px}
 .bottom-navigation a:active,.bottom-navigation>button:active{transform:scale(.97)}
-@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.bottom-navigation{background:rgb(244 247 251 / 96%)}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.bottom-navigation{background:transparent}}
 @media(prefers-reduced-motion:reduce){.bottom-navigation a,.bottom-navigation>button{transition:none}.bottom-navigation a:active,.bottom-navigation>button:active{transform:none}}
