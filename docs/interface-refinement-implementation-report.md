@@ -128,6 +128,12 @@ Ahora se pueden corregir los IMEI desde la misma edición de venta y agregar un 
 
 No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy. No se modificaron ventas ni equipos de la base durante esta implementación. Esta sección sustituye la indicación anterior de que los IMEI debían corregirse fuera del editor de venta.
 
+## Refinamiento posterior — vista previa de venta
+
+La vista previa usa una sola columna de contenido y una cabecera compacta con código y fecha. El total aparece una sola vez junto al medio de pago y a las acciones Ticket/Editar. Se retiran las notas de la vista, los contenedores grises anidados y los datos repetidos; el descuento solo se informa si realmente es distinto de cero, sin modificar importes. Cliente y características del equipo se distribuyen en rejillas compactas; cada IMEI mantiene su estado independiente. Los accesorios solo aparecen cuando existen. Eliminar conserva su flujo de confirmación y se ubica al pie.
+
+Se aplican Impeccable y UI/UX Pro Max, con aparición breve del contenido, foco visible, adaptación al ancho disponible y respeto por movimiento reducido. No se modifican los datos, fotografías, documentos ni tickets almacenados. No se ejecutaron pruebas, compilaciones, auditorías, comparaciones visuales, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
