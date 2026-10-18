@@ -36,6 +36,14 @@ Al consultar Foto DNI, los documentos CODART ya guardados se identifican mediant
 
 Por solicitud del usuario, se retiran completamente de DocumentVault la autorización documental con finalidad/referencia, carga manual de identidad y sus confirmaciones, listado separado de documentos de identidad, documentación histórica de registros y equipos y acciones de incorporación/reemplazo/eliminación de esos bloques. La ficha conserva únicamente la consulta y visor de fotos CODART con su casilla de autorización. No se eliminan documentos, archivos, relaciones ni datos históricos. El selector de documentos utilizado por Registros conserva su contrato de datos. No se ejecutan pruebas, push ni deploy.
 
+## Mejora posterior — diseño y movimiento de Fotos del DNI
+
+Se aplican Impeccable y UI/UX Pro Max al panel de fotos de la ficha del cliente y a Foto DNI. Se conserva la identidad azul del POS y se reduce el anidamiento visual. Se comparten selector de DNI, mensajes de estado, carga y visor de anverso/reverso. Los textos se simplifican: Buscar fotos, Ampliar, Descargar, Parte de adelante/Parte de atrás y una casilla breve de permiso. Pedir fotos nuevas conserva la indicación de posible consumo de créditos.
+
+Las fotos reservan espacio mientras cargan. Se añaden indicadores de carga reales, confirmación breve de selección y aparición suave de la imagen, con duración acotada. Se respeta prefers-reduced-motion y se preservan estados de foco, botones táctiles y mensajes accesibles. La ampliación utiliza el modal compartido. No se agregan librerías de animación ni imágenes decorativas.
+
+La configuración de consultas, permisos, almacenamiento y datos existentes se conserva. No se ejecutaron suites, builds, auditorías ni comparaciones visuales, por la instrucción vigente de implementación sin pruebas; se omiten también las comprobaciones automáticas sugeridas por las skills. No se afirma verificación del resultado visual. Sin push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
