@@ -52,6 +52,12 @@ Cuando el cliente ya tiene fotos vigentes del DNI, la ficha oculta el selector d
 
 El acceso de la ficha se presenta como DNI del cliente, con icono y una explicación breve. Se sustituyen los triángulos nativos por flechas con giro y estados de foco. El contenido aparece con una transición breve de opacidad y recorte; no se animan alturas ni se añaden dependencias. El estado real DNI guardado se muestra como una etiqueta discreta. Actualizar DNI tiene apariencia de botón y abre su formulario con el mismo movimiento. Se respeta movimiento reducido. El expediente sigue cargándose únicamente al abrirlo. Sin pruebas, push ni deploy.
 
+## Optimización posterior — espacio de la ficha del cliente
+
+Se elimina la estructura de dos columnas con alturas desiguales que dejaba una gran zona vacía al lado de los equipos. El resumen pasa a una franja compacta; contacto, equipos e historial utilizan el ancho completo en orden de lectura. Equipos se organiza en dos columnas dentro de su propia sección y pasa a una en pantallas estrechas. El historial agrupa fecha, equipo e IMEI con menos separación. Se compacta el encabezado y se amplía el modal hasta 760 px, respetando el ancho disponible.
+
+Se conservan todos los contactos, equipos, IMEIs, series, movimientos y métricas autorizadas, sin cambiar cálculos ni datos. Los marcadores repetidos NO CONSIGNADO se presentan como dirección no registrada. Se mantiene la diferencia entre importe de ventas y servicios sin cobro confirmado. Hay una transición breve de entrada, desactivada para movimiento reducido; los controles no dependen de que termine la animación. Se aplican Impeccable y UI/UX Pro Max y se registra la preferencia del usuario de utilizarlas en futuros cambios de diseño y movimiento. Sin pruebas, auditorías, push ni deploy en esta fase.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
