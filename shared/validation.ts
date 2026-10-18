@@ -1,9 +1,16 @@
 import { normalizeText, normalizeEmail } from './normalization.js';
 import { z } from 'zod';
+import {imeiValidationError} from './imei.js';
 
 const digits = (length: number, label: string) => z.string().transform(v => v.replace(/\s/g, '')).pipe(z.string().regex(new RegExp(`^[0-9]{${length}}$`), `${label}: ${length} dígitos exactos`));
 export const dniSchema = digits(8, 'DNI');
-export const imeiValueSchema = digits(15, 'IMEI');
+// Read-only lookup remains compatible with historical identifiers.
+export const imeiLookupSchema = digits(15, 'IMEI');
+export const imeiValueSchema = z.unknown().superRefine((value,ctx)=>{
+  const error=imeiValidationError(value);
+  if(error)ctx.addIssue({code:'custom',message:error.message,params:{imeiCode:error.code}});
+}).transform(value=>value as string);
+export const imeiCorrectionSchema=z.object({expectedValue:z.string().min(1).max(100),value:imeiValueSchema,reason:z.string().trim().min(5).max(300),confirm:z.literal(true)}).strict();
 export const idSchema = z.uuid();
 const text = z.string().trim().transform(normalizeText).pipe(z.string().min(1, 'Este campo es obligatorio.').max(100, 'Máximo 100 caracteres.'));
 const technicalText=z.string().trim().min(1).max(100);
@@ -13,6 +20,7 @@ export const imeiSchema = z.object({ slot: z.number().int().min(1).max(2), value
 export const imeiListSchema = z.preprocess(value => Array.isArray(value) && value.length <= 2
   ? value.filter(imei => !(imei?.slot === 2 && typeof imei.value === 'string' && !imei.value.trim()))
   : value, z.array(imeiSchema).min(1).max(2).superRefine((imeis, ctx) => {
+  if(!imeis.some(imei=>imei.slot===1))ctx.addIssue({code:'custom',path:[0,'value'],message:'Indica el IMEI 1 del equipo.'});
   if (new Set(imeis.map(i => i.value)).size !== imeis.length) ctx.addIssue({ code: 'custom', message: 'Los IMEIs deben ser diferentes.' });
   if (new Set(imeis.map(i => i.slot)).size !== imeis.length) ctx.addIssue({ code: 'custom', message: 'Los slots deben ser diferentes.' });
 }));

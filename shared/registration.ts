@@ -1,4 +1,4 @@
-import { imeiValueSchema } from './validation.js';
+import { imeiLookupSchema } from './validation.js';
 
 export function deriveRegistrationStatus(imeis: readonly { registrationStatus: string|null }[]) {
   const count = imeis.filter(i => i.registrationStatus === 'REGISTERED').length;
@@ -7,7 +7,7 @@ export function deriveRegistrationStatus(imeis: readonly { registrationStatus: s
 }
 
 export function isDualImei(imeis: readonly { slot: number; value: string }[]) {
-  const first = imeiValueSchema.safeParse(imeis.find(imei => imei.slot === 1)?.value);
-  const second = imeiValueSchema.safeParse(imeis.find(imei => imei.slot === 2)?.value);
+  const first = imeiLookupSchema.safeParse(imeis.find(imei => imei.slot === 1)?.value);
+  const second = imeiLookupSchema.safeParse(imeis.find(imei => imei.slot === 2)?.value);
   return first.success && second.success && first.data !== second.data;
 }

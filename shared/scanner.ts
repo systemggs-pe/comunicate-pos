@@ -6,7 +6,13 @@ export const boxScanSchema=z.object(Object.fromEntries(scanFields.map(k=>[k,z.st
 export type BoxScan=z.infer<typeof boxScanSchema>;
 export function validateDetection(raw:unknown){
  const parsed=boxScanSchema.parse(raw),warnings:ScanField[]=[],data={...parsed};
- for(const key of scanFields){const v=data[key];if(v===null)continue;if(!v.trim()||v.length>100||Array.from(v).some(char=>char.charCodeAt(0)<32)||(key.startsWith('imei')&&(!/^\d{15}$/.test(v)||!imeiValueSchema.safeParse(v).success))){data[key]=null;warnings.push(key);}else if(!key.startsWith('imei'))data[key]=v.trim().replace(/\s+/g,' ');}
+ for(const key of scanFields){const v=data[key];if(v===null)continue;
+  if(!v.trim()||v.length>100||Array.from(v).some(char=>char.charCodeAt(0)<32)){data[key]=null;warnings.push(key);}
+  else if(key.startsWith('imei')){
+   // Keep the exact candidate visible for manual correction; never repair or approve it.
+   if(!imeiValueSchema.safeParse(v).success)warnings.push(key);
+  }else data[key]=v.trim().replace(/\s+/g,' ');
+ }
  if(data.imei1&&data.imei1===data.imei2){data.imei2=null;warnings.push('imei2');}
  return {data,warnings};
 }

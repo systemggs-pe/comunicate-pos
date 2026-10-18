@@ -143,6 +143,7 @@ app.get('/api/equipment/:id', requirePermission('equipment.read'), async (req, r
 app.post('/api/equipment', requirePermission('equipment.create'), async (req, res) => res.status(201).json(await pos(req,res).createEquipment(req.body)));
 app.patch('/api/equipment/:id', requirePermission('equipment.update'), async (req, res) => res.json(await pos(req,res).updateEquipment(req.params.id, req.body)));
 app.post('/api/equipment/external', requirePermission('equipment.create','clients.create'), async (req, res) => res.status(201).json(await pos(req,res).createExternalEquipment(req.body)));
+app.patch('/api/equipment/:id/imeis/:imeiId', requirePermission('equipment.update'), async(req,res)=>res.json(await pos(req,res).correctImeiValue(req.params.id,req.params.imeiId,req.body)));
 app.post('/api/equipment/:id/imeis', requirePermission('equipment.update'), async (req, res) => res.status(201).json(await pos(req,res).addImeiToEquipment(req.params.id, req.body)));
 app.patch('/api/imeis/:value/registration', requirePermission('registration.update'), async (req, res) => res.json(await pos(req,res).updateImeiRegistrationStatus(req.params.value, req.body)));
 app.post('/api/registrations/external', requirePermission('registration.create','registration.update','clients.create','equipment.create'), async (req, res) => res.json(await pos(req,res).registerExternalImei(req.body)));
