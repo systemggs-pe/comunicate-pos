@@ -4,6 +4,10 @@
 
 Por instrucción posterior del usuario, la dirección final y los tres formatos de Compartir usan **DIRECCIÓN - DEPARTAMENTO**. Provincia se retiró de los formularios y detalles comerciales. No se eliminan columnas ni datos existentes; no se aplica otra migración. Esta corrección sustituye las menciones de Provincia como componente de dirección en el reporte original. No se ejecutan pruebas, push ni deploy.
 
+## Corrección posterior — autorización de fotos CODART
+
+La consulta de fotos CODART requiere únicamente una casilla explícita de autorización para consultar y almacenar. Se retiran finalidad y referencia del formulario de fotos; el backend registra el contexto de esa confirmación con usuario y fecha cuando no se reciben los campos del contrato anterior. Se conserva la casilla obligatoria en backend, permisos, almacenamiento privado y autorización contractual existente. La carga manual y clasificación documental conservan sus formularios anteriores. Sin pruebas, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
