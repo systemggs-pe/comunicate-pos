@@ -44,6 +44,10 @@ Las fotos reservan espacio mientras cargan. Se añaden indicadores de carga real
 
 La configuración de consultas, permisos, almacenamiento y datos existentes se conserva. No se ejecutaron suites, builds, auditorías ni comparaciones visuales, por la instrucción vigente de implementación sin pruebas; se omiten también las comprobaciones automáticas sugeridas por las skills. No se afirma verificación del resultado visual. Sin push ni deploy.
 
+## Ajuste posterior — DNI guardado y actualización
+
+Cuando el cliente ya tiene fotos vigentes del DNI, la ficha oculta el selector de tipo y la explicación inicial de créditos. Detecta el tipo de DNI guardado en vez de presuponer siempre DNI azul. Muestra las fotos y una opción Actualizar DNI, que despliega el tipo de DNI, el aviso de posible consumo de créditos y la casilla de permiso sólo al abrirla. Se conserva el permiso para reemplazar documentos y no se llama a CODART al desplegar opciones. Sin pruebas, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
