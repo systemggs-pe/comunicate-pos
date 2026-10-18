@@ -72,6 +72,12 @@ El historial completo se conserva dentro de un desplegable con número de evento
 
 Hay apertura breve y giro de flecha sin dependencias nuevas, con preferencia de movimiento reducido, foco visible y tamaños táctiles. No se modifican datos ni se ejecutan pruebas, auditorías, push o deploy.
 
+## Ajuste posterior — historial sólo de registro
+
+El detalle del equipo muestra Historial de registro filtrado por eventos de registro e IMEI. Los rótulos son Registro iniciado, Registro pendiente y Registro completado. Una transición real a BLOQUEADO se presenta como Solicitud de desbloqueo recibida; una transición de BLOQUEADO a REGISTRADO se presenta como Equipo registrado y desbloqueado. Cuando inicio y estado pendiente corresponden al mismo evento, el título es Registro iniciado y el detalle Registro pendiente, conservando su fecha real. No se inventan eventos o fechas ni se usa el estado del otro IMEI.
+
+Se ocultan creación del equipo, asignación de propietario, incorporación de IMEI, ventas y cambios técnicos sin transición de registro. El contador incluye sólo los movimientos mostrados. La API y los eventos internos se conservan intactos. Sin pruebas, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
