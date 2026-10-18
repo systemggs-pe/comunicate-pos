@@ -32,6 +32,10 @@ El usuario confirmó que la respuesta real sólo contiene data_uri y autorizó l
 
 Al consultar Foto DNI, los documentos CODART ya guardados se identifican mediante su sourceOrdinal, sin solicitudes externas ni consumo de créditos. La clasificación se persiste mediante una operación explícita, con permisos y auditoría, únicamente para pares vigentes de la misma fuente y tipo, ordenados 1/2. No sobrescribe lados conocidos, no cambia documentos asociados a evidencias, no renueva autorizaciones ni modifica archivos. Otros conjuntos conservan la identificación manual. No se ejecutó consulta real ni suite de pruebas.
 
+## Simplificación posterior — ficha documental del cliente
+
+Por solicitud del usuario, se retiran completamente de DocumentVault la autorización documental con finalidad/referencia, carga manual de identidad y sus confirmaciones, listado separado de documentos de identidad, documentación histórica de registros y equipos y acciones de incorporación/reemplazo/eliminación de esos bloques. La ficha conserva únicamente la consulta y visor de fotos CODART con su casilla de autorización. No se eliminan documentos, archivos, relaciones ni datos históricos. El selector de documentos utilizado por Registros conserva su contrato de datos. No se ejecutan pruebas, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
