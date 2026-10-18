@@ -1,3 +1,4 @@
+import {selectIdentityDocuments} from '../../shared/identity-selection.js';
 import type {Db} from '../repositories/pos.repository.js';
 import {writeAudit,type AuditContext} from '../lib/audit.js';
 import {DomainError} from '../lib/errors.js';
@@ -19,11 +20,7 @@ export async function autoAttachClientIdentity(tx:Db,requestId:string,actor:Audi
  const documents=await tx.clientDocument.findMany({where:{clientId,status:'CURRENT',expiresAt:{gt:new Date()},category:{in:['DNI_FRONT','DNI_BACK']},evidenceAsset:{status:'READY',OR:[{ownerClientId:clientId},{ownerClientId:null}]}},orderBy:[{createdAt:'desc'},{id:'asc'}],take:100});
  // Prefer a complete pair of the same DNI type; leave ambiguous duplicates for review.
  const linkedDocuments=existing.length?await tx.clientDocument.findMany({where:{clientId,evidenceAssetId:{in:existing.map(link=>link.evidenceAssetId)}},select:{documentType:true}}):[];
- const linkedTypes=[...new Set(linkedDocuments.map(d=>d.documentType))];
- if(linkedTypes.length>1)return {attached:0};
- const types=[...new Set(documents.map(d=>d.documentType))].filter(type=>!linkedTypes.length||type===linkedTypes[0]);
- const groups=types.map(type=>documents.filter(d=>d.documentType===type)).filter(group=>['DNI_FRONT','DNI_BACK'].every(category=>group.filter(d=>d.category===category).length<=1));
- const selected=groups.find(group=>group.length===2)??groups[0]??[];
+ const selected=selectIdentityDocuments(documents,linkedDocuments.map(d=>d.documentType));
  let attached=0;
  for(const d of selected.filter(d=>missing.includes(d.category as 'DNI_FRONT'|'DNI_BACK')).sort((a,b)=>a.evidenceAssetId.localeCompare(b.evidenceAssetId))){
   await tx.$queryRaw`SELECT id FROM "EvidenceAsset" WHERE id=${d.evidenceAssetId}::uuid FOR UPDATE`;

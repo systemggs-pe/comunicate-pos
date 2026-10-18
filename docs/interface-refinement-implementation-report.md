@@ -92,6 +92,14 @@ Se reutiliza EvidenceAsset y se crean únicamente las asociaciones RegistrationE
 
 Sólo se consideran documentos CURRENT, vigentes y con archivo READY del cliente propietario. No se vinculan automáticamente equipos con cambios de propietario históricos, grupos ambiguos o archivos incompatibles. Se conservan RBAC, auditoría y almacenamiento privado. El autovínculo exige permiso documental y de adjuntar evidencias; en registros existentes también exige edición del registro. La vista espera la sincronización y muestra un mensaje si falla. Las fotos de caja y boleta siguen siendo propias de cada registro. No se ejecutan pruebas, auditorías, push ni deploy; no se aplica migración ni backfill masivo.
 
+## Aclaración posterior — DNI reutilizable del cliente y carga en registro
+
+Las fotos vigentes del cliente se seleccionan automáticamente en el paso de evidencias, con vista previa privada. Se ocultan los controles de carga de cada lado ya guardado y se pide únicamente el que falte. Una carga manual de DNI sirve para ambos IMEI de la misma operación. Al confirmar, el mismo archivo se vincula al registro y a la ficha del cliente, sin duplicarlo ni consultar CODART. Las demás evidencias permanecen opcionales. El asistente solicita frontal y posterior, y el backend valida ambos cuando se recibe `requireIdentityPhotos`; los consumidores anteriores conservan su contrato opcional.
+
+El guardado manual requiere permiso `client.documents.upload`, conserva las fotos vigentes anteriores, registra operador y fecha de confirmación y aplica la retención documental existente. Completar un lado manual permite reutilizar la otra foto guardada de tipo azul o electrónico. Eliminar evidencia de un registro no elimina la copia vinculada al cliente. En un registro histórico con cambio de propietario o sin propietario no se atribuye automáticamente la foto: se guarda en el registro y se muestra que requiere revisión. No se modifican propietarios, ventas ni datos históricos.
+
+Se aplican Impeccable y UI/UX Pro Max a la simplificación del paso, estados de carga/error, texto y aparición breve de las fotos, respetando movimiento reducido. No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy, conforme a la fase de implementación indicada.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.

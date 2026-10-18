@@ -1,3 +1,4 @@
+import {saveRegistrationIdentity} from '../documents/save-registration-identity.js';
 import {autoAttachClientIdentity} from '../documents/auto-attach-identity.js';
 import {attachOperationEvidence} from '../evidence/lifecycle.js';
 import {reuseClientDocuments} from '../documents/reuse.js';
@@ -17,7 +18,7 @@ interface Helpers {
   updateRegistrationInTx:(tx:Db,value:string,input:z.infer<typeof registrationSchema>, managed?:boolean)=>Promise<unknown>;
 }
 const requestInclude = { imei:{include:{equipment:{include:{owner:true,imeis:{orderBy:{slot:'asc' as const}},saleEquipment:{include:{sale:true}}}}}}, createdBy:{select:{id:true,name:true}}, updatedBy:{select:{id:true,name:true}},completedBy:{select:{id:true,name:true}} } satisfies Prisma.RegistrationRequestInclude;
-export function createRegistrationRequestsService(db:PrismaClient, actor:AuditContext, helpers:Helpers, sessionId?:string,autoAttachIdentity=false) {
+export function createRegistrationRequestsService(db:PrismaClient, actor:AuditContext, helpers:Helpers, sessionId?:string,autoAttachIdentity=false,saveClientIdentity=false) {
   const actorId = () => { if (!actor.userId) throw new DomainError(401,'Sesión requerida.','AUTH_REQUIRED'); return actor.userId; };
   async function detail(tx:Db,id:string) {
     const request=await tx.registrationRequest.findUnique({where:{id},include:{...requestInclude,history:{include:{user:{select:{id:true,name:true}}},orderBy:{createdAt:'asc'}}}});
@@ -87,9 +88,16 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
           await audit(tx,'REGISTRATION_REQUEST_CREATED',request.id,{operationId:operation.id,status});
           createdRequests.push({id:request.id,value});
         }
+        // Lock the client before assets, matching client-document reuse and replacement.
+        if(saveClientIdentity&&equipment.ownerId)await tx.$queryRaw`SELECT id FROM "Client" WHERE id=${equipment.ownerId}::uuid FOR UPDATE`;
         await attachOperationEvidence(tx,input.evidence??[],input.idempotencyKey,createdRequests,actor,sessionId);
         if(input.documentEvidence.length){if(!equipment.ownerId)throw new DomainError(409,'CLIENTE REQUERIDO.','CLIENT_DOCUMENT_SCOPE');await reuseClientDocuments(tx,input.documentEvidence,equipment.ownerId,createdRequests,actor);}
         if(autoAttachIdentity)for(const request of createdRequests)await autoAttachClientIdentity(tx,request.id,actor);
+        if(input.requireIdentityPhotos)for(const request of createdRequests){
+          const sides=await tx.registrationEvidence.count({where:{registrationRequestId:request.id,category:{in:['DNI_FRONT','DNI_BACK']},evidenceAsset:{status:'READY'}}});
+          if(sides!==2)throw new DomainError(400,'Adjunta el DNI frontal y posterior para continuar.','REGISTRATION_IDENTITY_REQUIRED');
+        }
+        if(saveClientIdentity&&equipment.ownerId)await saveRegistrationIdentity(tx,equipment.ownerId,(input.evidence??[]).map(row=>row.assetId),actor);
         return replay(tx);
       }); }catch(error){
         if(error instanceof Prisma.PrismaClientKnownRequestError&&error.code==='P2002'){const previous=await replay(db);if(previous)return previous;}throw error;
