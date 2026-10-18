@@ -58,6 +58,12 @@ Se elimina la estructura de dos columnas con alturas desiguales que dejaba una g
 
 Se conservan todos los contactos, equipos, IMEIs, series, movimientos y métricas autorizadas, sin cambiar cálculos ni datos. Los marcadores repetidos NO CONSIGNADO se presentan como dirección no registrada. Se mantiene la diferencia entre importe de ventas y servicios sin cobro confirmado. Hay una transición breve de entrada, desactivada para movimiento reducido; los controles no dependen de que termine la animación. Se aplican Impeccable y UI/UX Pro Max y se registra la preferencia del usuario de utilizarlas en futuros cambios de diseño y movimiento. Sin pruebas, auditorías, push ni deploy en esta fase.
 
+## Pulido posterior — ficha minimalista
+
+Con Impeccable y UI/UX Pro Max se refina la ficha compacta sin cambiar su estructura funcional. Resumen plano sin fondo adicional, tipografía y pesos más contenidos, identidad separada en DNI/código, teléfonos y correos legibles sin separadores amontonados, iconos más discretos y bloque DNI integrado sin un recuadro anidado. Se mantienen todos los valores y sus restricciones por permiso.
+
+Los controles conservan foco visible y objetivos táctiles; se pulen hover, pulsación y una sola entrada breve del contenido. Movimiento reducido mantiene la vista estática. No se agregan dependencias, consultas ni cambios de datos. Sin pruebas, auditorías, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
