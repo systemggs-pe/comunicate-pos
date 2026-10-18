@@ -64,6 +64,14 @@ Con Impeccable y UI/UX Pro Max se refina la ficha compacta sin cambiar su estruc
 
 Los controles conservan foco visible y objetivos táctiles; se pulen hover, pulsación y una sola entrada breve del contenido. Movimiento reducido mantiene la vista estática. No se agregan dependencias, consultas ni cambios de datos. Sin pruebas, auditorías, push ni deploy.
 
+## Refinamiento posterior — detalle y edición de equipos
+
+Se aplica el estilo minimalista del POS al detalle del equipo con Impeccable y UI/UX Pro Max: encabezado compacto con código y estado, propietario/DNI/origen agrupados, edición independiente, características en cuadrícula sin panel gris y bloques claros para cada IMEI. Se preservan todas las características, solicitudes y enlaces autorizados.
+
+El historial completo se conserva dentro de un desplegable con número de eventos. La presentación compacta elimina el margen excesivo del timeline y alinea fecha/evento, sin modificar su orden o contenido. La información comercial y la eliminación permanecen bajo sus permisos; la eliminación conserva su confirmación original y sólo cambia la etiqueta del acceso. La edición mantiene sus formularios y actualización técnica autorizada, con la misma presentación.
+
+Hay apertura breve y giro de flecha sin dependencias nuevas, con preferencia de movimiento reducido, foco visible y tamaños táctiles. No se modifican datos ni se ejecutan pruebas, auditorías, push o deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
