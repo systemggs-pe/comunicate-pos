@@ -39,9 +39,9 @@
 .design-shell .status-registered { color:#166534; background:#dcf7e5; border-color:#aad6b9; }
 .design-shell .status-blocked { color:#9f3427; background:#fde9e5; border-color:#e4b4ad; }
 .design-shell .status-badge { display:inline-block; white-space:normal; padding:3px 8px; border-radius:99px; border:1px solid transparent; font-size:11px; font-weight:700; }
-.bottom-navigation { position:fixed; left:50%; transform:translateX(-50%); bottom:max(16px,env(safe-area-inset-bottom)); z-index:30; display:flex; flex-direction:row; gap:5px; width:560px; max-width:calc(100% - 24px); padding:6px; border:1px solid #dbe1e9; border-radius:24px; background:#f4f7fb; box-shadow:0 4px 10px #1f29371a; }
-.bottom-navigation a,.bottom-navigation>button { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:5px; min-width:0; min-height:58px; border:1px solid transparent; border-radius:19px; color:#657184; background:transparent; font-size:11px; font-weight:650; }
-.bottom-navigation [aria-current=page],.bottom-navigation>button.selected { color:var(--color-brand); border-color:#c7dcf9; background:#f8fbff; box-shadow:0 1px 4px #1c4c9110; }
+.bottom-navigation { position:fixed; left:50%; transform:translateX(-50%); bottom:max(16px,env(safe-area-inset-bottom)); z-index:30; display:flex; flex-direction:row; gap:5px; width:560px; max-width:calc(100% - 24px); padding:6px; border:1px solid rgb(255 255 255 / 85%); border-radius:24px; background:rgb(244 247 251 / 60%); -webkit-backdrop-filter:blur(18px) saturate(140%); backdrop-filter:blur(18px) saturate(140%); box-shadow:0 6px 20px rgb(31 41 55 / 12%); }
+.bottom-navigation a,.bottom-navigation>button { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:5px; min-width:0; min-height:58px; border:1px solid transparent; border-radius:19px; color:#45546a; background:transparent; font-size:11px; font-weight:650; transition:background-color 150ms,color 150ms,border-color 150ms,transform 100ms; }
+.bottom-navigation [aria-current=page],.bottom-navigation>button.selected { color:var(--color-brand); border-color:rgb(126 172 232 / 45%); background:rgb(248 251 255 / 76%); box-shadow:0 1px 4px #1c4c9110; }
 .design-shell .more-navigation { width:min(480px,calc(100% - 32px)); border:1px solid var(--design-line); border-radius:16px; padding:24px; color:var(--design-ink); background:var(--design-surface); max-height:85dvh; }
 .more-navigation::backdrop { background:#17243a55; }
 .more-heading { display:flex; justify-content:space-between; align-items:center; }
@@ -117,16 +117,16 @@ html { scroll-padding-bottom:110px; }
 @media(max-width:900px){.registration-list-heading { flex-direction:column; }.registration-list-tools { max-width:none; width:100%; justify-content:flex-start; }.registration-list-tools form { flex:1; }.design-shell .registration-list-tools input { width:100%; }.design-shell .registration-table td,.design-shell .registration-table th { padding:12px; }.row-actions { max-width:90px; }.registration-status { min-width:110px; }}
 @media(max-width:650px){.registration-list-heading { padding:20px 16px; }.registration-list-title h1 { font-size:20px; }.registration-list-filters { padding:14px 12px; flex-direction:column; align-items:stretch; gap:8px; }.registration-list-filters>div { justify-content:space-between; }.registration-list-filters button { padding:7px; min-height:40px; }.design-shell .registration-table thead { display:none; }.design-shell .registration-table tbody { display:block; }.design-shell .registration-table tr { display:grid; grid-template-columns:1fr 1fr; padding:12px; gap:8px; }.design-shell .registration-table td { display:block; padding:4px; min-width:0; }.design-shell .registration-table td:first-child,.design-shell .registration-table td:last-child { grid-column:1/-1; }.registration-table .row-actions { max-width:none; gap:10px; }.registration-table .row-actions .icon-button { width:40px; height:40px; }.registration-list-tools form { flex-basis:100%; }.design-shell .workspace-header { gap:8px; }.design-shell .compact-search,.design-shell .compact-search:focus-within { width:36vw; }}
 
-/* Keep the floating capsule outside the scrollable work area: no control sits beneath it. */
+/* Scroll behind the floating capsule; end padding keeps final controls reachable above it. */
 .design-shell { height:100dvh; overflow:hidden; font-synthesis:weight; }
-.design-shell main { height:calc(100dvh - 74px - 100px - env(safe-area-inset-bottom)); overflow-y:auto; overscroll-behavior:contain; padding-bottom:24px; scroll-padding:20px; }
+.design-shell main { height:auto; overflow-y:auto; overscroll-behavior:contain; padding-bottom:calc(112px + env(safe-area-inset-bottom,0px)); scroll-padding:20px 20px calc(112px + env(safe-area-inset-bottom,0px)); }
 .design-shell button,.design-shell option { text-transform:none; }
 .design-shell .form-hint>svg { display:inline-block; vertical-align:middle; margin-right:4px; }
 .design-shell .form-hint>span { display:inline; }
-@media(max-width:500px){.design-shell main { height:calc(100dvh - 74px - 88px - env(safe-area-inset-bottom)); padding-bottom:20px; }}
+@media(max-width:500px){.design-shell main { padding-bottom:calc(104px + env(safe-area-inset-bottom,0px)); scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom,0px)); }}
 
 .design-shell .main-panel { height:100dvh; overflow:hidden; }
-.design-shell main { flex:none; min-height:0; }
+.design-shell main { flex:1 1 auto; min-height:0; }
 .design-shell .workspace-header { flex-shrink:0; }
 
 .design-shell .eyebrow { color:#637086; letter-spacing:.06em; font-weight:750; }
@@ -247,3 +247,10 @@ html { scroll-padding-bottom:110px; }
 .client-timeline article[data-type="SALE"] .module-icon {background:#e4fbf1;color:#008567;}
 
 .sales-date-filters{display:flex;flex-wrap:wrap;align-items:end;gap:12px;padding:16px 24px;border-top:1px solid var(--design-line);background:var(--design-soft);}.sales-date-filters label{flex:1;min-width:130px;font-size:12px;}
+
+/* The glass affects the surface only; navigation labels and icons stay opaque. */
+.bottom-navigation a:hover,.bottom-navigation>button:hover{color:var(--color-brand);background-color:rgb(255 255 255 / 55%)}
+.bottom-navigation a:focus-visible,.bottom-navigation>button:focus-visible{outline:2px solid var(--color-brand);outline-offset:1px}
+.bottom-navigation a:active,.bottom-navigation>button:active{transform:scale(.97)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.bottom-navigation{background:rgb(244 247 251 / 96%)}}
+@media(prefers-reduced-motion:reduce){.bottom-navigation a,.bottom-navigation>button{transition:none}.bottom-navigation a:active,.bottom-navigation>button:active{transform:none}}

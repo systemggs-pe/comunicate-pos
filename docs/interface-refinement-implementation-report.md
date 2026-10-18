@@ -78,6 +78,12 @@ El detalle del equipo muestra Historial de registro filtrado por eventos de regi
 
 Se ocultan creación del equipo, asignación de propietario, incorporación de IMEI, ventas y cambios técnicos sin transición de registro. El contador incluye sólo los movimientos mostrados. La API y los eventos internos se conservan intactos. Sin pruebas, push ni deploy.
 
+## Ajuste posterior — navegación flotante con frosted glass
+
+Por solicitud del usuario, el contenido vuelve a desplazarse detrás de la cápsula de navegación, eliminando la franja fija que reservaba parte de la altura del área principal. El área usa el alto restante del contenedor flex; conserva margen de desplazamiento al final y scroll-padding para que los últimos controles puedan subir por encima del menú y del área segura del móvil.
+
+La cápsula usa fondo con 60 % de opacidad (40 % de transparencia), desenfoque de 18 px, borde tenue y sombra suave. La transparencia afecta al fondo, sin reducir la opacidad de iconos o textos. Se conservan las cinco opciones, permisos, estados activos, foco y movimiento reducido; el efecto tiene una alternativa opaca para navegadores sin backdrop-filter. Se utilizan Impeccable y UI/UX Pro Max. Sin pruebas, auditorías, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
