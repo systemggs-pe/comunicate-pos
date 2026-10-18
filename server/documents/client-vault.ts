@@ -50,6 +50,23 @@ export function clientVault(db:PrismaClient,provider?:EvidenceStorageProvider,ph
  }
 
  return {
+  identifySide:async(state:AuthState,actor:AuditContext,clientId:unknown,id:unknown,raw:unknown)=>{
+   permission(state,'clients.read','client.documents.read','client.documents.replace');
+   const c=await client(clientId),key=idSchema.parse(id),input=z.object({category:z.enum(['DNI_FRONT','DNI_BACK']),confirm:z.literal(true)}).strict().parse(raw);
+   return db.$transaction(async tx=>{
+    await tx.$queryRaw`SELECT id FROM "Client" WHERE id=${c.id}::uuid FOR UPDATE`;
+    const d=await tx.clientDocument.findFirst({where:{id:key,clientId:c.id},include:{evidenceAsset:true}});
+    if(!d)throw new DomainError(404,'DOCUMENTO NO ENCONTRADO.','CLIENT_DOCUMENT_NOT_FOUND');
+    if(d.status!=='CURRENT'||d.expiresAt<=new Date()||d.evidenceAsset.status!=='READY')throw new DomainError(409,'EL DOCUMENTO REQUIERE REVISIÓN O RENOVACIÓN DE AUTORIZACIÓN EN EL EXPEDIENTE.','CLIENT_DOCUMENT_REVIEW_REQUIRED');
+    if(d.category===input.category)return {id:d.id,category:input.category};
+    if(d.category!=='IDENTITY_IMAGE')throw new DomainError(409,'EL LADO YA FUE IDENTIFICADO. ACTUALIZA LA VISTA ANTES DE CONTINUAR.','CLIENT_DOCUMENT_CHANGED');
+    if(await tx.registrationEvidence.count({where:{evidenceAssetId:d.evidenceAssetId}}))throw new DomainError(409,'NO CAMBIES EL LADO DE UN DOCUMENTO YA UTILIZADO.','CLIENT_DOCUMENT_REFERENCED');
+    if(await tx.clientDocument.count({where:{clientId:c.id,documentType:d.documentType,category:input.category,status:'CURRENT',id:{not:d.id}}}))throw new DomainError(409,'YA EXISTE UNA FOTO VIGENTE PARA ESTE LADO. REVISA LAS IMÁGENES ANTES DE CONTINUAR.','CLIENT_DOCUMENT_REPLACE_REQUIRED');
+    await tx.clientDocument.update({where:{id:d.id},data:{category:input.category}});
+    await writeAudit(tx,actor,'CLIENT_DOCUMENT_SIDE_IDENTIFIED','ClientDocument',d.id,{clientId:c.id,category:input.category,classificationConfirmed:true});
+    return {id:d.id,category:input.category};
+   });
+  },
   list:async(state:AuthState,id:unknown)=>{permission(state,'clients.read','client.documents.read');const c=await client(id);const docs=await db.clientDocument.findMany({where:{clientId:c.id},include:{evidenceAsset:true},take:100,orderBy:{createdAt:'desc'}});const history=await db.registrationEvidence.findMany({where:{registrationRequest:{imei:{equipment:{ownerId:c.id}}},category:{in:['DNI_FRONT','DNI_BACK','DEVICE_BOX','PURCHASE_RECEIPT','LOGICAL_IMEI']}},include:{registrationRequest:{include:{imei:true}},evidenceAsset:{select:{id:true,fileSize:true,width:true,height:true}}},take:100,orderBy:{createdAt:'desc'}});return {documents:docs.map(d=>({...publicDoc(d),references:history.filter(l=>l.evidenceAssetId===d.evidenceAssetId).map(l=>({requestId:l.registrationRequestId,requestCode:l.registrationRequest.code,equipmentId:l.registrationRequest.imei.equipmentId}))})),history:history.map(l=>({id:l.id,category:l.category,requestId:l.registrationRequestId,requestCode:l.registrationRequest.code,equipmentId:l.registrationRequest.imei.equipmentId,imeiId:l.registrationRequest.imeiId,createdAt:l.createdAt,asset:l.evidenceAsset,linkedDocumentId:docs.find(d=>d.evidenceAssetId===l.evidenceAssetId)?.id??null}))};},
   incorporate:async(state:AuthState,actor:AuditContext,clientId:unknown,linkId:unknown,raw:unknown)=>{
    permission(state,'clients.read','client.documents.read','client.documents.upload','registration.read','registration.evidence.read');const c=await client(clientId),key=idSchema.parse(linkId),input=documentAuthorization.strict().parse(raw);

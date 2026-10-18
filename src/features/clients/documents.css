@@ -9,3 +9,5 @@
 .document-modal img {display:block;max-width:100%;max-height:75vh;object-fit:contain;}
 .identity-photo-panel input,.identity-photo-panel select {max-width:100%;min-width:0;}
 .identity-photo-panel .form-grid {margin-block:1rem;}
+
+.document-side-picker{display:grid;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #d3dae2}.document-side-picker label{display:grid;gap:6px;font-size:13px}.document-side-picker select{width:100%;min-width:0;min-height:44px}.document-side-picker button{justify-self:start;min-height:44px}

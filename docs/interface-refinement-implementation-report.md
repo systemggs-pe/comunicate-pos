@@ -14,6 +14,10 @@ El adaptador solicita JSON explícitamente y clasifica redirecciones, rechazo de
 
 El mensaje de la captura anterior no permite atribuir una causa concreta: el adaptador agrupaba redirecciones y errores de transporte bajo un mensaje genérico. Se revisó resolución DNS y acceso HTTPS a la raíz pública del proveedor, sin consultar DNI ni fotos. La consulta real de fotos sigue sin comprobarse; no se ejecutan suites, push ni deploy.
 
+## Ampliación posterior — identificar anverso y reverso
+
+Foto DNI y el panel de consulta de fotos del expediente permiten seleccionar y confirmar el lado de una imagen sin identificar. Tras guardar, muestran ANVERSO DEL DNI o REVERSO DEL DNI. Se utiliza el archivo privado existente, sin llamadas adicionales a CODART, copias ni cambio de caducidad o autorización. El backend exige permisos documentales, confirmación explícita y documento vigente; impide sobrescribir otra foto del mismo lado, cambiar un lado ya identificado o reclasificar archivos vinculados a evidencias. Registra la identificación en auditoría. No se presupone que imagen 1 sea anverso o imagen 2 reverso. Sin pruebas, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.

@@ -1,3 +1,4 @@
+import {DocumentSidePicker,identitySideLabel} from './DocumentSidePicker';
 import {useState} from 'react';
 import {useAuth} from '../../app/AuthProvider';
 import {useApiQuery} from '../../hooks/useApiQuery';
@@ -23,6 +24,6 @@ export function IdentityPhotoLookup({clientId,onChanged,showDocuments=true}:{cli
   <p className="form-hint">Se recuperan primero las fotografías guardadas de este tipo. Una consulta externa puede consumir créditos; no se presume gratuita.</p>
   {can('client.identity_photo.lookup')&&can('client.documents.upload')&&<><CodartPhotoConsent confirmed={confirmed} onConfirmed={setConfirmed} disabled={busy}/>{can('client.documents.replace')&&documents.length>0&&<label className="checkbox-label"><input type="checkbox" checked={refresh} onChange={e=>setRefresh(e.target.checked)}/>ACTUALIZAR FOTOGRAFÍAS CON CONSULTA EXTERNA AUTORIZADA</label>}<button type="button" className="primary-button" disabled={busy||!confirmed} onClick={()=>void lookup()}>{busy?'OBTENIENDO FOTOS...':'OBTENER FOTO DNI'}</button></>}
   {notice&&<p role="status">{notice}</p>}{error&&<p role="alert">{error}</p>}{query.error&&<p role="alert">{query.error.message}</p>}
-  <div className="document-grid">{showDocuments&&documents.map(d=><article className="document-card" key={d.id}><h4>{d.category==='IDENTITY_IMAGE'?`IMAGEN ${d.sourceOrdinal??1}`:categoryLabels[d.category]}</h4><p>{typeLabels[d.documentType]} · {sourceLabels[d.source]??d.source}</p><DocumentImage path={`/clients/${clientId}/documents/${d.id}/access`} label={`Documento de identidad ${d.sourceOrdinal??d.category}`}/>{d.category==='IDENTITY_IMAGE'&&<p>Identifica anverso o reverso en DOCUMENTACIÓN antes de reutilizar.</p>}</article>)}</div>
+  <div className="document-grid">{showDocuments&&documents.map(d=><article className="document-card" key={d.id}><h4>{d.category==='IDENTITY_IMAGE'?`IMAGEN ${d.sourceOrdinal??1} · ${identitySideLabel(d.category)}`:identitySideLabel(d.category)}</h4><p>{typeLabels[d.documentType]} · {sourceLabels[d.source]??d.source}</p><DocumentImage path={`/clients/${clientId}/documents/${d.id}/access`} label={`Documento de identidad ${d.sourceOrdinal??d.category}`}/><DocumentSidePicker clientId={clientId} document={d} onSaved={()=>{query.refresh();onChanged?.();}}/></article>)}</div>
  </section>;
 }
