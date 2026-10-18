@@ -47,3 +47,28 @@
 @keyframes dni-photo-loaded{from{opacity:.35}to{opacity:1}}
 @media(max-width:760px){.dni-photo-main.photo-dni-page .module-heading{padding:18px}.dni-photo-main .dni-photo-types{margin:16px 16px 0}.dni-photo-main .dni-photo-form.module-toolbar{padding:16px;gap:12px}.dni-photo-main .dni-photo-form label{flex:1 1 170px}.dni-photo-main .dni-photo-form button{flex:1 1 130px}.dni-photo-main fieldset>.dni-photo-help{margin:0 16px 14px}.dni-photo-main .photo-authorization{margin:0 16px 16px}.dni-photo-main .photo-viewer{padding:0 16px 20px}.dni-photo-types button{font-size:13px;padding:11px 10px;gap:7px}.dni-photo-types button>svg{width:17px;flex-shrink:0}.dni-photo-results.document-grid{grid-template-columns:minmax(0,1fr);gap:22px}.dni-photo-consent.checkbox-label{font-size:12px}.dni-photo-workspace .dni-photo-search{width:100%;justify-self:stretch}.dni-photo-state{min-height:190px}.dni-photo-card>header span{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.dni-photo-spinner{animation:none}.dni-type-check svg,.document-photo-frame .document-thumbnail.is-loaded{animation:none}.dni-photo-types button,.dni-photo-search{transition:none}.dni-photo-search:active:not(:disabled){transform:none}}
+
+/* Acceso al DNI y actualización: jerarquía compacta y apertura con movimiento acotado. */
+.client-document-access{padding:0!important;border-radius:12px!important;background:var(--design-surface,#fbfdfe);overflow:hidden}
+.client-document-access>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:16px 18px;min-height:72px!important;cursor:pointer;transition:background-color 150ms}
+.client-document-access>summary::-webkit-details-marker,.dni-photo-extra>summary::-webkit-details-marker{display:none}
+.client-document-access>summary::marker,.dni-photo-extra>summary::marker{content:''}
+.client-document-access>summary:hover{background:var(--design-soft,#ecf1f6)}
+.client-dni-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:10px;background:var(--design-blue-soft,#dcedff);color:var(--color-brand,#096acb)}
+.client-dni-title{display:grid;gap:3px;min-width:0;flex:1}.client-dni-title strong{font-size:14px;font-weight:650;color:var(--design-ink,#18212d)}.client-dni-title small{font-size:12px;line-height:1.4;color:var(--design-muted,#637086)}
+.client-dni-chevron{flex-shrink:0;color:var(--design-muted,#637086);transition:transform 220ms cubic-bezier(.16,1,.3,1)}
+.client-document-access[open]>.client-dni-title{color:var(--color-brand,#096acb)}
+.client-document-access[open]>summary .client-dni-chevron{transform:rotate(180deg)}
+.client-document-access[open]>summary{border-bottom:1px solid var(--design-line,#d3dae2)}
+.client-dni-content{padding:20px 18px;animation:dni-disclosure-reveal 220ms cubic-bezier(.16,1,.3,1)}
+.dni-saved-heading.dni-photo-intro{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:0 0 16px}.dni-saved-heading h3{font-size:17px;margin:0}.dni-saved-heading p{margin-top:5px}
+.dni-saved-status{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;border-radius:20px;background:#eaf6ee;color:#23633d;padding:5px 9px;font-size:11px;line-height:1.4;font-weight:600}
+.dni-photo-workspace .dni-photo-extra{margin:0 0 18px}.dni-photo-workspace .dni-photo-extra>summary{display:inline-flex;align-items:center;gap:8px;list-style:none;min-height:40px;padding:9px 12px;border:1px solid var(--dni-line);border-radius:8px;color:var(--dni-blue);background:#fff;font-size:13px;font-weight:600;transition:background-color 150ms,border-color 150ms}
+.dni-photo-workspace .dni-photo-extra>summary:hover{background:var(--design-blue-soft,#dcedff);border-color:var(--dni-blue)}
+.dni-photo-workspace .dni-photo-extra[open]>summary{background:var(--design-blue-soft,#dcedff);border-color:var(--dni-blue)}
+.dni-update-chevron{transition:transform 180ms cubic-bezier(.16,1,.3,1)}.dni-photo-extra[open]>summary .dni-update-chevron{transform:rotate(180deg)}
+.dni-update-body{padding:16px 0 0;animation:dni-disclosure-reveal 200ms cubic-bezier(.16,1,.3,1)}
+.client-document-access>summary:focus-visible{outline:2px solid var(--color-brand,#096acb);outline-offset:-3px}
+@keyframes dni-disclosure-reveal{from{opacity:.45;clip-path:inset(0 0 12px 0)}to{opacity:1;clip-path:inset(0)}}
+@media(max-width:760px){.client-document-access>summary{padding:14px;gap:10px}.client-dni-content{padding:16px 14px}.dni-saved-heading.dni-photo-intro{gap:8px}.dni-saved-heading h3{font-size:16px}.dni-photo-workspace .dni-photo-extra>summary{min-height:44px}}
+@media(prefers-reduced-motion:reduce){.client-dni-content,.dni-update-body{animation:none}.client-dni-chevron,.dni-update-chevron,.client-document-access>summary,.dni-photo-workspace .dni-photo-extra>summary{transition:none}}

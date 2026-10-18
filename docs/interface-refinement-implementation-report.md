@@ -48,6 +48,10 @@ La configuración de consultas, permisos, almacenamiento y datos existentes se c
 
 Cuando el cliente ya tiene fotos vigentes del DNI, la ficha oculta el selector de tipo y la explicación inicial de créditos. Detecta el tipo de DNI guardado en vez de presuponer siempre DNI azul. Muestra las fotos y una opción Actualizar DNI, que despliega el tipo de DNI, el aviso de posible consumo de créditos y la casilla de permiso sólo al abrirla. Se conserva el permiso para reemplazar documentos y no se llama a CODART al desplegar opciones. Sin pruebas, push ni deploy.
 
+## Ajuste posterior — apertura del bloque DNI
+
+El acceso de la ficha se presenta como DNI del cliente, con icono y una explicación breve. Se sustituyen los triángulos nativos por flechas con giro y estados de foco. El contenido aparece con una transición breve de opacidad y recorte; no se animan alturas ni se añaden dependencias. El estado real DNI guardado se muestra como una etiqueta discreta. Actualizar DNI tiene apariencia de botón y abre su formulario con el mismo movimiento. Se respeta movimiento reducido. El expediente sigue cargándose únicamente al abrirlo. Sin pruebas, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.

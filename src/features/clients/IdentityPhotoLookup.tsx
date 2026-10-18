@@ -1,5 +1,5 @@
 import {DniPhotoType,DniPhotoGrid,DniPhotoLoading,DniPhotoNotice,photoErrorMessage} from './DniPhotoUI';
-import {Search,LoaderCircle} from 'lucide-react';
+import {Search,LoaderCircle,CheckCircle2,RefreshCw,ChevronDown} from 'lucide-react';
 import {useState} from 'react';
 import {useAuth} from '../../app/AuthProvider';
 import {useApiQuery} from '../../hooks/useApiQuery';
@@ -27,9 +27,9 @@ export function IdentityPhotoLookup({clientId,onChanged,showDocuments=true}:{cli
  const canRequest=can('client.identity_photo.lookup')&&can('client.documents.upload');
  const changeType=(value:'BLUE'|'ELECTRONIC')=>{setType(value);setConfirmed(false);setNotice('');setError('');};
  const requestControls=<div className="dni-photo-request"><CodartPhotoConsent confirmed={confirmed} onConfirmed={setConfirmed} disabled={busy}/><button type="button" className="primary-button dni-photo-search" disabled={busy||query.loading||!confirmed} onClick={()=>void lookup()}>{busy?<LoaderCircle className="dni-photo-spinner" size={17} aria-hidden="true"/>:<Search size={17} aria-hidden="true"/>}{busy?'Buscando…':hasSavedDni?'Actualizar DNI':'Buscar fotos'}</button></div>;
- return <section className="identity-photo-panel dni-photo-workspace" aria-label="Fotos del DNI"><div className="dni-photo-intro"><h3>Fotos del DNI</h3><p>{hasSavedDni?'DNI guardado en la ficha del cliente.':'Consulta el anverso y el reverso.'}</p></div>
+ return <section className="identity-photo-panel dni-photo-workspace" aria-label="Fotos del DNI"><div className="dni-photo-intro dni-saved-heading"><div><h3>Fotos del DNI</h3>{!hasSavedDni&&<p>Consulta el anverso y el reverso.</p>}</div>{hasSavedDni&&<span className="dni-saved-status"><CheckCircle2 size={14} aria-hidden="true"/>DNI guardado</span>}</div>
  {!query.loading&&!query.error&&!hasSavedDni&&<><DniPhotoType value={type} disabled={busy} onChange={changeType}/><p className="dni-photo-help">Pedir fotos a CODART puede usar créditos.</p>{canRequest&&requestControls}</>}
- {hasSavedDni&&canRequest&&can('client.documents.replace')&&<details className="dni-photo-extra" open={refresh} onToggle={e=>{const open=e.currentTarget.open;if(open!==refresh){setRefresh(open);setConfirmed(false);setNotice('');setError('');if(!open)setType(null);}}}><summary>Actualizar DNI</summary>{refresh&&<><DniPhotoType value={type} disabled={busy} onChange={changeType}/><p className="dni-photo-help">Pediremos fotos nuevas a CODART. Esto puede usar créditos.</p>{requestControls}</>}</details>}
+ {hasSavedDni&&canRequest&&can('client.documents.replace')&&<details className="dni-photo-extra" open={refresh} onToggle={e=>{const open=e.currentTarget.open;if(open!==refresh){setRefresh(open);setConfirmed(false);setNotice('');setError('');if(!open)setType(null);}}}><summary><RefreshCw size={15} aria-hidden="true"/><span>Actualizar DNI</span><ChevronDown className="dni-update-chevron" size={15} aria-hidden="true"/></summary>{refresh&&<div className="dni-update-body"><DniPhotoType value={type} disabled={busy} onChange={changeType}/><p className="dni-photo-help">Pediremos fotos nuevas a CODART. Esto puede usar créditos.</p>{requestControls}</div>}</details>}
  <DniPhotoNotice message={notice}/>{error&&<p className="dni-photo-error" role="alert">{error}</p>}{query.error&&<p className="dni-photo-error" role="alert">{photoErrorMessage(query.error)}</p>}{busy||query.loading?<DniPhotoLoading/>:showDocuments&&documents.length>0?<DniPhotoGrid clientId={clientId} documents={documents} onSideSaved={()=>{query.refresh();onChanged?.();}}/>:!documents.length&&!error&&!query.error&&<p className="dni-photo-small-empty">Aún no hay fotos guardadas de este tipo.</p>}
  </section>;
 }
