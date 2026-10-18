@@ -1,6 +1,6 @@
 import {Printer} from 'lucide-react';
 import {ReferenceDialog} from '../../components/ReferenceDialog';
-import {useState,useEffect} from 'react';
+import {useState,useEffect,useRef} from 'react';
 import {useAuth} from '../../app/AuthProvider';
 import {useApiQuery} from '../../hooks/useApiQuery';
 import {Link,navigate} from '../../app/router';
@@ -17,10 +17,18 @@ function ReceiptDocument({data,format}:{data:ReceiptData;format:ReceiptFormat}){
 export function SaleReceipt48mm({data}:{data:ReceiptData}){return <ReceiptDocument data={data} format={48}/>;}
 export function SaleReceipt80mm({data}:{data:ReceiptData}){return <ReceiptDocument data={data} format={80}/>;}
 export function ReceiptActions({id,compact=false,ticketOnly=false}:{id:string;compact?:boolean;ticketOnly?:boolean}){
- const {api}=useAuth(),[opened,setOpened]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
- async function select(){if(busy)return;setError('');setBusy(true);try{await api.get<ReceiptData>(`/sales/${encodeURIComponent(id)}/receipt`);setOpened(true);}catch(e){setError(e instanceof Error?e.message:'No se pudo abrir el selector.');}finally{setBusy(false);}}
- function open(format:ReceiptFormat){const url=`/ventas/${encodeURIComponent(id)}/ticket?format=${format}`;const tab=window.open(url,'_blank');setOpened(false);if(tab)tab.opener=null;else navigate(url);}
- return <div className="receipt-actions">{compact?<button className="icon-button" aria-label="Imprimir ticket" title="Imprimir ticket" disabled={busy} onClick={()=>void select()}><Printer size={17}/></button>:ticketOnly?<button className="secondary-button" disabled={busy} onClick={()=>void select()}><Printer size={15}/>Ticket</button>:<><button className="secondary-button" disabled={busy} onClick={()=>void select()}>VER TICKET</button><button className="secondary-button" disabled={busy} onClick={()=>void select()}>IMPRIMIR</button><button className="secondary-button" disabled={busy} onClick={()=>void select()}>DESCARGAR PDF</button></>}<ErrorNotice message={error}/>{opened&&<ReferenceDialog label="SELECCIONAR FORMATO DE IMPRESIÓN" className="printer-picker" onClose={()=>setOpened(false)}><span className="printer-icon"><Printer size={24}/></span><h2>¿Tamaño de impresora?</h2><p>Elige el ancho del papel de tu impresora térmica.</p><div className="printer-format-options"><button className="primary-button" onClick={()=>open(48)}>48 mm</button><button className="secondary-button" onClick={()=>open(80)}>80 mm</button></div><button className="secondary-button cancel-printer" onClick={()=>setOpened(false)}>Cancelar</button></ReferenceDialog>}</div>;
+ const {api}=useAuth(),[opened,setOpened]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[intent,setIntent]=useState<'download'|'preview'>('download');
+ const downloadLock=useRef(false);
+ async function select(mode:'download'|'preview'='download'){if(busy)return;setError('');setBusy(true);try{await api.get<ReceiptData>(`/sales/${encodeURIComponent(id)}/receipt`);setIntent(mode);setOpened(true);}catch(e){setError(e instanceof Error?e.message:'No se pudo abrir el selector.');}finally{setBusy(false);}}
+ async function open(format:ReceiptFormat){
+  if(busy||downloadLock.current)return;
+  if(intent==='preview'){const url=`/ventas/${encodeURIComponent(id)}/ticket?format=${format}`;const tab=window.open(url,'_blank');setOpened(false);if(tab)tab.opener=null;else navigate(url);return;}
+  downloadLock.current=true;setBusy(true);setError('');
+  try{const data=await api.get<ReceiptData>(`/sales/${encodeURIComponent(id)}/receipt`);await(await import('./pdf')).downloadReceiptPdf(data,format);setOpened(false);}
+  catch(e){setError(e instanceof Error?e.message:'No se pudo descargar el ticket. Inténtalo de nuevo.');}
+  finally{downloadLock.current=false;setBusy(false);}
+ }
+ return <div className="receipt-actions">{compact?<button className="icon-button" aria-label="Descargar ticket" title="Descargar ticket" disabled={busy} onClick={()=>void select()}><Printer size={17}/></button>:ticketOnly?<button className="secondary-button" disabled={busy} onClick={()=>void select()}><Printer size={15}/>Ticket</button>:<><button className="secondary-button" disabled={busy} onClick={()=>void select('preview')}>VER TICKET</button><button className="secondary-button" disabled={busy} onClick={()=>void select('preview')}>IMPRIMIR</button><button className="secondary-button" disabled={busy} onClick={()=>void select()}>DESCARGAR PDF</button></>}{!opened&&<ErrorNotice message={error}/>} {opened&&<ReferenceDialog label="SELECCIONAR FORMATO DE IMPRESIÓN" className="printer-picker" onClose={()=>{if(!busy)setOpened(false);}}><span className="printer-icon"><Printer size={24}/></span><h2>¿Tamaño de impresora?</h2><p>{intent==='download'?'Elige el tamaño y se descargará el ticket en PDF.':'Elige el ancho del papel de tu impresora térmica.'}</p><div className="printer-format-options"><button className="primary-button" disabled={busy} onClick={()=>void open(48)}>48 mm</button><button className="secondary-button" disabled={busy} onClick={()=>void open(80)}>80 mm</button></div>{busy&&<p role="status">Preparando el ticket…</p>}<ErrorNotice message={error}/><button className="secondary-button cancel-printer" disabled={busy} onClick={()=>setOpened(false)}>Cancelar</button></ReferenceDialog>}</div>;
 }
 export function SaleReceiptPreview({id}:{id:string}){
  const query=useApiQuery<ReceiptData>(`/sales/${encodeURIComponent(id)}/receipt`),raw=new URLSearchParams(window.location.search).get('format'),format:ReceiptFormat=raw==='80'?80:48;
