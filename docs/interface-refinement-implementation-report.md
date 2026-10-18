@@ -8,6 +8,12 @@ Por instrucción posterior del usuario, la dirección final y los tres formatos 
 
 La consulta de fotos CODART requiere únicamente una casilla explícita de autorización para consultar y almacenar. Se retiran finalidad y referencia del formulario de fotos; el backend registra el contexto de esa confirmación con usuario y fecha cuando no se reciben los campos del contrato anterior. Se conserva la casilla obligatoria en backend, permisos, almacenamiento privado y autorización contractual existente. La carga manual y clasificación documental conservan sus formularios anteriores. Sin pruebas, push ni deploy.
 
+## Corrección posterior — errores de consulta CODART
+
+El adaptador solicita JSON explícitamente y clasifica redirecciones, rechazo de autorización, errores de red/DNS/TLS y tiempo de espera. No sigue redirecciones ni envía la clave a otro destino. Las fotos tienen un margen de respuesta de veinte segundos frente a los ocho anteriores. Se registra únicamente un código de transporte permitido, sin DNI, claves o contenido del proveedor.
+
+El mensaje de la captura anterior no permite atribuir una causa concreta: el adaptador agrupaba redirecciones y errores de transporte bajo un mensaje genérico. Se revisó resolución DNS y acceso HTTPS a la raíz pública del proveedor, sin consultar DNI ni fotos. La consulta real de fotos sigue sin comprobarse; no se ejecutan suites, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
