@@ -15,7 +15,7 @@ const column = (key: string, label: string, money = false) => ({ key, label, mon
 const columns: Record<ReportType, ReportTable['columns']> = {
   general: [],
   sales: [column('code', 'VENTA'), column('date', 'FECHA DE VENTA'), column('worker', 'VENDEDOR'), column('payment', 'MÉTODO DE PAGO'), column('equipment', 'EQUIPOS'), column('amount', 'TOTAL', true)],
-  registrations: [column('code', 'SOLICITUD'), column('date', 'FECHA DE ATENCIÓN'), column('equipment', 'EQUIPO'), column('operator', 'OPERADOR'), column('status', 'ESTADO ACTUAL'), column('amount', 'IMPORTE REGISTRADO', true), column('creator', 'CREADOR'), column('created', 'CREACIÓN'), column('completer', 'FINALIZADOR'), column('completed', 'FINALIZACIÓN')],
+  registrations: [column('code', 'SOLICITUD'), column('date', 'FECHA DE ATENCIÓN'), column('equipment', 'EQUIPO'), column('operator', 'OPERADOR'), column('status', 'ESTADO ACTUAL'), column('amount', 'IMPORTE REGISTRADO', true), column('created', 'CREACIÓN'), column('completed', 'FINALIZACIÓN')],
   clients: [column('code', 'CLIENTE'), column('name', 'NOMBRES'), column('date', 'CREACIÓN'), column('purchases', 'COMPRAS'), column('requests', 'SOLICITUDES')],
   equipment: [column('code', 'EQUIPO'), column('date', 'CREACIÓN'), column('brand', 'MARCA'), column('model', 'MODELO'), column('origin', 'ORIGEN'), column('imeis', 'IMEIS'), column('sold', 'VENTA VIGENTE')],
   users: [column('code', 'TRABAJADOR'), column('name', 'NOMBRE'), column('status', 'ESTADO'), column('sales', 'VENTAS'), column('amount', 'IMPORTE VENDIDO', true), column('created', 'SOLICITUDES CREADAS'), column('completed', 'SOLICITUDES FINALIZADAS'), column('serviceAmount', 'IMPORTE REGISTRADO DE SERVICIOS', true)],
