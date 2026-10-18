@@ -14,7 +14,7 @@ export function useDniLookup(value: ClientFieldsValue, onChange: (value: ClientF
   const [result, setResult] = useState<{ key: string; data: DniLookupResponse<Client> | null; error: ApiError | null }>({ key: '', data: null, error: null });
   const latest = useRef({ value, onChange });
   const versions=useRef<Partial<Record<keyof ClientFieldsValue,number>>>({});
-  useLayoutEffect(()=>{if(latest.current.value.dni!==value.dni)versions.current={};else for(const field of ['firstName','lastName','fullName','phone','email','address','department'] as const)if(latest.current.value[field]!==value[field])versions.current[field]=(versions.current[field]??0)+1;latest.current={value,onChange};});
+  useLayoutEffect(()=>{if(latest.current.value.dni!==value.dni)versions.current={};else for(const field of ['firstName','lastName','fullName','phone','email','address','department','province'] as const)if(latest.current.value[field]!==value[field])versions.current[field]=(versions.current[field]??0)+1;latest.current={value,onChange};});
   useEffect(() => {
     if (!dni || manualDni === dni) return;
     const controller = new AbortController(),baseline={...versions.current};
@@ -27,7 +27,7 @@ export function useDniLookup(value: ClientFieldsValue, onChange: (value: ClientF
           const next={...draft};
           const nameFields=['firstName','lastName','fullName'] as const;
           const nameDirty=nameFields.some(field=>(versions.current[field]??0)!==(baseline[field]??0));
-          for(const field of ['firstName','lastName','fullName','phone','email','address','department'] as const){
+          for(const field of ['firstName','lastName','fullName','phone','email','address','department','province'] as const){
             if(nameFields.some(f=>f===field)&&(nameDirty||draft.firstName||draft.lastName||draft.fullName))continue;
             if(!draft[field]&&(versions.current[field]??0)===(baseline[field]??0)&&field in incoming){const v=(incoming as Partial<ClientFieldsValue>)[field];if(v)next[field]=v;}
           }

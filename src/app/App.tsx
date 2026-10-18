@@ -1,6 +1,7 @@
 import {useSubmit} from '../hooks/useSubmit';
 import {BottomNavigation} from './BottomNavigation';
 import '../design.css';
+import '../refinement.css';
 import { Home, Users, MonitorSmartphone, Plus, ShoppingBag,LogOut } from 'lucide-react';
 import { useEffect,lazy,Suspense } from 'react';
 import {RouteBoundary} from './RouteBoundary';
