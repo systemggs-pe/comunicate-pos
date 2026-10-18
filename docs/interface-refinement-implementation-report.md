@@ -18,6 +18,14 @@ El mensaje de la captura anterior no permite atribuir una causa concreta: el ada
 
 Foto DNI y el panel de consulta de fotos del expediente permiten seleccionar y confirmar el lado de una imagen sin identificar. Tras guardar, muestran ANVERSO DEL DNI o REVERSO DEL DNI. Se utiliza el archivo privado existente, sin llamadas adicionales a CODART, copias ni cambio de caducidad o autorización. El backend exige permisos documentales, confirmación explícita y documento vigente; impide sobrescribir otra foto del mismo lado, cambiar un lado ya identificado o reclasificar archivos vinculados a evidencias. Registra la identificación en auditoría. No se presupone que imagen 1 sea anverso o imagen 2 reverso. Sin pruebas, push ni deploy.
 
+## Corrección posterior — lado indicado por CODART
+
+El adaptador ya no descarta las etiquetas explícitas de lado de cada imagen. Reconoce valores de anverso/frontal/front y reverso/back en los metadatos de la imagen (side, lado, face, cara, label, name, nombre, type, tipo, category), conserva esa clasificación en el documento y muestra el lado automáticamente. No deduce el lado del índice. Las etiquetas incompatibles o duplicadas se dejan sin identificar y conservan la opción manual.
+
+Al reutilizar un archivo durante una consulta autorizada, permite completar la clasificación desconocida con la etiqueta recibida, siempre que no esté vinculado a evidencias. No sobrescribe una clasificación previa conocida. No se modifica el almacenamiento de las imágenes con campos ajenos a su esquema.
+
+Las fotos guardadas antes del cambio no conservaban los metadatos originales; su lectura del expediente no dispara consultas nuevas ni consume créditos. No se ejecutó una consulta real para recuperar esas etiquetas. La documentación pública de CODART requiere inicio de sesión; se solicitó al usuario la clave y valor del campo del proveedor, sin datos personales, para confirmar el nombre exacto si difiere de los campos contemplados. No se ejecutaron pruebas, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
