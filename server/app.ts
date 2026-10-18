@@ -61,6 +61,7 @@ app.get('/api/readiness',requirePermission('settings.read'),async(_req,res)=>{
 });
 registerReportRoutes(app, db);
 app.get('/api/clients/:clientId/documents',async(req,res)=>res.json(await vault.list(authState(res),req.params.clientId)));
+app.post('/api/clients/:clientId/documents/identify-codart-sides',async(req,res)=>res.json(await vault.identifyCodartSides(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.body)));
 app.post('/api/clients/:clientId/documents/history/:linkId',async(req,res)=>res.status(201).json(await vault.incorporate(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.linkId,req.body)));
 app.get('/api/clients/:clientId/documents/:id/access',async(req,res)=>res.json(await vault.access(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.id,req.query.download==='true')));
 app.post('/api/clients/:clientId/documents',express.raw({type:['image/jpeg','image/png','image/webp'],limit:'10mb'}),async(req,res)=>res.status(201).json(await vault.upload(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.body,req.get('content-type')??'',{...req.query,confirmed:req.query.confirmed==='true'})));

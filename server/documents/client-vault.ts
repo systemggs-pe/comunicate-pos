@@ -49,7 +49,30 @@ export function clientVault(db:PrismaClient,provider?:EvidenceStorageProvider,ph
   finally{await db.authRateLimit.deleteMany({where:{key:lease,expiresAt:leaseUntil}});}
  }
 
+ async function identifyCodartSides(state:AuthState,actor:AuditContext,clientId:unknown,raw:unknown){
+  permission(state,'clients.read','client.documents.read','client.documents.replace');
+  const c=await client(clientId),input=z.object({documentType:z.enum(['BLUE','ELECTRONIC']),confirm:z.literal(true)}).strict().parse(raw);
+  return db.$transaction(async tx=>{
+   await tx.$queryRaw`SELECT id FROM "Client" WHERE id=${c.id}::uuid FOR UPDATE`;
+   const docs=await tx.clientDocument.findMany({where:{clientId:c.id,documentType:input.documentType,source:input.documentType==='BLUE'?'CODART_DNIV':'CODART_DNIVEL',status:'CURRENT',expiresAt:{gt:new Date()},evidenceAsset:{status:'READY'}},orderBy:{sourceOrdinal:'asc'}});
+   if(docs.length!==2||docs[0].sourceOrdinal!==1||docs[1].sourceOrdinal!==2)return {identified:0};
+   const sides=['DNI_FRONT','DNI_BACK'] as const;
+   // La regla de orden fue indicada por el usuario. No reemplaza lados ya confirmados.
+   if(docs.some((d,index)=>d.category!=='IDENTITY_IMAGE'&&d.category!==sides[index]))return {identified:0};
+   const pendingDocs=docs.filter(d=>d.category==='IDENTITY_IMAGE');
+   if(!pendingDocs.length)return {identified:0};
+   if(await tx.registrationEvidence.count({where:{evidenceAssetId:{in:pendingDocs.map(d=>d.evidenceAssetId)}}}))return {identified:0};
+   for(const [index,d] of docs.entries()){
+    if(d.category!=='IDENTITY_IMAGE')continue;
+    if(await tx.clientDocument.count({where:{clientId:c.id,documentType:input.documentType,category:sides[index],status:'CURRENT',id:{not:d.id}}}))throw new DomainError(409,'YA EXISTE UN DOCUMENTO PARA ESTE LADO. REVISA EL EXPEDIENTE.','CLIENT_DOCUMENT_REPLACE_REQUIRED');
+    await tx.clientDocument.update({where:{id:d.id},data:{category:sides[index]}});
+    await writeAudit(tx,actor,'CLIENT_DOCUMENT_SIDE_IDENTIFIED','ClientDocument',d.id,{clientId:c.id,category:sides[index],method:'CODART_ORDER_RULE',sourceOrdinal:d.sourceOrdinal});
+   }
+   return {identified:pendingDocs.length};
+  });
+ }
  return {
+  identifyCodartSides,
   identifySide:async(state:AuthState,actor:AuditContext,clientId:unknown,id:unknown,raw:unknown)=>{
    permission(state,'clients.read','client.documents.read','client.documents.replace');
    const c=await client(clientId),key=idSchema.parse(id),input=z.object({category:z.enum(['DNI_FRONT','DNI_BACK']),confirm:z.literal(true)}).strict().parse(raw);

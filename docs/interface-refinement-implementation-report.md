@@ -26,6 +26,12 @@ Al reutilizar un archivo durante una consulta autorizada, permite completar la c
 
 Las fotos guardadas antes del cambio no conservaban los metadatos originales; su lectura del expediente no dispara consultas nuevas ni consume créditos. No se ejecutó una consulta real para recuperar esas etiquetas. La documentación pública de CODART requiere inicio de sesión; se solicitó al usuario la clave y valor del campo del proveedor, sin datos personales, para confirmar el nombre exacto si difiere de los campos contemplados. No se ejecutaron pruebas, push ni deploy.
 
+## Regla posterior confirmada por el usuario — orden CODART
+
+El usuario confirmó que la respuesta real sólo contiene data_uri y autorizó la regla: imagen 1 anverso, imagen 2 reverso. Para respuestas de dos imágenes sin etiqueta explícita se utiliza ese orden. Si el proveedor incluye etiquetas reconocidas, se conservan.
+
+Al consultar Foto DNI, los documentos CODART ya guardados se identifican mediante su sourceOrdinal, sin solicitudes externas ni consumo de créditos. La clasificación se persiste mediante una operación explícita, con permisos y auditoría, únicamente para pares vigentes de la misma fuente y tipo, ordenados 1/2. No sobrescribe lados conocidos, no cambia documentos asociados a evidencias, no renueva autorizaciones ni modifica archivos. Otros conjuntos conservan la identificación manual. No se ejecutó consulta real ni suite de pruebas.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
