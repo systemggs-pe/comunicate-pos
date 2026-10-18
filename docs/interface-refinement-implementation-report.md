@@ -84,6 +84,14 @@ Por solicitud del usuario, el contenido vuelve a desplazarse detrás de la cáps
 
 La cápsula usa fondo con 60 % de opacidad (40 % de transparencia), desenfoque de 18 px, borde tenue y sombra suave. La transparencia afecta al fondo, sin reducir la opacidad de iconos o textos. Se conservan las cinco opciones, permisos, estados activos, foco y movimiento reducido; el efecto tiene una alternativa opaca para navegadores sin backdrop-filter. Se utilizan Impeccable y UI/UX Pro Max. Sin pruebas, auditorías, push ni deploy.
 
+## Integración posterior — DNI del cliente como evidencia automática
+
+Las fotos vigentes e identificadas del DNI del cliente se vinculan automáticamente a los registros nuevos, sin seleccionar manualmente cada documento. Para registros existentes, la sección de evidencias realiza una sincronización explícita autorizada antes de leer las fotos. La generación del expediente PDF también completa las asociaciones faltantes cuando el usuario dispone de los permisos correspondientes.
+
+Se reutiliza EvidenceAsset y se crean únicamente las asociaciones RegistrationEvidence que faltan para DNI_FRONT/DNI_BACK. No se copian archivos, consultan proveedores ni consumen créditos CODART. Cada IMEI mantiene su propia solicitud y puede compartir los archivos del mismo cliente. La operación es transaccional e idempotente y no reemplaza evidencias adjuntas. Se conserva el tipo de DNI ya vinculado cuando se conoce.
+
+Sólo se consideran documentos CURRENT, vigentes y con archivo READY del cliente propietario. No se vinculan automáticamente equipos con cambios de propietario históricos, grupos ambiguos o archivos incompatibles. Se conservan RBAC, auditoría y almacenamiento privado. El autovínculo exige permiso documental y de adjuntar evidencias; en registros existentes también exige edición del registro. La vista espera la sincronización y muestra un mensaje si falla. Las fotos de caja y boleta siguen siendo propias de cada registro. No se ejecutan pruebas, auditorías, push ni deploy; no se aplica migración ni backfill masivo.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.

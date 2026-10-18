@@ -9,7 +9,7 @@ import { createSalesService } from './sales.service.js';
 import { writeAudit, type AuditContext } from '../lib/audit.js';
 import { DomainError } from '../lib/errors.js';
 
-export function createPosService(db: PrismaClient, actor: AuditContext = {}, sessionId?:string, allowEvidenceDeletion=false,evidenceStorage?:EvidenceStorageProvider) {
+export function createPosService(db: PrismaClient, actor: AuditContext = {}, sessionId?:string, allowEvidenceDeletion=false,evidenceStorage?:EvidenceStorageProvider,autoAttachIdentity=false) {
   // Reintentos acotados sólo cuando PostgreSQL aborta la transacción serializable.
   async function transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
     for (let attempt = 0; ; attempt++) {
@@ -184,7 +184,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
       const { q, ownerId, offset, limit,origin,status } = listQuerySchema.extend({origin:z.enum(['STORE','EXTERNAL']).optional(),status:z.enum(['ACTIVE','RETURNED','BLOCKED','ARCHIVED']).optional()}).parse(raw);
       return (await db.equipment.findMany({ where: { ownerId,origin,status, ...(q ? { OR: [{ code: { contains: q, mode: 'insensitive' } }, { brand: { contains: q, mode: 'insensitive' } }, { model: { contains: q, mode: 'insensitive' } }, {commercialName:{contains:q,mode:'insensitive'}},{serialNumber:{contains:q,mode:'insensitive'}},{owner:{OR:[{dni:{contains:q}},{fullName:{contains:q,mode:'insensitive'}},{firstName:{contains:q,mode:'insensitive'}},{lastName:{contains:q,mode:'insensitive'}}]}}, { imeis: { some: { value: q.replace(/\s/g, '') } } }] } : {}) }, include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit })).map(decorated);
     },
-    ...createRegistrationRequestsService(db, actor, { transaction, resolveInTx, createEquipmentInTx, updateRegistrationInTx }, sessionId),
+    ...createRegistrationRequestsService(db, actor, { transaction, resolveInTx, createEquipmentInTx, updateRegistrationInTx }, sessionId,autoAttachIdentity),
     ...createSalesService(db, { transaction, history, audit, createEquipmentInTx, actor }),
   };
 }

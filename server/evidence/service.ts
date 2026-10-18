@@ -1,4 +1,5 @@
 import {randomUUID} from 'node:crypto';
+import {autoAttachClientIdentity} from '../documents/auto-attach-identity.js';
 import type {PrismaClient,EvidenceAsset} from '@prisma/client';
 import {uploadInitSchema,evidenceAttachSchema,evidenceDeleteSchema,maxEvidenceBytes} from '../../shared/evidence.js';
 import {idSchema} from '../../shared/validation.js';
@@ -18,6 +19,11 @@ export function createEvidenceService(db:PrismaClient,state:AuthState,actor:Audi
  async function request(id:string){const found=await db.registrationRequest.findUnique({where:{id}});if(!found)throw new DomainError(404,'SOLICITUD NO ENCONTRADA.','REQUEST_NOT_FOUND');return found;}
  function owned(a:EvidenceAsset|null){if(!a||a.createdById!==state.user.id||a.ownerSessionId!==state.sessionId)throw new DomainError(404,'CARGA NO ENCONTRADA EN ESTA SESIÓN.','EVIDENCE_UPLOAD_NOT_FOUND');return a;}
  return {
+  syncClientIdentity:async(id:unknown)=>{
+   permission('registration.read','registration.update','registration.evidence.read','registration.evidence.upload','client.documents.read');
+   const key=idSchema.parse(id);
+   return db.$transaction(tx=>autoAttachClientIdentity(tx,key,actor),{timeout:20000});
+  },
   init:async(raw:unknown)=>{
    permission('registration.evidence.upload');const input=uploadInitSchema.parse(raw);
    permission(input.requestId?'registration.update':'registration.create');if(input.requestId)await request(input.requestId);

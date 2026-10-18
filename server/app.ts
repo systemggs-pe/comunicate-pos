@@ -34,7 +34,7 @@ import type { DniProvider } from './dni/provider.js';
 export function createApp(db: PrismaClient, options: { dniProvider?: DniProvider; dniOptions?: DniLookupOptions; evidenceStorage?:EvidenceStorageProvider;boxScanner?:BoxScannerProvider;identityPhotos?:IdentityPhotoProvider } = {}) {
 const auth = createAuthService(db);
 const dniLookup = createDniLookupService(dni => db.client.findUnique({ where: { dni } }), options.dniProvider ?? createDniProvider(), options.dniOptions ?? dniLookupOptions());
-const pos = (req: Request,res: Response) => createPosService(db,requestContext(req,authState(res).user.id),authState(res).sessionId,authState(res).user.permissions.includes('registration.evidence.delete'),options.evidenceStorage);
+const pos = (req: Request,res: Response) => createPosService(db,requestContext(req,authState(res).user.id),authState(res).sessionId,authState(res).user.permissions.includes('registration.evidence.delete'),options.evidenceStorage,(['client.documents.read','registration.evidence.upload'] as const).every(permission=>authState(res).user.permissions.includes(permission)));
 const users = (req: Request,res: Response) => createUsersService(db,authState(res).user,requestContext(req,authState(res).user.id));
 const evidence=(req:Request,res:Response)=>createEvidenceService(db,authState(res),requestContext(req,authState(res).user.id),options.evidenceStorage);
 const app = express();
@@ -78,11 +78,12 @@ app.post('/api/evidence/uploads/:id/verify',async(req,res)=>res.json(await evide
 app.delete('/api/evidence/uploads/:id',async(req,res)=>res.json(await evidence(req,res).abandon(req.params.id)));
 app.post('/api/evidence/cleanup',async(req,res)=>res.json(await evidence(req,res).cleanup()));
 app.get('/api/registration-requests/:id/evidence',async(req,res)=>res.json(await evidence(req,res).list(req.params.id)));
+app.post('/api/registration-requests/:id/evidence/client-identity',async(req,res)=>res.json(await evidence(req,res).syncClientIdentity(req.params.id)));
 app.get('/api/registration-requests/:id/evidence/:linkId/access',async(req,res)=>res.json(await evidence(req,res).access(req.params.id,req.params.linkId,req.query.download==='true')));
 app.post('/api/registration-requests/:id/evidence',async(req,res)=>res.json(await evidence(req,res).attach(req.params.id,req.body)));
 app.delete('/api/registration-requests/:id/evidence/:linkId',async(req,res)=>res.json(await evidence(req,res).remove(req.params.id,req.params.linkId,req.body)));
 
-app.post('/api/registration-requests/:id/evidence-pdf',requirePermission('registration.read','registration.evidence.read'),async(req,res)=>res.json(await createEvidencePdfService(db,requestContext(req,authState(res).user.id),options.evidenceStorage).generate(req.params.id)));
+app.post('/api/registration-requests/:id/evidence-pdf',requirePermission('registration.read','registration.evidence.read'),async(req,res)=>res.json(await createEvidencePdfService(db,requestContext(req,authState(res).user.id),options.evidenceStorage,(['registration.update','registration.evidence.upload','client.documents.read'] as const).every(permission=>authState(res).user.permissions.includes(permission))).generate(req.params.id)));
 app.get('/api/registration-requests/:id/declaration-data',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).data(req.params.id)));
 app.post('/api/registration-requests/:id/declaration',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).generate(req.params.id,req.body)));
 app.get('/api/settings/company',requirePermission('settings.read'),async(_req,res)=>res.json(await createCompanyService(db).get()));

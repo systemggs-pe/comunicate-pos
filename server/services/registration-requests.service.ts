@@ -1,3 +1,4 @@
+import {autoAttachClientIdentity} from '../documents/auto-attach-identity.js';
 import {attachOperationEvidence} from '../evidence/lifecycle.js';
 import {reuseClientDocuments} from '../documents/reuse.js';
 import { createHash } from 'node:crypto';
@@ -16,7 +17,7 @@ interface Helpers {
   updateRegistrationInTx:(tx:Db,value:string,input:z.infer<typeof registrationSchema>, managed?:boolean)=>Promise<unknown>;
 }
 const requestInclude = { imei:{include:{equipment:{include:{owner:true,imeis:{orderBy:{slot:'asc' as const}},saleEquipment:{include:{sale:true}}}}}}, createdBy:{select:{id:true,name:true}}, updatedBy:{select:{id:true,name:true}},completedBy:{select:{id:true,name:true}} } satisfies Prisma.RegistrationRequestInclude;
-export function createRegistrationRequestsService(db:PrismaClient, actor:AuditContext, helpers:Helpers, sessionId?:string) {
+export function createRegistrationRequestsService(db:PrismaClient, actor:AuditContext, helpers:Helpers, sessionId?:string,autoAttachIdentity=false) {
   const actorId = () => { if (!actor.userId) throw new DomainError(401,'Sesión requerida.','AUTH_REQUIRED'); return actor.userId; };
   async function detail(tx:Db,id:string) {
     const request=await tx.registrationRequest.findUnique({where:{id},include:{...requestInclude,history:{include:{user:{select:{id:true,name:true}}},orderBy:{createdAt:'asc'}}}});
@@ -88,6 +89,7 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
         }
         await attachOperationEvidence(tx,input.evidence??[],input.idempotencyKey,createdRequests,actor,sessionId);
         if(input.documentEvidence.length){if(!equipment.ownerId)throw new DomainError(409,'CLIENTE REQUERIDO.','CLIENT_DOCUMENT_SCOPE');await reuseClientDocuments(tx,input.documentEvidence,equipment.ownerId,createdRequests,actor);}
+        if(autoAttachIdentity)for(const request of createdRequests)await autoAttachClientIdentity(tx,request.id,actor);
         return replay(tx);
       }); }catch(error){
         if(error instanceof Prisma.PrismaClientKnownRequestError&&error.code==='P2002'){const previous=await replay(db);if(previous)return previous;}throw error;

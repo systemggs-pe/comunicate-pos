@@ -1,3 +1,4 @@
+import {autoAttachClientIdentity} from '../documents/auto-attach-identity.js';
 import {Prisma,type PrismaClient} from '@prisma/client';
 import sharp from 'sharp';
 import {idSchema} from '../../shared/validation.js';
@@ -9,11 +10,12 @@ import type {EvidenceStorageProvider} from '../storage/provider.js';
 import {checksum} from '../evidence/image.js';
 import {DomainError} from '../lib/errors.js';
 import {writeAudit,type AuditContext} from '../lib/audit.js';
-export function createEvidencePdfService(db:PrismaClient,actor:AuditContext,provider?:EvidenceStorageProvider){
+export function createEvidencePdfService(db:PrismaClient,actor:AuditContext,provider?:EvidenceStorageProvider,autoAttachIdentity=false){
  return {generate:async(raw:unknown)=>{
   const id=idSchema.parse(raw);
   let ownedStorage:EvidenceStorageProvider|undefined;
   try{return await db.$transaction(async tx=>{
+   if(autoAttachIdentity)await autoAttachClientIdentity(tx,id,actor);
    await tx.$queryRaw`SELECT id FROM "RegistrationRequest" WHERE id=${id}::uuid FOR SHARE`;
    const row=await tx.registrationRequest.findUnique({where:{id},include:{createdBy:{select:{name:true}},imei:{include:{equipment:{include:{owner:true}}}},evidence:{include:{evidenceAsset:true}}}});
    if(!row)throw new DomainError(404,'SOLICITUD NO ENCONTRADA.','REQUEST_NOT_FOUND');
