@@ -112,6 +112,14 @@ No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy, siguiendo 
 
 Al seleccionar registrar dos IMEI, el paso de equipo muestra inmediatamente «Celular del IMEI 2», obligatorio, de nueve dígitos y distinto del celular del primer IMEI. Se valida antes de continuar y se conserva asociado al valor del segundo IMEI al pasar al precio y al confirmar. Se mantienen la validación del backend por solicitud y la prohibición de celulares repetidos. No se ejecutaron pruebas ni compilaciones; sin push ni deploy.
 
+## Corrección posterior — edición operativa de ventas
+
+«Editar venta» deja de ser un formulario exclusivo de notas. El editor permite cambiar comprador, contacto propio de la venta, fecha y hora, método de pago, precios por equipo, descuento, accesorios y notas. Los datos técnicos del equipo se editan con `equipment.update`; los IMEI muestran acceso a la corrección controlada de su ficha. Se aplican Impeccable y UI/UX Pro Max al formulario compacto con secciones y datos técnicos desplegables.
+
+El backend valida el nuevo contrato y recalcula el total con Decimal dentro de una transacción. Bloquea los equipos y la venta, verifica las versiones esperadas y conserva las asociaciones existentes. Cambiar comprador no cambia propietario ni solicitante de registros. Las ventas históricas con checksum inválido admiten edición de campos ajenos al IMEI. El total y la precisión de la fecha originales se mantienen cuando no se modifican sus campos. Crear clientes y editar equipos requieren sus permisos respectivos. La auditoría de venta guarda datos anteriores y posteriores de precios, pago, descuento, comprador y fecha. Los borradores se conservan ante errores y se avisa al salir con cambios pendientes.
+
+No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy. No se alteraron ventas de la base durante la implementación. No se agregan, reemplazan ni eliminan equipos de una venta existente desde este editor.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.

@@ -16,6 +16,6 @@ export const repository = {
     return equipment;
   },
   findImei: (db: Db, value: string) => db.imei.findUnique({ where: { value }, include: { equipment: { include: equipmentInclude } } }),
-  getSaleById: async (db: Db, id: string) => { const sale = await db.sale.findUnique({ where: { id }, include: { ...saleSummaryInclude, accessories: true, equipment: { include: { equipment: { include: equipmentInclude } }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] } } }); if (!sale) throw new DomainError(404, 'Venta no encontrada.', 'SALE_NOT_FOUND'); return sale; },
+  getSaleById: async (db: Db, id: string) => { const sale = await db.sale.findUnique({ where: { id }, include: { ...saleSummaryInclude, accessories: {orderBy:[{createdAt:'asc'},{id:'asc'}]}, equipment: { include: { equipment: { include: equipmentInclude } }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] } } }); if (!sale) throw new DomainError(404, 'Venta no encontrada.', 'SALE_NOT_FOUND'); return sale; },
   getHistory: (db: Db, equipmentId: string) => db.equipmentHistory.findMany({ where: { equipmentId }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] }),
 };

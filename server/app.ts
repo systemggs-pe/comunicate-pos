@@ -112,7 +112,7 @@ app.get('/api/registration-requests/:id/share-text',requirePermission('registrat
 app.get('/api/registration-requests/:id',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).getRegistrationRequest(req.params.id)));
 app.patch('/api/registration-requests/:id',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).updateRegistrationRequest(req.params.id,req.body)));
 app.post('/api/registration-requests/:id/transition',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).transitionRegistrationRequest(req.params.id,req.body)));
-app.patch('/api/sales/:id',requirePermission('sales.update'),async(req,res)=>res.json(await pos(req,res).updateSaleNotes(req.params.id,req.body)));
+app.patch('/api/sales/:id',requirePermission('sales.update'),async(req,res)=>res.json(await pos(req,res).updateSale(req.params.id,req.body,{canCreateClient:authState(res).user.permissions.includes('clients.create'),canEditEquipment:authState(res).user.permissions.includes('equipment.update')})));
 app.post('/api/auth/logout', async (req,res) => { const state=authState(res); await auth.logout(state.sessionId,requestContext(req,state.user.id)); clearSessionCookie(res); res.json({logout:true}); });
 app.get('/api/users',requirePermission('users.read'),async (req,res)=>res.json(await users(req,res).list(req.query)));
 app.get('/api/users/:id',requirePermission('users.read'),async (req,res)=>res.json(await users(req,res).get(req.params.id)));

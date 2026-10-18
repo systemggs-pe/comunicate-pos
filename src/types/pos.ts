@@ -9,7 +9,7 @@ export interface Imei {
   registrationStatus: RegistrationStatus|null; registrationMethod: string | null;
   registrationStartedAt: string | null; registeredAt: string | null;
 }
-export interface Equipment {
+export interface Equipment { updatedAt?:string;
   id: string; code: string; ownerId: string | null; owner: Client | null;
   origin: 'STORE' | 'EXTERNAL'; status: 'ACTIVE' | 'RETURNED' | 'BLOCKED' | 'ARCHIVED';
   commercialName?: string|null; color?: string|null; ram?: string|null; storage?: string|null; brand: string; model: string; serialNumber: string | null; createdAt: string;
@@ -28,7 +28,7 @@ export interface RegistrationInput {
   equipment?: EquipmentInput; expectedEquipmentId?: string; confirmAddImei?: boolean;
 }
 export type PaymentMethod = 'CASH' | 'YAPE' | 'PLIN' | 'CARD' | 'TRANSFER' | 'OTHER';
-export interface Sale { buyerPhone?:string|null;buyerEmail?:string|null; accessories?:SaleAccessory[]; occurredAt?:string; id: string; code: string; buyerId: string; buyer: Client;  subtotal?: string; discount: string; total: string; paymentMethod: PaymentMethod; notes: string | null; createdAt: string; createdBy: { id: string; name: string } | null; equipmentCount?: number; _count?: { equipment: number }; equipment?: { id: string; unitPrice: string; equipment: Equipment }[] }
+export interface Sale { updatedAt?:string; buyerPhone?:string|null;buyerEmail?:string|null; accessories?:SaleAccessory[]; occurredAt?:string; id: string; code: string; buyerId: string; buyer: Client;  subtotal?: string; discount: string; total: string; paymentMethod: PaymentMethod; notes: string | null; createdAt: string; createdBy: { id: string; name: string } | null; equipmentCount?: number; _count?: { equipment: number }; equipment?: { id: string; unitPrice: string; equipment: Equipment }[] }
 export type ClientReference = { id: string } | { client: ClientInput };
 export interface SaleItemInput { equipment: EquipmentInput & { imeis: ImeiInput[]; origin?:'STORE'|'EXTERNAL' }; owner?: ClientReference; unitPrice: string }
 export interface SaleInput { buyerPhone?:string;buyerEmail?:string; buyer: ClientReference; items: SaleItemInput[]; paymentMethod: PaymentMethod; discount: string; notes?: string; accessories?:SaleAccessory[]; occurredAt?:string; idempotencyKey?:string }
