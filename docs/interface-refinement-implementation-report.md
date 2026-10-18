@@ -120,6 +120,14 @@ El backend valida el nuevo contrato y recalcula el total con Decimal dentro de u
 
 No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy. No se alteraron ventas de la base durante la implementación. No se agregan, reemplazan ni eliminan equipos de una venta existente desde este editor.
 
+## Ajuste posterior — editar ventas según referencia de dos pasos
+
+Por las nuevas capturas del usuario, la edición de venta adopta la estructura de Nueva venta: cabecera con cierre, progreso **Cliente → Equipo y precio**, campos iniciales precargados de DNI/nombre/contacto y botones Cancelar/Siguiente/Atrás/Confirmar y guardar. El segundo paso muestra directamente IMEI 1 y 2, serie, nombre comercial, marca, modelo, RAM, memoria, color, precio, origen, método de pago y fecha, con accesorios y total. Se usa Impeccable y UI/UX Pro Max para conservar la apariencia del POS, con transición discreta del título y movimiento reducido.
+
+Ahora se pueden corregir los IMEI desde la misma edición de venta y agregar un segundo IMEI cuando falta. El backend exige Luhn en cada valor nuevo o modificado, permiso de equipos, coincidencia del identificador anterior y de la versión del equipo; verifica pertenencia, posiciones, máximo dos y unicidad. Conserva los UUID existentes y sus vínculos. Estos cambios, los importes y los datos de la venta se guardan en una sola transacción. Los IMEI históricos sin modificar no bloquean una corrección de otros campos. Se conserva el escáner, con protección frente a sobrescrituras y candidatos inválidos.
+
+No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy. No se modificaron ventas ni equipos de la base durante esta implementación. Esta sección sustituye la indicación anterior de que los IMEI debían corregirse fuera del editor de venta.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.

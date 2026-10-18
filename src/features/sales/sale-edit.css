@@ -1,19 +1,25 @@
-.sale-edit-page{max-width:1040px;margin:0 auto}
-.sale-edit-heading{margin-bottom:16px}
-.sale-edit-heading h1{font-size:24px;letter-spacing:-.025em;margin:8px 0 4px}
-.sale-edit-heading p{margin:0;color:#637086;font-size:13px}
-.sale-edit-heading .text-button{display:inline-flex;align-items:center;gap:6px}
-.sale-edit-page .form-panel{padding:18px;margin-bottom:14px;border:1px solid #d3dae2;border-radius:12px;background:#fbfdfe;box-shadow:none}
-.sale-edit-section>h2,.sale-edit-page .accessories-panel h2{font-size:15px;margin:0 0 14px}
-.sale-edit-page .client-picker{padding:0;border:0;margin-bottom:12px}
-.sale-edit-line+.sale-edit-line{border-top:1px solid #d3dae2;margin-top:16px;padding-top:16px}
-.sale-edit-line-heading{display:flex;justify-content:space-between;align-items:center;gap:16px}
-.sale-edit-line-heading h3{font-size:14px;margin:0 0 4px}
-.sale-edit-line-heading p{font-size:12px;color:#637086;margin:0}
-.sale-edit-line-heading>label{max-width:200px}
-.sale-edit-imeis{display:flex;gap:8px 20px;flex-wrap:wrap;color:#637086;font-size:12px;font-variant-numeric:tabular-nums}
-.sale-edit-line summary{cursor:pointer;min-height:44px;align-content:center;font-size:13px;font-weight:600}
-.sale-edit-line details[open]>.form-grid{margin:10px 0}
-.sale-edit-total{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #d3dae2;padding-top:14px;margin-bottom:0;font-size:14px}
-.sale-edit-total strong{font-size:24px;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
-@media(max-width:600px){.sale-edit-page .form-panel{padding:14px}.sale-edit-line-heading{align-items:start;flex-direction:column}.sale-edit-line-heading>label{max-width:none;width:100%}.sale-edit-imeis{flex-direction:column}}
+.design-shell .sale-edit-reference{max-width:1000px}
+.sale-edit-reference .wizard-header{padding:22px 26px}
+.sale-edit-reference .wizard-header h1{font-size:22px;margin:4px 0}
+.sale-edit-reference .wizard-header p{font-size:13px}
+.sale-edit-reference .registration-progress{padding:16px 26px}
+.sale-edit-reference .registration-layout{padding:24px 26px}
+.sale-edit-reference .registration-layout h2{font-size:14px;font-weight:700;padding-bottom:12px;margin:0 0 18px;border-bottom:1px solid #d3dae2}
+.sale-edit-reference .document-number{display:grid;grid-template-columns:100px minmax(0,1fr);gap:8px}
+.sale-edit-reference .form-grid{gap:16px}
+.sale-edit-reference .sale-edit-technical,.sale-edit-reference .sale-edit-technical>.form-grid{display:contents}
+.sale-edit-reference .sale-edit-device{position:relative;padding-top:0}
+.sale-edit-reference .sale-edit-device>.form-grid{margin-top:14px}
+.sale-edit-reference .sale-edit-device>h3{font-size:14px;margin-bottom:12px}
+.sale-edit-scan{margin:0 0 12px;text-align:right}
+.sale-edit-scan>summary{display:inline-flex;cursor:pointer;border:1px solid #d3dae2;border-radius:8px;background:#fbfdfe;min-height:40px;align-items:center;padding:8px 14px;font-size:13px;font-weight:600}
+.sale-edit-scan .box-scanner{text-align:left;border:0;background:#ecf1f6;border-radius:8px;margin:10px 0;padding:12px}
+.sales-workspace .sale-edit-scan .box-scanner-actions{position:static;padding:0;justify-content:flex-end}
+.sale-edit-reference .sale-edit-extra{margin:14px 0}
+.sale-edit-extra summary{font-size:13px;font-weight:600;cursor:pointer;min-height:40px;align-content:center}
+.sale-edit-extra[open] .form-grid{padding-block:10px}
+.sale-edit-reference .sale-total{font-size:14px;font-weight:600;margin:16px 0 0}
+.sale-edit-reference .sale-total strong{font-variant-numeric:tabular-nums}
+.sale-edit-reference summary:focus-visible{outline:2px solid #096acb;outline-offset:3px}
+@media(prefers-reduced-motion:no-preference){.sale-edit-reference .registration-layout h2{animation:sale-edit-step-in 150ms ease-out}@keyframes sale-edit-step-in{from{opacity:.6;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}}
+@media(max-width:600px){.sale-edit-reference .wizard-header,.sale-edit-reference .registration-progress{padding:16px}.sale-edit-reference .registration-layout{padding:18px 16px}.sale-edit-reference .document-number{grid-template-columns:80px minmax(0,1fr)}}
