@@ -33,6 +33,17 @@ async function query(db: Db, sql: Prisma.Sql): Promise<ReportRow[]> {
   return rows.map(row => Object.fromEntries(Object.entries(row).map(([key, value]) => [key, value instanceof Prisma.Decimal ? value.toFixed(2) : typeof value === 'bigint' ? Number(value) : value instanceof Date ? value.toISOString() : value as string | number | null])));
 }
 export const reportRepository = {
+  async historyRange(db:Db){
+    const rows=await query(db,Prisma.sql`WITH bounds AS (
+      SELECT min("occurredAt") AS first,max("occurredAt") AS last FROM "Sale"
+      UNION ALL SELECT min("occurredAt"),max("occurredAt") FROM "RegistrationRequest"
+      UNION ALL SELECT min("createdAt"),max("createdAt") FROM "RegistrationRequest"
+      UNION ALL SELECT min("completedAt"),max("completedAt") FROM "RegistrationRequest"
+      UNION ALL SELECT min("createdAt"),max("createdAt") FROM "Client"
+      UNION ALL SELECT min("createdAt"),max("createdAt") FROM "Equipment"
+    ) SELECT to_char(min(first) AT TIME ZONE 'America/Lima','YYYY-MM-DD') AS "from",to_char(max(last) AT TIME ZONE 'America/Lima','YYYY-MM-DD') AS "to" FROM bounds`);
+    return rows[0]?.from&&rows[0]?.to?{from:String(rows[0].from),to:String(rows[0].to)}:null;
+  },
   async summary(db: Db, f: ReportFilter, type: ReportType) {
     const base = ctes(f);
     if (type === 'general' || type === 'sales' || type === 'registrations') return (await query(db, Prisma.sql`${base} SELECT

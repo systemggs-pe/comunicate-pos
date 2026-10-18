@@ -100,6 +100,14 @@ El guardado manual requiere permiso `client.documents.upload`, conserva las foto
 
 Se aplican Impeccable y UI/UX Pro Max a la simplificación del paso, estados de carga/error, texto y aparición breve de las fotos, respetando movimiento reducido. No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy, conforme a la fase de implementación indicada.
 
+## Refinamiento posterior — reportes compactos y total histórico
+
+Reportes abre con **Todo el historial** y agrupación mensual, conservando los filtros elegidos explícitamente y el periodo mensual predeterminado del Inicio. El nuevo periodo se calcula con los límites reales de ventas, registros, clientes y equipos dentro de la misma transacción del reporte; no utiliza una fecha arbitraria ni aplica el límite de 732 días de los rangos personalizados. La exportación recibe el mismo periodo y conserva sus límites existentes.
+
+Se sustituye la cabecera de gran tamaño por una línea breve, se corrige la herencia que apilaba las pestañas en columna, y se compactan filtros e indicadores. Las ventas muestran cantidad y total vendido; el gráfico abre con importe vendido. El estado de registros usa barras pequeñas con cantidad y porcentaje, evitando repetirlo en otra tabla. Evolución, métodos de pago y operadores se consultan al desplegarlos; la evolución carga su gráfico solo al abrirse. Los filtros adicionales siguen disponibles, con indicación cuando hay alguno activo. Tablas y controles se adaptan al ancho móvil. Se aplican Impeccable y UI/UX Pro Max, con transiciones breves y respeto por movimiento reducido.
+
+No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy, siguiendo la fase indicada. No se modificaron los datos comerciales.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.

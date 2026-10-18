@@ -1,5 +1,5 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
-import { parseReportFilter, reportLabels, reportPaymentLabels, stateLabels, type ReportData, type ReportRow, type ReportTable, type ReportType } from '../../shared/reports.js';
+import { addDays, parseReportFilter, reportLabels, reportPaymentLabels, stateLabels, type ReportData, type ReportRow, type ReportTable, type ReportType } from '../../shared/reports.js';
 import { reportRepository as repo } from '../repositories/reports.repository.js';
 import { DomainError } from '../lib/errors.js';
 import { writeAudit, type AuditContext } from '../lib/audit.js';
@@ -56,6 +56,10 @@ export function createReportsService(db: PrismaClient, ctx: AuditContext = {}) {
   async function read(type: ReportType, raw: unknown, exporting = false): Promise<ReportData> {
     const f = parseReportFilter(raw, type);
     return db.$transaction(async tx => {
+      if(f.preset==='all'){
+        const range=await repo.historyRange(tx);
+        if(range)Object.assign(f,range,{start:new Date(`${range.from}T00:00:00-05:00`),end:new Date(`${addDays(range.to,1)}T00:00:00-05:00`)});
+      }
       const summary = await repo.summary(tx, f, type);
       if (type === 'sales') for (const key of ['registrationCount', 'registrationAmount', 'newClients']) delete summary[key];
       if (type === 'registrations') for (const key of ['salesCount', 'salesRevenue', 'equipmentSold', 'newClients']) delete summary[key];
