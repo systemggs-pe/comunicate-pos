@@ -8,11 +8,11 @@ import {ErrorNotice,Loading} from '../../components/common';
 import {receiptRows,receiptBarcode,type ReceiptData,type ReceiptFormat} from '../../../shared/receipt';
 import './receipt.css';
 function ReceiptDocument({data,format}:{data:ReceiptData;format:ReceiptFormat}){
- const margin=format===48?data.company.margin48:data.company.margin80,barcode=receiptBarcode(data.sale.code,format-margin*2);
+ const margin=format===48?data.company.margin48:data.company.margin80;
  return <article className={`thermal-receipt receipt-${format}`} style={{width:`${format}mm`,padding:`${margin}mm`}} data-format={format} aria-label={`TICKET ${format} MM`}>
- {receiptRows(data,format).map((row,i)=><p key={i} style={{textAlign:row.align??'left',fontWeight:row.bold?700:400}}>{row.text}</p>)}
- {barcode?<svg role="img" aria-label={`CÓDIGO DE BARRAS ${data.sale.code}`} width={`${barcode.width}mm`} height="12mm" viewBox={`0 0 ${barcode.bits.length+20} 48`} preserveAspectRatio="none">{Array.from(barcode.bits).map((bit,i)=>bit==='1'?<rect key={i} x={i+10} y="0" width="1" height="48" fill="black"/>:null)}</svg>:<p className="barcode-fallback">IDENTIFICADOR EN TEXTO: EL CÓDIGO NO CABE CON DIMENSIONES LEGIBLES</p>}
- <p className="receipt-identifier">{data.sale.code}</p><p style={{textAlign:'center'}}>{data.company.receiptFooter}</p></article>;
+ {receiptRows(data,format).map((row,index)=>{const barcode=row.barcode?receiptBarcode(row.barcode,format-margin*2):null;
+  return <div className="receipt-row" key={index}>{barcode&&<svg role="img" aria-label={`Código de barras del número de serie ${row.barcode}`} width={`${barcode.width}mm`} height="12mm" viewBox={`0 0 ${barcode.bits.length+20} 48`} preserveAspectRatio="none">{Array.from(barcode.bits).map((bit,i)=>bit==='1'?<rect key={i} x={i+10} y="0" width="1" height="48" fill="black"/>:null)}</svg>}<p className={row.right?'receipt-columns':undefined} style={{textAlign:row.align??'left',fontWeight:row.bold?700:400}}>{row.right?<><span>{row.text}</span><span>{row.right}</span></>:row.text||'\u00a0'}</p></div>;
+ })}</article>;
 }
 export function SaleReceipt48mm({data}:{data:ReceiptData}){return <ReceiptDocument data={data} format={48}/>;}
 export function SaleReceipt80mm({data}:{data:ReceiptData}){return <ReceiptDocument data={data} format={80}/>;}

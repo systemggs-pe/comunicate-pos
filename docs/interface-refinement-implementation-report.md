@@ -134,6 +134,14 @@ La vista previa usa una sola columna de contenido y una cabecera compacta con c�
 
 Se aplican Impeccable y UI/UX Pro Max, con aparición breve del contenido, foco visible, adaptación al ancho disponible y respeto por movimiento reducido. No se modifican los datos, fotografías, documentos ni tickets almacenados. No se ejecutaron pruebas, compilaciones, auditorías, comparaciones visuales, push ni deploy.
 
+## Ajuste posterior — contenido exacto del recibo térmico
+
+El recibo de 48 y 80 mm y su PDF comparten la plantilla solicitada: COMUNIC@TE y Recibo de Venta en negrita; número visible VEN, giro comercial, dirección, local y teléfono; cliente con nombre y DNI; características de cada equipo, modelo comercial, IMEI presentes y S/N; medio de pago, tabla de equipos/precios, accesorios si existen y total; códigos de barras de los S/N disponibles; fecha y hora de Lima; y el texto de conformidad y no devolución indicado por el usuario. Se retiran subtotal, descuento, vendedor, notas y pie configurable de este formato.
+
+El prefijo VEN es de presentación: no se renumeran ventas ni se modifican sus códigos persistidos. Dirección, local y número usan address, city y phone de la configuración empresarial. El S/N sin dato se identifica como NO CONSIGNADO; nunca se sustituye por el código de venta ni por un IMEI. Los códigos conservan dimensiones mínimas de lectura y, si un S/N no cabe o contiene caracteres no codificables, permanece su texto legible. La posición del código de barras, columnas y texto final se comparte en HTML y PDF. La descarga conserva ambos anchos y la paginación de recibos extensos.
+
+No se ejecutaron pruebas, compilaciones, comparación de PDF, auditorías, push ni deploy, siguiendo la fase de implementación indicada. No se modificaron datos históricos ni credenciales.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
