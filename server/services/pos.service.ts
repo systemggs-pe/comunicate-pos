@@ -181,8 +181,8 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
       return rows.map(({ _count, ...client }) => ({ ...client, equipmentCount: _count.equipment }));
     },
     listEquipment: async (raw: unknown = {}) => {
-      const { q, ownerId, offset, limit } = listQuerySchema.parse(raw);
-      return (await db.equipment.findMany({ where: { ownerId, ...(q ? { OR: [{ code: { contains: q, mode: 'insensitive' } }, { brand: { contains: q, mode: 'insensitive' } }, { model: { contains: q, mode: 'insensitive' } }, { imeis: { some: { value: q.replace(/\s/g, '') } } }] } : {}) }, include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit })).map(decorated);
+      const { q, ownerId, offset, limit,origin,status } = listQuerySchema.extend({origin:z.enum(['STORE','EXTERNAL']).optional(),status:z.enum(['ACTIVE','RETURNED','BLOCKED','ARCHIVED']).optional()}).parse(raw);
+      return (await db.equipment.findMany({ where: { ownerId,origin,status, ...(q ? { OR: [{ code: { contains: q, mode: 'insensitive' } }, { brand: { contains: q, mode: 'insensitive' } }, { model: { contains: q, mode: 'insensitive' } }, {commercialName:{contains:q,mode:'insensitive'}},{serialNumber:{contains:q,mode:'insensitive'}},{owner:{OR:[{dni:{contains:q}},{fullName:{contains:q,mode:'insensitive'}},{firstName:{contains:q,mode:'insensitive'}},{lastName:{contains:q,mode:'insensitive'}}]}}, { imeis: { some: { value: q.replace(/\s/g, '') } } }] } : {}) }, include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit })).map(decorated);
     },
     ...createRegistrationRequestsService(db, actor, { transaction, resolveInTx, createEquipmentInTx, updateRegistrationInTx }, sessionId),
     ...createSalesService(db, { transaction, history, audit, createEquipmentInTx, actor }),

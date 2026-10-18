@@ -65,6 +65,7 @@ model User {
   email           String             @unique
   name            String
   passwordHash    String?
+  googleSubject   String? @unique @db.VarChar(255)
   identityDocument String? @db.VarChar(8)
   status          UserStatus         @default(DISABLED)
   roleId          String?            @db.Uuid
@@ -118,6 +119,7 @@ model Client {
   phone     String?     @db.VarChar(30)
   address   String?     @db.VarChar(300)
   department String?    @db.VarChar(100)
+  province String?      @db.VarChar(100)
   email     String?     @db.VarChar(254)
   createdAt DateTime    @default(now()) @db.Timestamptz(3)
   updatedAt DateTime    @updatedAt @db.Timestamptz(3)
@@ -322,6 +324,7 @@ model RegistrationRequest {
   referencePhone String? @db.VarChar(9)
   address String @db.VarChar(300)
   department String @db.VarChar(100)
+  province String? @db.VarChar(100)
   email String @db.VarChar(254)
   price Decimal @db.Decimal(12,2)
   hasBox Boolean
@@ -348,6 +351,14 @@ model RegistrationRequest {
   @@index([createdById, createdAt])
   @@index([completedAt])
   @@index([completedById, completedAt])
+}
+model GoogleAuthAttempt {
+  stateHash String @id @db.VarChar(64)
+  browserHash String @db.VarChar(64)
+  nonce String @db.VarChar(43)
+  verifier String @db.VarChar(43)
+  expiresAt DateTime @db.Timestamptz(3)
+  @@index([expiresAt])
 }
 model RegistrationRequestHistory {
   id String @id @default(uuid()) @db.Uuid

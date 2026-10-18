@@ -25,5 +25,5 @@ export const resetPasswordSchema = z.object({ password: passwordSchema }).strict
 export const roleUpdateSchema = z.object({ permissions: z.array(z.enum(permissionKeys)).max(permissionKeys.length).refine(v => new Set(v).size === v.length, 'Permisos repetidos.') }).strict();
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(v => { const d = new Date(`${v}T00:00:00Z`); return !Number.isNaN(d.getTime()) && d.toISOString().slice(0,10) === v; }, 'Fecha inválida.');
 export const auditQuerySchema = listQuerySchema.omit({ ownerId: true }).extend({ userId: idSchema.optional(), action: z.string().trim().max(100).optional(), from: day.optional(), to: day.optional() }).refine(v => !v.from || !v.to || v.from <= v.to, 'Rango de fechas inválido.');
-export interface AuthUser { identityDocument?:string|null; id: string; code: string; name: string; email: string; status: 'ACTIVE' | 'DISABLED'; role: { id: string; code: string }; permissions: PermissionKey[]; lastLoginAt: string | null; createdAt: string }
-export interface RoleView { id: string; code: string; permissions: PermissionKey[] }
+export interface AuthUser { googleLinked?:boolean; identityDocument?:string|null; id: string; code: string; name: string; email: string; status: 'ACTIVE' | 'DISABLED'; role: { id: string; code: string }; permissions: PermissionKey[]; lastLoginAt: string | null; createdAt: string }
+export interface RoleView { id: string; code: string; permissions: PermissionKey[]; userCount?:number; description?:string }

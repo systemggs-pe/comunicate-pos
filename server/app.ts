@@ -1,3 +1,6 @@
+import {registerGoogleAuth} from './auth/google.js';
+import {registrationShareText} from '../shared/registration-share.js';
+import {idSchema} from '../shared/validation.js';
 import {createClientDirectory} from './services/client-directory.service.js';
 import {createEvidencePdfService} from './services/evidence-pdf.service.js';
 import {createEvidenceService} from './evidence/service.js';
@@ -46,6 +49,7 @@ app.use('/api', (_req,res,next) => { res.set('Cache-Control','no-store'); next()
 app.get('/api/health', (_req, res) => res.json({ name: 'COMUNIC@TE POS', status: 'ok' }));
 app.use('/api', originGuard);
 app.use('/api',maintenanceGuard);
+registerGoogleAuth(app,db);
 app.post('/api/auth/login', async (req,res) => { const result=await auth.login(req.body,requestContext(req)); res.cookie(cookieName(),result.token,{...cookieOptions(),expires:result.expiresAt}); res.json(result.user); });
 app.use('/api',requireAuth(auth));
 app.use('/api',rejectActorInput);
@@ -98,6 +102,10 @@ app.get('/api/registration-requests/summary',requirePermission('registration.rea
 app.get('/api/registration-requests',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).listRegistrationRequests(req.query)));
 app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>{if(req.body?.clientNameCorrection&&!authState(res).user.permissions.includes('clients.update'))throw new DomainError(403,'SE REQUIERE PERMISO PARA CORREGIR EL CLIENTE.','PERMISSION_REQUIRED');if((req.body?.evidence?.length||req.body?.documentEvidence?.length)&&!authState(res).user.permissions.includes('registration.evidence.upload'))throw new DomainError(403,'NO TIENES PERMISOS PARA ADJUNTAR EVIDENCIAS.','PERMISSION_REQUIRED');if(req.body?.documentEvidence?.length&&!authState(res).user.permissions.includes('client.documents.read'))throw new DomainError(403,'SE REQUIERE PERMISO DE DOCUMENTACIÓN.','PERMISSION_REQUIRED');res.status(201).json(await pos(req,res).createRegistrationOperation(req.body));});
 app.post('/api/registration-requests/complete',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).completeRegistrationRequests(req.body)));
+app.get('/api/registration-requests/:id/share-text',requirePermission('registration.read'),async(req,res)=>{
+ const id=idSchema.parse(req.params.id);
+ const text=await db.$transaction(async tx=>{const include={imei:{include:{equipment:{include:{owner:true,imeis:true}}}}} as const;const target=await tx.registrationRequest.findUnique({where:{id},include});if(!target)throw new DomainError(404,'Registro no encontrado.','REQUEST_NOT_FOUND');if(!target.imei.equipment.owner)throw new DomainError(409,'Falta el cliente del registro.','CLIENT_REQUIRED');const siblings=await tx.registrationRequest.findMany({where:{operationId:target.operationId},include});return registrationShareText(target,siblings);},{isolationLevel:'RepeatableRead'});res.json({text});
+});
 app.get('/api/registration-requests/:id',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).getRegistrationRequest(req.params.id)));
 app.patch('/api/registration-requests/:id',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).updateRegistrationRequest(req.params.id,req.body)));
 app.post('/api/registration-requests/:id/transition',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).transitionRegistrationRequest(req.params.id,req.body)));

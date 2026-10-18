@@ -102,7 +102,7 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
         const found=await detail(tx,requestId);
         await tx.$queryRaw`SELECT id FROM "RegistrationRequest" WHERE id=${requestId}::uuid FOR UPDATE`;
 
-        const snapshot={phone:found.phone,referencePhone:found.referencePhone,address:found.address,department:found.department,email:found.email,operator:found.operator,price:found.price.toFixed(2),hasBox:found.hasBox,occurredAt:found.occurredAt.toISOString()};
+        const snapshot={phone:found.phone,referencePhone:found.referencePhone,address:found.address,province:found.province,department:found.department,email:found.email,operator:found.operator,price:found.price.toFixed(2),hasBox:found.hasBox,occurredAt:found.occurredAt.toISOString()};
         const referencePhone=input.referencePhone===undefined?found.referencePhone||input.phone||found.phone:input.referencePhone||input.phone||found.phone;
         await tx.registrationRequest.update({where:{id:requestId},data:{...input,referencePhone,occurredAt:input.occurredAt?new Date(input.occurredAt):undefined,updatedById:userId}});
         await tx.registrationRequestHistory.create({data:{requestId,userId,action:'EDITED',metadata:{before:snapshot,changes:input}}});
