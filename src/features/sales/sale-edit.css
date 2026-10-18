@@ -15,9 +15,6 @@
 .sale-edit-scan>summary{display:inline-flex;cursor:pointer;border:1px solid #d3dae2;border-radius:8px;background:#fbfdfe;min-height:40px;align-items:center;padding:8px 14px;font-size:13px;font-weight:600}
 .sale-edit-scan .box-scanner{text-align:left;border:0;background:#ecf1f6;border-radius:8px;margin:10px 0;padding:12px}
 .sales-workspace .sale-edit-scan .box-scanner-actions{position:static;padding:0;justify-content:flex-end}
-.sale-edit-reference .sale-edit-extra{margin:14px 0}
-.sale-edit-extra summary{font-size:13px;font-weight:600;cursor:pointer;min-height:40px;align-content:center}
-.sale-edit-extra[open] .form-grid{padding-block:10px}
 .sale-edit-reference .sale-total{font-size:14px;font-weight:600;margin:16px 0 0}
 .sale-edit-reference .sale-total strong{font-variant-numeric:tabular-nums}
 .sale-edit-reference summary:focus-visible{outline:2px solid #096acb;outline-offset:3px}
