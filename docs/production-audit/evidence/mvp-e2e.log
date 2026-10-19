@@ -1,0 +1,333 @@
+{"name":"mvp-e2e","exitCode":1,"durationMs":121649,"command":"node node_modules/@playwright/test/cli.js test --config playwright.mvp.config.ts --global-timeout=120000 --reporter=json"}
+[WebServer] (node:21748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:15132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:24404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:26476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:24364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 32 tests using 1 worker
+
+(node:22424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/32] tests\e2e\mvp-codart.spec.ts:6:1 › RENIEC autocompleta sólo nombre completo; cliente local evita consulta
+[2/32] tests\e2e\mvp-codart.spec.ts:9:1 › nombre editado y luego vaciado mientras espera conserva prioridad manual
+[3/32] tests\e2e\mvp-codart.spec.ts:12:1 › DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física
+  1) tests\e2e\mvp-codart.spec.ts:12:1 › DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física 
+
+    Error: locator.selectOption: Error: Element is not a <select> element
+    Call log:
+      - waiting for getByLabel('Tipo de DNI', { exact: true })
+        - locator resolved to <div role="group" class="dni-photo-types" aria-label="Tipo de DNI">…</div>
+      - attempting select option action
+        - waiting for element to be visible and enabled
+
+
+      11 | });
+      12 | test('DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física',async({page})=>{
+    > 13 |  await page.goto('/registros/nuevo');await page.locator('.dni-client-fields').getByLabel('DNI',{exact:false}).fill('70000003');await expect(page.getByLabel('Nombre completo',{exact:true})).toHaveValue('CLIENTE SINTÉTICO DE PRUEBA');await page.getByText('DOCUMENTACIÓN PRIVADA DEL CLIENTE',{exact:true}).click();await page.getByRole('button',{name:'GUARDAR CLIENTE PARA DOCUMENTACIÓN',exact:true}).click();await expect(page.getByText('Cliente encontrado',{exact:true})).toBeVisible();await page.getByLabel('Tipo de DNI',{exact:true}).selectOption('BLUE');await page.getByLabel('Referencia de autorización',{exact:true}).fill('SYNTHETIC-AUTHORIZATION');await page.getByRole('checkbox',{name:/CONFIRMO AUTORIZACIÓN PARA CONSULTA/}).check();await page.getByRole('button',{name:'OBTENER FOTO DNI',exact:true}).click();await expect(page.getByText(/PROVEEDOR SIMULADO DE PRUEBAS/)).toBeVisible();await expect(page.locator('.document-thumbnail')).toHaveCount(2);await expect.poll(()=>page.locator('.document-thumbnail').evaluateAll(images=>images.every(i=>(i as HTMLImageElement).naturalWidth>0))).toBe(true);await expect(page.getByRole('heading',{name:'IMAGEN 1',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'IMAGEN 2',exact:true})).toBeVisible();expect(await mvpDb.clientDocument.count()).toBe(2);expect(await mvpDb.evidenceAsset.count()).toBe(2);expect(await mvpDb.registrationRequest.count()).toBe(0);await widthsMvp(page);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^
+      14 |  await page.getByRole('button',{name:'VER',exact:true}).first().click();await expect(page.locator('.document-modal[open]')).toBeVisible();await page.getByRole('button',{name:'CERRAR DOCUMENTO',exact:true}).first().click();const download=page.waitForEvent('download');await page.getByRole('button',{name:'DESCARGAR',exact:true}).first().click();expect((await download).suggestedFilename()).toMatch(/documento-.+\.webp/);
+      15 |  await page.getByRole('button',{name:'OBTENER FOTO DNI',exact:true}).click();await expect(page.getByText('FOTOGRAFÍAS RECUPERADAS DEL EXPEDIENTE.',{exact:true})).toBeVisible();expect((await(await page.request.get('/api/_test/control')).json()).photoCalls).toBe(1);await page.getByLabel('Tipo de DNI',{exact:true}).selectOption('ELECTRONIC');await page.getByRole('button',{name:'OBTENER FOTO DNI',exact:true}).click();await expect(page.getByText(/PROVEEDOR SIMULADO DE PRUEBAS/)).toBeVisible();expect(await mvpDb.clientDocument.count()).toBe(4);expect(await mvpDb.evidenceAsset.count()).toBe(2);expect((await(await page.request.get('/api/_test/control')).json()).photoCalls).toBe(2);
+      16 |  const assets=await mvpDb.evidenceAsset.findMany(),storage=evidenceTestStorage();try{for(const asset of assets){expect(await storage.exists(asset.storageKey)).toBe(true);expect(asset.storageKey).not.toContain('70000003');}}finally{storage.client.destroy();}
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-codart.spec.ts:13:534
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-codart-DNI-azul-y-elec-cc860-aché-y-deduplicación-física\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-codart-DNI-azul-y-elec-cc860-aché-y-deduplicación-física\error-context.md
+
+    Error Context: .test-results\e2e\mvp-codart-DNI-azul-y-elec-cc860-aché-y-deduplicación-física\error-context.md
+
+
+(node:28352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[4/32] tests\e2e\mvp-codart.spec.ts:18:1 › sin créditos muestra error, no inventa fotografías y permite reintentar
+  2) tests\e2e\mvp-codart.spec.ts:18:1 › sin créditos muestra error, no inventa fotografías y permite reintentar 
+
+    TimeoutError: locator.fill: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Referencia de autorización', { exact: true })
+
+
+      17 | });
+      18 | test('sin créditos muestra error, no inventa fotografías y permite reintentar',async({page})=>{
+    > 19 |  const client=await mvpDb.client.findUniqueOrThrow({where:{dni:'70876543'}});await page.goto('/registros/nuevo');await page.locator('.dni-client-fields').getByLabel('DNI',{exact:false}).fill(client.dni);await expect(page.getByText('Cliente encontrado',{exact:true})).toBeVisible();await page.getByText('DOCUMENTACIÓN PRIVADA DEL CLIENTE',{exact:true}).click();await page.getByLabel('Referencia de autorización',{exact:true}).fill('SYNTHETIC-AUTH');await page.getByRole('checkbox',{name:/CONFIRMO AUTORIZACIÓN PARA CONSULTA/}).check();await page.request.post('/api/_test/control',{data:{photo:'credits'}});await page.getByRole('button',{name:'OBTENER FOTO DNI',exact:true}).click();await expect(page.getByRole('alert').filter({hasText:'NO HAY CRÉDITOS'})).toBeVisible();expect(await mvpDb.clientDocument.count()).toBe(0);expect(await mvpDb.evidenceAsset.count()).toBe(0);await page.request.post('/api/_test/control',{data:{photo:'ok'}});await page.getByRole('button',{name:'OBTENER FOTO DNI',exact:true}).click();await expect(page.locator('.document-thumbnail')).toHaveCount(2);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      20 | });
+      21 |
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-codart.spec.ts:19:426
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-codart-sin-créditos-mu-0cb89-rafías-y-permite-reintentar\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-codart-sin-créditos-mu-0cb89-rafías-y-permite-reintentar\error-context.md
+
+    Error Context: .test-results\e2e\mvp-codart-sin-créditos-mu-0cb89-rafías-y-permite-reintentar\error-context.md
+
+
+(node:24944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[5/32] tests\e2e\mvp-design-reference.spec.ts:11:1 › inicio real, cápsula de cinco destinos y módulos adicionales a seis anchos
+  3) tests\e2e\mvp-design-reference.spec.ts:11:1 › inicio real, cápsula de cinco destinos y módulos adicionales a seis anchos 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 824
+    Received:   900
+
+       7 | test.beforeEach(async({page})=>{await resetMvp();await loginMvp(page);});
+       8 | test.afterAll(finishMvp);
+    >  9 | async function capture(page:Page,name:string){for(const width of [375,390,430,768,1280,1440]){await page.setViewportSize({width,height:900});await page.locator('main').evaluate(el=>el.scrollTop=0);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);expect(await page.locator('main').evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);const main=await page.locator('main').boundingBox(),nav=await page.getByRole('navigation',{name:'Navegación principal',exact:true}).boundingBox();expect(main!.y+main!.height).toBeLessThan(nav!.y);await page.screenshot({path:`.test-results/design-implementation/${name}-${width}.png`});await page.locator('main').evaluate(el=>el.scrollTop=el.scrollHeight);await page.screenshot({path:`.test-results/design-implementation/${name}-bottom-${width}.png`});}await page.setViewportSize({width:1280,height:900});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      10 |
+      11 | test('inicio real, cápsula de cinco destinos y módulos adicionales a seis anchos',async({page})=>{
+      12 |  await expect(page.locator('.home-metric').nth(0).locator('strong')).toHaveText('0');await expect(page.locator('.home-metric').nth(2).locator('strong')).toHaveText('1');await expect(page.locator('.daily-link')).toHaveCount(4);await expect(page.locator('.bottom-navigation>a,.bottom-navigation>button')).toHaveCount(5);await capture(page,'home');
+        at capture (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-design-reference.spec.ts:9:561)
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-design-reference.spec.ts:12:319
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-design-reference-inici-47dba-s-adicionales-a-seis-anchos\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-design-reference-inici-47dba-s-adicionales-a-seis-anchos\error-context.md
+
+    Error Context: .test-results\e2e\mvp-design-reference-inici-47dba-s-adicionales-a-seis-anchos\error-context.md
+
+
+(node:28288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[6/32] tests\e2e\mvp-design-reference.spec.ts:16:1 › bloqueado: desbloquear desde listado pide confirmación y sólo cambia el IMEI objetivo
+  4) tests\e2e\mvp-design-reference.spec.ts:16:1 › bloqueado: desbloquear desde listado pide confirmación y sólo cambia el IMEI objetivo 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 400
+
+      15 |
+      16 | test('bloqueado: desbloquear desde listado pide confirmación y sólo cambia el IMEI objetivo',async({page})=>{
+    > 17 |  const input=workflowInput(),response=await page.request.post('/api/registration-operations',{headers:{Origin:'http://127.0.0.1:5175'},data:{...input,requests:input.requests.map(r=>({...r,mode:'BLOCKED'}))}});expect(response.status()).toBe(201);const rows=(await response.json()).requests;
+         |                                                                                                                                                                                                                                            ^
+      18 |  await page.goto('/registros');await expect(page.getByRole('button',{name:'Desbloquear',exact:true})).toHaveCount(2);const row=page.getByRole('row').filter({hasText:rows[0].code});await row.getByRole('button',{name:'Desbloquear',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Desbloquear registro',exact:true});await expect(dialog).toContainText(input.imeis[0].value);await expect(dialog.getByRole('button',{name:'Confirmar desbloqueo',exact:true})).toBeDisabled();await dialog.getByRole('button',{name:'Cancelar',exact:true}).click();expect((await mvpDb.registrationRequest.findUniqueOrThrow({where:{id:rows[0].id}})).status).toBe('BLOCKED');
+      19 |  await row.getByRole('button',{name:'Desbloquear',exact:true}).click();await dialog.getByLabel('Motivo',{exact:true}).fill('Trámite externo confirmado, prueba sintética');await dialog.getByLabel('Confirmo el desbloqueo de este IMEI',{exact:true}).check();for(const width of [375,390,430,768,1280,1440]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);const bounds=await dialog.boundingBox();expect(bounds!.x).toBeGreaterThanOrEqual(0);expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(width);expect(Math.abs(bounds!.x-(width-bounds!.width)/2)).toBeLessThan(2);expect(Math.abs(bounds!.y-(900-bounds!.height)/2)).toBeLessThan(2);await page.screenshot({path:`.test-results/camera-unblock/confirm-${width}.png`});}
+      20 |  let calls=0;page.on('request',r=>{if(r.method()==='POST'&&new URL(r.url()).pathname===`/api/registration-requests/${rows[0].id}/transition`)calls++;});await dialog.getByRole('button',{name:'Confirmar desbloqueo',exact:true}).evaluate(button=>{(button as HTMLButtonElement).click();(button as HTMLButtonElement).click();});await expect(dialog).not.toBeVisible();await expect(page.getByRole('status').filter({hasText:`${rows[0].code}: desbloqueado y registrado.`})).toBeVisible();expect(calls).toBe(1);const saved=await mvpDb.registrationRequest.findUniqueOrThrow({where:{id:rows[0].id}});expect(saved.status).toBe('REGISTERED');expect(saved.completedById).not.toBeNull();expect((await mvpDb.imei.findUniqueOrThrow({where:{id:rows[0].imeiId}})).registrationStatus).toBe('REGISTERED');expect((await mvpDb.registrationRequest.findUniqueOrThrow({where:{id:rows[1].id}})).status).toBe('BLOCKED');expect((await mvpDb.imei.findUniqueOrThrow({where:{id:rows[1].imeiId}})).registrationStatus).toBe('BLOCKED');expect(await mvpDb.registrationRequestHistory.count({where:{requestId:rows[0].id,action:'UNBLOCK'}})).toBe(1);await expect(page.getByRole('button',{name:'Desbloquear',exact:true})).toHaveCount(1);
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-design-reference.spec.ts:17:236
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-design-reference-bloqu-6af49-ólo-cambia-el-IMEI-objetivo\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-design-reference-bloqu-6af49-ólo-cambia-el-IMEI-objetivo\error-context.md
+
+    Error Context: .test-results\e2e\mvp-design-reference-bloqu-6af49-ólo-cambia-el-IMEI-objetivo\error-context.md
+
+
+(node:26492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[7/32] tests\e2e\mvp-design-reference.spec.ts:23:1 › desbloquear permanece oculto y API denegada sin permiso de actualizar registros
+  5) tests\e2e\mvp-design-reference.spec.ts:23:1 › desbloquear permanece oculto y API denegada sin permiso de actualizar registros 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 400
+
+      22 |
+      23 | test('desbloquear permanece oculto y API denegada sin permiso de actualizar registros',async({page})=>{
+    > 24 |  const input=workflowInput(),response=await page.request.post('/api/registration-operations',{headers:{Origin:'http://127.0.0.1:5175'},data:{...input,requests:[{...input.requests[0],mode:'BLOCKED'}]}});expect(response.status()).toBe(201);const row=(await response.json()).requests[0],role=await mvpDb.role.create({data:{code:'UNBLOCK_READER',permissions:{create:[{permissionKey:'registration.read'},{permissionKey:'sales.read'}]}}});
+         |                                                                                                                                                                                                                                     ^
+      25 |  try{const created=await page.request.post('/api/users',{headers:{Origin:'http://127.0.0.1:5175'},data:{name:'Lector sintético',email:'unblock-reader@example.test',password:testPassword,roleId:role.id,status:'ACTIVE'}});expect(created.status()).toBe(201);await page.getByRole('button',{name:'Cerrar sesión',exact:true}).click();await page.getByLabel('Correo',{exact:true}).fill('unblock-reader@example.test');await page.getByLabel('Contraseña',{exact:true}).fill(testPassword);await page.getByRole('button',{name:'Iniciar sesión',exact:true}).click();await expect(page.locator('.home-reference')).toBeVisible();await page.goto('/registros');await expect(page.locator('.registration-table tbody tr')).toHaveCount(1);await expect(page.getByRole('button',{name:'Desbloquear',exact:true})).toHaveCount(0);expect((await page.request.post(`/api/registration-requests/${row.id}/transition`,{headers:{Origin:'http://127.0.0.1:5175'},data:{action:'UNBLOCK',confirm:true,reason:'Prueba sin permiso'}})).status()).toBe(403);expect((await mvpDb.registrationRequest.findUniqueOrThrow({where:{id:row.id}})).status).toBe('BLOCKED');}finally{await mvpDb.session.deleteMany({where:{user:{roleId:role.id}}});await mvpDb.auditLog.deleteMany({where:{user:{roleId:role.id}}});await mvpDb.user.deleteMany({where:{roleId:role.id}});await mvpDb.rolePermission.deleteMany({where:{roleId:role.id}});await mvpDb.role.delete({where:{id:role.id}});}
+      26 | });
+      27 |
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-design-reference.spec.ts:24:229
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-design-reference-desbl-81924-iso-de-actualizar-registros\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-design-reference-desbl-81924-iso-de-actualizar-registros\error-context.md
+
+    Error Context: .test-results\e2e\mvp-design-reference-desbl-81924-iso-de-actualizar-registros\error-context.md
+
+
+(node:24600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[8/32] tests\e2e\mvp-design-reference.spec.ts:28:1 › listado: cinco columnas, filtros, búsqueda, transición confirmada y documentos reales
+  6) tests\e2e\mvp-design-reference.spec.ts:28:1 › listado: cinco columnas, filtros, búsqueda, transición confirmada y documentos reales 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 400
+
+      27 |
+      28 | test('listado: cinco columnas, filtros, búsqueda, transición confirmada y documentos reales',async({page})=>{
+    > 29 |  const input=workflowInput(),response=await page.request.post('/api/registration-operations',{headers:{Origin:'http://127.0.0.1:5175'},data:{...input,requests:input.requests.map((r,i)=>({...r,mode:i?'BLOCKED':'REGISTRATION'}))}});expect(response.status()).toBe(201);const rows=(await response.json()).requests;await openModule(page,'Registros');await expect(page.locator('.registration-table tbody tr')).toHaveCount(2);await expect(page.locator('.registration-table th')).toHaveText(['FECHA / ID','CLIENTE','EQUIPO (IMEI)','ESTADO / SOLICITUD','ACCIONES']);await capture(page,'list');
+         |                                                                                                                                                                                                                                                                 ^
+      30 |  const filters=page.getByRole('group',{name:'Filtro de registros'});await filters.getByRole('button',{name:'Bloqueados',exact:true}).click();await expect(page.locator('.registration-table tbody tr')).toHaveCount(1);await expect(page.locator('.registration-table tbody')).toContainText(rows[1].code);await filters.getByRole('button',{name:'Pendientes',exact:true}).click();await expect(page.locator('.registration-table tbody')).toContainText(rows[0].code);await page.getByRole('button',{name:'Marcar realizado',exact:true}).click();expect((await mvpDb.registrationRequest.findUniqueOrThrow({where:{id:rows[0].id}})).status).toBe('PENDING');await page.getByLabel('CONFIRMO MARCAR COMO REGISTRADAS LAS SOLICITUDES SELECCIONADAS',{exact:true}).check();await page.getByRole('button',{name:'MARCAR COMO REGISTRADOS',exact:true}).click();await expect(page.getByRole('status').filter({hasText:`${rows[0].code}: REGISTRADO`})).toBeVisible();await filters.getByRole('button',{name:'Registrados',exact:true}).click();await expect(page.locator('.registration-table tbody tr')).toHaveCount(1);
+      31 |  await page.getByRole('button',{name:`Documentos ${rows[0].code}`,exact:true}).click();await expect(page.getByRole('dialog',{name:'Documentos del registro'})).toBeVisible();await expect(page.getByRole('button',{name:'GENERAR DECLARACIÓN JURADA',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'VER PDF DE EVIDENCIAS',exact:true})).toBeVisible();await page.getByRole('button',{name:'Cerrar documentos',exact:true}).click();await filters.getByRole('button',{name:'Todos',exact:true}).click();await page.getByLabel('Buscar registro',{exact:true}).fill(rows[1].code);await page.getByRole('button',{name:'Buscar registros',exact:true}).click();await expect(page.locator('.registration-table tbody tr')).toHaveCount(1);await page.getByRole('link',{name:`Editar ${rows[1].code}`,exact:true}).click();await expect(page.getByRole('heading',{name:'Corregir datos operativos',exact:true})).toBeVisible();expect(await mvpDb.equipment.count()).toBe(1);
+      32 | });
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-design-reference.spec.ts:29:257
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-design-reference-lista-1a0a3-firmada-y-documentos-reales\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-design-reference-lista-1a0a3-firmada-y-documentos-reales\error-context.md
+
+    Error Context: .test-results\e2e\mvp-design-reference-lista-1a0a3-firmada-y-documentos-reales\error-context.md
+
+
+(node:5576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[9/32] tests\e2e\mvp-form-speed.spec.ts:8:1 › registro: contacto reutilizado permite borrar/corregir; foco, contexto y regreso conservan borrador
+  7) tests\e2e\mvp-form-speed.spec.ts:8:1 › registro: contacto reutilizado permite borrar/corregir; foco, contexto y regreso conservan borrador 
+
+    TimeoutError: locator.check: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('radio', { name: /IMEI 1: 359708765445001/ })
+
+
+      10 |  const email=page.getByLabel('Correo de atención',{exact:true}),phone=page.getByLabel('Celular de este registro',{exact:true});await expect(email).toHaveValue('fixture@example.test');await email.fill('');await expect(email).toHaveValue('');await phone.fill('923456789');await page.getByRole('button',{name:'Usar contacto guardado',exact:true}).click();await expect(email).toHaveValue('fixture@example.test');await expect(phone).toHaveValue('923456789');await expect(phone).toHaveAttribute('inputmode','numeric');
+      11 |  await page.getByRole('button',{name:'Siguiente',exact:true}).click();await expect(page.getByRole('heading',{name:'Datos del equipo',exact:true})).toBeFocused();await expect(page.locator('.registration-progress [aria-current=step]')).toBeInViewport();await expect(page.locator('.registration-summary')).toHaveCount(0);
+    > 12 |  await page.getByLabel('IMEI 1',{exact:true}).fill('359708765445001');await page.getByLabel('Marca',{exact:true}).fill('Samsung');await page.getByLabel('Modelo',{exact:true}).fill('MOCK-SPEED');await page.getByLabel('Nombre del equipo',{exact:true}).fill('Equipo ficticio');await expect(page.getByText('Buscando equipo...',{exact:true})).toHaveCount(0);await page.getByRole('radio',{name:/IMEI 1: 359708765445001/}).check();await page.getByRole('button',{name:'Siguiente',exact:true}).click();await expect(page.getByRole('heading',{name:'PRECIO Y CONDICIONES DEL REGISTRO',exact:true})).toBeFocused();await page.getByLabel('Precio IMEI 1 (S/)',{exact:true}).fill('30');await page.getByRole('button',{name:'Siguiente',exact:true}).click();await expect(page.getByRole('heading',{name:'EVIDENCIAS FOTOGRÁFICAS',exact:true})).toBeFocused();await page.locator('.final-review>summary').click();await expect(page.locator('.final-review')).toContainText('CLIENTE SINTÉTICO');await expect(page.locator('.final-review')).toBeInViewport();expect(await mvpDb.registrationRequest.count()).toBe(0);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      13 |  await page.getByRole('button',{name:'Atrás',exact:true}).click();await expect(page.getByLabel('Precio IMEI 1 (S/)',{exact:true})).toHaveValue('30');await expect(page.getByLabel('Celular IMEI 1',{exact:true})).toHaveValue('923456789');expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.screenshot({path:'.test-results/forms-speed/registro-390.png',fullPage:false});
+      14 | });
+      15 |
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-form-speed.spec.ts:12:417
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-form-speed-registro-co-4c160--regreso-conservan-borrador\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-form-speed-registro-co-4c160--regreso-conservan-borrador\error-context.md
+
+    Error Context: .test-results\e2e\mvp-form-speed-registro-co-4c160--regreso-conservan-borrador\error-context.md
+
+
+(node:20556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[10/32] tests\e2e\mvp-form-speed.spec.ts:16:1 › venta: agregar equipo lleva el foco al nuevo; revisión y regreso mantienen importes
+[11/32] tests\e2e\mvp-registration-redesign.spec.ts:13:1 › cuatro pasos responsive: resumen inmediato, referencia automática, edición y PDF real
+  8) tests\e2e\mvp-registration-redesign.spec.ts:13:1 › cuatro pasos responsive: resumen inmediato, referencia automática, edición y PDF real 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 824
+    Received:   900
+
+      10 | const next=(page:Page)=>page.getByRole('button',{name:'Siguiente',exact:true}).click();
+      11 | async function equipment(page:Page,both=false){await page.getByLabel('IMEI 1',{exact:true}).fill('359708765448001');await page.getByLabel('IMEI 2',{exact:true}).fill('359708765448002');await page.getByLabel('Marca',{exact:true}).fill('Samsung');await page.getByLabel('Modelo',{exact:true}).fill('MOCK-REDESIGN');await page.getByLabel('Nombre del equipo',{exact:true}).fill('Equipo sintético');await expect(page.getByText('Buscando equipo...',{exact:true})).toHaveCount(0);if(both)await page.getByRole('group',{name:'¿REGISTRAR DOS IMEIs?',exact:true}).getByRole('radio',{name:'Sí',exact:true}).check();else await page.getByRole('radio',{name:/IMEI 1: 359708765448001/}).check();}
+    > 12 | async function screenshots(page:Page,step:number){await mkdir('.test-results/registration-redesign',{recursive:true});for(const width of [375,390,430,768,1280,1440]){await page.setViewportSize({width,height:900});expect(await page.locator('.registration-progress button').evaluateAll(nodes=>nodes.every(node=>!!node.getAttribute('aria-label')))).toBe(true);expect(await page.locator('.registration-layout input,.registration-layout select').evaluateAll(nodes=>nodes.every(node=>((node as HTMLInputElement).labels?.length||node.getAttribute('aria-label'))))).toBe(true);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);await expect(page.getByRole('status').filter({hasText:`Paso ${step} de 4`})).toBeVisible();await page.locator('main').evaluate(el=>el.scrollTop=0);const main=await page.locator('main').boundingBox(),nav=await page.locator('.bottom-navigation').boundingBox();expect(main!.y+main!.height).toBeLessThan(nav!.y);await page.screenshot({path:`.test-results/registration-redesign/step-${step}-${width}.png`,fullPage:true});await page.locator('main').evaluate(el=>el.scrollTop=el.scrollHeight);await page.screenshot({path:`.test-results/registration-redesign/step-${step}-bottom-${width}.png`});}await page.setViewportSize({width:1280,height:900});}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      13 | test('cuatro pasos responsive: resumen inmediato, referencia automática, edición y PDF real',async({page})=>{
+      14 |  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/registros/nuevo');await page.getByLabel('DNI',{exact:true}).fill('70876543');await expect(page.getByText('Cliente encontrado',{exact:true})).toBeVisible();const phone=page.getByLabel('Celular de este registro',{exact:true}),ref=page.getByLabel('Número de referencia',{exact:true});await expect(ref).toHaveValue('');await phone.fill('934567890');await expect(phone).toHaveValue('934567890');await expect(ref).toHaveValue('');await screenshots(page,1);
+      15 |  await next(page);await equipment(page);await screenshots(page,2);await next(page);await expect(page.getByLabel('Operador IMEI 1',{exact:true})).toHaveValue('BITEL');await page.getByLabel('Precio IMEI 1 (S/)',{exact:true}).fill('25.60');await page.getByLabel('Tipo de equipo',{exact:true}).selectOption('STORE');await page.getByLabel('Estado del equipo IMEI 1',{exact:true}).selectOption('BLOCKED');await page.getByRole('group',{name:'¿Tiene caja? *',exact:true}).getByRole('radio',{name:'No',exact:true}).check();await screenshots(page,3);await next(page);await screenshots(page,4);await expect(page.locator('.registration-progress li')).toHaveCount(4);
+        at screenshots (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-registration-redesign.spec.ts:12:954)
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-registration-redesign.spec.ts:14:494
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-registration-redesign--c4ded-tomática-edición-y-PDF-real\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-registration-redesign--c4ded-tomática-edición-y-PDF-real\error-context.md
+
+    Error Context: .test-results\e2e\mvp-registration-redesign--c4ded-tomática-edición-y-PDF-real\error-context.md
+
+
+(node:27504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[12/32] tests\e2e\mvp-registration-redesign.spec.ts:20:1 › doble IMEI: fotos comunes compartidas y lógicas separadas; dos PDF, una sola vista automática
+  9) tests\e2e\mvp-registration-redesign.spec.ts:20:1 › doble IMEI: fotos comunes compartidas y lógicas separadas; dos PDF, una sola vista automática 
+
+    TimeoutError: locator.check: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('group', { name: '¿REGISTRAR DOS IMEIs?', exact: true }).getByRole('radio', { name: 'Sí', exact: true })
+        - locator resolved to <input disabled type="radio" value="both" name="¿REGISTRAR DOS IMEIs?"/>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        28 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+       9 | test.afterAll(finishMvp);
+      10 | const next=(page:Page)=>page.getByRole('button',{name:'Siguiente',exact:true}).click();
+    > 11 | async function equipment(page:Page,both=false){await page.getByLabel('IMEI 1',{exact:true}).fill('359708765448001');await page.getByLabel('IMEI 2',{exact:true}).fill('359708765448002');await page.getByLabel('Marca',{exact:true}).fill('Samsung');await page.getByLabel('Modelo',{exact:true}).fill('MOCK-REDESIGN');await page.getByLabel('Nombre del equipo',{exact:true}).fill('Equipo sintético');await expect(page.getByText('Buscando equipo...',{exact:true})).toHaveCount(0);if(both)await page.getByRole('group',{name:'¿REGISTRAR DOS IMEIs?',exact:true}).getByRole('radio',{name:'Sí',exact:true}).check();else await page.getByRole('radio',{name:/IMEI 1: 359708765448001/}).check();}
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+      12 | async function screenshots(page:Page,step:number){await mkdir('.test-results/registration-redesign',{recursive:true});for(const width of [375,390,430,768,1280,1440]){await page.setViewportSize({width,height:900});expect(await page.locator('.registration-progress button').evaluateAll(nodes=>nodes.every(node=>!!node.getAttribute('aria-label')))).toBe(true);expect(await page.locator('.registration-layout input,.registration-layout select').evaluateAll(nodes=>nodes.every(node=>((node as HTMLInputElement).labels?.length||node.getAttribute('aria-label'))))).toBe(true);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);await expect(page.getByRole('status').filter({hasText:`Paso ${step} de 4`})).toBeVisible();await page.locator('main').evaluate(el=>el.scrollTop=0);const main=await page.locator('main').boundingBox(),nav=await page.locator('.bottom-navigation').boundingBox();expect(main!.y+main!.height).toBeLessThan(nav!.y);await page.screenshot({path:`.test-results/registration-redesign/step-${step}-${width}.png`,fullPage:true});await page.locator('main').evaluate(el=>el.scrollTop=el.scrollHeight);await page.screenshot({path:`.test-results/registration-redesign/step-${step}-bottom-${width}.png`});}await page.setViewportSize({width:1280,height:900});}
+      13 | test('cuatro pasos responsive: resumen inmediato, referencia automática, edición y PDF real',async({page})=>{
+      14 |  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/registros/nuevo');await page.getByLabel('DNI',{exact:true}).fill('70876543');await expect(page.getByText('Cliente encontrado',{exact:true})).toBeVisible();const phone=page.getByLabel('Celular de este registro',{exact:true}),ref=page.getByLabel('Número de referencia',{exact:true});await expect(ref).toHaveValue('');await phone.fill('934567890');await expect(phone).toHaveValue('934567890');await expect(ref).toHaveValue('');await screenshots(page,1);
+        at equipment (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-registration-redesign.spec.ts:11:595)
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-registration-redesign.spec.ts:21:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-registration-redesign--af6f3-F-una-sola-vista-automática\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-registration-redesign--af6f3-F-una-sola-vista-automática\error-context.md
+
+    Error Context: .test-results\e2e\mvp-registration-redesign--af6f3-F-una-sola-vista-automática\error-context.md
+
+
+(node:21996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[13/32] tests\e2e\mvp-registration-redesign.spec.ts:27:1 › PDF falla después del guardado: reintento documental sin repetir la operación
+Timed out waiting 120s for the test suite to run
+
+Timed out waiting 120s for the teardown for test suite to run
+
+  9 failed
+    tests\e2e\mvp-codart.spec.ts:12:1 › DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física 
+    tests\e2e\mvp-codart.spec.ts:18:1 › sin créditos muestra error, no inventa fotografías y permite reintentar 
+    tests\e2e\mvp-design-reference.spec.ts:11:1 › inicio real, cápsula de cinco destinos y módulos adicionales a seis anchos 
+    tests\e2e\mvp-design-reference.spec.ts:16:1 › bloqueado: desbloquear desde listado pide confirmación y sólo cambia el IMEI objetivo 
+    tests\e2e\mvp-design-reference.spec.ts:23:1 › desbloquear permanece oculto y API denegada sin permiso de actualizar registros 
+    tests\e2e\mvp-design-reference.spec.ts:28:1 › listado: cinco columnas, filtros, búsqueda, transición confirmada y documentos reales 
+    tests\e2e\mvp-form-speed.spec.ts:8:1 › registro: contacto reutilizado permite borrar/corregir; foco, contexto y regreso conservan borrador 
+    tests\e2e\mvp-registration-redesign.spec.ts:13:1 › cuatro pasos responsive: resumen inmediato, referencia automática, edición y PDF real 
+    tests\e2e\mvp-registration-redesign.spec.ts:20:1 › doble IMEI: fotos comunes compartidas y lógicas separadas; dos PDF, una sola vista automática 
+  20 did not run
+  3 passed (2.0m)
+  2 errors were not a part of any test, see above for details

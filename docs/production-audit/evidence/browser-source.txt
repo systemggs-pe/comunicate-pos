@@ -1,0 +1,18 @@
+import {chromium} from '@playwright/test';
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+const state=JSON.parse(readFileSync('.local/audit-browser-state.json','utf8')),browser=await chromium.launch({channel:'msedge',headless:true}),page=await browser.newPage();
+mkdirSync('docs/production-audit/evidence/screenshots',{recursive:true});const errors=[],rows=[];page.on('pageerror',e=>errors.push(e.message.slice(0,200)));
+try{
+ await page.goto('http://127.0.0.1:5176/login');await page.getByLabel('Correo',{exact:true}).fill(state.email);await page.getByLabel('Contraseña',{exact:true}).fill(state.password);await page.getByRole('button',{name:'Iniciar sesión',exact:true}).click();await page.waitForURL('**/dashboard');
+ const routes=[['inicio','/dashboard'],['registros','/registros'],['nuevo-registro','/registros/nuevo'],['ventas','/ventas'],['nueva-venta','/ventas/nueva'],['clientes','/clientes'],['equipos','/equipos'],['usuarios','/usuarios'],['roles','/roles'],['reportes','/reportes'],['foto-dni','/foto-dni'],['configuracion','/configuracion/empresa'],['detalle-venta',`/ventas/${state.saleId}`],['detalle-registro',`/registros/${state.requestId}`],['ticket-58',`/ventas/${state.saleId}/ticket?format=58`],['ticket-80',`/ventas/${state.saleId}/ticket?format=80`]];
+ for(const [name,path]of routes)for(const width of [375,390,430,768,1280,1440]){
+  await page.setViewportSize({width,height:900});await page.goto('http://127.0.0.1:5176'+path);await page.waitForLoadState('networkidle');await page.getByText('Cargando...',{exact:true}).first().waitFor({state:'hidden',timeout:10000});
+  const result=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,loading:!!document.querySelector('[role="status"]'),alerts:[...document.querySelectorAll('[role="alert"]')].map(e=>e.textContent?.slice(0,100))}));
+  rows.push({route:name,width,...result,overflow:result.scrollWidth>width});
+  if(width===375||width===1440)await page.screenshot({path:`docs/production-audit/evidence/screenshots/${name}-${width}.png`,fullPage:true});
+ }
+ await page.goto('http://127.0.0.1:5176/ventas');await page.getByRole('button',{name:'Descargar ticket',exact:true}).first().click();await page.getByRole('dialog').waitFor();await page.screenshot({path:'docs/production-audit/evidence/screenshots/ticket-picker.png',fullPage:true});
+ const options=await page.getByRole('dialog').getByRole('button').allTextContents();
+ writeFileSync('docs/production-audit/evidence/browser-results.json',JSON.stringify({observations:rows,errors,ticketPickerOptions:options},null,2));
+ console.log(JSON.stringify({observations:rows.length,overflow:rows.filter(r=>r.overflow),pageErrors:errors,ticketPickerOptions:options}));
+}finally{await browser.close();}

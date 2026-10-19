@@ -1,0 +1,2 @@
+{"name":"pdf-unit-recheck","exitCode":0,"durationMs":5149,"command":"node node_modules/vitest/vitest.mjs run --project unit tests/unit/declaration.test.ts tests/unit/evidence-pdf.test.ts --reporter=json --outputFile=docs/production-audit/evidence/pdf-unit-recheck.json"}
+JSON report written to C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/docs/production-audit/evidence/pdf-unit-recheck.json

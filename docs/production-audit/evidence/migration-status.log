@@ -1,0 +1,8 @@
+{"name":"migration-status","exitCode":0,"durationMs":1570,"command":"node node_modules/prisma/build/index.js migrate status"}
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "communicate_pos", schema "public" at "127.0.0.1:55432"
+
+19 migrations found in prisma/migrations
+
+Database schema is up to date!

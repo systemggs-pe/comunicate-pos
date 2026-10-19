@@ -1,0 +1,322 @@
+{"name":"e2e","exitCode":1,"durationMs":181587,"command":"node node_modules/@playwright/test/cli.js test --global-timeout=180000 --reporter=json"}
+[WebServer] (node:21744) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:20620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:22848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:5364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+[WebServer] (node:6924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 44 tests using 1 worker
+
+(node:18560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/44] tests\e2e\auth.spec.ts:26:1 › SUPERADMIN: bootstrap, login, administración, UI responsive y logout
+  1) tests\e2e\auth.spec.ts:26:1 › SUPERADMIN: bootstrap, login, administración, UI responsive y logout 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Iniciar sesión' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Iniciar sesión' }) with timeout 15000ms
+      - waiting for getByRole('heading', { name: 'Iniciar sesión' })
+
+
+      26 | test('SUPERADMIN: bootstrap, login, administración, UI responsive y logout',async({page})=>{
+      27 |  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+    > 28 |  for(const width of [1280,375,390,430]){await page.setViewportSize({width,height:900});await page.goto('/login');await expect(page.getByRole('heading',{name:'Iniciar sesión'})).toBeVisible();await snap(page,'login',width);}
+         |                                                                                                                                                                                  ^
+      29 |  await login(page);const cookies=await page.context().cookies();const cookie=cookies.find(c=>c.name==='pos_session')!;expect(cookie.httpOnly).toBe(true);expect(cookie.sameSite).toBe('Lax');expect(await page.evaluate(()=>document.cookie)).not.toContain(cookie.value);
+      30 |  await page.reload();await expect(page.locator('.home-reference')).toBeVisible();expect(await page.evaluate(()=>({local:localStorage.length,session:sessionStorage.length}))).toEqual({local:0,session:0});
+      31 |  await nav(page,'Usuarios');await page.getByRole('link',{name:'Crear usuario',exact:true}).click();await page.getByLabel('Nombre',{exact:true}).fill('VENDEDOR DE PRUEBA');await page.getByLabel('Correo',{exact:true}).fill(sellerEmail);await page.getByLabel('Contraseña inicial',{exact:false}).fill(testPassword);await page.getByLabel('Rol',{exact:true}).selectOption({label:'SELLER'});await page.getByRole('button',{name:'Crear usuario',exact:true}).click();await expect(page.getByText(sellerEmail,{exact:true})).toBeVisible();
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\auth.spec.ts:28:178
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\auth-SUPERADMIN-bootstrap--3015f-ción-UI-responsive-y-logout\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\auth-SUPERADMIN-bootstrap--3015f-ción-UI-responsive-y-logout\error-context.md
+
+    Error Context: .test-results\e2e\auth-SUPERADMIN-bootstrap--3015f-ción-UI-responsive-y-logout\error-context.md
+
+
+[2/44] tests\e2e\auth.spec.ts:37:1 › SELLER: venta autorizada, restricciones, auditoría y desactivación por SUPERADMIN
+[3/44] tests\e2e\auth.spec.ts:51:1 › administración UI: editar, habilitar, resetear y guardar permisos
+(node:22636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[4/44] tests\e2e\declaration.spec.ts:18:1 › identidad administrativa, dos declaraciones, preview automático, descarga e impresión A4
+  2) tests\e2e\declaration.spec.ts:18:1 › identidad administrativa, dos declaraciones, preview automático, descarga e impresión A4 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 201
+    Received: 400
+
+      18 | test('identidad administrativa, dos declaraciones, preview automático, descarga e impresión A4',async({page})=>{
+      19 |  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
+    > 20 |  const created=await page.request.post('/api/registration-operations',{headers:{Origin:testOrigin},data:workflowInput()});expect(created.status()).toBe(201);const operation=await created.json();
+         |                                                                                                                                                    ^
+      21 |  await page.goto(`/registros/${operation.requests[0].id}`);await page.getByRole('button',{name:'Ticket',exact:true}).click();await page.getByRole('button',{name:'GENERAR DECLARACIÓN JURADA',exact:true}).click();await expect(page.getByRole('alert')).toContainText('COMPLETA EL NOMBRE Y DNI');await expect(page.getByRole('dialog',{name:'CONFIRMAR DECLARACIÓN JURADA A4',exact:true})).toHaveCount(0);
+      22 |  const user=await db.user.findUniqueOrThrow({where:{email:testEmail}});await page.goto(`/usuarios/${user.id}`);await page.getByLabel('DNI del agente').fill('87654321');await page.getByRole('button',{name:'Guardar usuario',exact:true}).click();await expect(page.getByRole('status')).toContainText('Usuario actualizado');await page.reload();await expect(page.getByLabel('DNI del agente')).toHaveValue('87654321');
+      23 |  for(const [index,row] of operation.requests.entries()){
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\declaration.spec.ts:20:148
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\declaration-identidad-admi-c13e5-ico-descarga-e-impresión-A4\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\declaration-identidad-admi-c13e5-ico-descarga-e-impresión-A4\error-context.md
+
+    Error Context: .test-results\e2e\declaration-identidad-admi-c13e5-ico-descarga-e-impresión-A4\error-context.md
+
+
+(node:4312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[5/44] tests\e2e\declaration.spec.ts:34:1 › datos cambiados impiden generar con confirmaciones anteriores
+  3) tests\e2e\declaration.spec.ts:34:1 › datos cambiados impiden generar con confirmaciones anteriores 
+
+    TypeError: Cannot read properties of undefined (reading '0')
+
+      33 | });
+      34 | test('datos cambiados impiden generar con confirmaciones anteriores',async({page})=>{
+    > 35 |  await db.user.update({where:{email:testEmail},data:{identityDocument:'87654321'}});const created=await page.request.post('/api/registration-operations',{headers:{Origin:testOrigin},data:workflowInput()});const operation=await created.json();await page.goto(`/registros/${operation.requests[0].id}`);await page.getByRole('button',{name:'Ticket',exact:true}).click();await page.getByRole('button',{name:'GENERAR DECLARACIÓN JURADA',exact:true}).click();const dialog=page.getByRole('dialog',{name:'CONFIRMAR DECLARACIÓN JURADA A4'});for(let i=0;i<3;i++)await dialog.getByRole('checkbox').nth(i).check();await db.user.update({where:{email:testEmail},data:{identityDocument:'87654320'}});await dialog.getByRole('button',{name:'GENERAR PDF A4',exact:true}).click();await expect(dialog.getByRole('alert')).toContainText('LOS DATOS CAMBIARON');await expect(page.getByRole('dialog',{name:'PREVISUALIZACIÓN DECLARACIÓN JURADA A4'})).not.toBeVisible();
+         |                                                                                                                                                                                                                                                                                                   ^
+      36 | });
+      37 |
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\declaration.spec.ts:35:291
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\declaration-datos-cambiado-4400b-n-confirmaciones-anteriores\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\declaration-datos-cambiado-4400b-n-confirmaciones-anteriores\error-context.md
+
+    Error Context: .test-results\e2e\declaration-datos-cambiado-4400b-n-confirmaciones-anteriores\error-context.md
+
+
+(node:27240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[6/44] tests\e2e\dni.spec.ts:32:1 › A: cliente externo editable, sin alta anticipada, contacto manual y confirmación
+[7/44] tests\e2e\dni.spec.ts:40:1 › B: local tiene prioridad y Usar cliente no duplica
+[8/44] tests\e2e\dni.spec.ts:47:1 › C: provider caído permite crear cliente manual
+[9/44] tests\e2e\dni.spec.ts:52:1 › criterio principal: registro por DNI externo, contactos, equipo/IMEI y posterior reutilización local
+  4) tests\e2e\dni.spec.ts:52:1 › criterio principal: registro por DNI externo, contactos, equipo/IMEI y posterior reutilización local 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Continuar', exact: true })
+        - locator resolved to <button disabled class="primary-button">Continuar</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        29 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      24 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+      25 |   await page.getByLabel('IMEI 1', { exact: false }).first().fill(imei);
+    > 26 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+         |                                                                      ^
+      27 |   await page.getByLabel('Marca', { exact: true }).fill('Honor'); await page.getByLabel('Modelo', { exact: true }).fill('DNI Fixture');
+      28 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+      29 |   await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();
+        at completeRegistration (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\dni.spec.ts:26:70)
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\dni.spec.ts:55:44
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\dni-criterio-principal-reg-f4e9e-sterior-reutilización-local\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\dni-criterio-principal-reg-f4e9e-sterior-reutilización-local\error-context.md
+
+    Error Context: .test-results\e2e\dni-criterio-principal-reg-f4e9e-sterior-reutilización-local\error-context.md
+
+
+(node:27836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[10/44] tests\e2e\dni.spec.ts:65:1 › registro manual funciona con provider caído
+  5) tests\e2e\dni.spec.ts:65:1 › registro manual funciona con provider caído ──────────────────────
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Continuar', exact: true })
+        - locator resolved to <button disabled class="primary-button">Continuar</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        29 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      24 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+      25 |   await page.getByLabel('IMEI 1', { exact: false }).first().fill(imei);
+    > 26 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+         |                                                                      ^
+      27 |   await page.getByLabel('Marca', { exact: true }).fill('Honor'); await page.getByLabel('Modelo', { exact: true }).fill('DNI Fixture');
+      28 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();
+      29 |   await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();
+        at completeRegistration (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\dni.spec.ts:26:70)
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\dni.spec.ts:68:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\dni-registro-manual-funciona-con-provider-caído\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\dni-registro-manual-funciona-con-provider-caído\error-context.md
+
+    Error Context: .test-results\e2e\dni-registro-manual-funciona-con-provider-caído\error-context.md
+
+
+(node:27768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[11/44] tests\e2e\dni.spec.ts:70:1 › ventas reutiliza consulta para comprador nuevo y propietario diferente
+  6) tests\e2e\dni.spec.ts:70:1 › ventas reutiliza consulta para comprador nuevo y propietario diferente 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Confirmar y guardar', exact: true })
+        - locator resolved to <button disabled class="primary-button">Confirmar y guardar</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        28 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+       at ..\helpers\sale-form.ts:10
+
+       8 | }
+       9 | export async function saveSale(page:Page){
+    > 10 |  await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();
+         |                                                                         ^
+      11 |  await expect(page.getByRole('dialog',{name:'Ticket de venta',exact:true})).toBeVisible();
+      12 |  await page.getByRole('button',{name:'Cerrar ticket',exact:true}).click();
+      13 |  await expect(page.getByText('Venta registrada correctamente.',{exact:false})).toBeVisible();
+        at saveSale (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\helpers\sale-form.ts:10:73)
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\dni.spec.ts:75:90
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\dni-ventas-reutiliza-consu-301f4-evo-y-propietario-diferente\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\dni-ventas-reutiliza-consu-301f4-evo-y-propietario-diferente\error-context.md
+
+    Error Context: .test-results\e2e\dni-ventas-reutiliza-consu-301f4-evo-y-propietario-diferente\error-context.md
+
+
+(node:19748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[12/44] tests\e2e\dni.spec.ts:78:1 › venta manual sigue operativa ante caída del provider
+  7) tests\e2e\dni.spec.ts:78:1 › venta manual sigue operativa ante caída del provider ─────────────
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Confirmar y guardar', exact: true })
+        - locator resolved to <button disabled class="primary-button">Confirmar y guardar</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        29 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+       at ..\helpers\sale-form.ts:10
+
+       8 | }
+       9 | export async function saveSale(page:Page){
+    > 10 |  await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();
+         |                                                                         ^
+      11 |  await expect(page.getByRole('dialog',{name:'Ticket de venta',exact:true})).toBeVisible();
+      12 |  await page.getByRole('button',{name:'Cerrar ticket',exact:true}).click();
+      13 |  await expect(page.getByText('Venta registrada correctamente.',{exact:false})).toBeVisible();
+        at saveSale (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\helpers\sale-form.ts:10:73)
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\dni.spec.ts:82:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\dni-venta-manual-sigue-operativa-ante-caída-del-provider\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\dni-venta-manual-sigue-operativa-ante-caída-del-provider\error-context.md
+
+    Error Context: .test-results\e2e\dni-venta-manual-sigue-operativa-ante-caída-del-provider\error-context.md
+
+
+(node:27788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[13/44] tests\e2e\dni.spec.ts:84:1 › consulta tardía no sobrescribe correcciones manuales ni datos de otro DNI
+[14/44] tests\e2e\dni.spec.ts:91:1 › DNI compartido responsive: loading, autofill y fallback en los tres formularios
+Timed out waiting 180s for the test suite to run
+
+Timed out waiting 180s for the teardown for test suite to run
+
+  7 failed
+    tests\e2e\auth.spec.ts:26:1 › SUPERADMIN: bootstrap, login, administración, UI responsive y logout 
+    tests\e2e\declaration.spec.ts:18:1 › identidad administrativa, dos declaraciones, preview automático, descarga e impresión A4 
+    tests\e2e\declaration.spec.ts:34:1 › datos cambiados impiden generar con confirmaciones anteriores 
+    tests\e2e\dni.spec.ts:52:1 › criterio principal: registro por DNI externo, contactos, equipo/IMEI y posterior reutilización local 
+    tests\e2e\dni.spec.ts:65:1 › registro manual funciona con provider caído ───────────────────────
+    tests\e2e\dni.spec.ts:70:1 › ventas reutiliza consulta para comprador nuevo y propietario diferente 
+    tests\e2e\dni.spec.ts:78:1 › venta manual sigue operativa ante caída del provider ──────────────
+  33 did not run
+  4 passed (3.0m)
+  2 errors were not a part of any test, see above for details

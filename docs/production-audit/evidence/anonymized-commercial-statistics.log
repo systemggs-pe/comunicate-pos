@@ -1,0 +1,2 @@
+{"name":"anonymized-commercial-statistics","exitCode":0,"durationMs":572,"command":"node --import tsx .local/audit-business-statistics.ts"}
+{"readOnly":true,"postgresVersion":[{"server_version":"16.15"}],"counts":{"clients":603,"equipment":641,"imeis":643,"sales":576,"registrations":118,"assets":2,"documents":2},"invalidHistoricalImeis":70,"saleTotalMismatches":0,"readyAssetsWithoutLinks":0,"migrations":[{"applied":19}]}

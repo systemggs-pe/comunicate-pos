@@ -1,0 +1,2 @@
+{"name":"a11y","exitCode":0,"durationMs":3915,"command":"node .local/audit-a11y.mjs"}
+{"loginCase":{"value":"Case.Example@example.test","textTransform":"none"},"keyboardFocus":{"tag":"INPUT","outlineStyle":"solid"},"smallTargets":[{"tag":"A","label":"COMUNIC@TE POS","width":124.4375,"height":33.4375},{"tag":"BUTTON","label":"Buscar IMEI","width":33,"height":36},{"tag":"BUTTON","label":"Cerrar sesión","width":36,"height":36}],"escapeClosesTicketDialog":true}

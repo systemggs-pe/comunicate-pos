@@ -1,0 +1,2 @@
+{"name":"unit","exitCode":1,"durationMs":14833,"command":"node node_modules/vitest/vitest.mjs run --project unit --reporter=json --outputFile=docs/production-audit/evidence/unit-results.json"}
+JSON report written to C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/docs/production-audit/evidence/unit-results.json

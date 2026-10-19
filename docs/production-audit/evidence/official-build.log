@@ -1,0 +1,11 @@
+{"name":"official-build","exitCode":1,"durationMs":2187,"command":"node C:/Users/ASUS/.local/nodejs/node-v24.21.0-win-x64/node_modules/npm/bin/npm-cli.js run build"}
+
+> communicate-pos@0.1.0 build
+> prisma generate && tsc --noEmit && vite build
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Error: 
+EPERM: operation not permitted, rename 'C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\.prisma\client\query_engine-windows.dll.node.tmp23716' -> 'C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\.prisma\client\query_engine-windows.dll.node'
+
+

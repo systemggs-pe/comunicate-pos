@@ -1,0 +1,40 @@
+{
+  "unitUnique": 299,
+  "unit": {
+    "passed": 275,
+    "failed": 24
+  },
+  "integration": {
+    "numTotalTests": 378,
+    "numPassedTests": 122,
+    "numFailedTests": 246,
+    "numPendingTests": 10
+  },
+  "e2e": {
+    "startTime": "2026-10-19T19:36:40.976Z",
+    "duration": 180009.7,
+    "expected": 4,
+    "skipped": 33,
+    "unexpected": 7,
+    "flaky": 0
+  },
+  "mvp": {
+    "startTime": "2026-10-19T19:40:43.387Z",
+    "duration": 120016.662,
+    "expected": 3,
+    "skipped": 20,
+    "unexpected": 9,
+    "flaky": 0
+  },
+  "supplemental": {
+    "total": 28,
+    "passed": 26,
+    "failed": 2
+  },
+  "uniqueConcluded": 718,
+  "passed": 430,
+  "failed": 288,
+  "pendingOrNotRun": 63,
+  "browserObservations": 96,
+  "counting": "PDF and upload rechecks replace earlier results, not new tests; browser observations and load requests counted separately."
+}

@@ -1,0 +1,1592 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\ASUS\\.local\\nodejs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--global-timeout=180000",
+      "--reporter=json"
+    ],
+    "configFile": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\playwright.config.ts",
+    "rootDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 180000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/.test-results/e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/tests/e2e",
+        "testIgnore": [
+          "mvp-*.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e",
+        "snapshotDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e",
+        "testIgnore": "mvp-*.spec.ts",
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 120000,
+        "use": {
+          "actionTimeout": 15000,
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:5175",
+          "channel": "msedge",
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "SUPERADMIN: bootstrap, login, administración, UI responsive y logout",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 15684,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Iniciar sesión' })\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Iniciar sesión' }) with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Iniciar sesión' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Iniciar sesión' })\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Iniciar sesión' }) with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Iniciar sesión' })\u001b[22m\n\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts:28:178",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                      "column": 178,
+                      "line": 28
+                    },
+                    "snippet": "  26 | test('SUPERADMIN: bootstrap, login, administración, UI responsive y logout',async({page})=>{\n  27 |  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));\n> 28 |  for(const width of [1280,375,390,430]){await page.setViewportSize({width,height:900});await page.goto('/login');await expect(page.getByRole('heading',{name:'Iniciar sesión'})).toBeVisible();await snap(page,'login',width);}\n     |                                                                                                                                                                                  ^\n  29 |  await login(page);const cookies=await page.context().cookies();const cookie=cookies.find(c=>c.name==='pos_session')!;expect(cookie.httpOnly).toBe(true);expect(cookie.sameSite).toBe('Lax');expect(await page.evaluate(()=>document.cookie)).not.toContain(cookie.value);\n  30 |  await page.reload();await expect(page.locator('.home-reference')).toBeVisible();expect(await page.evaluate(()=>({local:localStorage.length,session:sessionStorage.length}))).toEqual({local:0,session:0});\n  31 |  await nav(page,'Usuarios');await page.getByRole('link',{name:'Crear usuario',exact:true}).click();await page.getByLabel('Nombre',{exact:true}).fill('VENDEDOR DE PRUEBA');await page.getByLabel('Correo',{exact:true}).fill(sellerEmail);await page.getByLabel('Contraseña inicial',{exact:false}).fill(testPassword);await page.getByLabel('Rol',{exact:true}).selectOption({label:'SELLER'});await page.getByRole('button',{name:'Crear usuario',exact:true}).click();await expect(page.getByText(sellerEmail,{exact:true})).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                        "column": 178,
+                        "line": 28
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Iniciar sesión' })\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Iniciar sesión' }) with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Iniciar sesión' })\u001b[22m\n\n\n  26 | test('SUPERADMIN: bootstrap, login, administración, UI responsive y logout',async({page})=>{\n  27 |  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));\n> 28 |  for(const width of [1280,375,390,430]){await page.setViewportSize({width,height:900});await page.goto('/login');await expect(page.getByRole('heading',{name:'Iniciar sesión'})).toBeVisible();await snap(page,'login',width);}\n     |                                                                                                                                                                                  ^\n  29 |  await login(page);const cookies=await page.context().cookies();const cookie=cookies.find(c=>c.name==='pos_session')!;expect(cookie.httpOnly).toBe(true);expect(cookie.sameSite).toBe('Lax');expect(await page.evaluate(()=>document.cookie)).not.toContain(cookie.value);\n  30 |  await page.reload();await expect(page.locator('.home-reference')).toBeVisible();expect(await page.evaluate(()=>({local:localStorage.length,session:sessionStorage.length}))).toEqual({local:0,session:0});\n  31 |  await nav(page,'Usuarios');await page.getByRole('link',{name:'Crear usuario',exact:true}).click();await page.getByLabel('Nombre',{exact:true}).fill('VENDEDOR DE PRUEBA');await page.getByLabel('Correo',{exact:true}).fill(sellerEmail);await page.getByLabel('Contraseña inicial',{exact:false}).fill(testPassword);await page.getByLabel('Rol',{exact:true}).selectOption({label:'SELLER'});await page.getByRole('button',{name:'Crear usuario',exact:true}).click();await expect(page.getByText(sellerEmail,{exact:true})).toBeVisible();\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts:28:178"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:36:48.214Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\auth-SUPERADMIN-bootstrap--3015f-ción-UI-responsive-y-logout\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\auth-SUPERADMIN-bootstrap--3015f-ción-UI-responsive-y-logout\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\auth-SUPERADMIN-bootstrap--3015f-ción-UI-responsive-y-logout\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                    "column": 178,
+                    "line": 28
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-9ef1ee6eee26409f816b",
+          "file": "auth.spec.ts",
+          "line": 26,
+          "column": 1
+        },
+        {
+          "title": "SELLER: venta autorizada, restricciones, auditoría y desactivación por SUPERADMIN",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:37:06.252Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-aba85bc87f4d9206c30d",
+          "file": "auth.spec.ts",
+          "line": 37,
+          "column": 1
+        },
+        {
+          "title": "administración UI: editar, habilitar, resetear y guardar permisos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:37:06.252Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-f0c7e1b9a0b013536685",
+          "file": "auth.spec.ts",
+          "line": 51,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "declaration.spec.ts",
+      "file": "declaration.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "identidad administrativa, dos declaraciones, preview automático, descarga e impresión A4",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2004,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m201\u001b[39m\nReceived: \u001b[31m400\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m201\u001b[39m\nReceived: \u001b[31m400\u001b[39m\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\declaration.spec.ts:20:148",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\declaration.spec.ts",
+                      "column": 148,
+                      "line": 20
+                    },
+                    "snippet": "  18 | test('identidad administrativa, dos declaraciones, preview automático, descarga e impresión A4',async({page})=>{\n  19 |  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));\n> 20 |  const created=await page.request.post('/api/registration-operations',{headers:{Origin:testOrigin},data:workflowInput()});expect(created.status()).toBe(201);const operation=await created.json();\n     |                                                                                                                                                    ^\n  21 |  await page.goto(`/registros/${operation.requests[0].id}`);await page.getByRole('button',{name:'Ticket',exact:true}).click();await page.getByRole('button',{name:'GENERAR DECLARACIÓN JURADA',exact:true}).click();await expect(page.getByRole('alert')).toContainText('COMPLETA EL NOMBRE Y DNI');await expect(page.getByRole('dialog',{name:'CONFIRMAR DECLARACIÓN JURADA A4',exact:true})).toHaveCount(0);\n  22 |  const user=await db.user.findUniqueOrThrow({where:{email:testEmail}});await page.goto(`/usuarios/${user.id}`);await page.getByLabel('DNI del agente').fill('87654321');await page.getByRole('button',{name:'Guardar usuario',exact:true}).click();await expect(page.getByRole('status')).toContainText('Usuario actualizado');await page.reload();await expect(page.getByLabel('DNI del agente')).toHaveValue('87654321');\n  23 |  for(const [index,row] of operation.requests.entries()){"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\declaration.spec.ts",
+                        "column": 148,
+                        "line": 20
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m201\u001b[39m\nReceived: \u001b[31m400\u001b[39m\n\n  18 | test('identidad administrativa, dos declaraciones, preview automático, descarga e impresión A4',async({page})=>{\n  19 |  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));\n> 20 |  const created=await page.request.post('/api/registration-operations',{headers:{Origin:testOrigin},data:workflowInput()});expect(created.status()).toBe(201);const operation=await created.json();\n     |                                                                                                                                                    ^\n  21 |  await page.goto(`/registros/${operation.requests[0].id}`);await page.getByRole('button',{name:'Ticket',exact:true}).click();await page.getByRole('button',{name:'GENERAR DECLARACIÓN JURADA',exact:true}).click();await expect(page.getByRole('alert')).toContainText('COMPLETA EL NOMBRE Y DNI');await expect(page.getByRole('dialog',{name:'CONFIRMAR DECLARACIÓN JURADA A4',exact:true})).toHaveCount(0);\n  22 |  const user=await db.user.findUniqueOrThrow({where:{email:testEmail}});await page.goto(`/usuarios/${user.id}`);await page.getByLabel('DNI del agente').fill('87654321');await page.getByRole('button',{name:'Guardar usuario',exact:true}).click();await expect(page.getByRole('status')).toContainText('Usuario actualizado');await page.reload();await expect(page.getByLabel('DNI del agente')).toHaveValue('87654321');\n  23 |  for(const [index,row] of operation.requests.entries()){\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\declaration.spec.ts:20:148"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:37:07.279Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\declaration-identidad-admi-c13e5-ico-descarga-e-impresión-A4\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\declaration-identidad-admi-c13e5-ico-descarga-e-impresión-A4\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\declaration-identidad-admi-c13e5-ico-descarga-e-impresión-A4\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\declaration.spec.ts",
+                    "column": 148,
+                    "line": 20
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "98b90cb9cb3963de86f4-3b6626832b4a3da071c3",
+          "file": "declaration.spec.ts",
+          "line": 18,
+          "column": 1
+        },
+        {
+          "title": "datos cambiados impiden generar con confirmaciones anteriores",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2118,
+                  "error": {
+                    "message": "TypeError: Cannot read properties of undefined (reading '0')",
+                    "stack": "TypeError: Cannot read properties of undefined (reading '0')\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\declaration.spec.ts:35:291",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\declaration.spec.ts",
+                      "column": 291,
+                      "line": 35
+                    },
+                    "snippet": "  33 | });\n  34 | test('datos cambiados impiden generar con confirmaciones anteriores',async({page})=>{\n> 35 |  await db.user.update({where:{email:testEmail},data:{identityDocument:'87654321'}});const created=await page.request.post('/api/registration-operations',{headers:{Origin:testOrigin},data:workflowInput()});const operation=await created.json();await page.goto(`/registros/${operation.requests[0].id}`);await page.getByRole('button',{name:'Ticket',exact:true}).click();await page.getByRole('button',{name:'GENERAR DECLARACIÓN JURADA',exact:true}).click();const dialog=page.getByRole('dialog',{name:'CONFIRMAR DECLARACIÓN JURADA A4'});for(let i=0;i<3;i++)await dialog.getByRole('checkbox').nth(i).check();await db.user.update({where:{email:testEmail},data:{identityDocument:'87654320'}});await dialog.getByRole('button',{name:'GENERAR PDF A4',exact:true}).click();await expect(dialog.getByRole('alert')).toContainText('LOS DATOS CAMBIARON');await expect(page.getByRole('dialog',{name:'PREVISUALIZACIÓN DECLARACIÓN JURADA A4'})).not.toBeVisible();\n     |                                                                                                                                                                                                                                                                                                   ^\n  36 | });\n  37 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\declaration.spec.ts",
+                        "column": 291,
+                        "line": 35
+                      },
+                      "message": "TypeError: Cannot read properties of undefined (reading '0')\n\n  33 | });\n  34 | test('datos cambiados impiden generar con confirmaciones anteriores',async({page})=>{\n> 35 |  await db.user.update({where:{email:testEmail},data:{identityDocument:'87654321'}});const created=await page.request.post('/api/registration-operations',{headers:{Origin:testOrigin},data:workflowInput()});const operation=await created.json();await page.goto(`/registros/${operation.requests[0].id}`);await page.getByRole('button',{name:'Ticket',exact:true}).click();await page.getByRole('button',{name:'GENERAR DECLARACIÓN JURADA',exact:true}).click();const dialog=page.getByRole('dialog',{name:'CONFIRMAR DECLARACIÓN JURADA A4'});for(let i=0;i<3;i++)await dialog.getByRole('checkbox').nth(i).check();await db.user.update({where:{email:testEmail},data:{identityDocument:'87654320'}});await dialog.getByRole('button',{name:'GENERAR PDF A4',exact:true}).click();await expect(dialog.getByRole('alert')).toContainText('LOS DATOS CAMBIARON');await expect(page.getByRole('dialog',{name:'PREVISUALIZACIÓN DECLARACIÓN JURADA A4'})).not.toBeVisible();\n     |                                                                                                                                                                                                                                                                                                   ^\n  36 | });\n  37 |\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\declaration.spec.ts:35:291"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:37:10.918Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\declaration-datos-cambiado-4400b-n-confirmaciones-anteriores\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\declaration-datos-cambiado-4400b-n-confirmaciones-anteriores\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\declaration-datos-cambiado-4400b-n-confirmaciones-anteriores\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\declaration.spec.ts",
+                    "column": 291,
+                    "line": 35
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "98b90cb9cb3963de86f4-af0d9b845e631ec7d80b",
+          "file": "declaration.spec.ts",
+          "line": 34,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "dni.spec.ts",
+      "file": "dni.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "A: cliente externo editable, sin alta anticipada, contacto manual y confirmación",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4084,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:37:14.721Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b13c921066711b8885d-88221c61ad8bc6f62e9b",
+          "file": "dni.spec.ts",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "B: local tiene prioridad y Usar cliente no duplica",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3161,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:37:19.205Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b13c921066711b8885d-14c94c9aec425c27d718",
+          "file": "dni.spec.ts",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "C: provider caído permite crear cliente manual",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3775,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:37:22.394Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b13c921066711b8885d-f26f0aa915d76c393cfe",
+          "file": "dni.spec.ts",
+          "line": 47,
+          "column": 1
+        },
+        {
+          "title": "criterio principal: registro por DNI externo, contactos, equipo/IMEI y posterior reutilización local",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 18123,
+                  "error": {
+                    "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Continuar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Continuar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    29 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+                    "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Continuar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Continuar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    29 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at completeRegistration (C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:26:70)\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:55:44",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts",
+                      "column": 70,
+                      "line": 26
+                    },
+                    "snippet": "  24 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n  25 |   await page.getByLabel('IMEI 1', { exact: false }).first().fill(imei);\n> 26 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n     |                                                                      ^\n  27 |   await page.getByLabel('Marca', { exact: true }).fill('Honor'); await page.getByLabel('Modelo', { exact: true }).fill('DNI Fixture');\n  28 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n  29 |   await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts",
+                        "column": 70,
+                        "line": 26
+                      },
+                      "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Continuar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Continuar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    29 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n  24 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n  25 |   await page.getByLabel('IMEI 1', { exact: false }).first().fill(imei);\n> 26 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n     |                                                                      ^\n  27 |   await page.getByLabel('Marca', { exact: true }).fill('Honor'); await page.getByLabel('Modelo', { exact: true }).fill('DNI Fixture');\n  28 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n  29 |   await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();\n    at completeRegistration (C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:26:70)\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:55:44"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:37:26.190Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-criterio-principal-reg-f4e9e-sterior-reutilización-local\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-criterio-principal-reg-f4e9e-sterior-reutilización-local\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-criterio-principal-reg-f4e9e-sterior-reutilización-local\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts",
+                    "column": 70,
+                    "line": 26
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8b13c921066711b8885d-61e3a491e5e277d6d264",
+          "file": "dni.spec.ts",
+          "line": 52,
+          "column": 1
+        },
+        {
+          "title": "registro manual funciona con provider caído",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 18914,
+                  "error": {
+                    "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Continuar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Continuar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    29 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+                    "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Continuar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Continuar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    29 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at completeRegistration (C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:26:70)\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:68:3",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts",
+                      "column": 70,
+                      "line": 26
+                    },
+                    "snippet": "  24 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n  25 |   await page.getByLabel('IMEI 1', { exact: false }).first().fill(imei);\n> 26 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n     |                                                                      ^\n  27 |   await page.getByLabel('Marca', { exact: true }).fill('Honor'); await page.getByLabel('Modelo', { exact: true }).fill('DNI Fixture');\n  28 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n  29 |   await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts",
+                        "column": 70,
+                        "line": 26
+                      },
+                      "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Continuar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Continuar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    29 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n  24 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n  25 |   await page.getByLabel('IMEI 1', { exact: false }).first().fill(imei);\n> 26 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n     |                                                                      ^\n  27 |   await page.getByLabel('Marca', { exact: true }).fill('Honor'); await page.getByLabel('Modelo', { exact: true }).fill('DNI Fixture');\n  28 |   await page.getByRole('button', { name: 'Continuar', exact: true }).click();\n  29 |   await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();\n    at completeRegistration (C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:26:70)\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:68:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:37:45.587Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-registro-manual-funciona-con-provider-caído\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-registro-manual-funciona-con-provider-caído\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-registro-manual-funciona-con-provider-caído\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts",
+                    "column": 70,
+                    "line": 26
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8b13c921066711b8885d-a3697a8fe5d4cdd773dd",
+          "file": "dni.spec.ts",
+          "line": 65,
+          "column": 1
+        },
+        {
+          "title": "ventas reutiliza consulta para comprador nuevo y propietario diferente",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 19029,
+                  "error": {
+                    "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Confirmar y guardar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Confirmar y guardar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    28 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+                    "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Confirmar y guardar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Confirmar y guardar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    28 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at saveSale (C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\helpers\\sale-form.ts:10:73)\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:75:90",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\helpers\\sale-form.ts",
+                      "column": 73,
+                      "line": 10
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39m..\\helpers\\sale-form.ts:10\n\n   8 | }\n   9 | export async function saveSale(page:Page){\n> 10 |  await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();\n     |                                                                         ^\n  11 |  await expect(page.getByRole('dialog',{name:'Ticket de venta',exact:true})).toBeVisible();\n  12 |  await page.getByRole('button',{name:'Cerrar ticket',exact:true}).click();\n  13 |  await expect(page.getByText('Venta registrada correctamente.',{exact:false})).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\helpers\\sale-form.ts",
+                        "column": 73,
+                        "line": 10
+                      },
+                      "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Confirmar y guardar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Confirmar y guardar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    28 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n   at ..\\helpers\\sale-form.ts:10\n\n   8 | }\n   9 | export async function saveSale(page:Page){\n> 10 |  await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();\n     |                                                                         ^\n  11 |  await expect(page.getByRole('dialog',{name:'Ticket de venta',exact:true})).toBeVisible();\n  12 |  await page.getByRole('button',{name:'Cerrar ticket',exact:true}).click();\n  13 |  await expect(page.getByText('Venta registrada correctamente.',{exact:false})).toBeVisible();\n    at saveSale (C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\helpers\\sale-form.ts:10:73)\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:75:90"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:38:06.127Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-ventas-reutiliza-consu-301f4-evo-y-propietario-diferente\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-ventas-reutiliza-consu-301f4-evo-y-propietario-diferente\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-ventas-reutiliza-consu-301f4-evo-y-propietario-diferente\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\helpers\\sale-form.ts",
+                    "column": 73,
+                    "line": 10
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8b13c921066711b8885d-2d31629e0f7c6172c0e2",
+          "file": "dni.spec.ts",
+          "line": 70,
+          "column": 1
+        },
+        {
+          "title": "venta manual sigue operativa ante caída del provider",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 19071,
+                  "error": {
+                    "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Confirmar y guardar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Confirmar y guardar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    29 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+                    "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Confirmar y guardar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Confirmar y guardar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    29 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at saveSale (C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\helpers\\sale-form.ts:10:73)\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:82:9",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\helpers\\sale-form.ts",
+                      "column": 73,
+                      "line": 10
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39m..\\helpers\\sale-form.ts:10\n\n   8 | }\n   9 | export async function saveSale(page:Page){\n> 10 |  await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();\n     |                                                                         ^\n  11 |  await expect(page.getByRole('dialog',{name:'Ticket de venta',exact:true})).toBeVisible();\n  12 |  await page.getByRole('button',{name:'Cerrar ticket',exact:true}).click();\n  13 |  await expect(page.getByText('Venta registrada correctamente.',{exact:false})).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\helpers\\sale-form.ts",
+                        "column": 73,
+                        "line": 10
+                      },
+                      "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Confirmar y guardar', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button disabled class=\"primary-button\">Confirmar y guardar</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not enabled\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    29 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not enabled\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n\n   at ..\\helpers\\sale-form.ts:10\n\n   8 | }\n   9 | export async function saveSale(page:Page){\n> 10 |  await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();\n     |                                                                         ^\n  11 |  await expect(page.getByRole('dialog',{name:'Ticket de venta',exact:true})).toBeVisible();\n  12 |  await page.getByRole('button',{name:'Cerrar ticket',exact:true}).click();\n  13 |  await expect(page.getByText('Venta registrada correctamente.',{exact:false})).toBeVisible();\n    at saveSale (C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\helpers\\sale-form.ts:10:73)\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\dni.spec.ts:82:9"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:38:26.840Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-venta-manual-sigue-operativa-ante-caída-del-provider\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-venta-manual-sigue-operativa-ante-caída-del-provider\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\dni-venta-manual-sigue-operativa-ante-caída-del-provider\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\helpers\\sale-form.ts",
+                    "column": 73,
+                    "line": 10
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8b13c921066711b8885d-8b6416408cf8e895bd4f",
+          "file": "dni.spec.ts",
+          "line": 78,
+          "column": 1
+        },
+        {
+          "title": "consulta tardía no sobrescribe correcciones manuales ni datos de otro DNI",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5694,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:38:47.495Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b13c921066711b8885d-f2ff06ed7a64f23e2403",
+          "file": "dni.spec.ts",
+          "line": 84,
+          "column": 1
+        },
+        {
+          "title": "DNI compartido responsive: loading, autofill y fallback en los tres formularios",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T19:38:53.571Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8b13c921066711b8885d-661586537259bd4f557d",
+          "file": "dni.spec.ts",
+          "line": 91,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "dual-imei.spec.ts",
+      "file": "dual-imei.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Samsung: dual, selección independiente y búsqueda del segundo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "fde14399c9ee3e7aac7d-f8698d7819ab0e6f756d",
+          "file": "dual-imei.spec.ts",
+          "line": 19,
+          "column": 3
+        },
+        {
+          "title": "Honor: dual, selección independiente y búsqueda del segundo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "fde14399c9ee3e7aac7d-489cf0c2fc3e1032d6e8",
+          "file": "dual-imei.spec.ts",
+          "line": 19,
+          "column": 3
+        },
+        {
+          "title": "Xiaomi: dual, selección independiente y búsqueda del segundo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "fde14399c9ee3e7aac7d-4258c7e26d8604449a8e",
+          "file": "dual-imei.spec.ts",
+          "line": 19,
+          "column": 3
+        },
+        {
+          "title": "Motorola: dual, selección independiente y búsqueda del segundo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "fde14399c9ee3e7aac7d-5c7e318b63a167b17182",
+          "file": "dual-imei.spec.ts",
+          "line": 19,
+          "column": 3
+        },
+        {
+          "title": "Apple: dual, selección independiente y búsqueda del segundo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "fde14399c9ee3e7aac7d-1d63815ee3ec4431a509",
+          "file": "dual-imei.spec.ts",
+          "line": 19,
+          "column": 3
+        },
+        {
+          "title": "Desconocida: dual, selección independiente y búsqueda del segundo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "fde14399c9ee3e7aac7d-9f12ca548844d1ee7438",
+          "file": "dual-imei.spec.ts",
+          "line": 19,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "evidence.spec.ts",
+      "file": "evidence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "principal 26 pasos: seis fotos privadas, RECO-000101/102, relogin, descarga y eliminación compartida",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "72c23c329750e5cf3a24-5b57d95aefce31c78b41",
+          "file": "evidence.spec.ts",
+          "line": 17,
+          "column": 1
+        },
+        {
+          "title": "error recuperable, reintento y navegación atrás mantienen borrador sin filas comerciales",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "72c23c329750e5cf3a24-a90e0670fcce8b710851",
+          "file": "evidence.spec.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "reemplazo confirmado e individual, error conserva imagen anterior y eliminación mantiene solicitud hermana",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "72c23c329750e5cf3a24-caeb5a89c54a7014e5fb",
+          "file": "evidence.spec.ts",
+          "line": 29,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "receipts.spec.ts",
+      "file": "receipts.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "configuración editable persiste y es responsive 375 390 430",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-fe4062e942eeee2e1f32",
+          "file": "receipts.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "ticket 58 mm abre automáticamente, PDF y impresión sin controles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-1c90eecebdc9b71ef40f",
+          "file": "receipts.spec.ts",
+          "line": 15,
+          "column": 29
+        },
+        {
+          "title": "ticket 80 mm abre automáticamente, PDF y impresión sin controles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-8c75f7771e9bdcd38c3b",
+          "file": "receipts.spec.ts",
+          "line": 15,
+          "column": 29
+        },
+        {
+          "title": "pestaña bloqueada ofrece preview visible y conserva formato predeterminado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-596e573086d878abeadf",
+          "file": "receipts.spec.ts",
+          "line": 26,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "refinement.spec.ts",
+      "file": "refinement.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "R9 R10 R11 R40 desbloquear independiente y confirmar borrado con modal responsive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "2cba574eae72c893644c-025343cb0999ce6aba65",
+          "file": "refinement.spec.ts",
+          "line": 13,
+          "column": 1
+        },
+        {
+          "title": "R22 R23 nueva venta no ofrece inventario y muestra IMEI existente",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "2cba574eae72c893644c-e10d4c82779361e81315",
+          "file": "refinement.spec.ts",
+          "line": 20,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "registration.spec.ts",
+      "file": "registration.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "criterio completo, relaciones canónicas, reutilización y revisión responsive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "1e5aa7b6f95ae669165d-ecb801ed2f5510b8944d",
+          "file": "registration.spec.ts",
+          "line": 17,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "reports.spec.ts",
+      "file": "reports.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "A SUPERADMIN: mes, últimos siete días, actualizar y responsive vacío",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-551f092f3e2e1886ff04",
+          "file": "reports.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "B REGISTROS: BITEL registrado, CSV descargado con filtros y totales",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-9431f30a8a7d05958dd6",
+          "file": "reports.spec.ts",
+          "line": 41,
+          "column": 1
+        },
+        {
+          "title": "C SELLER: menú oculto y URL/API protegidas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-41bf7422f57750c060c9",
+          "file": "reports.spec.ts",
+          "line": 46,
+          "column": 1
+        },
+        {
+          "title": "D doble IMEI: dos RECO y un equipo con gráficos reales",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-fa898f4af79b7958d7b2",
+          "file": "reports.spec.ts",
+          "line": 50,
+          "column": 1
+        },
+        {
+          "title": "E venta con dos equipos: reportes se actualizan después de eliminación por UI",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-462b508acc47f9c0bd21",
+          "file": "reports.spec.ts",
+          "line": 53,
+          "column": 1
+        },
+        {
+          "title": "F personalizados: filtros persisten al cambiar pestaña y navegar atrás",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-834f731318615db0f347",
+          "file": "reports.spec.ts",
+          "line": 58,
+          "column": 1
+        },
+        {
+          "title": "G clientes y trabajadores inactivos: identidad mínima y responsive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-847920488634526f8ef8",
+          "file": "reports.spec.ts",
+          "line": 62,
+          "column": 1
+        },
+        {
+          "title": "H permisos de reportes se conceden explícitamente desde la matriz de roles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-610134327834e7080ecf",
+          "file": "reports.spec.ts",
+          "line": 67,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "sales.spec.ts",
+      "file": "sales.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "venta Yape, relaciones, dos equipos, propietario distinto, cancelación y responsive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "9732fc60f5589579a1d1-1afea04ebd8c63dfa440",
+          "file": "sales.spec.ts",
+          "line": 17,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "workflow.spec.ts",
+      "file": "workflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "A: venta con accesorios y doble solicitud del mismo equipo, transición independiente y ficha",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "c601ceb5ecfc8efa4a14-54dd31ee94694a131d8f",
+          "file": "workflow.spec.ts",
+          "line": 22,
+          "column": 1
+        },
+        {
+          "title": "B: equipo externo, solo IMEI 2, evidencias opcionales y precio cero",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "c601ceb5ecfc8efa4a14-0f82a9fb4b99894bf9b7",
+          "file": "workflow.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "C: identidad cambia, limpia datos y descarta búsquedas tardías",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "c601ceb5ecfc8efa4a14-69069173a5789a2a3bfe",
+          "file": "workflow.spec.ts",
+          "line": 41,
+          "column": 1
+        },
+        {
+          "title": "venta activa se advierte antes de revisar; salir requiere confirmar cambios",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "c601ceb5ecfc8efa4a14-d502f4da98556e0daea0",
+          "file": "workflow.spec.ts",
+          "line": 46,
+          "column": 1
+        },
+        {
+          "title": "errores de venta junto al campo y foco, notas autorizadas, Atrás conserva el borrador",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "c601ceb5ecfc8efa4a14-b6872e097bc58dced8fa",
+          "file": "workflow.spec.ts",
+          "line": 52,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "message": "\u001b[31mTimed out waiting 180s for the test suite to run\u001b[39m"
+    },
+    {
+      "message": "\u001b[31mTimed out waiting 180s for the teardown for test suite to run\u001b[39m"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-10-19T19:36:40.976Z",
+    "duration": 180009.7,
+    "expected": 4,
+    "skipped": 33,
+    "unexpected": 7,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,23 @@
+{"name":"npm-audit","exitCode":0,"durationMs":2147,"command":"node C:/Users/ASUS/.local/nodejs/node-v24.21.0-win-x64/node_modules/npm/bin/npm-cli.js audit --json"}
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {},
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 203,
+      "dev": 325,
+      "optional": 135,
+      "peer": 14,
+      "peerOptional": 0,
+      "total": 587
+    }
+  }
+}

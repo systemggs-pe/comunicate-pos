@@ -1,0 +1,70 @@
+{"name":"isolated-migrations","exitCode":0,"durationMs":2959,"command":"node --import tsx scripts/prepare-test-db.ts"}
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "communicate_pos_test", schema "public" at "127.0.0.1:55434"
+
+19 migrations found in prisma/migrations
+
+Applying migration `20261007000100_foundation`
+Applying migration `20261008000100_sales_core`
+Applying migration `20261008000200_auth_permissions`
+Applying migration `20261009000100_operational_workflows`
+Applying migration `20261009000200_operational_refinement`
+Applying migration `20261009000300_request_completion_integrity`
+Applying migration `20261010000100_company_settings`
+Applying migration `20261010000200_agent_identity`
+Applying migration `20261010000300_private_evidence`
+Applying migration `20261010000400_evidence_integrity_guards`
+Applying migration `20261010000500_reports_analytics`
+Applying migration `20261012000100_client_full_name`
+Applying migration `20261012000200_client_documents`
+Applying migration `20261012000300_document_provenance`
+Applying migration `20261014000100_client_document_scope`
+Applying migration `20261014000200_client_document_integrity`
+Applying migration `20261017163000_sale_contact_snapshot`
+Applying migration `20261018110000_interface_google_province`
+Applying migration `20261019000100_receipt_formats_58_80`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261007000100_foundation/
+    └─ migration.sql
+  └─ 20261008000100_sales_core/
+    └─ migration.sql
+  └─ 20261008000200_auth_permissions/
+    └─ migration.sql
+  └─ 20261009000100_operational_workflows/
+    └─ migration.sql
+  └─ 20261009000200_operational_refinement/
+    └─ migration.sql
+  └─ 20261009000300_request_completion_integrity/
+    └─ migration.sql
+  └─ 20261010000100_company_settings/
+    └─ migration.sql
+  └─ 20261010000200_agent_identity/
+    └─ migration.sql
+  └─ 20261010000300_private_evidence/
+    └─ migration.sql
+  └─ 20261010000400_evidence_integrity_guards/
+    └─ migration.sql
+  └─ 20261010000500_reports_analytics/
+    └─ migration.sql
+  └─ 20261012000100_client_full_name/
+    └─ migration.sql
+  └─ 20261012000200_client_documents/
+    └─ migration.sql
+  └─ 20261012000300_document_provenance/
+    └─ migration.sql
+  └─ 20261014000100_client_document_scope/
+    └─ migration.sql
+  └─ 20261014000200_client_document_integrity/
+    └─ migration.sql
+  └─ 20261017163000_sale_contact_snapshot/
+    └─ migration.sql
+  └─ 20261018110000_interface_google_province/
+    └─ migration.sql
+  └─ 20261019000100_receipt_formats_58_80/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
