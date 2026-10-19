@@ -93,7 +93,9 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
         await attachOperationEvidence(tx,input.evidence??[],input.idempotencyKey,createdRequests,actor,sessionId);
         if(input.documentEvidence.length){if(!equipment.ownerId)throw new DomainError(409,'CLIENTE REQUERIDO.','CLIENT_DOCUMENT_SCOPE');await reuseClientDocuments(tx,input.documentEvidence,equipment.ownerId,createdRequests,actor);}
         if(autoAttachIdentity)for(const request of createdRequests)await autoAttachClientIdentity(tx,request.id,actor);
-        if(input.requireIdentityPhotos)for(const request of createdRequests){
+        // Every new RECO requires both sides, regardless of legacy client flags.
+        // Validation stays inside the transaction, after authorized reuse/uploads.
+        for(const request of createdRequests){
           const sides=await tx.registrationEvidence.count({where:{registrationRequestId:request.id,category:{in:['DNI_FRONT','DNI_BACK']},evidenceAsset:{status:'READY'}}});
           if(sides!==2)throw new DomainError(400,'Adjunta el DNI frontal y posterior para continuar.','REGISTRATION_IDENTITY_REQUIRED');
         }

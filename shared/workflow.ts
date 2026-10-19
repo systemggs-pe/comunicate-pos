@@ -21,4 +21,5 @@ export const requestTransitionSchema=z.object({confirm:z.literal(true),action:z.
 export const requestQuerySchema=listQuerySchema.omit({ownerId:true}).extend({status:z.enum(requestStatuses).optional(),equipmentId:idSchema.optional(),clientId:idSchema.optional()});
 export const requestBulkSchema=z.object({confirm:z.literal(true),ids:z.array(idSchema).min(1).max(100).refine(ids=>new Set(ids).size===ids.length),reason:nonempty(500)}).strict();
 export const deletionSchema=z.object({confirm:z.literal('ELIMINAR'),fingerprint:z.string().regex(/^[a-f0-9]{64}$/),reason:nonempty(500),removeOrphanEquipment:z.boolean().default(false)}).strict();
+// requireIdentityPhotos is accepted for older clients, but never grants an exemption.
 export type OperationalRegistrationInput=z.infer<typeof operationalRegistrationSchema>;
