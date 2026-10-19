@@ -1,5 +1,6 @@
 /* Refinamiento compartido; conserva los tokens y la zona reservada a navegación. */
 .central-login{min-height:100dvh;background:#f3f6fa;color:#18212d}
+.central-login input,.central-login textarea,.central-login select,.central-login button{text-transform:none}
 .central-login-header{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 5%;border-bottom:1px solid #e0e6ed;background:#fbfdfe}
 .central-login-header>span:last-child{display:flex;gap:6px;align-items:center;font-size:12px;color:#637086}
 .central-login-columns{display:grid;grid-template-columns:1.3fr 1fr;gap:80px;max-width:1060px;margin:auto;align-items:center;padding:64px 32px}

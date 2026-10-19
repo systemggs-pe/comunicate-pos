@@ -150,6 +150,10 @@ La plantilla compartida define posiciones, tamaños y cortes de línea para HTML
 
 Se leyó y renderizó exclusivamente el PDF de referencia para extraer su geometría y fuentes. No se generaron tickets de prueba ni se ejecutaron pruebas, compilaciones, comparación visual del resultado, lint o comprobación de tipos, de acuerdo con la fase de implementación vigente. La fidelidad final en pantalla e impresora queda pendiente de comprobación. No se modificaron ventas, clientes ni datos empresariales. Sin push ni deploy.
 
+## Ajuste posterior — mayúsculas en el acceso
+
+Se elimina la transformación visual a mayúsculas en campos y botones de la pantalla de acceso. El correo se muestra tal como se escribe y los botones conservan «Continuar con Google» e «Iniciar sesión». Se mantiene la normalización del correo al autenticar y la contraseña no se modifica. Cambio de estilos limitado al acceso. Sin pruebas ni compilación, siguiendo la fase de implementación vigente.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
