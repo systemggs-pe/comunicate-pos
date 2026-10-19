@@ -6,7 +6,6 @@
 .receipt-controls .form-actions{flex-wrap:wrap}
 .receipt-controls a{color:#174381}
 .printer-picker .printer-format-options{grid-template-columns:repeat(2,minmax(0,1fr))}
-.printer-picker .printer-format-options>.primary-button{grid-column:1/-1}
 .thermal-receipt{position:relative;box-sizing:border-box;margin:0 auto;padding:0;background:#fff;color:#121212;overflow-wrap:normal;font-family:'Courier New',Courier,monospace;text-transform:none;font-variant-numeric:normal;font-synthesis:none;letter-spacing:0}
 .thermal-receipt .receipt-row{position:absolute;break-inside:avoid}
 .thermal-receipt .receipt-row p{position:absolute;margin:0;padding:0;border:0;white-space:pre;font-family:inherit;line-height:1.15;letter-spacing:0;text-transform:none}

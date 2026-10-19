@@ -3,7 +3,7 @@ import type {Sale} from '../src/types/pos.js';
 import type {CompanySettings} from './company.js';
 import {normalizeText} from './normalization.js';
 import {cents,decimalMoney} from './sales.js';
-export type ReceiptFormat=48|58|80;
+export type ReceiptFormat=58|80;
 export interface ReceiptData {sale:Sale;company:CompanySettings}
 export interface ReceiptRow {
  text:string;align?:'center'|'right';bold?:boolean;right?:string;barcode?:string;
@@ -65,7 +65,7 @@ function wrapCourier(text:string,width:number,font:number){
  return lines;
 }
 export function receiptLayout(data:ReceiptData,format:ReceiptFormat){
- const margin=format===58?3:format===48?data.company.margin48:data.company.margin80;
+ const margin=format===58?data.company.margin58:data.company.margin80;
  const width=format-2*margin,scale=width/52;
  let cursor=5*scale;
  const items=receiptRows(data,format).map(row=>{

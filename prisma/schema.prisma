@@ -99,7 +99,7 @@ model CompanySettings {
  email String @default("") @db.VarChar(254)
  receiptFooter String @default("") @db.VarChar(500)
  defaultFormat Int?
- margin48 Float @default(1)
+ margin58 Float @default(3) @map("margin48")
  margin80 Float @default(2)
  showClientContact Boolean @default(true)
  showSerial Boolean @default(true)

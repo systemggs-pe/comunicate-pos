@@ -154,6 +154,10 @@ Se leyó y renderizó exclusivamente el PDF de referencia para extraer su geomet
 
 Se elimina la transformación visual a mayúsculas en campos y botones de la pantalla de acceso. El correo se muestra tal como se escribe y los botones conservan «Continuar con Google» e «Iniciar sesión». Se mantiene la normalización del correo al autenticar y la contraseña no se modifica. Cambio de estilos limitado al acceso. Sin pruebas ni compilación, siguiendo la fase de implementación vigente.
 
+## Ajuste posterior — únicamente 58 y 80 mm
+
+Los selectores de descarga, vista previa, impresión y configuración empresarial ofrecen únicamente 58 y 80 mm. Los enlaces antiguos con formato 48 o un valor no admitido abren 58 mm. Se elimina el tipo y componente de 48 mm; el esquema del servidor acepta únicamente 58/80 o preguntar siempre. La preferencia persistida 48 se convierte a 58 mediante la migración `20261019000100_receipt_formats_58_80`, aplicada a la base local. El margen se expone como margin58 en Prisma y API, manteniendo el nombre físico de la columna antigua para compatibilidad; su valor inicial pasa de 1 a 3 mm. El margen de 80 mm se conserva. Cliente Prisma regenerado y API local reiniciada para cargarlo. Se actualizan las referencias de formatos en los archivos de pruebas existentes, sin ejecutarlas. Sin compilación, lint, comprobación de tipos, push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
