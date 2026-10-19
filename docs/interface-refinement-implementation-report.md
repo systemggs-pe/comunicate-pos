@@ -142,6 +142,14 @@ El prefijo VEN es de presentación: no se renumeran ventas ni se modifican sus c
 
 No se ejecutaron pruebas, compilaciones, comparación de PDF, auditorías, push ni deploy, siguiendo la fase de implementación indicada. No se modificaron datos históricos ni credenciales.
 
+## Ajuste posterior — formato de la referencia VENTA-VEN-0047.pdf
+
+La referencia entregada mide 58 × 196,96 mm y usa Courier/Courier-Bold. Se incorpora **58 mm · Original** a la descarga y las vistas previas, manteniendo 48 y 80 mm. En 58 mm se usan los márgenes de 3 mm, tamaños tipográficos y espaciado de la referencia; los otros anchos adaptan proporcionalmente el mismo diseño y mantienen sus márgenes configurados. El nuevo formato se selecciona en la interfaz sin cambiar la configuración persistida ni su restricción de base de datos a 48/80; una configuración existente sigue teniendo preferencia en la vista de venta guardada.
+
+La plantilla compartida define posiciones, tamaños y cortes de línea para HTML y PDF: marca y título centrados en negrita, dirección/local/teléfono sin etiquetas administrativas, bandas grises con regla superior para Cliente/Equipo/Pago, etiquetas en negrita con valores alineados, nombre largo dentro de su columna, RAM y memoria numéricas con GB, precio del equipo a la derecha y total destacado sobre gris. Se retira el encabezado extra EQUIPO/PRECIO. El código de barras corresponde al S/N real, seguido del S/N legible sin prefijo, fecha/hora de Lima y pie en el mismo texto y capitalización del original. Se conservan múltiples equipos, accesorios y descarga directa al elegir tamaño. El alto crece con el contenido y el PDF pagina recibos extensos.
+
+Se leyó y renderizó exclusivamente el PDF de referencia para extraer su geometría y fuentes. No se generaron tickets de prueba ni se ejecutaron pruebas, compilaciones, comparación visual del resultado, lint o comprobación de tipos, de acuerdo con la fase de implementación vigente. La fidelidad final en pantalla e impresora queda pendiente de comprobación. No se modificaron ventas, clientes ni datos empresariales. Sin push ni deploy.
+
 ## ESTADO
 
 **IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
