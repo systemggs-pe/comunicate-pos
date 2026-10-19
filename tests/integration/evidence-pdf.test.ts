@@ -1,3 +1,4 @@
+import {postRegistration} from '../helpers/registration-identity';
 import {companyDefaults} from '../../shared/company';
 import 'dotenv/config';
 import {PrismaClient} from '@prisma/client';
@@ -18,7 +19,8 @@ let agent:Awaited<ReturnType<typeof loginAgent>>;
 beforeEach(async()=>{await clearEvidenceFixtures(db);await db.$transaction([db.companySettings.deleteMany(),db.session.deleteMany(),db.authRateLimit.deleteMany(),db.registrationRequestHistory.deleteMany(),db.registrationRequest.deleteMany(),db.registrationOperation.deleteMany(),db.saleAccessory.deleteMany(),db.equipmentHistory.deleteMany(),db.auditLog.deleteMany(),db.saleEquipment.deleteMany(),db.sale.deleteMany(),db.imei.deleteMany(),db.equipment.deleteMany(),db.client.deleteMany(),db.user.deleteMany()]);const role=await db.role.findUniqueOrThrow({where:{code:'SUPERADMIN'}});await db.rolePermission.deleteMany({where:{roleId:role.id}});await db.rolePermission.createMany({data:permissionKeys.map(permissionKey=>({roleId:role.id,permissionKey}))});await seedTestAdmin(db);agent=await loginAgent(app);});
 afterAll(async()=>{await clearEvidenceFixtures(db);storage.client.destroy();await db.$disconnect();});
 const endpoint=(id:string)=>`/api/registration-requests/${id}/evidence-pdf`;
-async function fixture(input:object=workflowInput()) {const response=await agent.post('/api/registration-operations').set('Origin',testOrigin).send(input);expect(response.status,JSON.stringify(response.body)).toBe(201);return response.body.requests as {id:string;code:string;imei:{value:string}}[];}
+async function fixture(input:object=workflowInput()) {const response=await postRegistration(agent,input);expect(response.status,JSON.stringify(response.body)).toBe(201);// Model a historical request with no retained photographs; creation itself satisfied AUD-02.
+ await clearEvidenceFixtures(db);return response.body.requests as {id:string;code:string;imei:{value:string}}[];}
 async function image(requestId:string,category:string,color='#765432'){
  const bytes=await sharp({create:{width:80,height:120,channels:3,background:color}}).png().toBuffer();
  const init=await agent.post('/api/evidence/uploads').set('Origin',testOrigin).send({idempotencyKey:randomUUID(),requestId,category,mimeType:'image/png',fileSize:bytes.length,checksum:checksum(bytes)});expect(init.status).toBe(201);
@@ -35,7 +37,7 @@ it('A4 por RECO, sin fotos permitido, configuración real y reimpresión sin dup
 it('MinIO real: cinco categorías, imágenes proporcionadas y ninguna foto del otro RECO',async()=>{
  const [first,second]=await fixture();for(const category of ['DNI_FRONT','DNI_BACK','PURCHASE_RECEIPT','DEVICE_BOX','LOGICAL_IMEI'])await image(first.id,category);await image(second.id,'LOGICAL_IMEI','#112233');
  const result=await agent.post(endpoint(first.id)).set('Origin',testOrigin).send({});expect(result.status,JSON.stringify(result.body.error)).toBe(200);const parsed=inspectEvidencePdf(Buffer.from(result.body.pdfBase64,'base64'));expect(parsed.pages).toHaveLength(6);expect(parsed.pages.flatMap(p=>p.images)).toHaveLength(5);for(const title of ['DNI FRONTAL','DNI POSTERIOR','BOLETA','CAJA DEL EQUIPO','IMEI LÓGICO'])expect(parsed.text).toContain(title);expect(parsed.text).not.toContain(second.imei.value);
- const other=await agent.post(endpoint(second.id)).set('Origin',testOrigin).send({});expect(inspectEvidencePdf(Buffer.from(other.body.pdfBase64,'base64')).pages).toHaveLength(2);
+ const other=await agent.post(endpoint(second.id)).set('Origin',testOrigin).send({});const siblingPdf=inspectEvidencePdf(Buffer.from(other.body.pdfBase64,'base64'));expect(siblingPdf.pages).toHaveLength(4);expect(siblingPdf.pages.flatMap(p=>p.images)).toHaveLength(3);expect(siblingPdf.text).not.toContain(first.imei.value);
 });
 it('falta archivo: conserva registros y permite reintentar solamente el documento',async()=>{
  const [row]=await fixture(),asset=await image(row.id,'DNI_FRONT'),bytes=await storage.download(asset.storageKey,10485760);await storage.delete(asset.storageKey);
@@ -54,5 +56,5 @@ it('origen TIENDA y referencia independiente de los teléfonos IMEI; idempotenci
 it('corrección explícita de nombre es transaccional, detecta versión y no cambia propietario',async()=>{
  const data=workflowInput(),client=await db.client.create({data:data.client}),fullName='NOMBRE SINTÉTICO CORREGIDO';const input={...data,clientNameCorrection:{clientId:client.id,expectedName:[client.firstName,client.lastName].join(' '),fullName}};
  await fixture(input);expect((await db.client.findUniqueOrThrow({where:{id:client.id}})).fullName).toBe(fullName);expect((await db.equipment.findFirstOrThrow()).ownerId).toBe(client.id);
- const next={...workflowInput(),imeis:[{slot:1,value:'359708765439991',type:'PHYSICAL'}],requests:[{...data.requests[0],value:'359708765439991'}],clientNameCorrection:input.clientNameCorrection};expect((await agent.post('/api/registration-operations').set('Origin',testOrigin).send(next)).status).toBe(409);expect(await db.equipment.count()).toBe(1);
+ const next={...workflowInput(),imeis:[{slot:1,value:'597087654399910',type:'PHYSICAL'}],requests:[{...data.requests[0],value:'597087654399910'}],clientNameCorrection:input.clientNameCorrection};expect((await agent.post('/api/registration-operations').set('Origin',testOrigin).send(next)).status).toBe(409);expect(await db.equipment.count()).toBe(1);
 });

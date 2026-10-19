@@ -34,7 +34,7 @@ async function prepareIdentity(expired=false,oneSide=false){
  return {agent,input,client};
 }
 it('automatically reuses stored DNI for both IMEIs and the next procedure without duplicating physical files',async()=>{
- const {agent,input}=await prepareIdentity();const submit=(body:unknown)=>agent.post('/api/registration-operations').set('Origin',testOrigin).send(body);
+ const {agent,input}=await prepareIdentity();const submit=(body:object)=>agent.post('/api/registration-operations').set('Origin',testOrigin).send(body);
  const first=await submit(input);expect(first.status,JSON.stringify(first.body)).toBe(201);expect(first.body.requests).toHaveLength(2);expect(await db.registrationEvidence.count()).toBe(4);expect(await db.equipment.count()).toBe(1);
  const next={...input,idempotencyKey:randomUUID(),imeis:input.imeis.map((i,index)=>({...i,value:fixtureImei(77000+index)}))};next.requests=next.requests.map((r,index)=>({...r,value:next.imeis[index].value}));
  const second=await submit(next);expect(second.status,JSON.stringify(second.body)).toBe(201);expect(await db.registrationEvidence.count()).toBe(8);expect(await db.evidenceAsset.count()).toBe(2);expect(await db.clientDocument.count()).toBe(2);
@@ -44,3 +44,4 @@ it.each(['one-side','expired','different-client'])('rejects %s identity and leav
  const {agent,input}=await prepareIdentity(scenario==='expired',scenario==='one-side');const before=await counts();
  const response=await agent.post('/api/registration-operations').set('Origin',testOrigin).send({...input,client:scenario==='different-client'?{...input.client,dni:'70000002'}:input.client});expect(response.status).toBe(400);expect(response.body.error.code).toBe('REGISTRATION_IDENTITY_REQUIRED');expect(await counts()).toEqual(before);
 });
+

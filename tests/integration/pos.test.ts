@@ -1,3 +1,4 @@
+import {clearEvidenceFixtures} from '../helpers/evidence';
 import {seedTestAdmin,loginAgent,testOrigin} from '../helpers/auth';
 import 'dotenv/config';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
@@ -12,12 +13,12 @@ if (!['localhost', '127.0.0.1'].includes(target.hostname) || target.pathname !==
 const db = new PrismaClient({ datasources: { db: { url } } });
 const service = createPosService(db);
 const client = { dni: '00123456', firstName: 'Ana', lastName: 'Pérez' };
-const imei1 = '351111111111111', imei2 = '352222222222222';
+const imei1 = '511111111111115', imei2 = '522222222222225';
 const external = { client, brand: 'Samsung', model: 'S26 Ultra', imeis: [{ slot: 1, value: imei1 }, { slot: 2, value: imei2 }] };
 async function counts() { return { clients: await db.client.count(), equipment: await db.equipment.count(), imeis: await db.imei.count(), history: await db.equipmentHistory.count(), audit: await db.auditLog.count(), sales: await db.sale.count() }; }
 
 beforeAll(() => db.$connect());
-beforeEach(async () => {
+beforeEach(async () => {await clearEvidenceFixtures(db);
   // Base dedicada y comprobada arriba; nunca resetear la base de desarrollo.
   // DELETE transaccional evita recrear archivos de cada tabla con TRUNCATE
   // en Docker Desktop, y mantiene todas las FKs y los triggers activados.
@@ -46,7 +47,7 @@ describe('Phase 2: clientes y registro atómico', () => {
   it('IMEI inválido no deja cliente ni equipo', async () => { expect(() => service.submitRegistration({ ...flow, imeis: [{ slot: 1, value: 'ABC' }] })).toThrow(); expect((await counts()).clients).toBe(0); });
   it('dos IMEIs iguales fallan antes de escribir', async () => { expect(() => service.submitRegistration({ ...flow, imeis: [{ slot: 1, value: imei1 }, { slot: 2, value: imei1 }] })).toThrow(); expect((await counts()).equipment).toBe(0); });
   it('slot 3 falla', async () => { expect(() => service.submitRegistration({ ...flow, imeis: [{ slot: 3, value: imei1 }] })).toThrow(); expect((await counts()).imeis).toBe(0); });
-  it('selección ajena falla', async () => { expect(() => service.submitRegistration({ ...flow, selectedImeis: ['353333333333333'] })).toThrow(); expect((await counts()).clients).toBe(0); });
+  it('selección ajena falla', async () => { expect(() => service.submitRegistration({ ...flow, selectedImeis: ['533333333333335'] })).toThrow(); expect((await counts()).clients).toBe(0); });
   it('criterio completo: parcial, búsqueda segundo, posterior y sin duplicados', async () => {
     const first = await service.submitRegistration(flow); expect(first.registrationStatus).toBe('PARTIALLY_REGISTERED'); expect(first.imeis[1].registrationStatus).toBeNull();
     const found = await service.findEquipmentByImei(imei2); expect(found?.id).toBe(first.id); expect(found?.ownerId).toBe(first.ownerId);
@@ -64,7 +65,7 @@ describe('Phase 2: clientes y registro atómico', () => {
   it('legacy protege DNI del propietario', async () => { await service.submitRegistration(flow); await expect(service.registerExternalImei({ value: imei2, registration: { status: 'REGISTERED' }, newEquipment: { ...external, client: { ...client, dni: '87654321' } } })).rejects.toMatchObject({ code: 'OWNER_MISMATCH' }); });
   it('IMEI conocido más nuevo exige confirmación', async () => { const first = await service.submitRegistration({ ...flow, imeis: external.imeis.slice(0, 1) }); const before = await counts(); const resolved = await service.resolveRegistration({ dni: client.dni, imeis: external.imeis }); expect(resolved.requiresConfirmation).toBe(true); await expect(service.submitRegistration({ ...flow, expectedEquipmentId: first.id })).rejects.toMatchObject({ code: 'IMEI_ASSOCIATION_CONFIRMATION_REQUIRED' }); expect(await counts()).toEqual(before); });
   it('confirmación agrega slot disponible al mismo equipo', async () => { const first = await service.submitRegistration({ ...flow, imeis: external.imeis.slice(0, 1) }); const second = await service.submitRegistration({ ...flow, selectedImeis: [imei2], expectedEquipmentId: first.id, confirmAddImei: true }); expect(second.id).toBe(first.id); expect(second.registrationStatus).toBe('REGISTERED'); expect(await db.equipment.count()).toBe(1); expect(second.imeis).toHaveLength(2); });
-  it('slot ocupado no se sobrescribe', async () => { await service.submitRegistration(flow); await expect(service.resolveRegistration({ dni: client.dni, imeis: [{ slot: 1, value: imei1 }, { slot: 2, value: '353333333333333' }] })).rejects.toMatchObject({ code: 'IMEI_SLOT_OCCUPIED' }); expect(await db.imei.count()).toBe(2); });
+  it('slot ocupado no se sobrescribe', async () => { await service.submitRegistration(flow); await expect(service.resolveRegistration({ dni: client.dni, imeis: [{ slot: 1, value: imei1 }, { slot: 2, value: '533333333333335' }] })).rejects.toMatchObject({ code: 'IMEI_SLOT_OCCUPIED' }); expect(await db.imei.count()).toBe(2); });
   it('equipo esperado equivocado falla', async () => { await service.submitRegistration(flow); await expect(service.submitRegistration({ ...flow, expectedEquipmentId: '00000000-0000-4000-8000-000000000001' })).rejects.toMatchObject({ code: 'IMEI_EQUIPMENT_CONFLICT' }); });
   it('rollback completo por FK actor inexistente', async () => { const before = await counts(); await expect(service.submitRegistration({ ...flow, registration: { status: 'REGISTERED', userId: '00000000-0000-4000-8000-000000000001' } })).rejects.toBeDefined(); expect(await counts()).toEqual(before); });
   it('concurrencia de registro no crea duplicados', async () => { const result = await Promise.allSettled([service.submitRegistration(flow), service.submitRegistration(flow)]); expect(result.some(r => r.status === 'fulfilled')).toBe(true); expect(await counts()).toMatchObject({ clients: 1, equipment: 1, imeis: 2, sales: 0 }); expect(await db.equipmentHistory.count({ where: { eventType: 'IMEI_REGISTERED' } })).toBe(1); });

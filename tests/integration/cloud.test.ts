@@ -15,7 +15,7 @@ import request from 'supertest';
 let f:Awaited<ReturnType<typeof phase9Fixture>>;
 beforeAll(async()=>{f=await phase9Fixture();await mkdir('.test-results/phase10a',{recursive:true});},60000);
 afterAll(async()=>{await f?.close();});
-const options=()=>({lockUrl:f.databaseUrl,batchSize:5,maxBatches:2,timeoutMs:10000});
+const options=()=>({lockUrl:f.databaseUrl,batchSize:100,maxBatches:2,timeoutMs:10000});
 it('real unavailable PostgreSQL responds safe503 without removing session cookie or leaking DSN',async()=>{
  const offline=new PrismaClient({datasources:{db:{url:'postgresql://synthetic:synthetic@127.0.0.1:9/synthetic?connect_timeout=1'}}});try{const app=createApp(offline,{evidenceStorage:f.storage});expect((await request(app).get('/api/health')).status).toBe(200);const result=await request(app).get('/api/auth/me').set('Cookie',f.cookie);expect(result.status).toBe(503);expect(result.body.error.code).toBe('DATABASE_UNAVAILABLE');expect(result.headers['set-cookie']).toBeUndefined();expect(JSON.stringify(result.body)).not.toContain('synthetic');}finally{await offline.$disconnect();}
 });

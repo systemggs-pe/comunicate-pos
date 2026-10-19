@@ -1,3 +1,4 @@
+import {clearEvidenceFixtures} from '../helpers/evidence';
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
@@ -9,10 +10,10 @@ if (!['127.0.0.1', 'localhost'].includes(target.hostname) || target.pathname !==
 const db = new PrismaClient({ datasources: { db: { url } } });
 const service = createPosService(db);
 const client = { dni: '00123456', firstName: 'Ana', lastName: 'Pérez' };
-const values = ['351111111111111', '352222222222222'];
+const values = ['511111111111115', '522222222222225'];
 const imeis = values.map((value, index) => ({ slot: index + 1, value }));
 const flow = { client, imeis, equipment: { brand: 'Honor', model: 'Dual' }, selectedImeis: values, registration: { status: 'REGISTERED', method: 'MANUAL' } };
-beforeEach(async () => {
+beforeEach(async () => {await clearEvidenceFixtures(db);
   await db.$transaction([db.session.deleteMany(), db.authRateLimit.deleteMany(), db.registrationRequestHistory.deleteMany(), db.registrationRequest.deleteMany(), db.registrationOperation.deleteMany(), db.saleAccessory.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]);
 });
 afterAll(() => db.$disconnect());
@@ -46,7 +47,7 @@ describe('Doble IMEI real, todas las marcas', () => {
   });
   it.each([[0, 1], [1, 0], [0, 0], [1, 1]])('duplicado cruzado origen %i destino %i no deja equipo parcial', async (source, slot) => {
     await service.submitRegistration(flow);
-    const other = ['353333333333333', '354444444444444'].map((value, index) => ({ slot: index + 1, value: index === slot ? values[source] : value }));
+    const other = ['533333333333335', '544444444444445'].map((value, index) => ({ slot: index + 1, value: index === slot ? values[source] : value }));
     await expect(service.createExternalEquipment({ client, brand: 'Motorola', model: 'Dual', imeis: other })).rejects.toMatchObject({ code: 'IMEI_ALREADY_EXISTS' });
     expect(await db.equipment.count()).toBe(1); expect(await db.imei.count()).toBe(2);
   });

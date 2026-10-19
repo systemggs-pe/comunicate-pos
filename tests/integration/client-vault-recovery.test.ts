@@ -16,7 +16,7 @@ it('expediente y referencias sobreviven backup cifrado, restauración aislada y 
  const fixture=await phase9Fixture(),suffix=randomUUID().replaceAll('-',''),container=`communicate-mvp-storage-${suffix}`;
  const target=new URL(fixture.databaseUrl);target.pathname=`/communicate_pos_restore_${suffix}`;const name=recoveryDatabase(target.toString(),true).name;
  const password=randomUUID()+randomUUID(),directory=`.test-results/mvp/recovery-${suffix}`;
- const restoredDb=new PrismaClient({datasources:{db:{url:target.toString()}}});let storage:S3EvidenceStorage|undefined,createdAsset:string|undefined,createdDoc:string|undefined,started=false;
+ const restoredDb=new PrismaClient({datasources:{db:{url:target.toString()}}});let storage:S3EvidenceStorage|undefined,createdAsset:string|undefined,createdDoc:string|undefined,started=false,originalBack:string|undefined;
  const removeOwnContainer=()=>{const label=docker(['inspect','--format',`{{ index .Config.Labels "communicate.mvp.lifecycle" }}`,container]);if(label!==suffix)throw Error('SYNTHETIC_CONTAINER_IDENTITY_MISMATCH');docker(['rm','-f','-v',container]);};
  const docker=(args:string[])=>{const result=spawnSync('docker',args,{encoding:'utf8',windowsHide:true,timeout:60000});if(result.status!==0)throw Error('SYNTHETIC_DOCKER_OPERATION_FAILED');return result.stdout.trim();};
  try{
@@ -28,8 +28,14 @@ it('expediente y referencias sobreviven backup cifrado, restauración aislada y 
   const sourceApp=createApp(fixture.db,{evidenceStorage:fixture.storage}),agent=request.agent(sourceApp);
   expect((await agent.post('/api/auth/login').set('Origin',fixtureOrigin).send({email:fixtureEmail,password:fixturePassword})).status).toBe(200);
   const owner=await fixture.db.registrationRequest.findUniqueOrThrow({where:{id:fixture.link.registrationRequestId},include:{imei:{include:{equipment:true}}}}),clientId=owner.imei.equipment.ownerId!;
+  let currentBack=await fixture.db.clientDocument.findFirst({where:{clientId,category:'DNI_BACK'},orderBy:{createdAt:'asc'}});
+  if(!currentBack){const backLink=await fixture.db.registrationEvidence.findFirstOrThrow({where:{category:'DNI_BACK',registrationRequest:{imei:{equipment:{ownerId:clientId}}}}});const imported=await agent.post(`/api/clients/${clientId}/documents/history/${backLink.id}`).set('Origin',fixtureOrigin).send({purpose:'SYNTHETIC FIXTURE RECOVERY',authorizationReference:'SYNTHETIC CONSENT',confirmed:true});expect(imported.status,JSON.stringify(imported.body)).toBe(201);currentBack=await fixture.db.clientDocument.findUniqueOrThrow({where:{id:imported.body.id}});}
+  originalBack=currentBack.id;if(currentBack.status!=='CURRENT')await fixture.db.clientDocument.update({where:{id:currentBack.id},data:{status:'CURRENT'}});
+  // Explicit replacement preserves the back photograph already attached to historical requests.
   const bytes=await sharp({create:{width:100,height:150,channels:3,background:'#886644'}}).png().toBuffer();
-  const uploaded=await agent.post(`/api/clients/${clientId}/documents`).query({category:'DNI_BACK',documentType:'MANUAL',purpose:'SYNTHETIC RECOVERY',authorizationReference:'SYNTHETIC CONSENT',confirmed:'true'}).set('Origin',fixtureOrigin).set('Content-Type','image/png').send(bytes);expect(uploaded.status,JSON.stringify(uploaded.body)).toBe(201);createdDoc=uploaded.body.id;createdAsset=uploaded.body.asset.id;
+  const uploaded=await agent.post(`/api/clients/${clientId}/documents`).query({category:'DNI_BACK',replace:'true',expectedDocumentId:currentBack.id,documentType:'MANUAL',purpose:'SYNTHETIC RECOVERY',authorizationReference:'SYNTHETIC CONSENT',confirmed:'true'}).set('Origin',fixtureOrigin).set('Content-Type','image/png').send(bytes);expect(uploaded.status,JSON.stringify(uploaded.body)).toBe(201);createdDoc=uploaded.body.id;createdAsset=uploaded.body.asset.id;
+  // Model an existing historical link without its vault association before importing it.
+  await fixture.db.clientDocument.deleteMany({where:{evidenceAssetId:fixture.link.evidenceAssetId}});
   const historical=await agent.post(`/api/clients/${clientId}/documents/history/${fixture.link.id}`).set('Origin',fixtureOrigin).send({purpose:'SYNTHETIC RECOVERY',authorizationReference:'SYNTHETIC CONSENT',confirmed:true});expect(historical.status,JSON.stringify(historical.body)).toBe(201);
   const documentIds=[createdDoc,historical.body.id];
   await mkdir('.test-results/mvp',{recursive:true});const saved=await createBackup({databaseUrl:fixture.databaseUrl,storage:fixture.storage,directory,password,quiesced:true});
@@ -40,7 +46,7 @@ it('expediente y referencias sobreviven backup cifrado, restauración aislada y 
   for(const d of docs){const access=await afterRestart.get(`/api/clients/${clientId}/documents/${d.id}/access?download=true`);expect(access.status).toBe(200);const downloaded=await fetch(access.body.url);expect(downloaded.status).toBe(200);expect(checksum(Buffer.from(await downloaded.arrayBuffer()))).toBe(d.evidenceAsset.checksum);expect((await fetch(`${endpoint}/${storage.config.bucket}/${d.evidenceAsset.storageKey}`)).status).toBe(403);}
   expect((await request(createApp(restoredDb,{evidenceStorage:storage})).get(`/api/clients/${clientId}/documents`)).status).toBe(401);
  }finally{
-  if(createdDoc)await fixture.db.clientDocument.deleteMany({where:{id:createdDoc}});if(createdAsset)await cleanupEvidence(fixture.db,fixture.storage,[createdAsset]);
+  if(createdDoc)await fixture.db.clientDocument.deleteMany({where:{id:createdDoc}});if(originalBack)await fixture.db.clientDocument.update({where:{id:originalBack},data:{status:'CURRENT'}});if(createdAsset)await cleanupEvidence(fixture.db,fixture.storage,[createdAsset]);
   storage?.client.destroy();await restoredDb.$disconnect();await fixture.close();
   const adminUrl=new URL(target);adminUrl.pathname='/postgres';const admin=new PrismaClient({datasources:{db:{url:adminUrl.toString()}}});try{await admin.$executeRawUnsafe(`DROP DATABASE IF EXISTS "${name}" WITH (FORCE)`);}finally{await admin.$disconnect();}
   if(started)removeOwnContainer();

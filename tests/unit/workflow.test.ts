@@ -6,7 +6,7 @@ describe('Operación por IMEI y accesorios',()=>{
  it('registro doble, precio cero y snapshots válidos',()=>expect(operationalRegistrationSchema.parse(workflowInput()).requests).toHaveLength(2));
  it.each(['812345678','91234567','9123456789','9abcdefgh'])('rechaza celular %s',phone=>expect(phoneSchema.safeParse(phone).success).toBe(false));
  it('rechaza celulares iguales',()=>{const input=workflowInput();input.requests[1].phone=input.requests[0].phone;expect(operationalRegistrationSchema.safeParse(input).success).toBe(false);});
- it('rechaza solicitud de otro IMEI',()=>{const input=workflowInput();input.requests[0].value='359999999990001';expect(operationalRegistrationSchema.safeParse(input).success).toBe(false);});
+ it('rechaza solicitud de otro IMEI',()=>{const input=workflowInput();input.requests[0].value='599999999900012';expect(operationalRegistrationSchema.safeParse(input).success).toBe(false);});
  it.each(['address','department','email'] as const)('exige %s en atención',field=>{const input=workflowInput();input.requests[0][field]='';expect(operationalRegistrationSchema.safeParse(input).success).toBe(false);});
  it('edición genérica no altera identidad',()=>expect(requestEditSchema.safeParse({imeiId:crypto.randomUUID()}).success).toBe(false));
  it('transición exige confirmación y motivo',()=>{expect(requestTransitionSchema.safeParse({confirm:false,status:'COMPLETED',reason:'Prueba'}).success).toBe(false);});
