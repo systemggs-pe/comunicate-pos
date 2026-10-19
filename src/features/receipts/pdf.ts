@@ -14,14 +14,14 @@ export function createReceiptPdf(data:ReceiptData,format:ReceiptFormat){
   }
   const y=item.y+offset,baseline=item.baseline+offset;
   if(row.kind==='section'){
-   rule(y);doc.setFillColor(245);doc.rect(margin,y+scale,width,5.6*scale,'F');
+   rule(y);doc.setFillColor('#f5f5f5');doc.rect(margin,y+scale,width,5.6*scale,'F');
   }
   if(row.kind==='rule'){rule(y);continue;}
   if(row.kind==='total'){
-   doc.setFillColor(235);doc.rect(margin,y,width,item.height,'F');
+   doc.setFillColor('#ebebeb');doc.rect(margin,y,width,item.height,'F');
   }
   if(barcode){
-   doc.setFillColor(0);
+   doc.setFillColor('#000000');
    const x=margin+barcode.quiet;
    // Draw whole black runs to avoid hairline gaps between adjacent modules.
    for(let i=0;i<barcode.bits.length;){

@@ -27,8 +27,8 @@ export function RegistrationFlow() {
     await submit.run(async () => {
       if (step === 0) {
         if (lookup.loading) throw new Error('Espera la búsqueda del DNI.');
-        const value = lookup.localClient ? { ...lookup.localClient, phone: lookup.localClient.phone ?? '', email: lookup.localClient.email ?? '',address:lookup.localClient.address??'',department:lookup.localClient.department??'' } : draft;
-        const parsed = clientSchema.parse(asClientInput(value)); setClient({ ...value, ...parsed, phone: parsed.phone ?? '', email: parsed.email ?? '',address:parsed.address??'',department:parsed.department??'' });
+        const value = lookup.localClient ? { ...lookup.localClient, phone: lookup.localClient.phone ?? '', email: lookup.localClient.email ?? '',address:lookup.localClient.address??'',department:lookup.localClient.department??'',province:lookup.localClient.province??'' } : draft;
+        const parsed = clientSchema.parse(asClientInput(value)); setClient({ ...value, ...parsed, phone: parsed.phone ?? '', email: parsed.email ?? '',address:parsed.address??'',department:parsed.department??'',province:parsed.province??'' });
       } else if (step === 1) {
         const input = resolveRegistrationSchema.parse({ dni: client.dni, imeis });
         const result = await api.post<RegistrationResolution>('/registrations/resolve', input);
