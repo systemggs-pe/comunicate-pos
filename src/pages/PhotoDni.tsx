@@ -14,8 +14,7 @@ export function PhotoDniPage(){
  async function lookup(){if(busy)return;if(!/^\d{8}$/.test(dni)){setError('Ingresa un DNI de ocho dígitos.');return;}setBusy(true);setError('');setNotice('');setDocuments([]);setClient(null);setSearched(true);try{
   const found=await api.get<Client>(`/clients/by-dni/${dni}`);setClient(found);
   const saved=await api.get<{documents:ClientDocumentView[]}>(`/clients/${found.id}/documents`);
-  let current=saved.documents.filter(d=>d.documentType===type&&d.status==='CURRENT'&&!d.retentionDue);
-  if(current.length===2&&current.some(d=>d.category==='IDENTITY_IMAGE')&&current.every(d=>d.source===(type==='BLUE'?'CODART_DNIV':'CODART_DNIVEL'))&&can('client.documents.replace')){await api.post(`/clients/${found.id}/documents/identify-codart-sides`,{documentType:type,confirm:true});const updated=await api.get<{documents:ClientDocumentView[]}>(`/clients/${found.id}/documents`);current=updated.documents.filter(d=>d.documentType===type&&d.status==='CURRENT'&&!d.retentionDue);}
+  const current=saved.documents.filter(d=>d.documentType===type&&d.status==='CURRENT'&&!d.retentionDue);
   if(current.length){setDocuments(current);setNotice('Mostramos las fotos guardadas. No se usaron créditos.');return;}
   if(!can('client.identity_photo.lookup')||!can('client.documents.upload'))throw new Error('No hay fotos guardadas de este tipo. Pide al administrador que las consulte.');
   if(!confirmed)throw new Error('Marca la casilla de permiso para pedir las fotos a CODART.');

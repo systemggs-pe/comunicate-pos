@@ -23,11 +23,29 @@ beforeEach(async()=>{
 });
 afterAll(async()=>{await clearEvidenceFixtures(db);storage.client.destroy();await db.$disconnect();for(const [key,value]of Object.entries({CODART_ENABLED:old.enabled,CODART_PHOTO_STORAGE_AUTHORIZED:old.authorized})){if(value===undefined)delete process.env[key];else process.env[key]=value;}});
 const lookup=(body:object=authorization)=>agent.post(`/api/clients/${clientId}/identity-photos`).set('Origin',testOrigin).send(body);
+it('AUD-08 unlabeled photos require explicit review, including the legacy order endpoint',async()=>{
+ const first=await lookup();expect(first.status).toBe(200);const [a,b]=first.body.documents;
+ expect([a.category,b.category]).toEqual(['IDENTITY_IMAGE','IDENTITY_IMAGE']);
+ const automatic=await agent.post(`/api/clients/${clientId}/documents/identify-codart-sides`).set('Origin',testOrigin).send({documentType:'BLUE',confirm:true});
+ expect(automatic.status).toBe(409);expect(automatic.body.error.code).toBe('CLIENT_DOCUMENT_SIDE_REVIEW_REQUIRED');
+ const path=(id:string)=>`/api/clients/${clientId}/documents/${id}/side`;
+ expect((await agent.patch(path(b.id)).set('Origin',testOrigin).send({category:'DNI_FRONT',confirm:false})).status).toBe(400);
+ const read=await agent.get(`/api/clients/${clientId}/documents`);expect(read.body.documents.every((d:{category:string})=>d.category==='IDENTITY_IMAGE')).toBe(true);
+ expect(await db.auditLog.count({where:{action:'CLIENT_DOCUMENT_SIDE_IDENTIFIED'}})).toBe(0);
+ // Explicit human choice reverses ordinal order: no index rule survives.
+ expect((await agent.patch(path(b.id)).set('Origin',testOrigin).send({category:'DNI_FRONT',confirm:true})).status).toBe(200);
+ expect((await agent.patch(path(a.id)).set('Origin',testOrigin).send({category:'DNI_BACK',confirm:true})).status).toBe(200);
+ const reused=await lookup();expect(reused.body.reused).toBe(true);expect(calls).toHaveLength(1);
+ expect((await db.clientDocument.findUniqueOrThrow({where:{id:a.id}})).category).toBe('DNI_BACK');
+ expect((await db.clientDocument.findUniqueOrThrow({where:{id:b.id}})).category).toBe('DNI_FRONT');
+ expect(await db.auditLog.count({where:{action:'CLIENT_DOCUMENT_SIDE_IDENTIFIED'}})).toBe(2);
+ expect(await db.evidenceAsset.count()).toBe(2);
+});
 it('consulta nombre exclusivo, crea cliente sólo por confirmación y gana caché local',async()=>{
  expect((await agent.get('/api/dni/70876543')).body.source).toBe('LOCAL');expect(calls).toHaveLength(0);const response=await agent.get('/api/dni/70000011');expect(response.body).toMatchObject({source:'EXTERNAL',data:{fullName:'NOMBRE SINTÉTICO',firstName:'',lastName:''}});expect(JSON.stringify(response.body)).not.toContain('UNUSED');expect(await db.client.count()).toBe(1);const created=await agent.post('/api/clients').set('Origin',testOrigin).send({dni:'70000011',firstName:'',lastName:'',fullName:response.body.data.fullName});expect(created.status).toBe(201);expect((await agent.get('/api/dni/70000011')).body.source).toBe('LOCAL');expect(calls).toHaveLength(1);expect((await db.client.findUniqueOrThrow({where:{dni:'70000011'}})).address).toBeNull();
 });
 it('ambos tipos persisten privados sin base64, conservan orden y deduplican archivos',async()=>{
- for(const type of ['BLUE','ELECTRONIC']){const result=await lookup({...authorization,documentType:type});expect(result.status,JSON.stringify(result.body)).toBe(200);expect(result.body.documents.map((d:{sourceOrdinal:number})=>d.sourceOrdinal)).toEqual([1,2]);expect(result.body.documents.map((d:{category:string})=>d.category)).toEqual(['DNI_FRONT','DNI_BACK']);}
+ for(const type of ['BLUE','ELECTRONIC']){const result=await lookup({...authorization,documentType:type});expect(result.status,JSON.stringify(result.body)).toBe(200);expect(result.body.documents.map((d:{sourceOrdinal:number})=>d.sourceOrdinal)).toEqual([1,2]);expect(result.body.documents.map((d:{category:string})=>d.category)).toEqual(['IDENTITY_IMAGE','IDENTITY_IMAGE']);}
  expect(calls.map(path=>path.split('/fd/')[1])).toEqual(['dniv/70876543','dnivel/70876543']);expect(await db.clientDocument.count()).toBe(4);expect(await db.evidenceAsset.count()).toBe(2);const assets=await db.evidenceAsset.findMany();for(const asset of assets){expect(await storage.exists(asset.storageKey)).toBe(true);expect(asset.storageKey).not.toContain('70876543');}const listed=await agent.get(`/api/clients/${clientId}/documents`);expect(JSON.stringify(listed.body)).not.toMatch(/data:image|base64|storageKey|authorizationReference|checksum/);const logs=JSON.stringify(await db.auditLog.findMany());expect(logs).not.toMatch(/synthetic-token|data:image|UNUSED/);
 });
 it('reutiliza fotografías sin consulta aun si proveedor queda desactivado',async()=>{const first=await lookup();expect(first.status).toBe(200);process.env.CODART_ENABLED='false';process.env.CODART_PHOTO_STORAGE_AUTHORIZED='false';const second=await lookup();expect(second.status).toBe(200);expect(second.body.reused).toBe(true);expect(calls).toHaveLength(1);expect(await db.evidenceAsset.count()).toBe(2);});

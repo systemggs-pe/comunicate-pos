@@ -3,6 +3,18 @@ import sharp from 'sharp';
 import {CodartProvider,decodeIdentityImage,readProviderJson} from '../../server/integrations/codart';
 import {createDniProvider,MockDniProvider} from '../../server/dni/providers';
 import {createDniLookupService} from '../../server/dni/lookup.service';
+it.each([
+ {labels:[{side:'BACK'},{side:'FRONT'}],expected:['DNI_BACK','DNI_FRONT']},
+ {labels:[{side:'FRONT'},{}],expected:['DNI_FRONT',undefined]},
+ {labels:[{side:'FRONT',lado:'REVERSO'},{}],expected:[undefined,undefined]},
+ {labels:[{side:'FRONT'},{side:'FRONT'}],expected:[undefined,undefined]},
+ {labels:[{},{}],expected:[undefined,undefined]},
+])('AUD-08 only unambiguous explicit labels assign sides: $expected',async({labels,expected})=>{
+ const images=await Promise.all(labels.map(async label=>({...label,data_uri:await uri()})));
+ const provider=new CodartProvider('synthetic-token',vi.fn<typeof fetch>().mockResolvedValue(Response.json({success:true,data:{images}})));
+ const actual=(await provider.photos('70876543','BLUE')).images.map(i=>i.side);
+ expect(actual).toEqual(expected);
+});
 let old:string|undefined;
 beforeEach(()=>{old=process.env.CODART_ENABLED;process.env.CODART_ENABLED='true';});
 afterEach(()=>{if(old===undefined)delete process.env.CODART_ENABLED;else process.env.CODART_ENABLED=old;});
@@ -12,7 +24,7 @@ it('GET RENIEC con Bearer backend extrae sólo full_name y normaliza espacios',a
  const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({success:true,result:{full_name:'  CLIENTE   SINTÉTICO ',birth_date:'PRIVATE',gender:'PRIVATE',address:'PRIVATE',phone:'PRIVATE',email:'PRIVATE'}}));const provider=new CodartProvider('synthetic-token',fetcher);expect(await provider.lookup('70876543')).toEqual({dni:'70876543',fullName:'CLIENTE SINTÉTICO',source:'codart'});expect(fetcher).toHaveBeenCalledWith('https://api-codart.cgrt.org/api/v1/consultas/reniec/dni/70876543',expect.objectContaining({method:'GET',redirect:'manual',headers:expect.objectContaining({'Content-Type':'application/json',Authorization:'Bearer synthetic-token'})}));
 });
 it.each([['BLUE','dniv'],['ELECTRONIC','dnivel']] as const)('%s llama sólo %s y conserva el orden sin inferir anverso/reverso',async(type,endpoint)=>{
- const jpeg=await sharp(await png()).jpeg().toBuffer(),fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({success:true,data:{images:[{data_uri:await uri()},{data_uri:'data:image/jpeg;base64,'+jpeg.toString('base64')}]},credits_deducted:2}));const result=await new CodartProvider('synthetic-token',fetcher).photos('70876543',type);expect(fetcher).toHaveBeenCalledTimes(1);expect(String(fetcher.mock.calls[0][0])).toContain(`/fd/${endpoint}/70876543`);expect(result.images).toHaveLength(2);expect(result.creditsDeducted).toBe(2);expect(result.images[0]).toMatchObject({width:100,height:150,mimeType:'image/webp'});expect(result.images[0]).not.toHaveProperty('category');
+ const jpeg=await sharp(await png()).jpeg().toBuffer(),fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({success:true,data:{images:[{data_uri:await uri()},{data_uri:'data:image/jpeg;base64,'+jpeg.toString('base64')}]},credits_deducted:2}));const result=await new CodartProvider('synthetic-token',fetcher).photos('70876543',type);expect(fetcher).toHaveBeenCalledTimes(1);expect(String(fetcher.mock.calls[0][0])).toContain(`/fd/${endpoint}/70876543`);expect(result.images).toHaveLength(2);expect(result.creditsDeducted).toBe(2);expect(result.images[0]).toMatchObject({width:100,height:150,mimeType:'image/webp'});expect(result.images[0]).not.toHaveProperty('category');expect(result.images.every(image=>image.side===undefined)).toBe(true);
 });
 it.each(['7087654','708765432','70876A43'])('DNI %s inválido no consulta al proveedor',async dni=>{const fetcher=vi.fn<typeof fetch>();await expect(new CodartProvider('synthetic-token',fetcher).lookup(dni)).rejects.toThrow();expect(fetcher).not.toHaveBeenCalled();});
 it.each([401,403,402,429,500])('maneja HTTP %i sin filtrar datos del proveedor',async status=>{
