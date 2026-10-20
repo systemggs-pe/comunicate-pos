@@ -1,0 +1,10 @@
+{
+  "targets": [
+    "src/pages/CompanySettings.tsx",
+    "src/pages/PhotoDni.tsx",
+    "src/features/registrations/OperationalRegistrationFlow.tsx"
+  ],
+  "command": "impeccable.cmd detect --json <three targets>",
+  "findings": [],
+  "scope": "Narrow functional refinement, no redesign or animation change."
+}

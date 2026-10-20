@@ -15,6 +15,8 @@ async function createSale(page:import('@playwright/test').Page){const input=work
 
 test('configuración editable persiste y es responsive 375 390 430',async({page})=>{
  await page.goto('/configuracion/empresa');await expect(page.getByLabel('NOMBRE COMERCIAL',{exact:true})).toBeVisible();
+ for(const label of ['MOSTRAR CONTACTO DEL CLIENTE','MOSTRAR NÚMERO DE SERIE','MOSTRAR VENDEDOR','MENSAJE FINAL DEL TICKET','DESCRIPCIÓN DEL NEGOCIO','CORREO ELECTRÓNICO'])await expect(page.getByLabel(label,{exact:true})).toHaveCount(0);
+ await expect(page.getByText('El ticket incluye siempre el número de serie y el pie aprobado. No muestra contacto del cliente ni vendedor.')).toBeVisible();
  for(const width of [375,390,430]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);}
  await page.getByLabel('NOMBRE COMERCIAL',{exact:true}).fill('mi tienda');await page.getByLabel('DIRECCIÓN',{exact:true}).fill('av. españa 123');await page.getByLabel('TELÉFONO O CELULAR',{exact:true}).fill('952123456');await page.getByRole('button',{name:'GUARDAR CONFIGURACIÓN',exact:true}).click();await expect(page.getByRole('status')).toContainText('CONFIGURACIÓN GUARDADA');await page.reload();await expect(page.getByLabel('NOMBRE COMERCIAL',{exact:true})).toHaveValue('MI TIENDA');expect((await db.companySettings.findUniqueOrThrow({where:{id:1}})).phone).toBe('952123456');
 });

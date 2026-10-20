@@ -1,0 +1,326 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\ASUS\\.local\\nodejs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/receipts.spec.ts",
+      "tests/e2e/audit-p2.spec.ts",
+      "--reporter=json"
+    ],
+    "configFile": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\playwright.config.ts",
+    "rootDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/.test-results/e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/tests/e2e",
+        "testIgnore": [
+          "mvp-*.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e",
+        "snapshotDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e",
+        "testIgnore": "mvp-*.spec.ts",
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 120000,
+        "use": {
+          "actionTimeout": 15000,
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:5175",
+          "channel": "msedge",
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "audit-p2.spec.ts",
+      "file": "audit-p2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "AUD-06 provincia visible y dirección compartida coherente en desktop y móvil",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5060,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T18:41:19.342Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b5dcf04611e5e40c52c-377c3b7ca2579efa48c1",
+          "file": "audit-p2.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "AUD-08 consultar fotos guardadas no envía confirmación automática; el lado requiere elección",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2923,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T18:41:24.816Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8b5dcf04611e5e40c52c-d90d0da2ef9eb341afde",
+          "file": "audit-p2.spec.ts",
+          "line": 20,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "receipts.spec.ts",
+      "file": "receipts.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "configuración editable persiste y es responsive 375 390 430",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2995,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T18:41:27.807Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-fe4062e942eeee2e1f32",
+          "file": "receipts.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "ticket 58 mm: vista automática, descarga exacta e impresión",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4749,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T18:41:30.820Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-3a6c37fdf7cbd9e3adc7",
+          "file": "receipts.spec.ts",
+          "line": 23,
+          "column": 29
+        },
+        {
+          "title": "ticket 80 mm: vista automática, descarga exacta e impresión",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4567,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T18:41:35.589Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-03c5c9ca81b44c7a1a6d",
+          "file": "receipts.spec.ts",
+          "line": 23,
+          "column": 29
+        },
+        {
+          "title": "selector ofrece sólo 58/80, descarga al seleccionar y permite cancelar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3297,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T18:41:40.179Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-e81a4392cb9853103d5b",
+          "file": "receipts.spec.ts",
+          "line": 39,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T18:41:13.108Z",
+    "duration": 31153.705,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
