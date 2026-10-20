@@ -1,0 +1,4 @@
+{"startedAt":"2026-10-20T17:47:16.654Z","command":"node node_modules/vitest/vitest.mjs run --project unit tests/unit/registration-share.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud06-unit.json","preflight":"PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"}
+JSON report written to C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/docs/p2-remediation/evidence/aud06-unit.json
+
+{"exitCode":0,"durationMs":647}
