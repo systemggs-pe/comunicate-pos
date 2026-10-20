@@ -1,3 +1,5 @@
+import {clearEvidenceFixtures} from '../helpers/evidence';
+import {fixtureImei} from '../helpers/imei';
 import 'dotenv/config';
 import { test, expect } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
@@ -8,7 +10,7 @@ const url = process.env.TEST_DATABASE_URL!;
 const target = new URL(url);
 if (!['127.0.0.1', 'localhost'].includes(target.hostname) || target.pathname !== '/communicate_pos_test') throw new Error('Sólo base local de prueba');
 const db = new PrismaClient({ datasources: { db: { url } } });
-test.beforeAll(async () => {
+test.beforeAll(async () => {await clearEvidenceFixtures(db);
   await db.$transaction([db.session.deleteMany(), db.authRateLimit.deleteMany(), db.registrationRequestHistory.deleteMany(), db.registrationRequest.deleteMany(), db.registrationOperation.deleteMany(), db.saleAccessory.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]);
   await seedTestAdmin(db);
   await mkdir('.test-results/dual-imei', { recursive: true });
@@ -18,7 +20,7 @@ test.afterAll(() => db.$disconnect());
 for (const [index, brand] of ['Samsung', 'Honor', 'Xiaomi', 'Motorola', 'Apple', 'Desconocida'].entries()) {
   test(`${brand}: dual, selección independiente y búsqueda del segundo`, async ({ page }) => {
     const dni = `6090000${index}`;
-    const first = `3596090000${index}0001`, second = `3596090000${index}0002`;
+    const first = fixtureImei(609000+index*2), second = fixtureImei(609001+index*2);
     await page.goto('/login');
     await page.getByLabel('Correo', { exact: true }).fill(testEmail);
     await page.getByLabel('Contraseña', { exact: true }).fill(testPassword);
@@ -40,8 +42,8 @@ for (const [index, brand] of ['Samsung', 'Honor', 'Xiaomi', 'Motorola', 'Apple',
     await page.getByRole('button', { name: 'Guardar registro', exact: true }).click();
     await expect(page.getByRole('heading', { name: `${brand.toUpperCase()} DUAL`, exact: true })).toBeVisible();
     const id = new URL(page.url()).pathname.split('/').pop()!;
-    await expect(page.getByTestId('imei-card-1').getByText('Registrado', { exact: true })).toBeVisible();
-    await expect(page.getByTestId('imei-card-2').getByText('SIN SOLICITUD', { exact: true })).toBeVisible();
+    await expect(page.locator('.equipment-imei-item').filter({has:page.getByRole('heading',{name:'IMEI 1',exact:true})}).getByText('Registrado', { exact: true })).toBeVisible();
+    await expect(page.locator('.equipment-imei-item').filter({has:page.getByRole('heading',{name:'IMEI 2',exact:true})}).getByText('SIN SOLICITUD', { exact: true })).toBeVisible();
     // Buscar únicamente IMEI 2 debe ofrecer también IMEI 1 ya asociado.
     await page.goto('/registros/tecnico'); await page.getByLabel('DNI', { exact: false }).fill(dni);
     await expect(page.getByText('Cliente encontrado', { exact: true })).toBeVisible();

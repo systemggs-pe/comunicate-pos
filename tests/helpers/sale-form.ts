@@ -10,5 +10,5 @@ export async function saveSale(page:Page){
  await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();
  await expect(page.getByRole('dialog',{name:'Ticket de venta',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Cerrar ticket',exact:true}).click();
- await expect(page.getByText('Venta registrada correctamente.',{exact:false})).toBeVisible();
+ await expect(page.getByRole('dialog',{name:'Detalle de venta',exact:true})).toBeVisible();
 }

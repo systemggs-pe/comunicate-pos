@@ -17,7 +17,7 @@ const fetcher:typeof fetch=async(input)=>{
  const url=String(input);if(!url.startsWith('https://api-codart.cgrt.org/'))throw Error('MOCK CONTRACT URL');
  if(url.includes('/reniec/')){control.nameCalls++;await new Promise(r=>setTimeout(r,control.nameDelay));return Response.json({success:true,result:{full_name:'CLIENTE SINTÉTICO DE PRUEBA',address:'NEVER IMPORT',birth_date:'NEVER IMPORT'}});}
  control.photoCalls++;if(control.photo==='credits')return Response.json({}, {status:402});
- return Response.json({success:true,data:{images:[{data_uri:'data:image/png;base64,'+png.toString('base64')},{data_uri:'data:image/jpeg;base64,'+jpeg.toString('base64')}]},credits_deducted:2});
+ return Response.json({success:true,data:{images:[{data_uri:'data:image/png;base64,'+png.toString('base64'),...(control.photo==='ambiguous'?{side:'FRONT'}:{})},{data_uri:'data:image/jpeg;base64,'+jpeg.toString('base64'),...(control.photo==='ambiguous'?{side:'FRONT'}:{})}]},credits_deducted:2});
 };
 const provider=new CodartProvider('synthetic-test-token',fetcher,true);
 const app=createApp(db,{dniProvider:provider,identityPhotos:provider,boxScanner:{simulated:true,scan:async(bytes)=>{
@@ -26,7 +26,7 @@ const app=createApp(db,{dniProvider:provider,identityPhotos:provider,boxScanner:
  if(mode==='quota')throw new DomainError(429,'CUOTA SIMULADA AGOTADA.','EXTERNAL_QUOTA_REACHED');
  if(mode==='invalid')return {brand:5};
  const stats=await sharp(bytes).stats(),red=stats.channels[0].mean>150;
- return {...Object.fromEntries(scanFields.map(k=>[k,null])),brand:'SAMSUNG',commercialName:'GALAXY DE PRUEBA',model:red?'MOCK-A':'MOCK-B',color:'AZUL',ram:'12 GB',storage:'256 GB',serialNumber:'MOCK-SERIAL',imei1:red?'359708765431001':'359708765432001',imei2:red?'359708765431002':'359708765432002'};
+ return {...Object.fromEntries(scanFields.map(k=>[k,null])),brand:'SAMSUNG',commercialName:'GALAXY DE PRUEBA',model:red?'MOCK-A':'MOCK-B',color:'AZUL',ram:'12 GB',storage:'256 GB',serialNumber:'MOCK-SERIAL',imei1:red?'597087654310016':'597087654320015',imei2:red?'597087654310024':'597087654320023'};
 }}});
 const harness=express();
 harness.get('/api/_test/control',(_req,res)=>res.json({...control,simulated:true}));
