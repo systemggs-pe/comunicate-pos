@@ -1,0 +1,5 @@
+{"startedAt":"2026-10-20T18:35:33.341Z","command":"node node_modules/prisma/build/index.js migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --exit-code --script","preflight":"PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"}
+-- This is an empty migration.
+
+
+{"exitCode":0,"durationMs":1466}

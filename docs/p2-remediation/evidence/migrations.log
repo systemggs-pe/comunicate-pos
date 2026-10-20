@@ -1,0 +1,9 @@
+{"startedAt":"2026-10-20T17:46:32.915Z","command":"node node_modules/prisma/build/index.js migrate deploy","preflight":"PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"}
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "communicate_pos_test", schema "public" at "127.0.0.1:55438"
+
+Error: Schema engine error:
+
+
+{"exitCode":1,"durationMs":818}

@@ -104,9 +104,9 @@ model CompanySettings {
  showClientContact Boolean @default(true)
  showSerial Boolean @default(true)
  showSeller Boolean @default(true)
- updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(3)
  updatedById String? @db.Uuid
- updatedBy User? @relation(fields:[updatedById],references:[id],onDelete:SetNull)
+ updatedBy User? @relation(fields:[updatedById],references:[id],onDelete:SetNull,onUpdate:NoAction)
 }
 
 model Client {
@@ -331,7 +331,7 @@ model RegistrationRequest {
   legacyConditions String? @db.VarChar(1000)
   occurredAt DateTime @db.Timestamptz(3)
   completedById String? @db.Uuid
-  completedBy User? @relation("RequestCompleter", fields: [completedById], references: [id], onDelete: Restrict)
+  completedBy User? @relation("RequestCompleter", fields: [completedById], references: [id], onDelete: Restrict, onUpdate: NoAction)
   completedAt DateTime? @db.Timestamptz(3)
   legacyCompletedAt DateTime? @db.Timestamptz(3)
   createdById String @db.Uuid
@@ -343,6 +343,7 @@ model RegistrationRequest {
   history RegistrationRequestHistory[]
   evidence RegistrationEvidence[]
   @@unique([operationId, imeiId])
+  @@unique([operationId, phone], map: "request_distinct_phone_per_operation")
   @@unique([imeiId], map: "request_one_per_imei")
   @@index([imeiId, createdAt])
   @@index([status, createdAt])
@@ -429,16 +430,16 @@ model EvidenceAsset {
  links RegistrationEvidence[]
  clientDocuments ClientDocument[]
  ownerClientId String? @db.Uuid
- ownerClient Client? @relation(fields:[ownerClientId],references:[id],onDelete:Restrict)
+ ownerClient Client? @relation(fields:[ownerClientId],references:[id],onDelete:Restrict,onUpdate:NoAction)
  @@index([status,expiresAt])
  @@index([ownerSessionId,status])
 }
 model ClientDocument {
- id String @id @default(uuid()) @db.Uuid
+ id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
  clientId String @db.Uuid
- client Client @relation(fields:[clientId],references:[id],onDelete:Restrict)
+ client Client @relation(fields:[clientId],references:[id],onDelete:Restrict,onUpdate:NoAction)
  evidenceAssetId String @db.Uuid
- evidenceAsset EvidenceAsset @relation(fields:[evidenceAssetId],references:[id],onDelete:Restrict)
+ evidenceAsset EvidenceAsset @relation(fields:[evidenceAssetId],references:[id],onDelete:Restrict,onUpdate:NoAction)
  category String @db.VarChar(30)
  documentType String @db.VarChar(20)
  source String @db.VarChar(30)
@@ -448,9 +449,9 @@ model ClientDocument {
  authorizationReference String @db.VarChar(200)
  expiresAt DateTime @db.Timestamptz(3)
  createdAt DateTime @default(now()) @db.Timestamptz(3)
- updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(3)
  createdById String? @db.Uuid
- createdBy User? @relation(fields:[createdById],references:[id],onDelete:SetNull)
+ createdBy User? @relation(fields:[createdById],references:[id],onDelete:SetNull,onUpdate:NoAction)
  @@unique([clientId,evidenceAssetId,documentType,source])
  @@index([clientId,status,documentType])
  @@index([evidenceAssetId])
