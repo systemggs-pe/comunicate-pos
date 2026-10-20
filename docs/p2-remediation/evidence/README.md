@@ -1,0 +1,14 @@
+# Phase4 evidence
+
+All records refer to isolated synthetic resources, except Docker metadata of habitual services used for preservation comparison. No commercial DB contents, photos or identifiers were inspected/exported in Phase4. Schema history and build inputs are hashed/compared to their recorded baseline. .env, keys, node_modules and private archives are excluded.
+
+- verification-summary.json consolidates unique cases: latest complete unit result per file, keeping parameterized cases with repeated titles; union of separate integration files; focused E2E. Initial failures remain native artifacts, never retroactively rewritten as PASS.
+- aud06-integration: initial fixture inconsistency rejected by trigger; final file uses legitimate blocked API fixture. aud08-unit: initial parameterization error; final uses explicit named cases. unit-regression: Python alias failures; pdf-unit-final replaces the two complete affected files. migrations.log retains initial schema-engine failure; migrations-ready confirms the fresh history after readiness.
+- p2-browser.json is parsed from the JSON emitted in p2-browser.log, not a separate execution. The PhotoDni UI case uses synthetic intercepted responses; storage/RBAC and human classification are checked against real isolated services in integration.
+- build-clean/build-api-clean/lint logs preserve command output. Exit outcomes were observed directly and recorded in verification-summary. npm ci stdout was not retained in full; the observed exit/result is recorded in clean-build-inputs.json. No lockfile update or shared root Prisma DLL.
+- *.source.txt are snapshots of the provisioning/preflight/closure scripts. Their private .local environment must be provisioned independently. The resources now exist stopped; provisioning refuses reuse. Do not point tests at habitual services or bypass their guards. These sources are evidence, not a new runtime module.
+- service-preservation.json records purpose-guarded stop of only the new Phase4 containers, retained named volumes and habitual container metadata compared with Phase3 closing. It does not claim absence of concurrent POS writes or row-by-row commercial equality.
+- commands.json lists captured commands with private values omitted. source-manifest.json hashes changed product/test source files. changed-files.txt lists the full delivery since the Phase3 baseline. commits.txt lists local per-finding commits; the final delivery commit is reported separately.
+- SHA256SUMS.txt hashes UTF-8 LF Git representation of every other evidence file. Whitespace/line ending normalization of logs does not change native outcomes. Secret scan prints no values, records scope/result in secret-hygiene.json.
+
+No push/deploy, new cloud resources, commercial migrations/data cleanup or production-readiness acceptance is part of this delivery. AUD-04/AUD-05 and historical case review remain explicitly pending.

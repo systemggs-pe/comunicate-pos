@@ -98,7 +98,7 @@ La evidencia original y sus reproducciones se conservan como historial. Los esta
 - **Probabilidad/alcance:** Reproducida.
 - **Corrección propuesta:** Incluir provincia en contrato, plantilla y comparación doble; revisar captura en el formulario.
 - **Aceptación:** Individual/doble/bloqueado conservan provincia y no agrupan ubicaciones incompatibles.
-- **Estado:** REPRODUCIDO. Abierto, sin corregir.
+- **Estado:** RESUELTO LOCAL (fase 4). Provincia capturada/compartida y agrupación compatible verificadas. Ver ../p2-remediation/02-aud-06.md.
 
 ## AUD-07 — El datamodel no describe completamente el estado producido por las migraciones.
 
@@ -110,7 +110,7 @@ La evidencia original y sus reproducciones se conservan como historial. Los esta
 - **Probabilidad/alcance:** Diferencias confirmadas; impacto futuro no reproducido.
 - **Corrección propuesta:** Conciliar/documentar SQL y Prisma. No aplicar automáticamente el diff para quitar diferencias.
 - **Aceptación:** Historia desde base vacía y definición reconciliadas, excepciones intencionales justificadas.
-- **Estado:** CONFIRMADO EN METADATOS. Abierto, sin corregir.
+- **Estado:** RESUELTO LOCAL (fase 4). Historia nueva migrada, Prisma/SQL representable conciliado, diff vacío y garantías SQL conservadas. Ver ../p2-remediation/03-aud-07.md.
 
 ## AUD-08 — Dos fotos sin etiquetas se clasifican por índice sin contrato real verificado.
 
@@ -122,7 +122,7 @@ La evidencia original y sus reproducciones se conservan como historial. Los esta
 - **Probabilidad/alcance:** Condicional al contrato externo; no medida.
 - **Corrección propuesta:** Aportar contrato y prueba autorizada de orden estable o exigir identificación humana del lado.
 - **Aceptación:** Sin etiquetas no se confirma un lado sin regla contractual probada o revisión explícita.
-- **Estado:** ESTÁTICO / NO REPRODUCIDO CON API REAL. Abierto, sin corregir.
+- **Estado:** RESUELTO LOCAL (fase 4) mediante revisión explícita, sin contrato externo inventado. Se retiran las dos inferencias por orden. CODART real NOT VERIFIED. Ver ../p2-remediation/04-aud-08.md.
 
 ## AUD-09 — Se ofrecen preferencias de ticket que la plantilla fija ignora.
 
@@ -134,7 +134,7 @@ La evidencia original y sus reproducciones se conservan como historial. Los esta
 - **Probabilidad/alcance:** Estático confirmado; test anterior de preferencias falla.
 - **Corrección propuesta:** Retirar o aclarar controles no aplicables. No reintroducir contenido retirado sin acuerdo.
 - **Aceptación:** Cada opción visible produce un efecto documentado o deja de presentarse como aplicable.
-- **Estado:** ESTÁTICO. Abierto, sin corregir.
+- **Estado:** RESUELTO LOCAL (fase 4). Controles ignorados retirados y alcance aclarado, plantilla 58/80 preservada. Ver ../p2-remediation/05-aud-09.md.
 
 ## AUD-10 — 70 de 643 IMEI históricos no cumplen Luhn.
 
@@ -146,7 +146,7 @@ La evidencia original y sus reproducciones se conservan como historial. Los esta
 - **Probabilidad/alcance:** Anomalía presente; origen individual no investigado.
 - **Corrección propuesta:** Revisión documental caso por caso y corrección autorizada con trazabilidad. Nunca reparar checksum automáticamente.
 - **Aceptación:** Consulta histórica disponible y nuevas escrituras válidas, sin perder asociaciones.
-- **Estado:** HISTÓRICOS INTACTOS. Abierto, sin corregir.
+- **Estado:** RESUELTO LOCAL EN CRITERIO TÉCNICO (fase 4). Consulta/escrituras/corrección autorizada sin pérdida de asociaciones verificadas; revisión real de históricos pendiente caso por caso, sin saneamiento comercial. Ver ../p2-remediation/06-aud-10.md.
 
 ## AUD-11 — Algunos controles móviles son menores al objetivo de comodidad de 44×44 px.
 
@@ -163,3 +163,7 @@ La evidencia original y sus reproducciones se conservan como historial. Los esta
 ## Actualización de fase 3 — cierre operativo local
 
 AUD-04 permanece **PARCIAL**, con ruta CLI verificada y custodia/RPO/RTO productivos pendientes. Las diferencias temporales de un IMEI y dos assets/documentos se concilian con creación/auditoría del 20/10; inventario inicial de cuatro objetos/seis asociaciones y cierre de seis objetos/ocho asociaciones tras actividad registrada a las 17:18 UTC. Cero referencias físicas faltantes; SHA-256 cotejado sólo para los cuatro iniciales, los dos nuevos son metadata-only. AUD-05 sigue BLOQUEADO EXTERNO. No se inicia P2 ni se declara producción lista. Ver [reporte fase 3](../phase3-operational-closure/00-summary.md).
+
+## Actualización de fase 4 — P2 local, 20/10/2026
+
+La autorización explícita de Phase4 permite remediar AUD-06–10 sin declarar aceptados AUD-04/AUD-05. Los cinco criterios técnicos P2 se cumplen localmente: provincia, conciliación Prisma/SQL, revisión DNI sin inferencia por orden, opciones de ticket efectivas y consulta/corrección histórica protegida. AUD-10 no implica reparar los 70 históricos ni reclasificar documentos reales. 322 unitarias consolidadas, 302 integración relacionadas y 6 E2E enfocadas PASS; resultados iniciales y limitaciones preservados. Código comprobado 67875fe. AUD-04 PARCIAL, AUD-05 BLOQUEADO EXTERNO y AUD-11 P3 ABIERTO. NOT READY. [Reporte/evidencia](../p2-remediation/00-remediation-report.md).

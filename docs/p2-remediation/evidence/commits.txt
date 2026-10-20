@@ -1,0 +1,8 @@
+Starting baseline: 1c586d2fff1ba06fbd84a3c52da51ab5218eb012
+Tested code: 67875fe6337844750b7d75b1b45edf5cb691b717
+18aca9fae0fdafdebaf30711593218a7cae7859c fix(audit): resolve AUD-06 province sharing and capture
+f9c4ef7692b7f8f5a1b46d15dbca021a25d60949 fix(audit): resolve AUD-07 Prisma migration representation
+9242c9991d3ee8c71fd6a02b04fc9cd30560a566 fix(audit): resolve AUD-08 require explicit DNI side identification
+f84de9cf396e539c19acad9144d9dbbc2e2705cf fix(audit): resolve AUD-09 ticket settings scope
+67875fe6337844750b7d75b1b45edf5cb691b717 test(audit): verify AUD-10 historical IMEI acceptance
+Delivery commit: contains final documentation and evidence only; hash reported in final response.

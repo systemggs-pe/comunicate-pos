@@ -1,0 +1,18 @@
+import {execFileSync} from 'node:child_process';
+import {randomBytes} from 'node:crypto';
+import {existsSync,writeFileSync} from 'node:fs';
+const tag='phase4-20261020',purpose='p2-remediation';
+const names={postgres:'communicate-test-'+tag+'-postgres',minio:'communicate-test-'+tag+'-minio',pgVolume:'communicate-test-'+tag+'-pgdata',s3Volume:'communicate-test-'+tag+'-s3data'};
+const envFile='.local/phase4-container.env',privateFile='.local/phase4-isolated.env';
+if(existsSync(envFile)||existsSync(privateFile))throw Error('NEW_PHASE4_ENV_REQUIRED');
+const docker=args=>execFileSync('docker',args,{encoding:'utf8',windowsHide:true}).trim();
+const containers=docker(['ps','-a','--format','{{.Names}}']).split(/\r?\n/),volumes=docker(['volume','ls','--format','{{.Name}}']).split(/\r?\n/);
+if(containers.includes(names.postgres)||containers.includes(names.minio)||volumes.includes(names.pgVolume)||volumes.includes(names.s3Volume))throw Error('PHASE4_RESOURCES_MUST_BE_NEW');
+const password=randomBytes(24).toString('hex'),secret=randomBytes(24).toString('hex');
+writeFileSync(envFile,`POSTGRES_USER=phase4\nPOSTGRES_PASSWORD=${password}\nPOSTGRES_DB=communicate_pos_test\nMINIO_ROOT_USER=phase4_storage\nMINIO_ROOT_PASSWORD=${secret}\n`,{flag:'wx',mode:0o600});
+for(const volume of [names.pgVolume,names.s3Volume])docker(['volume','create','--label',`purpose=${purpose}`,volume]);
+for(const [service,name,volume,port,image,command] of [['postgres',names.postgres,names.pgVolume,'55438:5432','postgres:16-alpine',[]],['storage',names.minio,names.s3Volume,'59040:9000','communicate-pos-minio:7aac2a2',['server','/data']]]){
+ docker(['run','-d','--name',name,'--label',`purpose=${purpose}`,'--label',`com.docker.compose.project=communicate-${tag}`,'--label',`com.docker.compose.service=${service}`,'--env-file',envFile,'--mount',`type=volume,source=${volume},target=${service==='postgres'?'/var/lib/postgresql/data':'/data'}`,'-p','127.0.0.1:'+port,image,...command]);
+}
+writeFileSync(privateFile,`DATABASE_URL=postgresql://phase4:${password}@127.0.0.1:55438/communicate_pos_test\nTEST_DATABASE_URL=postgresql://phase4:${password}@127.0.0.1:55438/communicate_pos_test\nRECOVERY_POSTGRES_CONTAINER=${names.postgres}\nRECOVERY_POSTGRES_PORT=55438\nSTORAGE_PROVIDER=s3\nS3_ENDPOINT=http://127.0.0.1:59040\nS3_REGION=us-east-1\nS3_BUCKET=communicate-evidence-phase4\nS3_ACCESS_KEY_ID=phase4_storage\nS3_SECRET_ACCESS_KEY=${secret}\nS3_FORCE_PATH_STYLE=true\nAUTH_ALLOWED_ORIGINS=http://127.0.0.1:5175\nDNI_PROVIDER=mock\nGEMINI_ENABLED=false\nGEMINI_API_KEY=\nCODART_API_KEY=\nGOOGLE_CLIENT_ID=\nGOOGLE_CLIENT_SECRET=\n`,{flag:'wx',mode:0o600});
+writeFileSync('docs/p2-remediation/evidence/isolated-resources.json',JSON.stringify({createdAt:new Date().toISOString(),purpose,names,project:'communicate-'+tag,ports:{postgres:55438,minio:59040},credentials:'Fresh synthetic credentials in ignored private env file; no existing credentials modified',volumes:'New named volumes; preserved, never deleted'},null,2));console.log(JSON.stringify({created:names,ports:[55438,59040]}));

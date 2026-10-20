@@ -1,0 +1,102 @@
+{
+  "baseline": "1c586d2fff1ba06fbd84a3c52da51ab5218eb012",
+  "count": 19,
+  "allUnchanged": true,
+  "migrations": [
+    {
+      "path": "prisma/migrations/20261007000100_foundation/migration.sql",
+      "canonicalSha256": "5f417c2efde4b497d772bbe3e332e2f55ebd936f899bfa50beeb0efe01a6b662",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261008000100_sales_core/migration.sql",
+      "canonicalSha256": "860a89f4bb1123b94d1ffa8eee27643aecc3559a2f9d93a56a34bc11f7ffcc3d",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261008000200_auth_permissions/migration.sql",
+      "canonicalSha256": "c1cbde4b2c93be305978ffdc10c11b9c71d6bb69682c2b1aa77722b1b4bff591",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261009000100_operational_workflows/migration.sql",
+      "canonicalSha256": "9de5a321fa8245e0df25a4a433e7c59de1d0255a5e442cd5915f03721b1a4076",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261009000200_operational_refinement/migration.sql",
+      "canonicalSha256": "0f890d8628fe27b5c37f8572e7d62e3b646ea9861690e5500094ef6fb83a8117",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261009000300_request_completion_integrity/migration.sql",
+      "canonicalSha256": "8ed65482c9dbcef8ac53f326974b8b06783220169ce241ade9a05432325e0c31",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261010000100_company_settings/migration.sql",
+      "canonicalSha256": "7971d7961ebfb2b897e8f66c9008f05b29c477dcc3c77be1f3e7b5af98403770",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261010000200_agent_identity/migration.sql",
+      "canonicalSha256": "2036464232a88425edc57fd5d5494af42e156641307196abbdd91334a3ebc170",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261010000300_private_evidence/migration.sql",
+      "canonicalSha256": "97758baefad805afd9e0035f07ad2908162a548c3da2e90104603431b4516e88",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261010000400_evidence_integrity_guards/migration.sql",
+      "canonicalSha256": "130b2dec63a7db1b0ac7f14478a387f0d030c115798ff90429c99038a388de44",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261010000500_reports_analytics/migration.sql",
+      "canonicalSha256": "3db454e65e3f4ebbf2a79fe36f0ff9bdd9db20ac421acd1e2b4d2a731c211479",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261012000100_client_full_name/migration.sql",
+      "canonicalSha256": "ad4b826246ce9073a8c71a555945c675f53727e282ea3a7c3964688284e8bb21",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261012000200_client_documents/migration.sql",
+      "canonicalSha256": "d11594c78171cc353c0525fa1a1a8df730edc8e38b3f2f204a114872abfe4c04",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261012000300_document_provenance/migration.sql",
+      "canonicalSha256": "4c6b9ff24d3a68af2110e1af92678afc468ae7d44dc0f11f086010d73874b543",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261014000100_client_document_scope/migration.sql",
+      "canonicalSha256": "374bc806e6469c2e43eafb34d342f070ee01458faca8126b678875ed16e534cc",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261014000200_client_document_integrity/migration.sql",
+      "canonicalSha256": "107e5d4191a2b815a07caaa18e82b9093856dd823742337c8cdc39a0e44da38e",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261017163000_sale_contact_snapshot/migration.sql",
+      "canonicalSha256": "a43e78368e05020ac604a633736ffbd8cd1a59375b42db42900e5825031a1c70",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261018110000_interface_google_province/migration.sql",
+      "canonicalSha256": "aa9792dc7419dca4bcb9aa0445079b2f5d3971270956338c9ba31745e8fa17b8",
+      "unchanged": true
+    },
+    {
+      "path": "prisma/migrations/20261019000100_receipt_formats_58_80/migration.sql",
+      "canonicalSha256": "d6476b90da84761934efb4344349f4d0ee9973ba2ab123e3e93b197d6f57b9d9",
+      "unchanged": true
+    }
+  ]
+}

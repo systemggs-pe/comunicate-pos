@@ -66,7 +66,7 @@ migrations/
     └─ migration.sql
   └─ 20261019000100_receipt_formats_58_80/
     └─ migration.sql
-      
+
 All migrations have been successfully applied.
 
 {"exitCode":0,"durationMs":1354}

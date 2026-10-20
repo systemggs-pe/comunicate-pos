@@ -1,0 +1,141 @@
+{
+  "capturedRunnerCommands": [
+    {
+      "artifact": "aud06-integration-final.log",
+      "startedAt": "2026-10-20T18:34:52.231Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project integration tests/integration/refinement.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud06-integration-final.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud06-integration.log",
+      "startedAt": "2026-10-20T17:47:17.741Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project integration tests/integration/refinement.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud06-integration.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud06-unit.log",
+      "startedAt": "2026-10-20T17:47:16.654Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project unit tests/unit/registration-share.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud06-unit.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud07-before.log",
+      "startedAt": "2026-10-20T17:46:44.237Z",
+      "command": "node node_modules/prisma/build/index.js migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --exit-code --script",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud07-contract.log",
+      "startedAt": "2026-10-20T18:36:38.782Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project integration tests/integration/migration-contract.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud07-contract.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud07-diff-final.log",
+      "startedAt": "2026-10-20T18:35:33.341Z",
+      "command": "node node_modules/prisma/build/index.js migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --exit-code --script",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud07-validate.log",
+      "startedAt": "2026-10-20T18:35:35.251Z",
+      "command": "node node_modules/prisma/build/index.js validate",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud08-integration.log",
+      "startedAt": "2026-10-20T18:37:39.075Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project integration tests/integration/codart.test.ts tests/integration/client-vault.test.ts tests/integration/registration-identity-required.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud08-integration.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud08-unit-final.log",
+      "startedAt": "2026-10-20T18:38:15.510Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project unit tests/unit/codart.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud08-unit-final.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud08-unit.log",
+      "startedAt": "2026-10-20T18:37:37.569Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project unit tests/unit/codart.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud08-unit.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud09-receipt-unit-final.log",
+      "startedAt": "2026-10-20T18:42:44.440Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project unit tests/unit/receipts.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud09-receipt-unit-final.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud09-receipt-unit.log",
+      "startedAt": "2026-10-20T18:38:32.841Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project unit tests/unit/receipts.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud09-receipt-unit.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "aud10-integration.log",
+      "startedAt": "2026-10-20T18:39:51.891Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project integration tests/integration/historical-imei.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/aud10-integration.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "integration-regression.log",
+      "startedAt": "2026-10-20T18:45:18.052Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project integration tests/integration/pos.test.ts tests/integration/sales.test.ts tests/integration/workflow.test.ts tests/integration/dual-imei.test.ts tests/integration/receipts.test.ts tests/integration/declaration.test.ts tests/integration/evidence-pdf.test.ts tests/integration/auth.test.ts tests/integration/scanner-protection.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/integration-regression.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "migrations-ready.log",
+      "startedAt": "2026-10-20T17:46:42.496Z",
+      "command": "node node_modules/prisma/build/index.js migrate deploy",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "migrations.log",
+      "startedAt": "2026-10-20T17:46:32.915Z",
+      "command": "node node_modules/prisma/build/index.js migrate deploy",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "p2-browser.log",
+      "startedAt": "2026-10-20T18:41:12.507Z",
+      "command": "node node_modules/@playwright/test/cli.js test tests/e2e/receipts.spec.ts tests/e2e/audit-p2.spec.ts --reporter=json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "pdf-unit-final.log",
+      "startedAt": "2026-10-20T18:45:14.523Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project unit tests/unit/declaration.test.ts tests/unit/evidence-pdf.test.ts --reporter=json --outputFile=docs/p2-remediation/evidence/pdf-unit-final.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "provision-storage.log",
+      "startedAt": "2026-10-20T17:47:15.777Z",
+      "command": "node node_modules/tsx/dist/cli.mjs scripts/provision-evidence.ts",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "typecheck-intermediate.log",
+      "startedAt": "2026-10-20T18:39:00.260Z",
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    },
+    {
+      "artifact": "unit-regression.log",
+      "startedAt": "2026-10-20T18:43:56.205Z",
+      "command": "node node_modules/vitest/vitest.mjs run --project unit --reporter=json --outputFile=docs/p2-remediation/evidence/unit-regression.json",
+      "preflight": "PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"
+    }
+  ],
+  "otherObservedCommands": [
+    "npm ci --no-audit --no-fund --prefix .local/phase4-clean-build",
+    "npm run build (cwd independent clean build copy)",
+    "npm run build:api (same copy)",
+    "node node_modules/eslint/bin/eslint.js . --max-warnings 0",
+    "impeccable.cmd context --target src/pages/CompanySettings.tsx",
+    "impeccable.cmd detect --json src/pages/CompanySettings.tsx src/pages/PhotoDni.tsx src/features/registrations/OperationalRegistrationFlow.tsx",
+    "python ui-ux-pro-max/scripts/search.py \"form settings helper text\" --domain ux -n 2",
+    "node .local/phase4-close.mjs (own-purpose guarded stop only)"
+  ],
+  "privacy": "Private env variables and credential values omitted; no provider calls against real services."
+}

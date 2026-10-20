@@ -1,0 +1,5 @@
+{"startedAt":"2026-10-20T17:47:15.777Z","command":"node node_modules/tsx/dist/cli.mjs scripts/provision-evidence.ts","preflight":"PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"}
+BUCKET LOCAL PRIVADO PREPARADO: communicate-evidence-phase4
+BUCKET LOCAL PRIVADO PREPARADO: communicate-evidence-test
+
+{"exitCode":0,"durationMs":471}

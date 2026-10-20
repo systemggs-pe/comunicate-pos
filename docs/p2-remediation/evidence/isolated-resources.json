@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-10-20T17:46:32.515Z",
+  "purpose": "p2-remediation",
+  "names": {
+    "postgres": "communicate-test-phase4-20261020-postgres",
+    "minio": "communicate-test-phase4-20261020-minio",
+    "pgVolume": "communicate-test-phase4-20261020-pgdata",
+    "s3Volume": "communicate-test-phase4-20261020-s3data"
+  },
+  "project": "communicate-phase4-20261020",
+  "ports": {
+    "postgres": 55438,
+    "minio": 59040
+  },
+  "credentials": "Fresh synthetic credentials in ignored private env file; no existing credentials modified",
+  "volumes": "New named volumes; preserved, never deleted"
+}

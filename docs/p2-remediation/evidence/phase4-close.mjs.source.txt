@@ -1,0 +1,13 @@
+import {execFileSync} from 'node:child_process';
+import {readFileSync,writeFileSync} from 'node:fs';
+const directory='docs/p2-remediation/evidence/';
+const docker=args=>execFileSync('docker',args,{encoding:'utf8',windowsHide:true});
+const inspect=name=>JSON.parse(docker(['inspect',name]))[0];
+const publicContainer=c=>({name:c.Name.replace(/^\//,''),createdAt:c.Created,startedAt:c.State.StartedAt,finishedAt:c.State.FinishedAt,status:c.State.Status,project:c.Config.Labels['com.docker.compose.project'],purpose:c.Config.Labels.purpose??null,mounts:c.Mounts.map(m=>({type:m.Type,name:m.Name,destination:m.Destination})),ports:c.HostConfig.PortBindings});
+const previous=JSON.parse(readFileSync('docs/phase3-operational-closure/evidence/baseline-closing.json','utf8'));
+const habitual=['communicate-pos-postgres-1','communicate-pos-minio-1'].map(name=>{const c=publicContainer(inspect(name)),old=previous.containers.find(x=>x.name===name);return {...c,sameCreatedSincePhase3:old.createdAt===c.createdAt,sameStartedSincePhase3:old.startedAt===c.startedAt,sameMountNamesSincePhase3:JSON.stringify(old.mounts.map(m=>m.name))===JSON.stringify(c.mounts.map(m=>m.name))};});
+const own=['postgres','minio'].map(service=>'communicate-test-phase4-20261020-'+service);
+for(const name of own){const c=inspect(name);if(c.Config.Labels.purpose!=='p2-remediation'||c.Config.Labels['com.docker.compose.project']!=='communicate-phase4-20261020'||c.Mounts.some(m=>!m.Name?.startsWith('communicate-test-phase4-20261020-')))throw Error('OWN_RESOURCE_PURPOSE_GUARD_FAILED');docker(['stop',name]);}
+const volumes=JSON.parse(docker(['volume','inspect','communicate-test-phase4-20261020-pgdata','communicate-test-phase4-20261020-s3data'])).map(v=>({name:v.Name,createdAt:v.CreatedAt,purpose:v.Labels.purpose}));
+writeFileSync(directory+'service-preservation.json',JSON.stringify({checkedAt:new Date().toISOString(),comparisonBaseline:'Phase3 closing metadata, not a whole-database snapshot',habitual,ownContainers:own.map(name=>publicContainer(inspect(name))),ownVolumes:volumes,operation:'Purpose-guarded stop of two own containers only. No removal/recreation/reset of habitual resources. All volumes retained.',commercialDatabaseQueries:0,commercialS3ObjectDownloads:0,commercialApplicationWritesByTheseScripts:0,limits:'Does not certify zero concurrent writes by the active POS or full row-by-row identity. No commercial DB contents or photos inspected in phase4.'},null,2)+'\n');
+console.log(JSON.stringify({ownStopped:own,volumesPreserved:volumes.length,habitualMetadataUnchanged:habitual.every(c=>c.sameCreatedSincePhase3&&c.sameStartedSincePhase3&&c.sameMountNamesSincePhase3)}));
