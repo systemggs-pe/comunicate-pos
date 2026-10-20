@@ -1,0 +1,4 @@
+{"startedAt":"2026-10-20T17:14:04.282Z","command":"node node_modules/tsx/dist/cli.mjs .local/phase3-drill-conclude.ts","preflight":"PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"}
+{"status":"PASS_LOCAL","checks":19,"inventories":[{"resource":"source","objects":80,"final":40,"staging":40,"checksumsVerified":80,"unknownKeys":0},{"resource":"restored","objects":80,"final":40,"staging":40,"checksumsVerified":80,"unknownKeys":0}],"timings":{"quiescenceWaitMs":125017,"backupMs":3535,"restoreCliMs":7968,"restoreToVerifiedAccessMs":8515,"totalMs":145336}}
+
+{"exitCode":0,"durationMs":8285}

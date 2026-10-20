@@ -1,0 +1,67 @@
+{
+  "checkedAt": "2026-10-20T17:17:23.824Z",
+  "mode": "READ ONLY + LIST/HEAD; no further commercial photo download",
+  "commercialApplicationWrites": 0,
+  "objects": 4,
+  "counts": {
+    "clients": 603,
+    "equipment": 641,
+    "imeis": 644,
+    "sales": 576,
+    "requests": 118
+  },
+  "links": 2,
+  "documents": 4,
+  "comparisons": [
+    {
+      "fingerprint": "95916c468319cd8b",
+      "initialListedLastModified": "2026-10-18T19:45:18.063Z",
+      "finalListedLastModified": "2026-10-18T19:45:18.063Z",
+      "headLastModified": "2026-10-18T19:45:18.000Z",
+      "sameAssetState": true,
+      "samePhysicalMetadata": true
+    },
+    {
+      "fingerprint": "d4210b1ddadf8106",
+      "initialListedLastModified": "2026-10-18T19:45:18.118Z",
+      "finalListedLastModified": "2026-10-18T19:45:18.118Z",
+      "headLastModified": "2026-10-18T19:45:18.000Z",
+      "sameAssetState": true,
+      "samePhysicalMetadata": true
+    },
+    {
+      "fingerprint": "d43cc0527d5edc3b",
+      "initialListedLastModified": "2026-10-20T16:10:44.083Z",
+      "finalListedLastModified": "2026-10-20T16:10:44.083Z",
+      "headLastModified": "2026-10-20T16:10:44.000Z",
+      "sameAssetState": true,
+      "samePhysicalMetadata": true
+    },
+    {
+      "fingerprint": "95832b5acd932567",
+      "initialListedLastModified": "2026-10-20T16:10:44.146Z",
+      "finalListedLastModified": "2026-10-20T16:10:44.146Z",
+      "headLastModified": "2026-10-20T16:10:44.000Z",
+      "sameAssetState": true,
+      "samePhysicalMetadata": true
+    }
+  ],
+  "habitualContainers": [
+    {
+      "name": "communicate-pos-minio-1",
+      "status": "running",
+      "sameCreatedAt": true,
+      "sameStartedAt": true,
+      "sameMounts": true
+    },
+    {
+      "name": "communicate-pos-postgres-1",
+      "status": "running",
+      "sameCreatedAt": true,
+      "sameStartedAt": true,
+      "sameMounts": true
+    }
+  ],
+  "unchangedDuringPhase3": true,
+  "limits": "This checks aggregate counts and asset/object metadata, not a complete row-by-row commercial hash."
+}

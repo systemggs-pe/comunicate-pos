@@ -1,0 +1,496 @@
+{
+  "checkedAt": "2026-10-20T17:20:09.825Z",
+  "mode": "READ ONLY",
+  "correlations": {
+    "documentsCreatedDuringInspection": [
+      {
+        "createdAt": "2026-10-20T17:18:33.857Z",
+        "category": "DNI_FRONT",
+        "source": "CODART_DNIVEL",
+        "uploadAuditMatches": true
+      },
+      {
+        "createdAt": "2026-10-20T17:18:33.920Z",
+        "category": "DNI_BACK",
+        "source": "CODART_DNIVEL",
+        "uploadAuditMatches": true
+      }
+    ],
+    "newDocumentRows": 2,
+    "newDocumentSources": [
+      "CODART_DNIV",
+      "CODART_DNIV"
+    ],
+    "newDocumentCategories": [
+      "DNI_FRONT",
+      "DNI_BACK"
+    ],
+    "newDocumentsMatchUploadAudit": true,
+    "newAssetsMatchAuditMetadata": true,
+    "newDocumentsShareOneClient": true,
+    "requestLinksWithNoMatchingDocumentCategory": 0,
+    "recentImeis": 1,
+    "imeiCreateAuditMatches": 1,
+    "events": [
+      {
+        "action": "IMEI_CREATE",
+        "entityType": "Imei",
+        "createdAt": "2026-10-20T15:51:57.808Z",
+        "metadataKeys": []
+      },
+      {
+        "action": "CLIENT_DOCUMENT_UPLOADED",
+        "entityType": "ClientDocument",
+        "createdAt": "2026-10-20T16:10:44.113Z",
+        "metadataKeys": [
+          "source",
+          "assetId",
+          "clientId",
+          "authorizationRecorded"
+        ]
+      },
+      {
+        "action": "CLIENT_DOCUMENT_UPLOADED",
+        "entityType": "ClientDocument",
+        "createdAt": "2026-10-20T16:10:44.168Z",
+        "metadataKeys": [
+          "source",
+          "assetId",
+          "clientId",
+          "authorizationRecorded"
+        ]
+      },
+      {
+        "action": "CODART_PHOTO_LOOKUP",
+        "entityType": "Client",
+        "createdAt": "2026-10-20T16:10:44.183Z",
+        "reportedImages": 2,
+        "metadataKeys": [
+          "images",
+          "documentType",
+          "creditsDeducted"
+        ]
+      },
+      {
+        "action": "CLIENT_DOCUMENT_UPLOADED",
+        "entityType": "ClientDocument",
+        "createdAt": "2026-10-20T17:18:33.868Z",
+        "metadataKeys": [
+          "source",
+          "assetId",
+          "clientId",
+          "authorizationRecorded"
+        ]
+      },
+      {
+        "action": "CLIENT_DOCUMENT_UPLOADED",
+        "entityType": "ClientDocument",
+        "createdAt": "2026-10-20T17:18:33.926Z",
+        "metadataKeys": [
+          "source",
+          "assetId",
+          "clientId",
+          "authorizationRecorded"
+        ]
+      },
+      {
+        "action": "CODART_PHOTO_LOOKUP",
+        "entityType": "Client",
+        "createdAt": "2026-10-20T17:18:33.941Z",
+        "reportedImages": 2,
+        "metadataKeys": [
+          "images",
+          "documentType",
+          "creditsDeducted"
+        ]
+      }
+    ],
+    "limits": "Audit + creation timestamps establish recorded operation types, not a human identity or a complete forensic attribution. No external API called during this inspection."
+  },
+  "bucketClassification": [
+    {
+      "bucket": "other-bucket-1",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 6,
+        "completionMarker": 2,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-2",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 3,
+        "completionMarker": 1,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-3",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 3,
+        "completionMarker": 1,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-4",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 3,
+        "completionMarker": 1,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-5",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 6,
+        "completionMarker": 2,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-6",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 3,
+        "completionMarker": 1,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-7",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 6,
+        "completionMarker": 2,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-8",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 3,
+        "completionMarker": 1,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-9",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 3,
+        "completionMarker": 1,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-10",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 3,
+        "completionMarker": 1,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-11",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 3,
+        "completionMarker": 1,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-12",
+      "nameSuggests": "backup namespace",
+      "types": {
+        "encryptedArchive": 3,
+        "completionMarker": 1,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "communicate-evidence",
+      "nameSuggests": "unclassified",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 6,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": true
+    },
+    {
+      "bucket": "other-bucket-14",
+      "nameSuggests": "unclassified",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-15",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-16",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-17",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-18",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 1,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-19",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-20",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-21",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-22",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-23",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-24",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 1,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-25",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 1,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-26",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-27",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-28",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 1,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-29",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 1,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-30",
+      "nameSuggests": "restore namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 0,
+        "staging": 0,
+        "other": 0
+      },
+      "ownershipVerified": false
+    },
+    {
+      "bucket": "other-bucket-31",
+      "nameSuggests": "test namespace",
+      "types": {
+        "encryptedArchive": 0,
+        "completionMarker": 0,
+        "evidence": 1,
+        "staging": 1,
+        "other": 0
+      },
+      "ownershipVerified": false
+    }
+  ],
+  "imageComposeLabels": {
+    "project": "communicate-pos",
+    "service": "minio"
+  },
+  "minioLog": {
+    "startLinesAvailable": [
+      "2026-10-19T20:18:26.673484949Z",
+      "2026-10-20T15:46:29.414843927Z"
+    ],
+    "formatKeywordLines": 0,
+    "limits": "Current-container standard logs only; absence of a line does not establish absence of incident writes or uptime loss."
+  }
+}

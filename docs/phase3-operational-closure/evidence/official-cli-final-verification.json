@@ -1,0 +1,167 @@
+{
+  "checkedAt": "2026-10-20T17:14:12.537Z",
+  "status": "PASS_LOCAL",
+  "method": "Read-only focused completion; no new backup/restore or changes to existing archives",
+  "originalRunnerExit": 1,
+  "originalFailure": "Expected 40 source objects; observed 80 because 40 staging objects are also included. Not a restore failure.",
+  "checks": [
+    {
+      "name": "new isolated fixture: 1000 synthetic clients, dedicated PostgreSQL/MinIO and named volumes",
+      "status": "PASS"
+    },
+    {
+      "name": "maintenance blocks reads/writes without changing audit/rate counters; liveness remains 200",
+      "status": "PASS"
+    },
+    {
+      "name": "only fixture API drained and stopped; no worker or cleanup process launched",
+      "status": "PASS"
+    },
+    {
+      "name": "official scripts/backup.ts create CLI exits PASS",
+      "status": "PASS"
+    },
+    {
+      "name": "encrypted manifest, streamed database GCM/hash and every object checksum verified",
+      "status": "PASS"
+    },
+    {
+      "name": "synthetic key stored outside backup; archive excludes plaintext key",
+      "status": "PASS"
+    },
+    {
+      "name": "wrong key rejects official restore before creating destination database/bucket",
+      "status": "PASS"
+    },
+    {
+      "name": "tampered encrypted manifest rejects restore before creating resources; original archive retained",
+      "status": "PASS"
+    },
+    {
+      "name": "official restore CLI recovers into a new database and private bucket",
+      "status": "PASS"
+    },
+    {
+      "name": "all PostgreSQL table counts match except deliberately revoked sessions/counters",
+      "status": "PASS"
+    },
+    {
+      "name": "shared RECO links and client documents retain correct owner/asset associations",
+      "status": "PASS"
+    },
+    {
+      "name": "all 40 synthetic restored objects match SHA-256 and size",
+      "status": "PASS"
+    },
+    {
+      "name": "money totals and preexisting session revocation verified before login",
+      "status": "PASS"
+    },
+    {
+      "name": "authorized document opening/download works; anonymous and old-session access denied",
+      "status": "PASS"
+    },
+    {
+      "name": "SELLER without document permission denied after restore",
+      "status": "PASS"
+    },
+    {
+      "name": "restored visible-code sequence continues above existing records",
+      "status": "PASS"
+    },
+    {
+      "name": "existing destination rejected; no overwrite",
+      "status": "PASS"
+    },
+    {
+      "name": "source synthetic database unchanged after backup and restoration",
+      "status": "PASS"
+    },
+    {
+      "name": "source and restored buckets exactly match encrypted manifest including staging; every checksum matches",
+      "status": "PASS"
+    }
+  ],
+  "inventories": [
+    {
+      "resource": "source",
+      "objects": 80,
+      "final": 40,
+      "staging": 40,
+      "checksumsVerified": 80,
+      "unknownKeys": 0
+    },
+    {
+      "resource": "restored",
+      "objects": 80,
+      "final": 40,
+      "staging": 40,
+      "checksumsVerified": 80,
+      "unknownKeys": 0
+    }
+  ],
+  "sourceCounts": {
+    "clients": 1000,
+    "sales": 20,
+    "assets": 40,
+    "links": 80,
+    "documents": 40
+  },
+  "timings": {
+    "quiescenceWaitMs": 125017,
+    "backupMs": 3535,
+    "restoreCliMs": 7968,
+    "restoreToVerifiedAccessMs": 8515,
+    "totalMs": 145336
+  },
+  "manifestObjects": 80,
+  "manifestCreatedAt": "2026-10-20T17:12:00.918Z",
+  "snapshotLagMs": 330539,
+  "verifiedReadyObjects": 40,
+  "relationships": 120,
+  "publicTables": 23,
+  "totalObjectBytes": 16840,
+  "commands": [
+    {
+      "operation": "create",
+      "exitCode": 0,
+      "durationMs": 3535
+    },
+    {
+      "operation": "restore",
+      "exitCode": 1,
+      "durationMs": 390
+    },
+    {
+      "operation": "restore",
+      "exitCode": 1,
+      "durationMs": 373
+    },
+    {
+      "operation": "restore",
+      "exitCode": 0,
+      "durationMs": 7967
+    },
+    {
+      "operation": "restore",
+      "exitCode": 1,
+      "durationMs": 2592
+    }
+  ],
+  "keyCustody": {
+    "syntheticOnly": true,
+    "separateFromArchive": true,
+    "recoveredByFreshProcesses": true,
+    "independentOperatorOrOffHostCustody": "NOT VERIFIED",
+    "windowsAcl": "Not certified by POSIX mode; host ACL/custody requires operator review"
+  },
+  "rpoRto": {
+    "committedSyntheticBusinessWritesLost": 0,
+    "productionTargetsAccepted": false,
+    "productionRpoRto": "NOT VERIFIED",
+    "note": "Timings are measured locally; source is fully stopped. They do not define productive RPO/RTO."
+  },
+  "archivesRetained": true,
+  "commercialWrites": 0,
+  "cloudCalls": 0
+}

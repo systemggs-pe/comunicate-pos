@@ -1,0 +1,16 @@
+import {config} from 'dotenv';
+import {execFileSync,spawn} from 'node:child_process';
+import {writeFileSync,appendFileSync} from 'node:fs';
+config({path:'.local/phase3-isolated.env',override:true,quiet:true});
+const p='communicate-test-phase3-20261020-postgres',s='communicate-test-phase3-20261020-minio';
+const inspect=name=>JSON.parse(execFileSync('docker',['inspect',name],{encoding:'utf8',windowsHide:true}))[0];
+const targets=[[p,'5432/tcp','55436','communicate-test-phase3-20261020-pgdata'],[s,'9000/tcp','59030','communicate-test-phase3-20261020-s3data']];
+for(const [name,inner,port,volume]of targets){const c=inspect(name);if(c.State.Status!=='running'||c.Config.Labels.purpose!=='phase3-operational-closure'||c.Config.Labels['com.docker.compose.project']!=='communicate-phase3-20261020'||c.NetworkSettings.Ports[inner]?.[0]?.HostIp!=='127.0.0.1'||c.NetworkSettings.Ports[inner]?.[0]?.HostPort!==port||!c.Mounts.some(m=>m.Type==='volume'&&m.Name===volume)||c.Mounts.some(m=>m.Name?.startsWith('communicate-pos_')))throw Error('PHASE3_ISOLATION_NOT_PROVEN');}
+const u=new URL(process.env.TEST_DATABASE_URL),endpoint=new URL(process.env.S3_ENDPOINT);if(u.hostname!=='127.0.0.1'||u.port!=='55436'||u.pathname!=='/communicate_pos_test'||process.env.DATABASE_URL!==process.env.TEST_DATABASE_URL||endpoint.hostname!=='127.0.0.1'||endpoint.port!=='59030'||process.env.RECOVERY_POSTGRES_CONTAINER!==p||process.env.RECOVERY_POSTGRES_PORT!=='55436')throw Error('PHASE3_ENV_NOT_ISOLATED');
+const [name,...args]=process.argv.slice(2);if(!/^[a-z0-9-]+$/.test(name))throw Error('LOG_NAME_INVALID');
+const secrets=Object.entries(process.env).filter(([k,v])=>/PASSWORD|SECRET|TOKEN|KEY|DATABASE_URL|DIRECT_URL/.test(k)&&v&&v.length>6).map(([,v])=>v);
+const clean=value=>{let text=String(value);for(const v of secrets)text=text.split(v).join('[REDACTED]');return text.replace(/postgres(?:ql)?:\/\/[^\s'"<>]+/g,'postgresql://[REDACTED]').replace(/\u001b\[[0-9;]*m/g,'');};
+const start=Date.now(),path='docs/phase3-operational-closure/evidence/'+name+'.log';writeFileSync(path,JSON.stringify({startedAt:new Date().toISOString(),command:['node',...args].join(' '),preflight:'PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts'})+'\n');
+const child=spawn(process.execPath,args,{env:{...process.env,NODE_ENV:'test',CODART_ENABLED:'false',CODART_PHOTO_STORAGE_AUTHORIZED:'false',GEMINI_ENABLED:'false',GEMINI_API_KEY:'',CODART_API_KEY:'',GOOGLE_CLIENT_ID:'',GOOGLE_CLIENT_SECRET:'',HTTP_LOGGING:'false'},windowsHide:true});let tail='';
+for(const stream of [child.stdout,child.stderr])stream.on('data',b=>{const text=clean(b);appendFileSync(path,text);tail=(tail+text).slice(-1800);});
+child.on('close',code=>{const result={exitCode:code,durationMs:Date.now()-start};appendFileSync(path,'\n'+JSON.stringify(result)+'\n');console.log(JSON.stringify(result));console.log(tail);process.exitCode=code??1;});

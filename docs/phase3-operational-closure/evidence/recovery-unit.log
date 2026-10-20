@@ -1,0 +1,4 @@
+{"startedAt":"2026-10-20T17:04:22.430Z","command":"node node_modules/vitest/vitest.mjs run --project unit tests/unit/phase9.test.ts --reporter=json --outputFile=docs/phase3-operational-closure/evidence/recovery-unit.json","preflight":"PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"}
+JSON report written to C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/docs/phase3-operational-closure/evidence/recovery-unit.json
+
+{"exitCode":0,"durationMs":1312}

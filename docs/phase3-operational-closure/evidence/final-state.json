@@ -1,0 +1,69 @@
+{
+  "initialSnapshotAt": "2026-10-20T17:01:32.743Z",
+  "closingSnapshotAt": "2026-10-20T17:20:08.894Z",
+  "method": "Offline comparison of preserved READ ONLY DB + S3 snapshots; application active, not distributed-atomic.",
+  "commercialWritesByThisInspection": 0,
+  "countsUnchangedThroughoutPhase": false,
+  "initialCommercialCounts": {
+    "clients": 603,
+    "equipment": 641,
+    "imeis": 644,
+    "sales": 576,
+    "requests": 118
+  },
+  "closingCommercialCounts": {
+    "clients": 604,
+    "equipment": 641,
+    "imeis": 644,
+    "sales": 576,
+    "requests": 118
+  },
+  "originalAssets": [
+    {
+      "fingerprint": "95916c468319cd8b",
+      "sameAssetAndPhysicalMetadata": true,
+      "closingChecksumVerified": true
+    },
+    {
+      "fingerprint": "d4210b1ddadf8106",
+      "sameAssetAndPhysicalMetadata": true,
+      "closingChecksumVerified": true
+    },
+    {
+      "fingerprint": "d43cc0527d5edc3b",
+      "sameAssetAndPhysicalMetadata": true,
+      "closingChecksumVerified": true
+    },
+    {
+      "fingerprint": "95832b5acd932567",
+      "sameAssetAndPhysicalMetadata": true,
+      "closingChecksumVerified": true
+    }
+  ],
+  "habitualContainers": [
+    {
+      "name": "communicate-pos-minio-1",
+      "status": "running",
+      "sameCreatedAt": true,
+      "sameStartedAt": true,
+      "sameMounts": true
+    },
+    {
+      "name": "communicate-pos-postgres-1",
+      "status": "running",
+      "sameCreatedAt": true,
+      "sameStartedAt": true,
+      "sameMounts": true
+    }
+  ],
+  "closingAssets": 6,
+  "closingDocuments": 6,
+  "closingRequestLinks": 2,
+  "closingActiveReferences": 8,
+  "newAssetsObserved": 2,
+  "newAssetsChecksumVerified": false,
+  "newAssetsMetadataPresenceAndSizeMatch": true,
+  "missingReadyObjects": 0,
+  "unknownObjects": 0,
+  "activityEvidence": "reconciliation-details.json: upload audit matches at 17:18:33 UTC; baseline records CLIENT_CREATED count 1. Actor not attributed."
+}

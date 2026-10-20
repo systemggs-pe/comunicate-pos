@@ -1,0 +1,58 @@
+{"startedAt":"2026-10-20T17:06:19.549Z","command":"node node_modules/tsx/dist/cli.mjs .local/phase3-drill.ts","preflight":"PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"}
+PASS new isolated fixture: 1000 synthetic clients, dedicated PostgreSQL/MinIO and named volumes
+{"event":"http","requestId":"fb734a3b-5acb-49d1-9d21-ab87d0b0844a","method":"GET","route":"unmatched","status":503,"durationMs":0,"errorCode":"MAINTENANCE_MODE"}
+{"event":"http","requestId":"942f8e6c-3733-43a6-898e-3db3ed8fbb24","method":"GET","route":"unmatched","status":503,"durationMs":0,"errorCode":"MAINTENANCE_MODE"}
+{"event":"http","requestId":"e09cc4b7-9ff7-4714-ba76-e3fe8c1e0312","method":"GET","route":"unmatched","status":503,"durationMs":0,"errorCode":"MAINTENANCE_MODE"}
+{"event":"http","requestId":"5833b0c4-beaf-4be1-a136-2b1bc2071d32","method":"POST","route":"unmatched","status":503,"durationMs":0,"errorCode":"MAINTENANCE_MODE"}
+PASS maintenance blocks reads/writes without changing audit/rate counters; liveness remains 200
+PASS only fixture API drained and stopped; no worker or cleanup process launched
+WAIT signed-upload windows: 125 seconds, synthetic resources only
+QUIESCENCE elapsed 40000 ms
+QUIESCENCE elapsed 80010 ms
+QUIESCENCE elapsed 125017 ms
+PASS official scripts/backup.ts create CLI exits PASS
+PASS encrypted manifest, streamed database GCM/hash and every object checksum verified
+PASS synthetic key stored outside backup; archive excludes plaintext key
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+
+Caught error:
+
+Unknown: UnknownError
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async <anonymous> (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\.local\phase3-drill.ts:45:288) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: Unknown: UnknownError
+      at ProtocolLib.getErrorSchemaOrThrowBaseException (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\@aws-sdk\core\dist-cjs\submodules\protocols\index.js:68:67)
+      at S3RestXmlProtocol.handleError (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\@aws-sdk\core\dist-cjs\submodules\protocols\index.js:2826:65)
+      at S3RestXmlProtocol.deserializeResponse (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\@smithy\core\dist-cjs\submodules\protocols\index.js:406:24)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\@smithy\core\dist-cjs\submodules\schema\index.js:23:24
+      at async C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\submodules\s3\index.js:366:20
+      at async C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\@smithy\core\dist-cjs\submodules\retry\index.js:175:50
+      at async C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\submodules\s3\index.js:62:28
+      at async C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\@aws-sdk\middleware-sdk-s3\dist-cjs\submodules\s3\index.js:89:20
+      at async C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\node_modules\@aws-sdk\core\dist-cjs\submodules\client\index.js:125:26 {
+    '$fault': 'client',
+    '$retryable': undefined,
+    '$metadata': {
+      httpStatusCode: 400,
+      requestId: '18E04BEACC50E7A6',
+      extendedRequestId: 'dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8',
+      cfId: undefined,
+      attempts: 1,
+      totalRetryDelay: 0
+    }
+  },
+  expected: [Function (anonymous)],
+  operator: 'rejects',
+  diff: 'simple'
+}
+
+Node.js v24.21.0
+
+{"exitCode":1,"durationMs":143999}

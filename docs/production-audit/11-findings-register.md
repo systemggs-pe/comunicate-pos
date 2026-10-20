@@ -74,7 +74,7 @@ La evidencia original y sus reproducciones se conservan como historial. Los esta
 - **Probabilidad/alcance:** Bloqueo confirmado; pérdida real no reproducida.
 - **Corrección propuesta:** Preparar perfil explícitamente aislado conservando allowlists y probar restore DB/objetos/sesiones/checksums.
 - **Aceptación:** Ruta operativa del producto probada, claves custodiadas y RPO/RTO medidos.
-- **Estado:** PENDIENTE de aceptación operativa. Transporte aislado y restore local corregidos/verificados; custodia y RPO/RTO representativos no acreditados.
+- **Estado:** PARCIAL (fase 3, 20/10/2026). CLI oficial y restore aislado comprobados, integridad del bucket operativo conciliada; custodia operativa y aceptación/medición representativa de RPO/RTO aún no acreditadas. Ver ../phase3-operational-closure/01-aud04-acceptance.md.
 
 ## AUD-05 — Falta evidencia de infraestructura, respaldo externo y alertas productivas verificados.
 
@@ -159,3 +159,7 @@ La evidencia original y sus reproducciones se conservan como historial. Los esta
 - **Corrección propuesta:** Ampliar área interactiva conservando apariencia y foco.
 - **Aceptación:** Objetivo 44×44 donde corresponda, sin solapamiento/overflow.
 - **Estado:** MEDIDO. Abierto, sin corregir.
+
+## Actualización de fase 3 — cierre operativo local
+
+AUD-04 permanece **PARCIAL**, con ruta CLI verificada y custodia/RPO/RTO productivos pendientes. Las diferencias temporales de un IMEI y dos assets/documentos se concilian con creación/auditoría del 20/10; inventario inicial de cuatro objetos/seis asociaciones y cierre de seis objetos/ocho asociaciones tras actividad registrada a las 17:18 UTC. Cero referencias físicas faltantes; SHA-256 cotejado sólo para los cuatro iniciales, los dos nuevos son metadata-only. AUD-05 sigue BLOQUEADO EXTERNO. No se inicia P2 ni se declara producción lista. Ver [reporte fase 3](../phase3-operational-closure/00-summary.md).

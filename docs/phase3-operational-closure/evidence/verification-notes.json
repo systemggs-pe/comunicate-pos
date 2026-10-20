@@ -1,0 +1,13 @@
+{
+  "attempt1": "Harness configuration error: bucket name >63 characters; backup and verification passed, no successful restore. Preserved raw exit 1.",
+  "attempt2": "Official restore exited 0; 18 checks passed; harness last check incorrectly expected 40 source objects instead of manifest 80 (40 final + 40 staging). Preserved raw exit 1.",
+  "focusedConclusion": "Read-only source/destination comparison to manifest: 80 keys and SHA/size each; original 18 checks plus final check = 19 consolidated, PASS_LOCAL. No third full backup/restore.",
+  "metadataPrecision": "Initial comparison of LIST milliseconds vs HEAD rounded seconds caused false flag; corrected LIST-vs-LIST, HEAD size. Not a confirmed data change.",
+  "unitTests": "32 existing related cases passed, not new cases added to 770.",
+  "sourceProvenance": "Source snapshots include subsequent corrections to harness name length/count expectations. Raw attempt logs and results preserve actual execution outcomes.",
+  "productCodeChanges": false,
+  "commercialApplicationPaused": false,
+  "liveGrowth": "Closing inventory records +1 client, +2 assets/docs/objects. Four initial hashes verified; new two metadata-only. No actor attribution.",
+  "externalAcceptance": "Real key custody, production RPO/RTO acceptance and representative drill NOT VERIFIED.",
+  "commercialPhotoReads": "Only original four assets, bounded in-memory GET per initial and closing inventory (8 GETs total); new two assets never downloaded. No commercial photo persisted."
+}

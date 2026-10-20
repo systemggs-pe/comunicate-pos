@@ -82,3 +82,9 @@ No se despliega ni se aprueban gates externos a partir de mocks o duraciones sin
 **DECISIÓN ACTUAL: NO PRODUCTION READY.** Tres P1 resueltos localmente; defecto local de AUD-04 corregido con aceptación operativa pendiente; AUD-05 bloqueado externo.
 
 El manifest de evidencia de la auditoría original corresponde a sus archivos en el snapshot `0ee3e53`. Las actualizaciones posteriores de 00/11/12/13 pertenecen a esta fase; no se reescribe aquel manifest como si fuesen resultados originales. La evidencia final y el manifest de fuentes de fase 2 se conservan en p1-remediation/evidence/.
+
+## Actualización de fase 3 — 20/10/2026
+
+CLI de backup/restore del producto, mantenimiento/drenaje sintético, cifrado/manifest, 23 tablas y 80 objetos (40 finales + 40 staging) verificados localmente. Se reejecutaron 32 casos unitarios relacionados; no las 770 pruebas. Se conserva la evidencia de dos detenciones del guion y su conclusión enfocada de sólo lectura. Bucket operativo inicial: cuatro objetos/checksums correctos y seis asociaciones. Al cierre: seis objetos/ocho asociaciones tras actividad concurrente registrada a las 17:18 UTC; los dos nuevos sólo se verificaron por presencia/tamaño/metadata. Cero objetos desconocidos o referencias sin objeto. Clientes: 603→604; ventas/equipos/IMEI/RECO sin cambio entre snapshots. StartedAt/mounts habituales permanecen iguales; no se afirma ausencia de escrituras del POS activo.
+
+AUD-04: **PARCIAL**, no RESUELTO; falta custodia operativa acreditada y aceptación/ensayo representativo de RPO/RTO. AUD-05: **BLOQUEADO EXTERNO**. Sin cambios P2/P3, UI, tickets, push o deploy. **NOT READY**. [Evidencias y acciones](../phase3-operational-closure/00-summary.md).
