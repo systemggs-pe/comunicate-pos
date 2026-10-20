@@ -82,3 +82,7 @@ Infraestructura cloud, DNS/HTTPS público, cookies remotas, workers/timers insta
 Fase 1: atender cualquier P0 nuevo y mantener congelado el despliegue. Fase 2: resolver P1 de compilación/regla documental/cobertura/recuperación/operación. Fase 3: P2 y revisión autorizada de históricos. Fase 4: verificaciones externas y legales. Fase 5: staging aceptado, ensayo de rollback y despliegue controlado con autorización posterior.
 
 Informes temáticos 01–10, [roadmap](12-remediation-roadmap.md), [matriz y gates](13-final-production-gates.md). Un cambio posterior de HEAD requiere revisar el impacto y repetir comprobaciones afectadas.
+
+## Actualización posterior — fase 2, 20/10/2026
+
+Este documento conserva el diagnóstico y plan del baseline original. La remediación local posterior se detalla en [P1 remediation report](../p1-remediation/00-remediation-report.md). AUD-01/02/03 resueltos localmente; AUD-04 con restore local aprobado y aceptación operativa pendiente; AUD-05 bloqueado externo. No se autoriza producción. El manifest original corresponde al snapshot 0ee3e53, no a estas actualizaciones.

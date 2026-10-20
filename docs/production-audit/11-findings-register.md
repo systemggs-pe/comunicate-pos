@@ -1,6 +1,6 @@
 # Registro de hallazgos
 
-Baseline master `2751768cf07febf2e0ea7287cf34161fcb445239`, 19/10/2026 America/Lima. Sin correcciones. P0 confirmados: 0; P1: 5; P2: 5; P3: 1. Cero P0 descubiertos no certifica ausencia de vulnerabilidades.
+Baseline master `2751768cf07febf2e0ea7287cf34161fcb445239`, 19/10/2026 America/Lima. Sin correcciones en ese baseline. La actualización de fase 2 figura debajo. P0 confirmados: 0; P1: 5; P2: 5; P3: 1. Cero P0 descubiertos no certifica ausencia de vulnerabilidades.
 
 | ID | Severidad | Módulo | Hallazgo |
 |---|---|---|---|
@@ -16,6 +16,18 @@ Baseline master `2751768cf07febf2e0ea7287cf34161fcb445239`, 19/10/2026 America/L
 | AUD-10 | P2 | Históricos | 70 de 643 IMEI históricos no cumplen Luhn. |
 | AUD-11 | P3 | UI táctil | Algunos controles móviles son menores al objetivo de comodidad de 44×44 px. |
 
+## Actualización de fase 2 — 20/10/2026
+
+La evidencia original y sus reproducciones se conservan como historial. Los estados de cada ficha se actualizan con la remediación local, sin modificar los P2/P3. Informe y pruebas: [P1 remediation](../p1-remediation/00-remediation-report.md).
+
+| ID | Estado actual | Evidencia y límite |
+|---|---|---|
+| AUD-01 | RESUELTO LOCAL | TypeScript, lint e instalación/compilación oficial limpia. |
+| AUD-02 | RESUELTO LOCAL | Regla incondicional en servidor; rechazo atómico y reutilización con DNI vigente. |
+| AUD-03 | RESUELTO LOCAL | 306 unitarias, 386 integración y 78 E2E aprobadas en el mismo commit, sin pendientes. |
+| AUD-04 | PENDIENTE DE ACEPTACIÓN OPERATIVA | Defecto de aislamiento corregido y restore del producto probado; custodia/RPO/RTO productivos pendientes. |
+| AUD-05 | BLOQUEADO EXTERNO | Infraestructura, respaldo externo, alertas, monitoreo y rollback no acreditados. |
+
 ## AUD-01 — TypeScript falla con 12 diagnósticos en cinco archivos.
 
 - **Severidad/módulo:** P1 / Compilación.
@@ -26,7 +38,7 @@ Baseline master `2751768cf07febf2e0ea7287cf34161fcb445239`, 19/10/2026 America/L
 - **Probabilidad/alcance:** Confirmada.
 - **Corrección propuesta:** Corregir tipos/contratos y referencias obsoletas sin omitir tsc.
 - **Aceptación:** tsc y build oficial limpios en instalación reproducible.
-- **Estado:** REPRODUCIDO. Abierto, sin corregir.
+- **Estado:** RESUELTO LOCAL. Ver ../p1-remediation/01-aud-01.md y evidencia final.
 
 ## AUD-02 — La obligatoriedad de fotos DNI depende de una bandera opcional del navegador.
 
@@ -38,7 +50,7 @@ Baseline master `2751768cf07febf2e0ea7287cf34161fcb445239`, 19/10/2026 America/L
 - **Probabilidad/alcance:** Reproducida con datos sintéticos.
 - **Corrección propuesta:** Derivar la obligación en servidor; reutilizar DNI vigente y rechazar atómicamente si falta alguno de sus lados.
 - **Aceptación:** Mismo caso sin documentos rechazado sin filas parciales; con DNI guardado válido se adjunta automáticamente.
-- **Estado:** REPRODUCIDO. Abierto, sin corregir.
+- **Estado:** RESUELTO LOCAL. Ver ../p1-remediation/02-aud-02.md; históricos sin modificar.
 
 ## AUD-03 — La suite actual no respalda los flujos críticos del release.
 
@@ -50,7 +62,7 @@ Baseline master `2751768cf07febf2e0ea7287cf34161fcb445239`, 19/10/2026 America/L
 - **Probabilidad/alcance:** Confirmada.
 - **Corrección propuesta:** Actualizar fixtures válidos y expectativas; investigar fallos restantes sin desactivar reglas.
 - **Aceptación:** Suites críticas completas, sin pendientes injustificados, sobre el mismo HEAD.
-- **Estado:** REPRODUCIDO. Abierto, sin corregir.
+- **Estado:** RESUELTO LOCAL. Suites completas aprobadas sobre 9c23e08; ver ../p1-remediation/03-aud-03.md y ../p1-remediation/evidence/verification-summary.json.
 
 ## AUD-04 — El procedimiento de restore incluido no quedó verificado en aislamiento.
 
@@ -62,7 +74,7 @@ Baseline master `2751768cf07febf2e0ea7287cf34161fcb445239`, 19/10/2026 America/L
 - **Probabilidad/alcance:** Bloqueo confirmado; pérdida real no reproducida.
 - **Corrección propuesta:** Preparar perfil explícitamente aislado conservando allowlists y probar restore DB/objetos/sesiones/checksums.
 - **Aceptación:** Ruta operativa del producto probada, claves custodiadas y RPO/RTO medidos.
-- **Estado:** BLOCKED / NO VERIFICADO. Abierto, sin corregir.
+- **Estado:** PENDIENTE de aceptación operativa. Transporte aislado y restore local corregidos/verificados; custodia y RPO/RTO representativos no acreditados.
 
 ## AUD-05 — Falta evidencia de infraestructura, respaldo externo y alertas productivas verificados.
 
@@ -74,7 +86,7 @@ Baseline master `2751768cf07febf2e0ea7287cf34161fcb445239`, 19/10/2026 America/L
 - **Probabilidad/alcance:** No cuantificable: falta evidencia.
 - **Corrección propuesta:** Completar staging autorizado, custodia de claves, worker/backups, alertas y rollback con responsables.
 - **Aceptación:** Checklist operativo fechado, aceptado y demostrado antes del despliegue.
-- **Estado:** GATE ABIERTO. Abierto, sin corregir.
+- **Estado:** BLOQUEADO / EXTERNAL PENDING. Ver ../p1-remediation/05-aud-05.md.
 
 ## AUD-06 — Se usa departamento en lugar de provincia.
 

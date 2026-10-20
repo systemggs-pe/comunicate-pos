@@ -1,0 +1,97 @@
+{"name":"default-target-e2e","exitCode":1,"durationMs":122387,"command":"node node_modules/@playwright/test/cli.js test auth.spec.ts registration.spec.ts reports.spec.ts sales.spec.ts --reporter=list,json"}
+[WebServer] (node:9692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:6956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:26340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:8488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 13 tests using 1 worker
+
+(node:7816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\e2e\auth.spec.ts:27:1 › SUPERADMIN: bootstrap, login, administración, UI responsive y logout (8.5s)
+  ok  2 tests\e2e\auth.spec.ts:38:1 › SELLER: venta autorizada, restricciones, auditoría y desactivación por SUPERADMIN (7.2s)
+  x   3 tests\e2e\auth.spec.ts:52:1 › administración UI: editar, habilitar, resetear y guardar permisos (18.5s)
+(node:3136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  4 tests\e2e\registration.spec.ts:18:1 › criterio completo, relaciones canónicas, reutilización y revisión responsive (33.3s)
+  ok  5 tests\e2e\reports.spec.ts:39:1 › A SUPERADMIN: todo el historial, últimos siete días, actualizar y responsive vacío (2.8s)
+  ok  6 tests\e2e\reports.spec.ts:42:1 › B REGISTROS: BITEL registrado, CSV descargado con filtros y totales (2.8s)
+  ok  7 tests\e2e\reports.spec.ts:47:1 › C SELLER: menú oculto y URL/API protegidas (1.2s)
+  ok  8 tests\e2e\reports.spec.ts:51:1 › D doble IMEI: dos RECO y un equipo con gráficos reales (4.2s)
+  ok  9 tests\e2e\reports.spec.ts:54:1 › E venta con dos equipos: reportes se actualizan después de eliminación por UI (4.2s)
+  ok 10 tests\e2e\reports.spec.ts:59:1 › F personalizados: filtros persisten al cambiar pestaña y navegar atrás (2.2s)
+  ok 11 tests\e2e\reports.spec.ts:63:1 › G clientes y trabajadores inactivos: identidad mínima y responsive (3.0s)
+  ok 12 tests\e2e\reports.spec.ts:68:1 › H permisos de reportes se conceden explícitamente desde la matriz de roles (3.3s)
+  x  13 tests\e2e\sales.spec.ts:18:1 › venta Yape, relaciones, dos equipos, propietario distinto, cancelación y responsive (23.2s)
+
+
+  1) tests\e2e\auth.spec.ts:52:1 › administración UI: editar, habilitar, resetear y guardar permisos
+
+    Error: expect(locator).not.toBeChecked() failed
+
+    Locator: locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')
+    Expected: not checked
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "not toBeChecked" locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol') with timeout 15000ms
+      - waiting for locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')
+        - waiting for "http://127.0.0.1:5175/roles" navigation to finish...
+        - navigated to "http://127.0.0.1:5175/roles"
+
+
+      53 |  await login(page);const seller=await db.user.findUniqueOrThrow({where:{email:sellerEmail}});await page.goto(`/usuarios/${seller.id}?edit=1`);await page.getByLabel('Nombre',{exact:true}).fill('VENDEDOR ACTUALIZADO');await page.getByRole('button',{name:'Guardar usuario',exact:true}).click();await expect(page.getByText('Usuario actualizado.',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Editar usuario',exact:true}).click();await page.getByRole('button',{name:'Habilitar usuario',exact:true}).click();await expect(page.getByText('Usuario habilitado.',{exact:true})).toBeVisible();const password='e2e-new-test-password-only';await page.getByLabel('Nueva contraseña',{exact:true}).fill(password);await page.getByRole('button',{name:'Restablecer contraseña',exact:true}).click();await expect(page.getByText('Contraseña restablecida. Todas sus sesiones fueron invalidadas.',{exact:true})).toBeVisible();
+      54 |  const context=await browser.newContext(),other=await context.newPage();await login(other,sellerEmail,password);await expect(other.locator('.home-reference')).toContainText('VENDEDOR ACTUALIZADO');await nav(page,'Roles');await page.locator('.role-card > summary').filter({has:page.getByText('SELLER',{exact:true})}).click();const form=page.locator('form').filter({has:page.getByRole('heading',{name:'SELLER',exact:true})});await form.locator('section').filter({has:page.getByRole('heading',{name:'Ventas',exact:true})}).getByLabel('ELIMINAR DEFINITIVAMENTE',{exact:true}).check();await form.getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol').check();await form.getByRole('button',{name:'Guardar permisos',exact:true}).click();await expect(page.getByText('Permisos guardados. Las sesiones de este rol fueron invalidadas.',{exact:true}).first()).toBeVisible();await expect.poll(()=>db.session.count({where:{userId:seller.id}})).toBe(0);await other.reload();await expect(other.getByRole('heading',{name:'Inicia sesión'})).toBeVisible();
+    > 55 |  await expect(form.getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')).not.toBeChecked();await form.locator('section').filter({has:page.getByRole('heading',{name:'Ventas',exact:true})}).getByLabel('ELIMINAR DEFINITIVAMENTE',{exact:true}).uncheck();await form.getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol').check();await form.getByRole('button',{name:'Guardar permisos',exact:true}).click();const role=await db.role.findUniqueOrThrow({where:{code:'SELLER'}});await expect.poll(()=>db.rolePermission.count({where:{roleId:role.id,permissionKey:'sales.delete'}})).toBe(0);expect(await db.auditLog.count({where:{action:'USER_PASSWORD_RESET',entityId:seller.id}})).toBe(1);expect(await db.auditLog.count({where:{action:'ROLE_PERMISSIONS_UPDATED',entityId:role.id}})).toBe(2);await context.close();
+         |                                                                                                      ^
+      56 | });
+      57 |
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\auth.spec.ts:55:102
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\auth-administración-UI-edi-bbd25-resetear-y-guardar-permisos\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\auth-administración-UI-edi-bbd25-resetear-y-guardar-permisos\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\auth-administración-UI-edi-bbd25-resetear-y-guardar-permisos\error-context.md
+
+    Error Context: .test-results\e2e\auth-administración-UI-edi-bbd25-resetear-y-guardar-permisos\error-context.md
+
+  2) tests\e2e\sales.spec.ts:18:1 › venta Yape, relaciones, dos equipos, propietario distinto, cancelación y responsive
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Agregar otro equipo', exact: true })
+
+
+      30 |   await nav(page, 'Ventas'); await page.getByRole('link', { name: 'Nueva venta', exact: true }).click(); await saleClient(page,'60765433','Rosa Ortiz');
+      31 |   await fillItem(page, 0, 'Samsung', 'A56', '596076543200034', '1400'); await page.getByTestId('sale-item-0').locator('.sale-owner-options>summary').click();await page.getByLabel('PROPIETARIO DISTINTO DEL COMPRADOR PARA EQUIPO 1').check(); await page.getByRole('button', { name: 'Crear propietario del equipo 1 nuevo', exact: true }).click(); const ownerPanel = page.getByTestId('sale-item-0').locator('.client-picker'); await ownerPanel.getByLabel('DNI', { exact: false }).fill('60765434'); await ownerPanel.getByLabel('Nombres').fill('Gianfranco'); await ownerPanel.getByLabel('Apellidos').fill('Peralta');
+    > 32 |   await page.getByRole('button', { name: 'Agregar otro equipo', exact: true }).click(); await fillItem(page, 1, 'Apple', 'iPhone', '596076543200042', '3200'); await page.getByLabel('Descuento de la venta (S/)').fill('100'); await page.getByLabel('Método de pago').selectOption('PLIN'); await expect(page.locator('.sale-total')).toContainText('4,500.00');await saveSale(page); await expect(page.getByRole('dialog',{name:'Detalle de venta',exact:true})).toBeVisible();
+         |                                                                                ^
+      33 |   const secondId = new URL(page.url()).pathname.split('/').pop()!; const second = await db.sale.findUniqueOrThrow({ where: { id: secondId }, include: { equipment: { include: { equipment: true } } } }); expect(second.equipment).toHaveLength(2); expect(second.equipment.find(line => line.equipment.brand === 'SAMSUNG')?.equipment.ownerId).not.toBe(second.buyerId); expect(second.equipment.find(line => line.equipment.brand === 'APPLE')?.equipment.ownerId).toBe(second.buyerId);
+      34 |   await nav(page,'Inicio');await expect(page.locator('.home-metric').nth(1).locator('strong')).toHaveText('2');await nav(page,'REPORTES');await expect(page.getByTestId('metric-salesRevenue')).toContainText('S/ 8,000.00');await nav(page,'Inicio');
+      35 |   for (const width of [1280, 375, 390, 430]) {
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\sales.spec.ts:32:80
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\sales-venta-Yape-relacione-9d4c1-to-cancelación-y-responsive\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\sales-venta-Yape-relacione-9d4c1-to-cancelación-y-responsive\error-context.md
+
+    Error Context: .test-results\e2e\sales-venta-Yape-relacione-9d4c1-to-cancelación-y-responsive\error-context.md
+
+  2 failed
+    tests\e2e\auth.spec.ts:52:1 › administración UI: editar, habilitar, resetear y guardar permisos
+    tests\e2e\sales.spec.ts:18:1 › venta Yape, relaciones, dos equipos, propietario distinto, cancelación y responsive
+  11 passed (2.0m)

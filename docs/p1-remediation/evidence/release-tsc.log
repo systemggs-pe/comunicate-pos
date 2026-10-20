@@ -1,0 +1,1 @@
+{"name":"release-tsc","exitCode":0,"durationMs":19874,"command":"node node_modules/typescript/bin/tsc --noEmit"}

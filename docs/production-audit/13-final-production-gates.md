@@ -58,3 +58,27 @@ PASS local solo cubre el alcance indicado; nunca equivale a certificación produ
 Scripts suplementarios conservados como *-source.txt. Para reproducir, copiar a .local con nombre original y preparar de nuevo recursos aislados/credenciales efímeras. Esas credenciales no se publican. No ejecutar fixtures contra la base comercial. La restauración manual es explícitamente distinta del restore del producto.
 
 No se cambió código funcional, datos comerciales, roles/credenciales reales o arquitectura cloud; no hubo push/deploy. Builds locales ignorados por Git. Los contenedores exclusivos de la auditoría se detienen al finalizar; no se detienen servicios comerciales.
+
+## Actualización de fase 2 — 20/10/2026
+
+La matriz anterior corresponde al baseline auditado y conserva su evidencia histórica. La remediación local se verifica sobre el commit `9c23e08e9b1e94b12ad3581cad0a23cc5b630931`; detalle y casos únicos en [informe P1](../p1-remediation/00-remediation-report.md).
+
+| Gate local | Estado actualizado |
+|---|---|
+| TypeScript / lint | PASS |
+| Instalación limpia y builds oficiales frontend/backend | PASS |
+| Unitarias | 306/306 PASS |
+| Integración | 386/386 PASS |
+| E2E normal y MVP | 46/46 + 32/32 PASS, sin pendientes |
+| DNI obligatorio / reutilización / atomicidad negativa | PASS LOCAL |
+| Tickets 58 mm / 80 mm: vista, PDF y llamada de impresión | PASS LOCAL; hardware NOT VERIFIED |
+| Restore por ruta operativa del producto en DB/bucket nuevos | PASS LOCAL |
+| Custodia de claves, retención y RPO/RTO productivos representativos | PENDIENTE; AUD-04 no cierra su aceptación completa |
+| Infraestructura, backup externo, alertas, monitoreo y rollback reales | BLOQUEADO EXTERNO; AUD-05 |
+| Proveedores externos y hardware | NOT VERIFIED |
+
+No se despliega ni se aprueban gates externos a partir de mocks o duraciones sintéticas. Los P2/P3 originales siguen abiertos. El informe P1 documenta el incidente de aislamiento de MinIO y las diferencias de un IMEI y dos assets/documentos en el conteo comercial final; no se certifica igualdad exhaustiva con el baseline.
+
+**DECISIÓN ACTUAL: NO PRODUCTION READY.** Tres P1 resueltos localmente; defecto local de AUD-04 corregido con aceptación operativa pendiente; AUD-05 bloqueado externo.
+
+El manifest de evidencia de la auditoría original corresponde a sus archivos en el snapshot `0ee3e53`. Las actualizaciones posteriores de 00/11/12/13 pertenecen a esta fase; no se reescribe aquel manifest como si fuesen resultados originales. La evidencia final y el manifest de fuentes de fase 2 se conservan en p1-remediation/evidence/.

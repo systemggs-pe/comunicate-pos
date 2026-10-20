@@ -1,0 +1,7 @@
+0ee3e537b5a4f4be385f682f5b79cd359af1585e docs: preserve production audit baseline and evidence
+1f8c7214e3c816122d8f52fcfa35b8c6c6e84860 fix: resolve AUD-01 type contracts and reproducible receipt builds
+115233c60de9a153678ac229acb16a33c4eb1427 fix: enforce AUD-02 client DNI evidence for every new registration
+cf4d453f60d5ca25129646b6cf232f2b7bbde4b3 fix: verify AUD-04 recovery with a guarded isolated local profile
+b3f3c2ddad81cd50a37bc9c058b317a8c72c52cc test: repair AUD-03 fixtures and isolated integration contracts
+f347bc374f02c92fcc8679d0659ad188abbd42e8 docs: retain AUD-05 external production gates
+9c23e08e9b1e94b12ad3581cad0a23cc5b630931 test: align AUD-03 browser coverage with current POS workflows

@@ -1,0 +1,2 @@
+{"name":"aud01-receipts","exitCode":0,"durationMs":1605,"command":"node node_modules/vitest/vitest.mjs run --project unit tests/unit/receipts.test.ts --reporter=json --outputFile=docs/p1-remediation/evidence/aud01-receipts.json"}
+JSON report written to C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/docs/p1-remediation/evidence/aud01-receipts.json

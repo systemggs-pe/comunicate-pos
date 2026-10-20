@@ -1,0 +1,130 @@
+{"name":"release-clean-build","exitCode":0,"durationMs":55490,"command":"node .local/p1-clean-build.mjs"}
+Clean source snapshot files: 311
+ci --no-audit --no-fund exit 0
+
+added 476 packages in 27s
+
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+npm warn install-scripts 8 packages have install scripts not yet covered by allowScripts:
+npm warn install-scripts   @google/genai@2.28.0 (preinstall: echo 'preinstall: no-op')
+npm warn install-scripts   @prisma/client@6.19.3 (postinstall: node scripts/postinstall.js)
+npm warn install-scripts   @prisma/engines@6.19.3 (postinstall: node scripts/postinstall.js)
+npm warn install-scripts   argon2@0.45.1 (install: cross-env ZERO_AR_DATE=1 node-gyp-build)
+npm warn install-scripts   core-js@3.50.0 (postinstall: node -e "try{require('./postinstall')}catch(e){}")
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts   prisma@6.19.3 (preinstall: node scripts/preinstall-entry.js)
+npm warn install-scripts   protobufjs@7.6.6 (postinstall: node scripts/postinstall)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+
+run build exit 0
+
+> communicate-pos@0.1.0 build
+> prisma generate && tsc --noEmit && vite build
+
+Prisma schema loaded from prisma\schema.prisma
+
+✔ Generated Prisma Client (v6.19.3) to .\node_modules\@prisma\client in 158ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 2138 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                          0.41 kB │ gzip:   0.29 kB
+dist/.vite/manifest.json                                17.01 kB │ gzip:   2.30 kB
+dist/assets/pdf.worker.min-CjEcRF4W.mjs              1,264.34 kB
+dist/assets/FormValidation-DfUcV7g5.css                  0.30 kB │ gzip:   0.22 kB
+dist/assets/RegistrationRequests-DyOx8GwE.css            0.98 kB │ gzip:   0.41 kB
+dist/assets/Receipt-DJNhUzjb.css                         2.02 kB │ gzip:   0.79 kB
+dist/assets/EvidencePdfAction-DOLBHotE.css               2.04 kB │ gzip:   0.82 kB
+dist/assets/sales-reference-BYIsEcln.css                 2.64 kB │ gzip:   0.83 kB
+dist/assets/Reports-Ci1rXz9L.css                         6.51 kB │ gzip:   1.63 kB
+dist/assets/Sales-Bo4Ewfxv.css                           7.25 kB │ gzip:   1.79 kB
+dist/assets/Equipment-CXUREIdq.css                       7.88 kB │ gzip:   1.86 kB
+dist/assets/Clients-DqYPnmU3.css                         9.01 kB │ gzip:   2.03 kB
+dist/assets/operational-date-DsgUbJnh.css               11.62 kB │ gzip:   2.71 kB
+dist/assets/IdentityPhotoLookup-JChiYM1e.css            12.60 kB │ gzip:   3.02 kB
+dist/assets/index-BN9BxaAl.css                         102.75 kB │ gzip:  20.31 kB
+dist/assets/pdf.worker.min-CdXBBzB4.js                   0.07 kB │ gzip:   0.09 kB
+dist/assets/check-DbwiIJUI.js                            0.12 kB │ gzip:   0.13 kB
+dist/assets/chevron-down-PXKc_xE4.js                     0.12 kB │ gzip:   0.14 kB
+dist/assets/circle-check-BDWMkIC9.js                     0.17 kB │ gzip:   0.16 kB
+dist/assets/smartphone-yp_8Df-V.js                       0.19 kB │ gzip:   0.18 kB
+dist/assets/printer-6GFOGDzc.js                          0.32 kB │ gzip:   0.23 kB
+dist/assets/refresh-cw-COLqYhPk.js                       0.32 kB │ gzip:   0.23 kB
+dist/assets/image-plus-BpVU0OH2.js                       0.36 kB │ gzip:   0.25 kB
+dist/assets/operational-date-xDHS9yY6.js                 0.40 kB │ gzip:   0.30 kB
+dist/assets/ReferenceDialog-PFSsOLSI.js                  0.50 kB │ gzip:   0.34 kB
+dist/assets/square-pen-ByrWdn-5.js                       0.52 kB │ gzip:   0.32 kB
+dist/assets/common-ChFpOR1o.js                           0.90 kB │ gzip:   0.58 kB
+dist/assets/useEquipmentIdentity-CaiCC-0X.js             1.05 kB │ gzip:   0.61 kB
+dist/assets/InlineIdentityDocuments-DVEVr-AD.js          1.14 kB │ gzip:   0.69 kB
+dist/assets/sales-reference-A-P5UPnk.js                  1.93 kB │ gzip:   0.82 kB
+dist/assets/FormValidation-CBPHjUGZ.js                   2.01 kB │ gzip:   1.04 kB
+dist/assets/DniClientFields-CF4mh6S6.js                  2.59 kB │ gzip:   1.08 kB
+dist/assets/Audit-CJizTfxk.js                            2.79 kB │ gzip:   1.13 kB
+dist/assets/Home-Cx6p7Wcj.js                             3.38 kB │ gzip:   1.29 kB
+dist/assets/EquipmentForm-BE5u5kkE.js                    3.42 kB │ gzip:   1.19 kB
+dist/assets/sales-B_fOKmER.js                            3.45 kB │ gzip:   1.45 kB
+dist/assets/PermanentDelete-DIgKi8Zu.js                  3.60 kB │ gzip:   1.69 kB
+dist/assets/CompanySettings-BAyNQkNR.js                  3.64 kB │ gzip:   1.78 kB
+dist/assets/Roles-CTJ9NMTa.js                            4.12 kB │ gzip:   1.82 kB
+dist/assets/ImeiCard-DewjvpCr.js                         4.24 kB │ gzip:   1.67 kB
+dist/assets/PhotoDni-BESV5Zku.js                         4.29 kB │ gzip:   1.95 kB
+dist/assets/ClientFields-Bkxs9PJ3.js                     4.35 kB │ gzip:   1.67 kB
+dist/assets/workflow-BbotEQXe.js                         4.50 kB │ gzip:   1.96 kB
+dist/assets/BoxScanner-Dx8S6F6l.js                       5.90 kB │ gzip:   2.95 kB
+dist/assets/RegistrationFlow-Df1gX9Ll.js                 6.34 kB │ gzip:   2.58 kB
+dist/assets/EvidencePdfAction-B21Cz-tz.js                6.99 kB │ gzip:   3.13 kB
+dist/assets/Users-DnrcdfG-.js                           10.22 kB │ gzip:   3.12 kB
+dist/assets/IdentityPhotoLookup-YmKKTuw7.js             10.45 kB │ gzip:   3.88 kB
+dist/assets/Equipment-DivsNXUG.js                       10.89 kB │ gzip:   3.50 kB
+dist/assets/Clients-DZW0Mj60.js                         11.98 kB │ gzip:   3.94 kB
+dist/assets/Reports-7KXuV9ej.js                         15.28 kB │ gzip:   5.50 kB
+dist/assets/NewSale-WiRxuRDo.js                         15.62 kB │ gzip:   5.47 kB
+dist/assets/Sales-DuoNCrSS.js                           22.11 kB │ gzip:   7.07 kB
+dist/assets/purify.es-BPuvlvQ_.js                       29.05 kB │ gzip:  11.09 kB
+dist/assets/RegistrationRequests-DwRb5ma_.js            30.46 kB │ gzip:   9.28 kB
+dist/assets/OperationalRegistrationFlow-CzWAQNfq.js     33.68 kB │ gzip:  11.64 kB
+dist/assets/Receipt-CsrvEXwe.js                         78.93 kB │ gzip:  19.11 kB
+dist/assets/Charts-D98UMdWP.js                         157.85 kB │ gzip:  55.38 kB
+dist/assets/index.es-BaLr8fa5.js                       159.12 kB │ gzip:  53.14 kB
+dist/assets/html2canvas.esm-DXEQVQnt.js                201.04 kB │ gzip:  47.43 kB
+dist/assets/index-Bxa50i6Y.js                          351.32 kB │ gzip: 107.71 kB
+dist/assets/pdf-CFeTQ6g_.js                            387.52 kB │ gzip: 127.00 kB
+dist/assets/pdf-CfhDiWmk.js                            437.62 kB │ gzip: 131.39 kB
+✓ built in 13.08s
+
+┌─────────────────────────────────────────────────────────┐
+│  Update available 6.19.3 -> 8.0.0-rc.23                 │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+
+run build:api exit 0
+
+> communicate-pos@0.1.0 build:api
+> node scripts/build-backend.mjs

@@ -33,3 +33,7 @@ Definir volumen/concurrencia/SLO, RPO/RTO, retención y presupuesto. La muestra 
 ## Fase 5 — Release controlado
 
 HEAD inmutable, instalación/build limpios, pruebas críticas sin pendientes, backup recuperable, ensayo de migración, rollback, monitoreo y responsables. Staging aceptado y aprobación posterior antes de producción. Validar ingresos/RECO/relaciones/permisos sin datos sensibles en logs. Push y deploy siguen fuera del alcance de esta auditoría.
+
+## Actualización posterior — fase 2, 20/10/2026
+
+Este documento conserva el diagnóstico y plan del baseline original. La remediación local posterior se detalla en [P1 remediation report](../p1-remediation/00-remediation-report.md). AUD-01/02/03 resueltos localmente; AUD-04 con restore local aprobado y aceptación operativa pendiente; AUD-05 bloqueado externo. No se autoriza producción. El manifest original corresponde al snapshot 0ee3e53, no a estas actualizaciones.

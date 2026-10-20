@@ -1,0 +1,1 @@
+{"name":"release-lint","exitCode":0,"durationMs":14829,"command":"node node_modules/eslint/bin/eslint.js ."}

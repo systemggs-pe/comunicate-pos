@@ -1,0 +1,264 @@
+{
+  "checkedAt": "2026-10-20T16:16:57.606451+00:00",
+  "codeCommit": "9c23e08e9b1e94b12ad3581cad0a23cc5b630931",
+  "sourceManifestUnchanged": true,
+  "groups": {
+    "release-unit": {
+      "distinctFileTitles": 287,
+      "parameterRowsBeyondDistinctNames": 19,
+      "total": 306,
+      "passed": 306,
+      "failed": 0,
+      "pending": 0,
+      "source": "release-unit.json"
+    },
+    "release-integration": {
+      "distinctFileTitles": 386,
+      "parameterRowsBeyondDistinctNames": 0,
+      "total": 386,
+      "passed": 386,
+      "failed": 0,
+      "pending": 0,
+      "source": "release-integration.json"
+    },
+    "release-default-e2e": {
+      "total": 46,
+      "passed": 46,
+      "failed": 0,
+      "pending": 0,
+      "flaky": 0,
+      "source": "release-default-e2e-results.json"
+    },
+    "release-mvp-e2e": {
+      "total": 32,
+      "passed": 32,
+      "failed": 0,
+      "pending": 0,
+      "flaky": 0,
+      "source": "release-mvp-e2e-results.json"
+    }
+  },
+  "countingRule": "File + full test name + parameter row occurrence within one final run. Duplicate unit titles represent distinct it.each input rows, not retries. Named title count is also reported. No prior execution is added.",
+  "distinctFileTitleCount": 751,
+  "finalUnique": {
+    "total": 770,
+    "passed": 770,
+    "failed": 0,
+    "pending": 0
+  },
+  "historyNotAddedToUniqueTotals": [
+    {
+      "source": "aud01-receipts.json",
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "pending": 0,
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "aud02-regression.json",
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "pending": 0,
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "aud04-unit.json",
+      "total": 32,
+      "passed": 32,
+      "failed": 0,
+      "pending": 0,
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "auth-sales-e2e-results.json",
+      "stats": {
+        "startTime": "2026-10-20T15:55:12.883Z",
+        "duration": 47555.267,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "default-e2e-initial.json",
+      "stats": {
+        "startTime": "2026-10-19T20:26:20.380Z",
+        "duration": 542445.526,
+        "expected": 18,
+        "skipped": 2,
+        "unexpected": 26,
+        "flaky": 0
+      },
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "default-e2e-results.json",
+      "stats": {
+        "startTime": "2026-10-20T15:46:47.825Z",
+        "duration": 335760.016,
+        "expected": 40,
+        "skipped": 2,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "default-e2e-second.json",
+      "stats": {
+        "startTime": "2026-10-19T20:35:42.385Z",
+        "duration": 355651.097,
+        "expected": 35,
+        "skipped": 2,
+        "unexpected": 9,
+        "flaky": 0
+      },
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "default-e2e-third.json",
+      "stats": {
+        "startTime": "2026-10-20T15:46:47.825Z",
+        "duration": 335760.016,
+        "expected": 40,
+        "skipped": 2,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "default-target-e2e-results.json",
+      "stats": {
+        "startTime": "2026-10-20T15:52:38.530Z",
+        "duration": 121968.756,
+        "expected": 11,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "integration-current.json",
+      "total": 384,
+      "passed": 301,
+      "failed": 83,
+      "pending": 0,
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "integration-domain.json",
+      "total": 101,
+      "passed": 101,
+      "failed": 0,
+      "pending": 0,
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "integration-evidence.json",
+      "total": 107,
+      "passed": 102,
+      "failed": 5,
+      "pending": 0,
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "integration-final.json",
+      "total": 386,
+      "passed": 386,
+      "failed": 0,
+      "pending": 0,
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "mvp-e2e-initial.json",
+      "stats": {
+        "startTime": "2026-10-19T20:42:07.055Z",
+        "duration": 282519.63999999996,
+        "expected": 21,
+        "skipped": 0,
+        "unexpected": 11,
+        "flaky": 0
+      },
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "mvp-e2e-results.json",
+      "stats": {
+        "startTime": "2026-10-20T15:56:13.989Z",
+        "duration": 215777.662,
+        "expected": 30,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "mvp-e2e-second.json",
+      "stats": {
+        "startTime": "2026-10-20T15:56:13.989Z",
+        "duration": 215777.662,
+        "expected": 30,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "mvp-target-e2e-results.json",
+      "stats": {
+        "startTime": "2026-10-20T16:00:08.256Z",
+        "duration": 23631.429,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "recovery-current.json",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pending": 0,
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "unit-current.json",
+      "total": 306,
+      "passed": 306,
+      "failed": 0,
+      "pending": 0,
+      "countedAsAdditionalCoverage": false
+    },
+    {
+      "source": "unit-initial.json",
+      "total": 300,
+      "passed": 297,
+      "failed": 3,
+      "pending": 0,
+      "countedAsAdditionalCoverage": false
+    }
+  ],
+  "qualityCommands": [
+    "tsc --noEmit",
+    "eslint .",
+    "npm ci --no-audit --no-fund",
+    "npm run build",
+    "npm run build:api"
+  ],
+  "externalGates": {
+    "AUD-04": "Local restore PASS; operational acceptance pending",
+    "AUD-05": "BLOCKED EXTERNAL PENDING",
+    "physicalPrinting": "NOT VERIFIED",
+    "GoogleGeminiCodartReal": "NOT VERIFIED"
+  }
+}

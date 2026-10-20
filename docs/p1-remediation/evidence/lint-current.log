@@ -1,0 +1,1 @@
+{"name":"lint-current","exitCode":0,"durationMs":7649,"command":"node node_modules/eslint/bin/eslint.js . --max-warnings 0"}

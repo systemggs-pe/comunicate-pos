@@ -1,0 +1,49 @@
+{"name":"e2e-inventory","exitCode":0,"durationMs":1042,"command":"node node_modules/@playwright/test/cli.js test --list"}
+Listing tests:
+  auth.spec.ts:26:1 › SUPERADMIN: bootstrap, login, administración, UI responsive y logout
+  auth.spec.ts:37:1 › SELLER: venta autorizada, restricciones, auditoría y desactivación por SUPERADMIN
+  auth.spec.ts:51:1 › administración UI: editar, habilitar, resetear y guardar permisos
+  declaration.spec.ts:18:1 › identidad administrativa, dos declaraciones, preview automático, descarga e impresión A4
+  declaration.spec.ts:34:1 › datos cambiados impiden generar con confirmaciones anteriores
+  dni.spec.ts:32:1 › A: cliente externo editable, sin alta anticipada, contacto manual y confirmación
+  dni.spec.ts:40:1 › B: local tiene prioridad y Usar cliente no duplica
+  dni.spec.ts:47:1 › C: provider caído permite crear cliente manual
+  dni.spec.ts:52:1 › criterio principal: registro por DNI externo, contactos, equipo/IMEI y posterior reutilización local
+  dni.spec.ts:65:1 › registro manual funciona con provider caído
+  dni.spec.ts:70:1 › ventas reutiliza consulta para comprador nuevo y propietario diferente
+  dni.spec.ts:78:1 › venta manual sigue operativa ante caída del provider
+  dni.spec.ts:84:1 › consulta tardía no sobrescribe correcciones manuales ni datos de otro DNI
+  dni.spec.ts:91:1 › DNI compartido responsive: loading, autofill y fallback en los tres formularios
+  dual-imei.spec.ts:19:3 › Samsung: dual, selección independiente y búsqueda del segundo
+  dual-imei.spec.ts:19:3 › Honor: dual, selección independiente y búsqueda del segundo
+  dual-imei.spec.ts:19:3 › Xiaomi: dual, selección independiente y búsqueda del segundo
+  dual-imei.spec.ts:19:3 › Motorola: dual, selección independiente y búsqueda del segundo
+  dual-imei.spec.ts:19:3 › Apple: dual, selección independiente y búsqueda del segundo
+  dual-imei.spec.ts:19:3 › Desconocida: dual, selección independiente y búsqueda del segundo
+  evidence.spec.ts:17:1 › principal 26 pasos: seis fotos privadas, RECO-000101/102, relogin, descarga y eliminación compartida
+  evidence.spec.ts:27:1 › error recuperable, reintento y navegación atrás mantienen borrador sin filas comerciales
+  evidence.spec.ts:29:1 › reemplazo confirmado e individual, error conserva imagen anterior y eliminación mantiene solicitud hermana
+  p1-regression.spec.ts:14:1 › DNI obligatorio, segundo celular y reutilización automática en el siguiente trámite
+  p1-regression.spec.ts:30:1 › venta de dos pasos valida Luhn y conserva vista automática, edición y ticket
+  receipts.spec.ts:16:1 › configuración editable persiste y es responsive 375 390 430
+  receipts.spec.ts:21:29 › ticket 58 mm: vista automática, descarga exacta e impresión
+  receipts.spec.ts:21:29 › ticket 80 mm: vista automática, descarga exacta e impresión
+  receipts.spec.ts:37:1 › selector ofrece sólo 58/80, descarga al seleccionar y permite cancelar
+  refinement.spec.ts:13:1 › R9 R10 R11 R40 desbloquear independiente y confirmar borrado con modal responsive
+  refinement.spec.ts:20:1 › R22 R23 nueva venta no ofrece inventario y muestra IMEI existente
+  registration.spec.ts:17:1 › criterio completo, relaciones canónicas, reutilización y revisión responsive
+  reports.spec.ts:38:1 › A SUPERADMIN: mes, últimos siete días, actualizar y responsive vacío
+  reports.spec.ts:41:1 › B REGISTROS: BITEL registrado, CSV descargado con filtros y totales
+  reports.spec.ts:46:1 › C SELLER: menú oculto y URL/API protegidas
+  reports.spec.ts:50:1 › D doble IMEI: dos RECO y un equipo con gráficos reales
+  reports.spec.ts:53:1 › E venta con dos equipos: reportes se actualizan después de eliminación por UI
+  reports.spec.ts:58:1 › F personalizados: filtros persisten al cambiar pestaña y navegar atrás
+  reports.spec.ts:62:1 › G clientes y trabajadores inactivos: identidad mínima y responsive
+  reports.spec.ts:67:1 › H permisos de reportes se conceden explícitamente desde la matriz de roles
+  sales.spec.ts:17:1 › venta Yape, relaciones, dos equipos, propietario distinto, cancelación y responsive
+  workflow.spec.ts:22:1 › A: venta con accesorios y doble solicitud del mismo equipo, transición independiente y ficha
+  workflow.spec.ts:38:1 › B: equipo externo, solo IMEI 2, evidencias opcionales y precio cero
+  workflow.spec.ts:41:1 › C: identidad cambia, limpia datos y descarta búsquedas tardías
+  workflow.spec.ts:46:1 › venta activa se advierte antes de revisar; salir requiere confirmar cambios
+  workflow.spec.ts:52:1 › errores de venta junto al campo y foco, notas autorizadas, Atrás conserva el borrador
+Total: 46 tests in 12 files

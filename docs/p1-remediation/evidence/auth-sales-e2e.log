@@ -1,0 +1,22 @@
+{"name":"auth-sales-e2e","exitCode":0,"durationMs":47987,"command":"node node_modules/@playwright/test/cli.js test auth.spec.ts sales.spec.ts --reporter=list,json"}
+[WebServer] (node:19876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:18460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:25788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:17840) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:15280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:6684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 tests\e2e\auth.spec.ts:27:1 › SUPERADMIN: bootstrap, login, administración, UI responsive y logout (8.0s)
+  ok 2 tests\e2e\auth.spec.ts:38:1 › SELLER: venta autorizada, restricciones, auditoría y desactivación por SUPERADMIN (8.1s)
+  ok 3 tests\e2e\auth.spec.ts:52:1 › administración UI: editar, habilitar, resetear y guardar permisos (3.4s)
+  ok 4 tests\e2e\sales.spec.ts:18:1 › venta Yape, relaciones, dos equipos, propietario distinto, cancelación y responsive (22.2s)
+
+  4 passed (47.6s)

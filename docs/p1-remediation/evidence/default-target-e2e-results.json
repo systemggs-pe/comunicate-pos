@@ -1,0 +1,724 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\ASUS\\.local\\nodejs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "auth.spec.ts",
+      "registration.spec.ts",
+      "reports.spec.ts",
+      "sales.spec.ts",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\playwright.config.ts",
+    "rootDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/.test-results/e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/tests/e2e",
+        "testIgnore": [
+          "mvp-*.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e",
+        "snapshotDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e",
+        "testIgnore": "mvp-*.spec.ts",
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 120000,
+        "use": {
+          "actionTimeout": 15000,
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:5175",
+          "channel": "msedge",
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.spec.ts",
+      "file": "auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "SUPERADMIN: bootstrap, login, administración, UI responsive y logout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8489,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:52:42.782Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-9ef1ee6eee26409f816b",
+          "file": "auth.spec.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "SELLER: venta autorizada, restricciones, auditoría y desactivación por SUPERADMIN",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7180,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:52:52.335Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-aba85bc87f4d9206c30d",
+          "file": "auth.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "administración UI: editar, habilitar, resetear y guardar permisos",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 18535,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')\nExpected: not checked\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"not toBeChecked\" locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol') with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')\u001b[22m\n\u001b[2m    - waiting for \"http://127.0.0.1:5175/roles\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://127.0.0.1:5175/roles\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')\nExpected: not checked\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"not toBeChecked\" locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol') with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')\u001b[22m\n\u001b[2m    - waiting for \"http://127.0.0.1:5175/roles\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://127.0.0.1:5175/roles\"\u001b[22m\n\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts:55:102",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                      "column": 102,
+                      "line": 55
+                    },
+                    "snippet": "  53 |  await login(page);const seller=await db.user.findUniqueOrThrow({where:{email:sellerEmail}});await page.goto(`/usuarios/${seller.id}?edit=1`);await page.getByLabel('Nombre',{exact:true}).fill('VENDEDOR ACTUALIZADO');await page.getByRole('button',{name:'Guardar usuario',exact:true}).click();await expect(page.getByText('Usuario actualizado.',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Editar usuario',exact:true}).click();await page.getByRole('button',{name:'Habilitar usuario',exact:true}).click();await expect(page.getByText('Usuario habilitado.',{exact:true})).toBeVisible();const password='e2e-new-test-password-only';await page.getByLabel('Nueva contraseña',{exact:true}).fill(password);await page.getByRole('button',{name:'Restablecer contraseña',exact:true}).click();await expect(page.getByText('Contraseña restablecida. Todas sus sesiones fueron invalidadas.',{exact:true})).toBeVisible();\n  54 |  const context=await browser.newContext(),other=await context.newPage();await login(other,sellerEmail,password);await expect(other.locator('.home-reference')).toContainText('VENDEDOR ACTUALIZADO');await nav(page,'Roles');await page.locator('.role-card > summary').filter({has:page.getByText('SELLER',{exact:true})}).click();const form=page.locator('form').filter({has:page.getByRole('heading',{name:'SELLER',exact:true})});await form.locator('section').filter({has:page.getByRole('heading',{name:'Ventas',exact:true})}).getByLabel('ELIMINAR DEFINITIVAMENTE',{exact:true}).check();await form.getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol').check();await form.getByRole('button',{name:'Guardar permisos',exact:true}).click();await expect(page.getByText('Permisos guardados. Las sesiones de este rol fueron invalidadas.',{exact:true}).first()).toBeVisible();await expect.poll(()=>db.session.count({where:{userId:seller.id}})).toBe(0);await other.reload();await expect(other.getByRole('heading',{name:'Inicia sesión'})).toBeVisible();\n> 55 |  await expect(form.getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')).not.toBeChecked();await form.locator('section').filter({has:page.getByRole('heading',{name:'Ventas',exact:true})}).getByLabel('ELIMINAR DEFINITIVAMENTE',{exact:true}).uncheck();await form.getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol').check();await form.getByRole('button',{name:'Guardar permisos',exact:true}).click();const role=await db.role.findUniqueOrThrow({where:{code:'SELLER'}});await expect.poll(()=>db.rolePermission.count({where:{roleId:role.id,permissionKey:'sales.delete'}})).toBe(0);expect(await db.auditLog.count({where:{action:'USER_PASSWORD_RESET',entityId:seller.id}})).toBe(1);expect(await db.auditLog.count({where:{action:'ROLE_PERMISSIONS_UPDATED',entityId:role.id}})).toBe(2);await context.close();\n     |                                                                                                      ^\n  56 | });\n  57 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                        "column": 102,
+                        "line": 55
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')\nExpected: not checked\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"not toBeChecked\" locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol') with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('form').filter({ has: getByRole('heading', { name: 'SELLER', exact: true }) }).getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')\u001b[22m\n\u001b[2m    - waiting for \"http://127.0.0.1:5175/roles\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://127.0.0.1:5175/roles\"\u001b[22m\n\n\n  53 |  await login(page);const seller=await db.user.findUniqueOrThrow({where:{email:sellerEmail}});await page.goto(`/usuarios/${seller.id}?edit=1`);await page.getByLabel('Nombre',{exact:true}).fill('VENDEDOR ACTUALIZADO');await page.getByRole('button',{name:'Guardar usuario',exact:true}).click();await expect(page.getByText('Usuario actualizado.',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Editar usuario',exact:true}).click();await page.getByRole('button',{name:'Habilitar usuario',exact:true}).click();await expect(page.getByText('Usuario habilitado.',{exact:true})).toBeVisible();const password='e2e-new-test-password-only';await page.getByLabel('Nueva contraseña',{exact:true}).fill(password);await page.getByRole('button',{name:'Restablecer contraseña',exact:true}).click();await expect(page.getByText('Contraseña restablecida. Todas sus sesiones fueron invalidadas.',{exact:true})).toBeVisible();\n  54 |  const context=await browser.newContext(),other=await context.newPage();await login(other,sellerEmail,password);await expect(other.locator('.home-reference')).toContainText('VENDEDOR ACTUALIZADO');await nav(page,'Roles');await page.locator('.role-card > summary').filter({has:page.getByText('SELLER',{exact:true})}).click();const form=page.locator('form').filter({has:page.getByRole('heading',{name:'SELLER',exact:true})});await form.locator('section').filter({has:page.getByRole('heading',{name:'Ventas',exact:true})}).getByLabel('ELIMINAR DEFINITIVAMENTE',{exact:true}).check();await form.getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol').check();await form.getByRole('button',{name:'Guardar permisos',exact:true}).click();await expect(page.getByText('Permisos guardados. Las sesiones de este rol fueron invalidadas.',{exact:true}).first()).toBeVisible();await expect.poll(()=>db.session.count({where:{userId:seller.id}})).toBe(0);await other.reload();await expect(other.getByRole('heading',{name:'Inicia sesión'})).toBeVisible();\n> 55 |  await expect(form.getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol')).not.toBeChecked();await form.locator('section').filter({has:page.getByRole('heading',{name:'Ventas',exact:true})}).getByLabel('ELIMINAR DEFINITIVAMENTE',{exact:true}).uncheck();await form.getByLabel('Confirmo actualizar permisos y cerrar las sesiones de este rol').check();await form.getByRole('button',{name:'Guardar permisos',exact:true}).click();const role=await db.role.findUniqueOrThrow({where:{code:'SELLER'}});await expect.poll(()=>db.rolePermission.count({where:{roleId:role.id,permissionKey:'sales.delete'}})).toBe(0);expect(await db.auditLog.count({where:{action:'USER_PASSWORD_RESET',entityId:seller.id}})).toBe(1);expect(await db.auditLog.count({where:{action:'ROLE_PERMISSIONS_UPDATED',entityId:role.id}})).toBe(2);await context.close();\n     |                                                                                                      ^\n  56 | });\n  57 |\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts:55:102"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:52:59.528Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\auth-administración-UI-edi-bbd25-resetear-y-guardar-permisos\\test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\auth-administración-UI-edi-bbd25-resetear-y-guardar-permisos\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\auth-administración-UI-edi-bbd25-resetear-y-guardar-permisos\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\auth-administración-UI-edi-bbd25-resetear-y-guardar-permisos\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\auth.spec.ts",
+                    "column": 102,
+                    "line": 55
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d748ac400d08b85935ef-f0c7e1b9a0b013536685",
+          "file": "auth.spec.ts",
+          "line": 52,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "registration.spec.ts",
+      "file": "registration.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "criterio completo, relaciones canónicas, reutilización y revisión responsive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 33343,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:53:18.836Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1e5aa7b6f95ae669165d-ecb801ed2f5510b8944d",
+          "file": "registration.spec.ts",
+          "line": 18,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "reports.spec.ts",
+      "file": "reports.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "A SUPERADMIN: todo el historial, últimos siete días, actualizar y responsive vacío",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2774,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:53:52.627Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-9340c957c18d6faebe36",
+          "file": "reports.spec.ts",
+          "line": 39,
+          "column": 1
+        },
+        {
+          "title": "B REGISTROS: BITEL registrado, CSV descargado con filtros y totales",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2816,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:53:55.415Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-9431f30a8a7d05958dd6",
+          "file": "reports.spec.ts",
+          "line": 42,
+          "column": 1
+        },
+        {
+          "title": "C SELLER: menú oculto y URL/API protegidas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1246,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:53:58.245Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-41bf7422f57750c060c9",
+          "file": "reports.spec.ts",
+          "line": 47,
+          "column": 1
+        },
+        {
+          "title": "D doble IMEI: dos RECO y un equipo con gráficos reales",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4243,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:53:59.506Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-fa898f4af79b7958d7b2",
+          "file": "reports.spec.ts",
+          "line": 51,
+          "column": 1
+        },
+        {
+          "title": "E venta con dos equipos: reportes se actualizan después de eliminación por UI",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4164,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:54:03.765Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-462b508acc47f9c0bd21",
+          "file": "reports.spec.ts",
+          "line": 54,
+          "column": 1
+        },
+        {
+          "title": "F personalizados: filtros persisten al cambiar pestaña y navegar atrás",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2227,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:54:07.942Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-834f731318615db0f347",
+          "file": "reports.spec.ts",
+          "line": 59,
+          "column": 1
+        },
+        {
+          "title": "G clientes y trabajadores inactivos: identidad mínima y responsive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3031,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:54:10.185Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-847920488634526f8ef8",
+          "file": "reports.spec.ts",
+          "line": 63,
+          "column": 1
+        },
+        {
+          "title": "H permisos de reportes se conceden explícitamente desde la matriz de roles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3286,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:54:13.232Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d2ea609703bae19dcdce-610134327834e7080ecf",
+          "file": "reports.spec.ts",
+          "line": 68,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "sales.spec.ts",
+      "file": "sales.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "venta Yape, relaciones, dos equipos, propietario distinto, cancelación y responsive",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 23171,
+                  "error": {
+                    "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Agregar otro equipo', exact: true })\u001b[22m\n",
+                    "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Agregar otro equipo', exact: true })\u001b[22m\n\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\sales.spec.ts:32:80",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\sales.spec.ts",
+                      "column": 80,
+                      "line": 32
+                    },
+                    "snippet": "  30 |   await nav(page, 'Ventas'); await page.getByRole('link', { name: 'Nueva venta', exact: true }).click(); await saleClient(page,'60765433','Rosa Ortiz');\n  31 |   await fillItem(page, 0, 'Samsung', 'A56', '596076543200034', '1400'); await page.getByTestId('sale-item-0').locator('.sale-owner-options>summary').click();await page.getByLabel('PROPIETARIO DISTINTO DEL COMPRADOR PARA EQUIPO 1').check(); await page.getByRole('button', { name: 'Crear propietario del equipo 1 nuevo', exact: true }).click(); const ownerPanel = page.getByTestId('sale-item-0').locator('.client-picker'); await ownerPanel.getByLabel('DNI', { exact: false }).fill('60765434'); await ownerPanel.getByLabel('Nombres').fill('Gianfranco'); await ownerPanel.getByLabel('Apellidos').fill('Peralta');\n> 32 |   await page.getByRole('button', { name: 'Agregar otro equipo', exact: true }).click(); await fillItem(page, 1, 'Apple', 'iPhone', '596076543200042', '3200'); await page.getByLabel('Descuento de la venta (S/)').fill('100'); await page.getByLabel('Método de pago').selectOption('PLIN'); await expect(page.locator('.sale-total')).toContainText('4,500.00');await saveSale(page); await expect(page.getByRole('dialog',{name:'Detalle de venta',exact:true})).toBeVisible();\n     |                                                                                ^\n  33 |   const secondId = new URL(page.url()).pathname.split('/').pop()!; const second = await db.sale.findUniqueOrThrow({ where: { id: secondId }, include: { equipment: { include: { equipment: true } } } }); expect(second.equipment).toHaveLength(2); expect(second.equipment.find(line => line.equipment.brand === 'SAMSUNG')?.equipment.ownerId).not.toBe(second.buyerId); expect(second.equipment.find(line => line.equipment.brand === 'APPLE')?.equipment.ownerId).toBe(second.buyerId);\n  34 |   await nav(page,'Inicio');await expect(page.locator('.home-metric').nth(1).locator('strong')).toHaveText('2');await nav(page,'REPORTES');await expect(page.getByTestId('metric-salesRevenue')).toContainText('S/ 8,000.00');await nav(page,'Inicio');\n  35 |   for (const width of [1280, 375, 390, 430]) {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\sales.spec.ts",
+                        "column": 80,
+                        "line": 32
+                      },
+                      "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Agregar otro equipo', exact: true })\u001b[22m\n\n\n  30 |   await nav(page, 'Ventas'); await page.getByRole('link', { name: 'Nueva venta', exact: true }).click(); await saleClient(page,'60765433','Rosa Ortiz');\n  31 |   await fillItem(page, 0, 'Samsung', 'A56', '596076543200034', '1400'); await page.getByTestId('sale-item-0').locator('.sale-owner-options>summary').click();await page.getByLabel('PROPIETARIO DISTINTO DEL COMPRADOR PARA EQUIPO 1').check(); await page.getByRole('button', { name: 'Crear propietario del equipo 1 nuevo', exact: true }).click(); const ownerPanel = page.getByTestId('sale-item-0').locator('.client-picker'); await ownerPanel.getByLabel('DNI', { exact: false }).fill('60765434'); await ownerPanel.getByLabel('Nombres').fill('Gianfranco'); await ownerPanel.getByLabel('Apellidos').fill('Peralta');\n> 32 |   await page.getByRole('button', { name: 'Agregar otro equipo', exact: true }).click(); await fillItem(page, 1, 'Apple', 'iPhone', '596076543200042', '3200'); await page.getByLabel('Descuento de la venta (S/)').fill('100'); await page.getByLabel('Método de pago').selectOption('PLIN'); await expect(page.locator('.sale-total')).toContainText('4,500.00');await saveSale(page); await expect(page.getByRole('dialog',{name:'Detalle de venta',exact:true})).toBeVisible();\n     |                                                                                ^\n  33 |   const secondId = new URL(page.url()).pathname.split('/').pop()!; const second = await db.sale.findUniqueOrThrow({ where: { id: secondId }, include: { equipment: { include: { equipment: true } } } }); expect(second.equipment).toHaveLength(2); expect(second.equipment.find(line => line.equipment.brand === 'SAMSUNG')?.equipment.ownerId).not.toBe(second.buyerId); expect(second.equipment.find(line => line.equipment.brand === 'APPLE')?.equipment.ownerId).toBe(second.buyerId);\n  34 |   await nav(page,'Inicio');await expect(page.locator('.home-metric').nth(1).locator('strong')).toHaveText('2');await nav(page,'REPORTES');await expect(page.getByTestId('metric-salesRevenue')).toContainText('S/ 8,000.00');await nav(page,'Inicio');\n  35 |   for (const width of [1280, 375, 390, 430]) {\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\sales.spec.ts:32:80"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:54:16.593Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\sales-venta-Yape-relacione-9d4c1-to-cancelación-y-responsive\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\sales-venta-Yape-relacione-9d4c1-to-cancelación-y-responsive\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\sales-venta-Yape-relacione-9d4c1-to-cancelación-y-responsive\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\sales.spec.ts",
+                    "column": 80,
+                    "line": 32
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "9732fc60f5589579a1d1-1afea04ebd8c63dfa440",
+          "file": "sales.spec.ts",
+          "line": 18,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T15:52:38.530Z",
+    "duration": 121968.756,
+    "expected": 11,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
