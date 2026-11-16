@@ -9,14 +9,15 @@ import {scanFields} from '../../shared/scanner';
 const target=new URL(process.env.DATABASE_URL!);
 if(target.pathname!=='/communicate_pos_test'||!['127.0.0.1','localhost'].includes(target.hostname)||process.env.PORT!=='3002')throw Error('ISOLATED MVP TEST SERVER ONLY');
 const db=new PrismaClient();
-let control={scanner:'ok',delay:0,nameDelay:0,photo:'ok',nameCalls:0,photoCalls:0,scanCalls:0};
+let control={scanner:'ok',delay:0,nameDelay:0,photo:'ok',photoDelay:0,nameCalls:0,photoCalls:0,scanCalls:0};
 process.env.CODART_ENABLED='true';process.env.CODART_PHOTO_STORAGE_AUTHORIZED='true';
 const png=await sharp({create:{width:120,height:180,channels:3,background:'#123456'}}).png().toBuffer();
 const jpeg=await sharp({create:{width:180,height:120,channels:3,background:'#654321'}}).jpeg().toBuffer();
 const fetcher:typeof fetch=async(input)=>{
  const url=String(input);if(!url.startsWith('https://api-codart.cgrt.org/'))throw Error('MOCK CONTRACT URL');
  if(url.includes('/reniec/')){control.nameCalls++;await new Promise(r=>setTimeout(r,control.nameDelay));return Response.json({success:true,result:{full_name:'CLIENTE SINTÉTICO DE PRUEBA',address:'NEVER IMPORT',birth_date:'NEVER IMPORT'}});}
- control.photoCalls++;if(control.photo==='credits')return Response.json({}, {status:402});
+ control.photoCalls++;await new Promise(r=>setTimeout(r,control.photoDelay));if(control.photo==='credits')return Response.json({}, {status:402});
+ if(control.photo==='one')return Response.json({success:true,data:{images:[{data_uri:'data:image/png;base64,'+png.toString('base64')}]},credits_deducted:1});
  return Response.json({success:true,data:{images:[{data_uri:'data:image/png;base64,'+png.toString('base64'),...(control.photo==='ambiguous'?{side:'FRONT'}:{})},{data_uri:'data:image/jpeg;base64,'+jpeg.toString('base64'),...(control.photo==='ambiguous'?{side:'FRONT'}:{})}]},credits_deducted:2});
 };
 const provider=new CodartProvider('synthetic-test-token',fetcher,true);

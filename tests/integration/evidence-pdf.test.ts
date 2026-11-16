@@ -29,15 +29,26 @@ async function image(requestId:string,category:string,color='#765432'){
  expect((await agent.post(`/api/registration-requests/${requestId}/evidence`).set('Origin',testOrigin).send({assetId:init.body.assetId,category,expectedEvidenceId:null,confirm:true})).status).toBe(200);
  return db.evidenceAsset.findUniqueOrThrow({where:{id:init.body.assetId}});
 }
-it('A4 por RECO, sin fotos permitido, configuración real y reimpresión sin duplicar',async()=>{
+it('plantilla A4 fija por RECO, sin fotos permitido y descarga repetida sin duplicar',async()=>{
  const rows=await fixture();expect((await agent.patch('/api/settings/company').set('Origin',testOrigin).send({...companyDefaults,businessName:'EMPRESA SINTÉTICA'})).status).toBe(200);
- for(const [index,row] of rows.entries()){const result=await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({});expect(result.status).toBe(200);expect(result.headers['cache-control']).toBe('no-store');expect(result.body.fileName).toBe(`${row.code}-EVIDENCIAS.pdf`);const parsed=inspectEvidencePdf(Buffer.from(result.body.pdfBase64,'base64'));expect(parsed.pages).toHaveLength(1);expect(parsed.text).toContain(row.imei.value);expect(parsed.text).not.toContain(rows[1-index].imei.value);expect(parsed.text).toContain('SIN FOTOGRAFÍAS');expect(parsed.text).toContain('EMPRESA SINTÉTICA');expect((await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({})).status).toBe(200);}
+ for(const row of rows){const result=await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({});expect(result.status).toBe(200);expect(result.headers['cache-control']).toBe('no-store');expect(result.body.fileName).toBe(`${row.code}.pdf`);const parsed=inspectEvidencePdf(Buffer.from(result.body.pdfBase64,'base64'));expect(parsed.pages).toHaveLength(2);expect(parsed.text.trim()).toBe('');expect(parsed.pages.every(p=>p.images.length===0)).toBe(true);expect((await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({})).status).toBe(200);}
  expect(await db.registrationRequest.count()).toBe(2);expect(await db.registrationOperation.count()).toBe(1);expect(await db.equipment.count()).toBe(1);expect(await db.client.count()).toBe(1);
+});
+it('la variante comprimida conserva las dos páginas aunque falten las fotos opcionales',async()=>{
+ const [row]=await fixture();
+ const response=await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({compressed:true});
+ expect(response.status).toBe(200);
+ expect(response.body.fileName).toBe(`${row.code}-comprimido.pdf`);
+ const pdf=Buffer.from(response.body.pdfBase64,'base64');
+ expect(pdf.length).toBeLessThan(400_000);
+ const parsed=inspectEvidencePdf(pdf);
+ expect(parsed.pages.map(page=>page.images.length)).toEqual([0,0]);
+ expect(await db.registrationOperation.count()).toBe(1);
 });
 it('MinIO real: cinco categorías, imágenes proporcionadas y ninguna foto del otro RECO',async()=>{
  const [first,second]=await fixture();for(const category of ['DNI_FRONT','DNI_BACK','PURCHASE_RECEIPT','DEVICE_BOX','LOGICAL_IMEI'])await image(first.id,category);await image(second.id,'LOGICAL_IMEI','#112233');
- const result=await agent.post(endpoint(first.id)).set('Origin',testOrigin).send({});expect(result.status,JSON.stringify(result.body.error)).toBe(200);const parsed=inspectEvidencePdf(Buffer.from(result.body.pdfBase64,'base64'));expect(parsed.pages).toHaveLength(6);expect(parsed.pages.flatMap(p=>p.images)).toHaveLength(5);for(const title of ['DNI FRONTAL','DNI POSTERIOR','BOLETA','CAJA DEL EQUIPO','IMEI LÓGICO'])expect(parsed.text).toContain(title);expect(parsed.text).not.toContain(second.imei.value);
- const other=await agent.post(endpoint(second.id)).set('Origin',testOrigin).send({});const siblingPdf=inspectEvidencePdf(Buffer.from(other.body.pdfBase64,'base64'));expect(siblingPdf.pages).toHaveLength(4);expect(siblingPdf.pages.flatMap(p=>p.images)).toHaveLength(3);expect(siblingPdf.text).not.toContain(first.imei.value);
+ const result=await agent.post(endpoint(first.id)).set('Origin',testOrigin).send({});expect(result.status,JSON.stringify(result.body.error)).toBe(200);const parsed=inspectEvidencePdf(Buffer.from(result.body.pdfBase64,'base64'));expect(parsed.pages).toHaveLength(2);expect(parsed.pages.flatMap(p=>p.images)).toHaveLength(5);expect(parsed.pages.map(p=>p.images.length)).toEqual([3,2]);expect(parsed.text.trim()).toBe('');
+ const other=await agent.post(endpoint(second.id)).set('Origin',testOrigin).send({});const siblingPdf=inspectEvidencePdf(Buffer.from(other.body.pdfBase64,'base64'));expect(siblingPdf.pages).toHaveLength(2);expect(siblingPdf.pages.flatMap(p=>p.images)).toHaveLength(3);expect(siblingPdf.text).not.toContain(first.imei.value);
 });
 it('falta archivo: conserva registros y permite reintentar solamente el documento',async()=>{
  const [row]=await fixture(),asset=await image(row.id,'DNI_FRONT'),bytes=await storage.download(asset.storageKey,10485760);await storage.delete(asset.storageKey);
@@ -48,7 +59,7 @@ it('autenticación, permisos de evidencia, CSRF e ID inexistente',async()=>{
  const [row]=await fixture();expect((await request(app).post(endpoint(row.id)).set('Origin',testOrigin).send({})).status).toBe(401);expect((await agent.post(endpoint(row.id)).set('Origin','https://invalid.example').send({})).status).toBe(403);expect((await agent.post(endpoint(randomUUID())).set('Origin',testOrigin).send({})).status).toBe(404);
  const user=await db.user.findUniqueOrThrow({where:{email:testEmail}}),role=await db.role.findUniqueOrThrow({where:{code:'ADMIN'}}),key={roleId:role.id,permissionKey:'registration.evidence.read'};
  const existed=await db.rolePermission.findUnique({where:{roleId_permissionKey:key}});await db.rolePermission.deleteMany({where:key});await db.user.update({where:{id:user.id},data:{roleId:role.id}});
- try{expect((await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({})).status).toBe(403);}finally{await db.user.update({where:{id:user.id},data:{roleId:user.roleId}});if(existed)await db.rolePermission.create({data:key});}
+ try{for(const options of [{},{compressed:true}])expect((await agent.post(endpoint(row.id)).set('Origin',testOrigin).send(options)).status).toBe(403);}finally{await db.user.update({where:{id:user.id},data:{roleId:user.roleId}});if(existed)await db.rolePermission.create({data:key});}
 });
 it('origen TIENDA y referencia independiente de los teléfonos IMEI; idempotencia',async()=>{
  const input={...workflowInput(),origin:'STORE',requests:workflowInput().requests.map(r=>({...r,referencePhone:'923456789'}))};await fixture(input);await fixture(input);expect((await db.equipment.findFirstOrThrow()).origin).toBe('STORE');expect((await db.registrationRequest.findMany()).every(r=>r.referencePhone==='923456789')).toBe(true);expect(await db.registrationRequest.count()).toBe(2);

@@ -1,4 +1,4 @@
-import type { DniErrorCode } from '../../shared/dni.js';
+  import type { DniErrorCode } from '../../shared/dni.js';
 export interface DniLookupResult {
   simulated?:boolean;dni: string; firstName?: string; lastName?: string;
   paternalLastName?: string; maternalLastName?: string; fullName?: string; source: string;

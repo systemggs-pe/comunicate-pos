@@ -7,7 +7,28 @@ import {productionConfiguration,type ConfigurationCheck} from '../server/ops/con
 const local=process.argv.includes('--local'),checks:ConfigurationCheck[]=[];
 const check=(name:string,condition:boolean)=>checks.push({name,status:condition?'PASS':'FAIL'});
 const tracked=spawnSync('git',['ls-files','-z'],{encoding:'utf8',windowsHide:true});if(tracked.status!==0)throw new Error('PREFLIGHT_GIT_UNAVAILABLE');const files=tracked.stdout.split('\0').filter(Boolean);check('no-tracked-private-env',!files.some(f=>/(^|\/)\.env($|\.)/.test(f)&&f!=='.env.example'));
-const migrationDirectories=(await readdir('prisma/migrations',{withFileTypes:true})).filter(entry=>entry.isDirectory());const migrations=[];let migrationsUnchanged=true;for(const item of migrationDirectories){const path=`prisma/migrations/${item.name}/migration.sql`,sql=await readFile(path),hash=createHash('sha256').update(sql).digest('hex'),original=spawnSync('git',['show',`1e12910:${path}`],{windowsHide:true}),canonical=sql.toString('utf8').replaceAll('\r\n','\n'),canonicalHash=createHash('sha256').update(canonical).digest('hex'),windowsHash=createHash('sha256').update(canonical.replaceAll('\n','\r\n')).digest('hex');if(original.status!==0||original.stdout.toString('utf8').replaceAll('\r\n','\n')!==canonical)migrationsUnchanged=false;migrations.push({name:item.name,sha256:hash,canonicalSha256:canonicalHash,windowsSha256:windowsHash});}check('migration-files-present',migrations.length===11);check('historical-migrations-unchanged',migrationsUnchanged);
+const migrationDirectories=(await readdir('prisma/migrations',{withFileTypes:true})).filter(entry=>entry.isDirectory());
+const baseline=spawnSync('git',['ls-tree','-r','--name-only','ea410f7','--','prisma/migrations'],{encoding:'utf8',windowsHide:true});
+if(baseline.status!==0)throw new Error('PREFLIGHT_MIGRATION_BASELINE_UNAVAILABLE');
+const historical=new Set(baseline.stdout.split(/\r?\n/).filter(path=>path.endsWith('/migration.sql')));
+const migrations=[];
+const tracking=new Set(files);
+let historyValid=historical.size>0;
+for(const item of migrationDirectories.sort((a,b)=>a.name.localeCompare(b.name))){
+ const path=`prisma/migrations/${item.name}/migration.sql`,sql=await readFile(path);
+ const canonical=sql.toString('utf8').replaceAll('\r\n','\n');
+ if(historical.delete(path)){
+  const original=spawnSync('git',['show',`ea410f7:${path}`],{encoding:'utf8',windowsHide:true});
+  if(original.status!==0||original.stdout.replaceAll('\r\n','\n')!==canonical)historyValid=false;
+ }
+ migrations.push({name:item.name,sha256:createHash('sha256').update(sql).digest('hex'),
+  canonicalSha256:createHash('sha256').update(canonical).digest('hex'),
+  windowsSha256:createHash('sha256').update(canonical.replaceAll('\n','\r\n')).digest('hex')});
+}
+check('candidate-migrations-tracked',migrations.length>0&&migrations.every(item=>tracking.has(`prisma/migrations/${item.name}/migration.sql`)));
+check('historical-migrations-unchanged',historyValid&&historical.size===0);
+const redirects=await readFile('public/_redirects','utf8');
+check('pages-operational-routes', ['/boletas-extranjeras','/boleta','/foto-dni','/configuracion/empresa'].every(path=>redirects.split(/\r?\n/).some(line=>line.trim().split(/\s+/).join(' ')===path+' /index.html 200')));
 let embeddedSecrets=false;for(const file of files.filter(file=>/\.(ts|tsx|js|mjs|json|md|ya?ml|sql)$/.test(file))){const text=await readFile(file,'utf8');if(/gh[pousr]_[a-zA-Z0-9]{36,}|AKIA[A-Z0-9]{16}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/.test(text))embeddedSecrets=true;}check('no-known-secret-signatures-in-tracked-source',!embeddedSecrets);
 const validation=spawnSync(process.execPath,['node_modules/prisma/build/index.js','validate'],{windowsHide:true,stdio:'pipe'});check('prisma-schema-valid',validation.status===0);
 for(const path of ['dist/index.html','dist/.vite/manifest.json','docs/phase-9-security-audit.md','docs/phase-9-backup-restore.md','docs/phase-9-performance.md','docs/phase-9-production-preflight.md','docs/phase-9-release-readiness.md']){try{await access(path);check(path,true);}catch{check(path,false);}}

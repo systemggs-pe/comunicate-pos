@@ -11,6 +11,10 @@
 /ventas/* /index.html 200
 /reportes /index.html 200
 /configuracion /index.html 200
+/configuracion/empresa /index.html 200
+/boletas-extranjeras /index.html 200
+/boleta /index.html 200
+/foto-dni /index.html 200
 /usuarios /index.html 200
 /usuarios/* /index.html 200
 /roles /index.html 200

@@ -1,7 +1,7 @@
 import {postLegacyRegistration} from '../helpers/registration-identity';
 import {fixtureImei} from '../helpers/imei';
 import 'dotenv/config';
-import {beforeEach,afterAll,it,expect} from 'vitest';
+import {beforeEach,afterAll,it,expect,vi} from 'vitest';
 import {PrismaClient} from '@prisma/client';
 import {randomUUID,createHash} from 'node:crypto';
 import sharp from 'sharp';
@@ -12,6 +12,7 @@ import {clearEvidenceFixtures,evidenceTestStorage} from '../helpers/evidence';
 import {workflowInput} from '../helpers/workflow';
 import {permissionKeys} from '../../shared/auth';
 import {cleanupEvidence} from '../../server/evidence/lifecycle';
+import {prepareEvidenceImage} from '../../server/evidence/image';
 const target=new URL(process.env.TEST_DATABASE_URL!);if(target.pathname!=='/communicate_pos_test'||!['127.0.0.1','localhost'].includes(target.hostname))throw Error('TEST DB ONLY');
 const db=new PrismaClient({datasources:{db:{url:target.toString()}}}),storage=evidenceTestStorage(),app=createApp(db,{evidenceStorage:storage});
 let agent:Awaited<ReturnType<typeof loginAgent>>,clientId:string;
@@ -51,6 +52,39 @@ it('reemplazo explícito conserva archivo viejo en registros y vigente separado'
  const d=await document();await operation([d.id]);const old=await db.evidenceAsset.findUniqueOrThrow({where:{id:d.asset.id}});expect((await upload('DNI_FRONT','#abcdef')).status).toBe(409);const result=await upload('DNI_FRONT','#abcdef',{replace:'true',expectedDocumentId:d.id});expect(result.status).toBe(201);expect(result.body.id).not.toBe(d.id);expect((await db.clientDocument.findUniqueOrThrow({where:{id:d.id}})).status).toBe('REPLACED');expect(await storage.exists(old.storageKey)).toBe(true);expect(await db.registrationEvidence.count({where:{evidenceAssetId:d.asset.id}})).toBe(2);
 });
 it('reemplazo con referencia obsoleta no sustituye el vigente y limpia la carga huérfana',async()=>{const d=await document(),old=await db.evidenceAsset.findUniqueOrThrow({where:{id:d.asset.id}});const result=await upload('DNI_FRONT','#abcabc',{replace:'true',expectedDocumentId:randomUUID()});expect(result.status).toBe(409);expect((await db.clientDocument.findUniqueOrThrow({where:{id:d.id}})).status).toBe('CURRENT');expect(await storage.exists(old.storageKey)).toBe(true);await cleanupEvidence(db,storage);expect(await db.evidenceAsset.count()).toBe(1);});
+it('actualizar desde CODART deja solo las fotos nuevas en la ficha y limpia los archivos sin referencias',async()=>{
+ const original=await document();
+ await operation([original.id]);
+ const replacement=await upload('DNI_FRONT','#456789',{replace:'true',expectedDocumentId:original.id});
+ expect(replacement.status).toBe(201);
+ const otherType=await upload('DNI_BACK','#765432',{documentType:'ELECTRONIC'});
+ expect(otherType.status).toBe(201);
+ const [historicalAsset,oldManual,oldElectronic]=await Promise.all([original.asset.id,replacement.body.asset.id,otherType.body.asset.id].map(id=>db.evidenceAsset.findUniqueOrThrow({where:{id}})));
+ const front=await prepareEvidenceImage(await photo('#ba5941'),'image/png');
+ const back=await prepareEvidenceImage(await photo('#986701'),'image/png');
+ const photos=vi.fn(async()=>({images:[{...front,side:'DNI_FRONT' as const},{...back,side:'DNI_BACK' as const}],creditsDeducted:1}));
+ vi.stubEnv('CODART_PHOTO_STORAGE_AUTHORIZED','true');
+ try{
+  const synthetic=await loginAgent(createApp(db,{evidenceStorage:storage,identityPhotos:{photos}}));
+  const lookup=()=>synthetic.post(`/api/clients/${clientId}/identity-photos`).set('Origin',testOrigin).send({confirmed:true,documentType:'BLUE',refresh:true});
+  photos.mockResolvedValueOnce({images:[],creditsDeducted:0});
+  expect((await lookup()).status).toBe(404);
+  expect((await docs()).body.documents).toHaveLength(3);
+  const updated=await lookup();
+  expect(updated.status,JSON.stringify(updated.body)).toBe(200);
+  expect(updated.body.documents).toHaveLength(2);
+  const listed=(await docs()).body.documents;
+  expect(listed).toHaveLength(2);
+  expect(listed).toEqual(expect.arrayContaining(updated.body.documents.map((doc:{id:string})=>expect.objectContaining({id:doc.id,status:'CURRENT',documentType:'BLUE'}))));
+  expect(await storage.exists(oldManual.storageKey)).toBe(false);
+  expect(await storage.exists(oldElectronic.storageKey)).toBe(false);
+  expect(await storage.exists(historicalAsset.storageKey)).toBe(true);
+  expect(await db.registrationEvidence.count({where:{evidenceAssetId:historicalAsset.id}})).toBe(2);
+  const repeat=await lookup();
+  expect(repeat.status).toBe(200);
+  expect(repeat.body.documents.map((doc:{id:string})=>doc.id)).toEqual(updated.body.documents.map((doc:{id:string})=>doc.id));
+ }finally{vi.unstubAllEnvs();}
+});
 it('caducidad impide reutilizar y autorización explícita renueva sin copiar',async()=>{
  const d=await document();await db.clientDocument.update({where:{id:d.id},data:{expiresAt:new Date(0)}});expect((await docs()).body.documents[0].retentionDue).toBe(true);const input=workflowInput();const failed=await agent.post('/api/registration-operations').set('Origin',testOrigin).send({...input,documentEvidence:[{documentId:d.id,imeiValues:input.imeis.map(i=>i.value)}]});expect(failed.status).toBe(409);expect(await db.equipment.count()).toBe(0);const renewed=await agent.patch(`/api/clients/${clientId}/documents/${d.id}`).set('Origin',testOrigin).send({...auth,category:'DNI_FRONT'});expect(renewed.status).toBe(200);await operation([d.id]);expect(await db.evidenceAsset.count()).toBe(1);
 });

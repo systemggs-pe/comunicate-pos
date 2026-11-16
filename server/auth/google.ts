@@ -6,6 +6,7 @@ import {cookieName,cookieOptions,requestContext,requestIp} from './middleware.js
 import {hashToken,publicUser,sessionHours,userSelect} from '../services/auth.service.js';
 import {writeAudit} from '../lib/audit.js';
 import {authorizedOrigins} from '../ops/security.js';
+import {sameSiteConfiguration} from '../ops/cloud-configuration.js';
 import {DomainError} from '../lib/errors.js';
 
 const keys=createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'),{timeoutDuration:8000});
@@ -14,7 +15,9 @@ function configuration(){
  const clientId=process.env.GOOGLE_OIDC_CLIENT_ID,secret=process.env.GOOGLE_OIDC_CLIENT_SECRET,redirect=process.env.GOOGLE_OIDC_REDIRECT_URI,origin=process.env.GOOGLE_OIDC_APP_ORIGIN;
  if(!clientId||!secret||!redirect||!origin)return null;
  try{const uri=new URL(redirect),app=new URL(origin);const production=process.env.NODE_ENV==='production';
-  if(app.origin!==origin||!authorizedOrigins(process.env.AUTH_ALLOWED_ORIGINS,production).includes(origin)||uri.origin!==origin||uri.pathname!=='/api/auth/google/callback'||uri.search||uri.hash||uri.username||uri.password)return null;
+  const apiOrigin=process.env.GOOGLE_OIDC_API_ORIGIN||origin;
+  if(app.origin!==origin||!authorizedOrigins(process.env.AUTH_ALLOWED_ORIGINS,production).includes(origin)||uri.origin!==apiOrigin||uri.pathname!=='/api/auth/google/callback'||uri.search||uri.hash||uri.username||uri.password)return null;
+  if(apiOrigin!==origin)sameSiteConfiguration({...process.env,VITE_API_BASE_URL:`${apiOrigin}/api`});
   if(production&&uri.protocol!=='https:')return null;
   if(!production&&uri.protocol!=='https:'&&!['127.0.0.1','localhost'].includes(uri.hostname))return null;
   return {clientId,secret,redirect,origin};

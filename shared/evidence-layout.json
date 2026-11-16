@@ -1,0 +1,10 @@
+{
+  "paper": {"width": 210, "height": 297, "pages": 2},
+  "slots": [
+    {"category": "DNI_FRONT", "page": 1, "x": 62.276119, "y": 28, "width": 81.447761, "height": 51},
+    {"category": "DNI_BACK", "page": 1, "x": 61.970732, "y": 99, "width": 82.058537, "height": 52},
+    {"category": "DEVICE_BOX", "page": 1, "x": 53, "y": 192.821429, "width": 100, "height": 32.357143},
+    {"category": "PURCHASE_RECEIPT", "page": 2, "x": 24.969286, "y": 29, "width": 56.061429, "height": 127},
+    {"category": "LOGICAL_IMEI", "page": 2, "x": 112.381786, "y": 29, "width": 59.236429, "height": 127}
+  ]
+}

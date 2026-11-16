@@ -3,6 +3,13 @@ import {randomUUID} from 'node:crypto';
 import sharp from 'sharp';
 import {checksum} from '../../server/evidence/image';
 import {testOrigin} from './auth';
+export async function advanceRegistration(page:Page){
+ for(const slot of [1,2]){
+  const button=page.getByRole('button',{name:`Confirmar operador IMEI ${slot}`,exact:true,pressed:false});
+  if(await button.count())await button.click();
+ }
+ await page.getByRole('button',{name:'Siguiente',exact:true}).click();
+}
 export async function postBrowserRegistration(page:Page,input:object){
  const body=input as {idempotencyKey:string;requests:{value:string}[]};const evidence=[];
  for(const category of ['DNI_FRONT','DNI_BACK']){
@@ -20,4 +27,19 @@ export async function uploadMissingRegistrationIdentity(page:Page){
   const card=page.locator('.evidence-card').filter({has:input});if(await card.getByText('ADJUNTADA',{exact:true}).count())continue;
   const buffer=await sharp({create:{width:80,height:120,channels:3,background:color}}).png().toBuffer();await input.setInputFiles({name:'synthetic-dni.png',mimeType:'image/png',buffer});await expect(card.getByText('ADJUNTADA',{exact:true})).toBeVisible();
  }
+}
+
+export async function uploadRegistrationReceipt(page:Page){
+ const input=page.getByLabel('Galería BOLETA DE VENTA',{exact:true});
+ const card=page.locator('.evidence-card').filter({has:input});
+ const ready=card.getByText('ADJUNTADA',{exact:true});
+ if(await ready.count())return;
+ const buffer=await sharp({create:{width:90,height:120,channels:3,background:'#48786b'}}).png().toBuffer();
+ await input.setInputFiles({name:'synthetic-receipt.png',mimeType:'image/png',buffer});
+ await expect(ready).toBeVisible();
+}
+
+export async function uploadRegistrationEvidence(page:Page){
+ await uploadMissingRegistrationIdentity(page);
+ await uploadRegistrationReceipt(page);
 }

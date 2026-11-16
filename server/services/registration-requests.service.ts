@@ -1,6 +1,10 @@
-import {saveRegistrationIdentity} from '../documents/save-registration-identity.js';
+import {applyRegistrationIdentityChanges,saveRegistrationIdentity} from '../documents/save-registration-identity.js';
 import {autoAttachClientIdentity} from '../documents/auto-attach-identity.js';
-import {attachOperationEvidence} from '../evidence/lifecycle.js';
+import {assertPrepared,attachOperationEvidence,lockAsset} from '../evidence/lifecycle.js';
+import {movistarDeclarationCategory} from '../../shared/evidence.js';
+import {lockForeignReceiptCounter} from './foreign-receipts.service.js';
+import {attachRegistrationReceipt,reserveRegistrationReceipt,retainUploadedReceipt} from './registration-receipt.service.js';
+import type {EvidenceStorageProvider} from '../storage/provider.js';
 import {reuseClientDocuments} from '../documents/reuse.js';
 import { createHash } from 'node:crypto';
 import { Prisma, type PrismaClient } from '@prisma/client';
@@ -18,11 +22,15 @@ interface Helpers {
   updateRegistrationInTx:(tx:Db,value:string,input:z.infer<typeof registrationSchema>, managed?:boolean)=>Promise<unknown>;
 }
 const requestInclude = { imei:{include:{equipment:{include:{owner:true,imeis:{orderBy:{slot:'asc' as const}},saleEquipment:{include:{sale:true}}}}}}, createdBy:{select:{id:true,name:true}}, updatedBy:{select:{id:true,name:true}},completedBy:{select:{id:true,name:true}} } satisfies Prisma.RegistrationRequestInclude;
-export function createRegistrationRequestsService(db:PrismaClient, actor:AuditContext, helpers:Helpers, sessionId?:string,autoAttachIdentity=false,saveClientIdentity=false) {
+export function createRegistrationRequestsService(db:PrismaClient, actor:AuditContext, helpers:Helpers, sessionId?:string,autoAttachIdentity=false,saveClientIdentity=false,evidenceStorage?:EvidenceStorageProvider,origin='') {
   const actorId = () => { if (!actor.userId) throw new DomainError(401,'Sesión requerida.','AUTH_REQUIRED'); return actor.userId; };
   async function detail(tx:Db,id:string) {
-    const request=await tx.registrationRequest.findUnique({where:{id},include:{...requestInclude,history:{include:{user:{select:{id:true,name:true}}},orderBy:{createdAt:'asc'}}}});
-    if(!request)throw new DomainError(404,'Solicitud no encontrada.','REQUEST_NOT_FOUND');return request;
+    const request=await tx.registrationRequest.findUnique({where:{id},include:{...requestInclude,
+      evidence:{where:{category:movistarDeclarationCategory,evidenceAsset:{status:'READY'}},select:{evidenceAssetId:true}},
+      history:{include:{user:{select:{id:true,name:true}}},orderBy:{createdAt:'asc'}}}});
+    if(!request)throw new DomainError(404,'Solicitud no encontrada.','REQUEST_NOT_FOUND');
+    const {evidence,...result}=request;
+    return {...result,hasMovistarDeclaration:evidence.length>0};
   }
   const audit = (tx:Db,action:string,id:string,metadata?:Prisma.InputJsonValue)=>writeAudit(tx,actor,action,'RegistrationRequest',id,metadata);
   async function transition(tx:Db,id:string,input:z.infer<typeof requestTransitionSchema>) {
@@ -38,7 +46,7 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
     await audit(tx,'REGISTRATION_REQUEST_REGISTERED',id,metadata);
     return detail(tx,id);
   }
-  function search(raw:unknown){const {q,status,equipmentId,clientId,limit,offset}=requestQuerySchema.parse(raw);const where:Prisma.RegistrationRequestWhereInput={status,imei:{equipmentId,equipment:{ownerId:clientId}},...(q?{AND:q.split(/\s+/).map(term=>({OR:[{code:{contains:term,mode:'insensitive' as const}},{imei:{value:{contains:term}}},{imei:{equipment:{owner:{OR:[{dni:{contains:term}},{fullName:{contains:term,mode:'insensitive' as const}},{firstName:{contains:term,mode:'insensitive' as const}},{lastName:{contains:term,mode:'insensitive' as const}}]}}}}]}))}:{})};return {where,limit,offset};}
+  function search(raw:unknown){const {q,status,equipmentId,clientId,limit,offset,missingMovistarDeclaration}=requestQuerySchema.parse(raw);const where:Prisma.RegistrationRequestWhereInput={status,...(missingMovistarDeclaration?{operator:'MOVISTAR',evidence:{none:{category:movistarDeclarationCategory,evidenceAsset:{status:'READY'}}}}:{}),imei:{equipmentId,equipment:{ownerId:clientId}},...(q?{AND:q.split(/\s+/).map(term=>({OR:[{code:{contains:term,mode:'insensitive' as const}},{imei:{value:{contains:term}}},{imei:{equipment:{owner:{OR:[{dni:{contains:term}},{fullName:{contains:term,mode:'insensitive' as const}},{firstName:{contains:term,mode:'insensitive' as const}},{lastName:{contains:term,mode:'insensitive' as const}}]}}}}]}))}:{})};return {where,limit,offset};}
   return {
     createRegistrationOperation: async(raw:unknown)=>{
       const input=operationalRegistrationSchema.parse(raw), userId=actorId();
@@ -47,9 +55,19 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
         const previous=await tx.registrationOperation.findUnique({where:{idempotencyKey:input.idempotencyKey},include:{requests:{include:requestInclude,orderBy:{code:'asc'}}}});
         if(previous&&(previous.createdById!==userId||previous.requestHash!==requestHash))throw new DomainError(409,'La clave de confirmación pertenece a otra operación.','IDEMPOTENCY_CONFLICT');return previous;
       }
+      const alreadySaved=await replay(db);if(alreadySaved)return alreadySaved;
+      const movistarImeis=input.requests.filter(request=>request.operator==='MOVISTAR').map(request=>request.value);
+      const declarations=input.evidence?.filter(row=>row.category===movistarDeclarationCategory)??[];
+      if(declarations.length!==movistarImeis.length||declarations.some(row=>
+        row.imeiValues.length!==1||!movistarImeis.includes(row.imeiValues[0]))){
+        throw new DomainError(400,'Adjunta una declaración jurada válida por cada IMEI de Movistar.','MOVISTAR_DECLARATION_REQUIRED');
+      }
+      const needsGenerated=input.receipt&&input.receipt.kind!=='STORED';
+      const staged=needsGenerated?await reserveRegistrationReceipt(db,input.idempotencyKey,actor,sessionId,evidenceStorage):undefined;
       try { return await helpers.transaction(async tx=>{
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${input.idempotencyKey}))`;
         const previous=await replay(tx);if(previous)return previous;
+        if(needsGenerated)await lockForeignReceiptCounter(tx);
         const resolved=await helpers.resolveInTx(tx,{dni:input.client.dni,imeis:input.imeis});
         if(input.expectedEquipmentId&&input.expectedEquipmentId!==resolved.equipment?.id)throw new DomainError(409,'Cambió el equipo seleccionado. Vuelve a consultar.','IMEI_EQUIPMENT_CONFLICT');
         if(resolved.requiresConfirmation&&(!input.confirmAddImei||input.expectedEquipmentId!==resolved.equipment?.id))throw new DomainError(409,'Confirme el IMEI adicional para el mismo equipo.','IMEI_ASSOCIATION_CONFIRMATION_REQUIRED');
@@ -90,35 +108,71 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
         }
         // Lock the client before assets, matching client-document reuse and replacement.
         if(saveClientIdentity&&equipment.ownerId)await tx.$queryRaw`SELECT id FROM "Client" WHERE id=${equipment.ownerId}::uuid FOR UPDATE`;
-        await attachOperationEvidence(tx,input.evidence??[],input.idempotencyKey,createdRequests,actor,sessionId);
-        if(input.documentEvidence.length){if(!equipment.ownerId)throw new DomainError(409,'CLIENTE REQUERIDO.','CLIENT_DOCUMENT_SCOPE');await reuseClientDocuments(tx,input.documentEvidence,equipment.ownerId,createdRequests,actor);}
-        if(autoAttachIdentity)for(const request of createdRequests)await autoAttachClientIdentity(tx,request.id,actor);
-        // Every new RECO requires both sides, regardless of legacy client flags.
-        // Validation stays inside the transaction, after authorized reuse/uploads.
-        for(const request of createdRequests){
-          const sides=await tx.registrationEvidence.count({where:{registrationRequestId:request.id,category:{in:['DNI_FRONT','DNI_BACK']},evidenceAsset:{status:'READY'}}});
-          if(sides!==2)throw new DomainError(400,'Adjunta el DNI frontal y posterior para continuar.','REGISTRATION_IDENTITY_REQUIRED');
+        const manualIdentity=(input.evidence??[]).filter(row=>row.category==='DNI_FRONT'||row.category==='DNI_BACK');
+        if(manualIdentity.some(row=>row.imeiValues.length!==createdRequests.length)||new Set(manualIdentity.map(row=>row.category)).size!==manualIdentity.length){
+          throw new DomainError(400,'Adjunta una sola foto por lado del DNI para todos los IMEIs del trámite.','CLIENT_DOCUMENT_SCOPE');
         }
-        if(saveClientIdentity&&equipment.ownerId)await saveRegistrationIdentity(tx,equipment.ownerId,(input.evidence??[]).map(row=>row.assetId),actor);
+        await attachOperationEvidence(tx,input.evidence??[],input.idempotencyKey,createdRequests,actor,sessionId);
+        if(declarations.length>1){
+          const assets=await tx.evidenceAsset.findMany({where:{id:{in:declarations.map(row=>row.assetId)}},select:{checksum:true}});
+          if(new Set(assets.map(asset=>asset.checksum)).size!==declarations.length){
+            throw new DomainError(400,'Sube un PDF distinto para cada IMEI de Movistar.','MOVISTAR_DECLARATION_DUPLICATE');
+          }
+        }
+        const identityChanges=input.identityChanges??[];
+        const documents=[...input.documentEvidence];
+        if(identityChanges.length){
+          if(!saveClientIdentity||!equipment.ownerId)throw new DomainError(403,'Se requiere permiso para guardar el DNI.','PERMISSION_REQUIRED');
+          const selected=await applyRegistrationIdentityChanges(tx,equipment.ownerId,identityChanges,manualIdentity.map(row=>row.category),actor);
+          documents.push(...selected.map(documentId=>({documentId,imeiValues:createdRequests.map(request=>request.value)})));
+        }
+        if(documents.length){if(!equipment.ownerId)throw new DomainError(409,'CLIENTE REQUERIDO.','CLIENT_DOCUMENT_SCOPE');await reuseClientDocuments(tx,documents,equipment.ownerId,createdRequests,actor);}
+        if(autoAttachIdentity)for(const request of createdRequests)await autoAttachClientIdentity(tx,request.id,actor);
+        if(saveClientIdentity&&equipment.ownerId)await saveRegistrationIdentity(tx,equipment.ownerId,manualIdentity.map(row=>row.assetId),actor,true);
+        if(input.receipt)await attachRegistrationReceipt(tx,{choice:input.receipt,equipmentId:equipment.id,operationKey:input.idempotencyKey,
+         requests:createdRequests,actor,sessionId,origin,staged,storage:evidenceStorage,entered:input.imeis.map(imei=>imei.value)});
+        else if(input.evidence?.some(row=>row.category==='PURCHASE_RECEIPT'))await retainUploadedReceipt(tx,equipment.id,createdRequests);
         return replay(tx);
       }); }catch(error){
         if(error instanceof Prisma.PrismaClientKnownRequestError&&error.code==='P2002'){const previous=await replay(db);if(previous)return previous;}throw error;
-      }
+      }finally{await staged?.release().catch(()=>undefined);}
     },
     listRegistrationRequests:async(raw:unknown={})=>{const {where,limit,offset}=search(raw);return db.registrationRequest.findMany({where,include:requestInclude,orderBy:[{createdAt:'desc'},{id:'asc'}],take:limit,skip:offset});},
     registrationSummary:async(raw:unknown={})=>{const {where}=search(raw);const [total,filtered]=await Promise.all([db.registrationRequest.count(),db.registrationRequest.count({where})]);return {total,filtered};},
     getRegistrationRequest:(id:unknown)=>detail(db,idSchema.parse(id)),
-    updateRegistrationRequest:(id:unknown,raw:unknown)=>{
-      const requestId=idSchema.parse(id),input=requestEditSchema.parse(raw),userId=actorId();
+    updateRegistrationRequest:(id:unknown,raw:unknown,canAttachDeclaration=false)=>{
+      const requestId=idSchema.parse(id),{declarationAssetId,...input}=requestEditSchema.parse(raw),userId=actorId();
+      if(declarationAssetId&&!canAttachDeclaration)throw new DomainError(403,'Se requiere permiso para adjuntar la declaración.','PERMISSION_REQUIRED');
       return helpers.transaction(async tx=>{
-        const found=await detail(tx,requestId);
+        const current=await tx.registrationRequest.findUnique({where:{id:requestId},select:{operationId:true}});
+        if(!current)throw new DomainError(404,'Solicitud no encontrada.','REQUEST_NOT_FOUND');
+        await tx.$queryRaw`SELECT id FROM "RegistrationOperation" WHERE id=${current.operationId}::uuid FOR UPDATE`;
         await tx.$queryRaw`SELECT id FROM "RegistrationRequest" WHERE id=${requestId}::uuid FOR UPDATE`;
-
+        const found=await detail(tx,requestId);
+        const operator=input.operator??found.operator;
+        const declaration=await tx.registrationEvidence.findUnique({where:{
+          registrationRequestId_category:{registrationRequestId:requestId,category:movistarDeclarationCategory},
+        }});
+        if(operator==='MOVISTAR'&&!found.hasMovistarDeclaration&&!declarationAssetId){
+          throw new DomainError(400,'Adjunta una declaración jurada válida para el IMEI de esta solicitud.','MOVISTAR_DECLARATION_REQUIRED');
+        }
+        if(declarationAssetId){
+          if(operator!=='MOVISTAR'||(declaration&&(!found.hasMovistarDeclaration||declaration.evidenceAssetId!==declarationAssetId)))throw new DomainError(409,'La declaración no corresponde al estado de esta solicitud. Actualiza el expediente.','MOVISTAR_DECLARATION_CONFLICT');
+          if(!declaration){
+            const asset=assertPrepared(await lockAsset(tx,declarationAssetId),userId,sessionId,movistarDeclarationCategory);
+            if(asset.sourceRequestId!==requestId)throw new DomainError(409,'Declaración de otra solicitud.','EVIDENCE_SCOPE_MISMATCH');
+            const duplicate=await tx.registrationEvidence.findFirst({where:{registrationRequest:{operationId:current.operationId,id:{not:requestId}},category:movistarDeclarationCategory,evidenceAsset:{checksum:asset.checksum}}});
+            if(duplicate)throw new DomainError(400,'Sube un PDF distinto para cada IMEI de Movistar.','MOVISTAR_DECLARATION_DUPLICATE');
+            await tx.evidenceAsset.update({where:{id:asset.id},data:{status:'READY'}});
+            const link=await tx.registrationEvidence.create({data:{registrationRequestId:requestId,evidenceAssetId:asset.id,category:movistarDeclarationCategory,createdById:userId}});
+            await writeAudit(tx,actor,'EVIDENCE_UPLOADED','RegistrationEvidence',link.id,{requestId,category:movistarDeclarationCategory,assetId:asset.id});
+          }
+        }
         const snapshot={phone:found.phone,referencePhone:found.referencePhone,address:found.address,province:found.province,department:found.department,email:found.email,operator:found.operator,price:found.price.toFixed(2),hasBox:found.hasBox,occurredAt:found.occurredAt.toISOString()};
         const referencePhone=input.referencePhone===undefined?found.referencePhone||input.phone||found.phone:input.referencePhone||input.phone||found.phone;
         await tx.registrationRequest.update({where:{id:requestId},data:{...input,referencePhone,occurredAt:input.occurredAt?new Date(input.occurredAt):undefined,updatedById:userId}});
         await tx.registrationRequestHistory.create({data:{requestId,userId,action:'EDITED',metadata:{before:snapshot,changes:input}}});
-        await audit(tx,'REGISTRATION_REQUEST_UPDATED',requestId,{fields:Object.keys(input)});
+        await audit(tx,'REGISTRATION_REQUEST_UPDATED',requestId,{fields:Object.keys(input),...(declarationAssetId?{declarationAttached:true}:{})});
         return detail(tx,requestId);
       });
     },
