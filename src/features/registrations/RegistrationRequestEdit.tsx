@@ -40,7 +40,7 @@ export function RegistrationRequestEdit({request,onSaved,onCancel}:{request:Regi
  const [initial]=useState(()=>requestValues(request)),[value,setValue]=useState(initial);
  const [step,setStep]=useState(0),[errors,setErrors]=useState<Record<string,string>>({});
  const [evidencePending,setEvidencePending]=useState(false);
- const owner=request.imei?.equipment.owner,equipment=request.imei?.equipment,slot=request.imei?.slot;
+ const owner=request.applicant??request.imei?.equipment.owner,equipment=request.imei?.equipment,slot=request.imei?.slot;
  const changedFields=[...contactFields,...serviceFields].filter(field=>value[field]!==initial[field]);
  const needsDeclaration=value.operator==='MOVISTAR'&&!request.hasMovistarDeclaration;
  const draft=declarations.drafts[`${movistarDeclarationCategory}:${request.imei?.value}`];

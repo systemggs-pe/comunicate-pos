@@ -9,7 +9,25 @@ import type {AuditContext} from '../lib/audit.js';
 import {DomainError} from '../lib/errors.js';
 type Reference=z.infer<typeof clientReferenceSchema>;
 interface Dependencies {actor?:AuditContext;transaction:<T>(fn:(tx:Db)=>Promise<T>)=>Promise<T>;createEquipmentInTx:(tx:Db,input:z.infer<typeof equipmentSchema>)=>Promise<{id:string}>;history:(tx:Db,id:string,event:EquipmentEventType,imeiId?:string,userId?:string,metadata?:Prisma.InputJsonValue)=>Promise<unknown>;audit:(tx:Db,action:string,entityType:string,id:string,userId?:string,metadata?:Prisma.InputJsonValue)=>Promise<unknown>}
-function summary<T extends {total:Prisma.Decimal;discount:Prisma.Decimal;_count:{equipment:number}}>(sale:T){return {...sale,subtotal:sale.total.add(sale.discount),equipmentCount:sale._count.equipment};}
+const historicalEquipmentSchema=z.object({
+ brand:z.string().max(100).optional(),model:z.string().max(100).optional(),commercialName:z.string().max(100).nullable().optional(),
+ color:z.string().max(100).nullable().optional(),ram:z.string().max(100).nullable().optional(),
+ storage:z.string().max(100).nullable().optional(),serialNumber:z.string().max(100).nullable().optional(),
+}).strict();
+function summary<T extends {
+ total:Prisma.Decimal;discount:Prisma.Decimal;_count:{equipment:number};
+ historicalBuyerName:string|null;buyer:object;equipment:{historicalEquipment:Prisma.JsonValue;equipment:object}[];
+}>(sale:T){
+ return {
+  ...sale,
+  buyer:sale.historicalBuyerName?{...sale.buyer,fullName:sale.historicalBuyerName}:sale.buyer,
+  equipment:sale.equipment.map(line=>{
+   const original=historicalEquipmentSchema.safeParse(line.historicalEquipment);
+   return original.success?{...line,equipment:{...line.equipment,...original.data}}:line;
+  }),
+  subtotal:sale.total.add(sale.discount),equipmentCount:sale._count.equipment,
+ };
+}
 function dayRange(day:string){const from=new Date(`${day}T00:00:00-05:00`);return {gte:from,lt:new Date(from.getTime()+86400000)};}
 export function createSalesService(db:PrismaClient,helpers:Dependencies){
  const {transaction,history,audit,createEquipmentInTx}=helpers;
@@ -61,18 +79,21 @@ export function createSalesService(db:PrismaClient,helpers:Dependencies){
    if(input.buyer){if('client' in input.buyer&&!permissions.canCreateClient){buyer=await repository.findClientByDni(tx,input.buyer.client.dni);if(!buyer)throw new DomainError(403,'No tienes permiso para crear clientes. Selecciona uno existente.','PERMISSION_REQUIRED');}else buyer=await client(tx,input.buyer);}
 
    for(const item of input.items??[]){const line=old.equipment.find(line=>line.id===item.id)!;
-    if(!line.unitPrice.equals(item.unitPrice))await tx.saleEquipment.update({where:{id:item.id},data:{unitPrice:item.unitPrice}});
-    if(item.equipment||item.origin||item.imeis){
+    const original=historicalEquipmentSchema.safeParse(line.historicalEquipment);
+    const editedHistorical=original.success&&item.equipment?{...original.data,...item.equipment}:undefined;
+    if(!line.unitPrice.equals(item.unitPrice)||editedHistorical)await tx.saleEquipment.update({where:{id:item.id},data:{unitPrice:item.unitPrice,historicalEquipment:editedHistorical}});
+    const equipmentDetails=editedHistorical?undefined:item.equipment;
+    if(equipmentDetails||item.origin||item.imeis){
      if(item.origin==='EXTERNAL'&&!line.equipment.ownerId)throw new DomainError(409,'Asigna un propietario antes de usar el origen externo.','OWNER_REQUIRED');
      for(const change of item.imeis??[]){
       if(change.id){await tx.imei.update({where:{id:change.id},data:{value:change.value,type:change.type}});await audit(tx,'VALUE_CORRECTED','Imei',change.id,undefined,{saleId,slot:change.slot,previousSuffix:change.expectedValue?.slice(-4),newSuffix:change.value.slice(-4)});}
       else{const added=await tx.imei.create({data:{equipmentId:line.equipmentId,slot:change.slot,value:change.value,type:change.type}});await history(tx,line.equipmentId,'IMEI_ADDED',added.id);await audit(tx,'CREATE','Imei',added.id);}
      }
-     await tx.equipment.update({where:{id:line.equipmentId},data:{...item.equipment,origin:item.origin}});await history(tx,line.equipmentId,'EQUIPMENT_UPDATED',undefined,undefined,{saleId,fields:[...Object.keys(item.equipment??{}),...(item.origin?['origin']:[]),...(item.imeis?['imeis']:[])]});await audit(tx,'UPDATE','Equipment',line.equipmentId);
+     await tx.equipment.update({where:{id:line.equipmentId},data:{...equipmentDetails,origin:item.origin}});await history(tx,line.equipmentId,'EQUIPMENT_UPDATED',undefined,undefined,{saleId,fields:[...Object.keys(equipmentDetails??{}),...(item.origin?['origin']:[]),...(item.imeis?['imeis']:[])]});await audit(tx,'UPDATE','Equipment',line.equipmentId);
     }
    }
    if(accessoriesChanged){await tx.saleAccessory.deleteMany({where:{saleId}});if(input.accessories?.length)await tx.saleAccessory.createMany({data:input.accessories.map(line=>({...line,saleId}))});}
-   await tx.sale.update({where:{id:saleId},data:{...(buyer?{buyerId:buyer.id}:{}),buyerPhone:input.buyerPhone,buyerEmail:input.buyerEmail,paymentMethod:input.paymentMethod,notes:input.notes,occurredAt:input.occurredAt?new Date(input.occurredAt):undefined,...(moneyChanged?{total:subtotal.sub(discount),discount}:{})}});
+   await tx.sale.update({where:{id:saleId},data:{...(buyer?{buyerId:buyer.id}:{}),historicalBuyerName:buyer&&buyer.id!==old.buyerId?null:undefined,buyerPhone:input.buyerPhone,buyerEmail:input.buyerEmail,paymentMethod:input.paymentMethod,notes:input.notes,occurredAt:input.occurredAt?new Date(input.occurredAt):undefined,...(moneyChanged?{total:subtotal.sub(discount),discount}:{})}});
    await audit(tx,'UPDATE','Sale',saleId,undefined,{fields:Object.keys(input).filter(key=>key!=='expectedUpdatedAt'),previousTotal:old.total.toFixed(2),newTotal:moneyChanged?subtotal.sub(discount).toFixed(2):old.total.toFixed(2),buyerChanged:!!buyer&&buyer.id!==old.buyerId,
     before:{buyerId:old.buyerId,paymentMethod:old.paymentMethod,discount:old.discount.toFixed(2),occurredAt:old.occurredAt.toISOString(),prices:old.equipment.map(line=>({id:line.id,unitPrice:line.unitPrice.toFixed(2)})),...(accessoriesChanged?{accessories:old.accessories.map(line=>({name:line.name,quantity:line.quantity,unitPrice:line.unitPrice.toFixed(2)}))}:{})},
     after:{buyerId:buyer?.id??old.buyerId,paymentMethod:input.paymentMethod??old.paymentMethod,discount:discount.toFixed(2),occurredAt:input.occurredAt??old.occurredAt.toISOString(),prices:(input.items??old.equipment).map(line=>({id:line.id,unitPrice:new Prisma.Decimal(line.unitPrice).toFixed(2)})),...(accessoriesChanged?{accessories:input.accessories??[]}:{})}});
@@ -81,7 +102,7 @@ export function createSalesService(db:PrismaClient,helpers:Dependencies){
  },
  updateSaleNotes:(id:unknown,raw:unknown)=>{const saleId=idSchema.parse(id),input=z.object({notes:z.string().max(1000).transform(normalizeText)}).strict().parse(raw);return transaction(async tx=>{await tx.$queryRaw`SELECT id FROM "Sale" WHERE id=${saleId}::uuid FOR UPDATE`;await repository.getSaleById(tx,saleId);await tx.sale.update({where:{id:saleId},data:input});await audit(tx,'UPDATE','Sale',saleId,undefined,{fields:['notes']});return detail(tx,saleId);});},
  getSaleById:(id:unknown)=>detail(db,idSchema.parse(id)),
- listSales:async(raw:unknown={})=>{const {q,offset,limit,from,to}=salesQuerySchema.parse(raw);const where:Prisma.SaleWhereInput={occurredAt:{...(from?{gte:dayRange(from).gte}:{}),...(to?{lt:dayRange(to).lt}:{})},...(q?{AND:q.split(/\s+/).map(term=>({OR:[{code:{contains:term,mode:'insensitive' as const}},{buyer:{dni:{contains:term}}},{buyer:{firstName:{contains:term,mode:'insensitive' as const}}},{buyer:{lastName:{contains:term,mode:'insensitive' as const}}},{buyer:{fullName:{contains:term,mode:'insensitive' as const}}},{equipment:{some:{equipment:{imeis:{some:{value:term}}}}}}]}))}:{})};return (await db.sale.findMany({where,include:{...saleSummaryInclude,equipment:{include:{equipment:{include:{imeis:{include:{requests:{select:{status:true}}},orderBy:{slot:'asc'}}}}}}},orderBy:[{createdAt:'desc'},{id:'asc'}],skip:offset,take:limit})).map(summary);},
+ listSales:async(raw:unknown={})=>{const {q,offset,limit,from,to}=salesQuerySchema.parse(raw);const where:Prisma.SaleWhereInput={occurredAt:{...(from?{gte:dayRange(from).gte}:{}),...(to?{lt:dayRange(to).lt}:{})},...(q?{AND:q.split(/\s+/).map(term=>({OR:[{code:{contains:term,mode:'insensitive' as const}},{historicalBuyerName:{contains:term,mode:'insensitive' as const}},{buyer:{dni:{contains:term}}},{buyer:{otherDocumentNumber:{contains:term,mode:'insensitive' as const}}},{buyer:{firstName:{contains:term,mode:'insensitive' as const}}},{buyer:{lastName:{contains:term,mode:'insensitive' as const}}},{buyer:{fullName:{contains:term,mode:'insensitive' as const}}},{equipment:{some:{equipment:{imeis:{some:{value:term}}}}}}]}))}:{})};return (await db.sale.findMany({where,include:{...saleSummaryInclude,equipment:{include:{equipment:{include:{imeis:{include:{requests:{select:{status:true}}},orderBy:{slot:'asc'}}}}}}},orderBy:[{createdAt:'desc'},{id:'asc'}],skip:offset,take:limit})).map(summary);},
  dashboard:()=>transaction(async tx=>{const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),where={occurredAt:dayRange(today)},result=await tx.sale.aggregate({where,_count:true,_sum:{total:true}});return {day:today,salesToday:result._count,revenueToday:(result._sum.total??new Prisma.Decimal(0)).toFixed(2),equipmentSoldToday:await tx.saleEquipment.count({where:{sale:where}})};})
  };
 }

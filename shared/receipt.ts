@@ -23,7 +23,7 @@ export function receiptRows({sale,company:c}:ReceiptData,_format:ReceiptFormat):
  header('VENTA DE CELULARES Y ACCESORIOS');header(c.address||'—');header(c.city||'—');header(`Tel. ${c.phone||'—'}`);
  section('CLIENTE');
  field('Nombre:',normalizeText(sale.buyer.fullName||[sale.buyer.firstName,sale.buyer.lastName].filter(Boolean).join(' ')),13.5467);
- field('DNI:',sale.buyer.dni,13.5467);
+ field(sale.buyer.documentType==='OTROS'?'Otros:':'DNI:',sale.buyer.dni??sale.buyer.otherDocumentNumber??'—',13.5467);
  const equipment=sale.equipment??[];
  equipment.forEach((line,index)=>{const e=line.equipment;
   section(equipment.length>1?`EQUIPO ${index+1}`:'EQUIPO');

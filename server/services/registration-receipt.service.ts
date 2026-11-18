@@ -131,6 +131,7 @@ export async function attachRegistrationReceipt(tx:Db,params:{
    });
    const dates=choice.kind==='MANUAL'?{issuedAt:new Date(limaDateTimeIso(choice.issuedAt)),purchaseAt:null}:receiptDateFromPurchase([sale!.sale.occurredAt]);
    const customer=sale&&choice.kind==='SALE'?await tx.client.findUniqueOrThrow({where:{id:sale.sale.buyerId}}):device.owner;
+   if(!customer.dni)throw new DomainError(422,'La emisión automática desde un registro requiere un DNI.','REGISTRATION_RECEIPT_DNI_REQUIRED');
    receipt=await issueForeignReceipt(tx,actor,{source:choice.kind,format,clientId:customer.id,...dates,
     snapshot:{issuer,customer:{type:'DNI',document:customer.dni,fullName:customer.fullName||[customer.firstName,customer.lastName].filter(Boolean).join(' ')},
      devices:[item]},links:[{equipmentId,saleEquipmentId:sale?.id??null}]});

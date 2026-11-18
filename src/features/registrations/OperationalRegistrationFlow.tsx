@@ -71,7 +71,7 @@ export function OperationalRegistrationFlow(){
  const dateEdited=useRef(false);
  useEffect(()=>{let active=true;void api.get<{serverTime:string}>('/server-time').then(result=>{if(active&&!dateEdited.current){const server=new Date(result.serverTime);setDate(new Date(server.getTime()-5*60*60*1000).toISOString().slice(0,16));}}).catch(()=>undefined);return()=>{active=false;};},[api]);
  const requested=useRef(new URLSearchParams(window.location.search));
- useEffect(()=>{const id=requested.current.get('clientId');if(!id)return;const controller=new AbortController();void api.get<import('../../types/pos').Client>(`/clients/${encodeURIComponent(id)}`,controller.signal).then(c=>{if(!controller.signal.aborted)setDraft({...emptyClient,fullName:'',dni:c.dni});}).catch(()=>undefined);return()=>controller.abort();},[api]);
+ useEffect(()=>{const id=requested.current.get('clientId');if(!id)return;const controller=new AbortController();void api.get<import('../../types/pos').Client>(`/clients/${encodeURIComponent(id)}`,controller.signal).then(c=>{if(!controller.signal.aborted&&c.dni)setDraft({...emptyClient,fullName:'',dni:c.dni});}).catch(()=>undefined);return()=>controller.abort();},[api]);
  const [createdIdentityClient,setCreatedIdentityClient]=useState<{dni:string;id:string}|null>(null);
  const [identityChoices,setIdentityChoices]=useState<DniChoice[]>([]);
  const activeDni=useRef(draft.dni);

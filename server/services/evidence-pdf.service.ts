@@ -21,9 +21,9 @@ export function createEvidencePdfService(db:PrismaClient,actor:AuditContext,prov
   try{return await db.$transaction(async tx=>{
    if(autoAttachIdentity)await autoAttachClientIdentity(tx,id,actor);
    await tx.$queryRaw`SELECT id FROM "RegistrationRequest" WHERE id=${id}::uuid FOR SHARE`;
-   const row=await tx.registrationRequest.findUnique({where:{id},include:{createdBy:{select:{name:true}},imei:{include:{equipment:{include:{owner:true}}}},evidence:{include:{evidenceAsset:true}}}});
+   const row=await tx.registrationRequest.findUnique({where:{id},include:{applicant:true,createdBy:{select:{name:true}},imei:{include:{equipment:{include:{owner:true}}}},evidence:{include:{evidenceAsset:true}}}});
    if(!row)throw new DomainError(404,'SOLICITUD NO ENCONTRADA.','REQUEST_NOT_FOUND');
-   const equipment=row.imei.equipment,client=equipment.owner;
+   const equipment=row.imei.equipment,client=row.applicant??equipment.owner;
    if(!client)throw new DomainError(409,'REVISA LA RELACIÓN DEL CLIENTE Y EQUIPO.','EVIDENCE_PDF_SCOPE');
    const photos:EvidencePdfData['photos']=[],storage=()=>provider??(ownedStorage??=createEvidenceStorage());
    const movistar=row.operator==='MOVISTAR';
@@ -56,7 +56,7 @@ export function createEvidencePdfService(db:PrismaClient,actor:AuditContext,prov
    }
    const order=['DNI_FRONT','DNI_BACK','PURCHASE_RECEIPT','DEVICE_BOX','LOGICAL_IMEI'];photos.sort((a,b)=>order.indexOf(a.category)-order.indexOf(b.category));
    const company=await tx.companySettings.findUnique({where:{id:1}});
-   const data:EvidencePdfData={businessName:company?.businessName??companyDefaults.businessName,code:row.code,date:new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',dateStyle:'short'}).format(row.occurredAt),client:client.fullName||[client.firstName,client.lastName].filter(Boolean).join(' '),dni:client.dni,equipment:[equipment.commercialName,equipment.model].filter(Boolean).join(' · '),brand:equipment.brand,imei:row.imei.value,operator:row.operator,status:row.status==='PENDING'?'REGISTRO PENDIENTE':row.status==='BLOCKED'?'BLOQUEADO':'REGISTRADO',responsible:row.createdBy.name,photos};
+   const data:EvidencePdfData={businessName:company?.businessName??companyDefaults.businessName,code:row.code,date:new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',dateStyle:'short'}).format(row.occurredAt),client:client.fullName||[client.firstName,client.lastName].filter(Boolean).join(' '),dni:client.dni??client.otherDocumentNumber??'',equipment:[equipment.commercialName,equipment.model].filter(Boolean).join(' · '),brand:equipment.brand,imei:row.imei.value,operator:row.operator,status:row.status==='PENDING'?'REGISTRO PENDIENTE':row.status==='BLOCKED'?'BLOQUEADO':'REGISTRADO',responsible:row.createdBy.name,photos};
    const original=createEvidencePdf(data);
    if(movistar&&!declaration)throw new DomainError(409,'Edita el registro y adjunta la declaración jurada de este IMEI para descargar el RECO.','EVIDENCE_PDF_MOVISTAR_DECLARATION_MISSING');
    const packet=sources?await compressRecoPdf(data,original,sources,declaration):undefined;

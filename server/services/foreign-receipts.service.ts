@@ -160,7 +160,7 @@ export function foreignReceipts(db:PrismaClient,actor:AuditContext={}){
      const ids=new Set(input.saleLineIds);
      if(ids.size!==input.saleLineIds.length)return fail(400,'Hay líneas de venta repetidas.','FOREIGN_RECEIPT_DUPLICATE_INPUT');
      const buyer=await tx.client.findUnique({where:{dni:input.document}});
-     if(!buyer)return fail(404,'No encontramos el cliente de la venta.','FOREIGN_RECEIPT_CLIENT_NOT_FOUND');
+     if(!buyer?.dni)return fail(404,'No encontramos el cliente de la venta.','FOREIGN_RECEIPT_CLIENT_NOT_FOUND');
      const lines=await tx.saleEquipment.findMany({where:{id:{in:[...ids]},sale:{buyerId:buyer.id}},include:saleLineInclude,orderBy:{id:'asc'}});
      if(lines.length!==ids.size)return fail(409,'Revisa las ventas del cliente y vuelve a seleccionarlas.','FOREIGN_RECEIPT_SALE_MISMATCH');
      devices=lines.map(mapSaleLine);

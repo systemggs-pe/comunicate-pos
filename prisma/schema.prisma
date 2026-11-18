@@ -109,11 +109,18 @@ model CompanySettings {
  updatedBy User? @relation(fields:[updatedById],references:[id],onDelete:SetNull,onUpdate:NoAction)
 }
 
+enum ClientDocumentType {
+  DNI
+  OTROS
+}
+
 model Client {
   foreignReceipts ForeignReceipt[]
   id        String      @id @default(uuid()) @db.Uuid
   code      String      @unique @default(dbgenerated("next_visible_code('client_code_seq'::regclass, 'CL-'::text)"))
-  dni       String      @unique @db.VarChar(8)
+  dni       String?     @unique @db.VarChar(8)
+  documentType ClientDocumentType @default(DNI)
+  otherDocumentNumber String? @db.VarChar(100)
   firstName String      @db.VarChar(100)
   lastName  String      @db.VarChar(100)
   fullName  String?     @db.VarChar(201)
@@ -127,6 +134,7 @@ model Client {
   equipment Equipment[]
   @@index([createdAt])
   purchases Sale[]
+  registrationApplications RegistrationRequest[]
   documents ClientDocument[]
   identityAssets EvidenceAsset[]
 }
@@ -189,6 +197,7 @@ model Sale {
   buyerId       String          @db.Uuid
   buyerPhone    String?         @db.VarChar(30)
   buyerEmail    String?         @db.VarChar(254)
+  historicalBuyerName String?   @db.VarChar(201)
   buyer         Client          @relation(fields: [buyerId], references: [id], onDelete: Restrict)
   total         Decimal         @db.Decimal(12, 2)
   discount      Decimal         @default(0) @db.Decimal(12, 2)
@@ -217,6 +226,7 @@ model SaleEquipment {
   equipmentId String    @db.Uuid
   equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
   unitPrice   Decimal   @db.Decimal(12, 2)
+  historicalEquipment Json?
   createdAt   DateTime  @default(now()) @db.Timestamptz(3)
 
   @@unique([saleId, equipmentId])
@@ -376,6 +386,8 @@ model RegistrationRequest {
   operation RegistrationOperation @relation(fields: [operationId], references: [id], onDelete: Restrict)
   imeiId String @db.Uuid
   imei Imei @relation(fields: [imeiId], references: [id], onDelete: Restrict)
+  applicantId String? @db.Uuid
+  applicant Client? @relation(fields: [applicantId], references: [id], onDelete: Restrict)
   status RequestStatus @default(PENDING)
   legacyBlockStatus String? @db.VarChar(30)
   legacyStatus String? @db.VarChar(30)
@@ -406,6 +418,7 @@ model RegistrationRequest {
   @@unique([operationId, phone], map: "request_distinct_phone_per_operation")
   @@unique([imeiId], map: "request_one_per_imei")
   @@index([imeiId, createdAt])
+  @@index([applicantId])
   @@index([status, createdAt])
   @@index([occurredAt])
   @@index([operator, status, occurredAt])

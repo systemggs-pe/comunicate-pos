@@ -1,6 +1,6 @@
 export type RegistrationStatus = 'BLOCKED' | 'PENDING' | 'REGISTERED';
 export interface Client {
-  id: string; code: string; dni: string; firstName: string; lastName: string;fullName?:string|null;
+  id: string; code: string; dni: string|null; documentType?: "DNI"|"OTROS"; otherDocumentNumber?: string|null; firstName: string; lastName: string;fullName?:string|null;
   phone: string | null; email: string | null; province?:string|null; address?:string|null; department?:string|null; createdAt: string; updatedAt: string; equipmentCount?: number;
 }
 export interface Imei {
@@ -34,4 +34,4 @@ export interface SaleItemInput { equipment: EquipmentInput & { imeis: ImeiInput[
 export interface SaleInput { buyerPhone?:string;buyerEmail?:string; buyer: ClientReference; items: SaleItemInput[]; paymentMethod: PaymentMethod; discount: string; notes?: string; accessories?:SaleAccessory[]; occurredAt?:string; idempotencyKey?:string }
 
 export interface SaleAccessory { id?:string; name:string; quantity:number; unitPrice:string }
-export interface RegistrationRequest { id:string; code:string; operationId:string; imeiId:string; hasMovistarDeclaration?:boolean; status:RegistrationStatus; completedBy?:{id:string;name:string}|null; operator:string; phone:string; referencePhone:string|null; address:string; province?:string|null; department:string; email:string; price:string; hasBox:boolean; occurredAt:string; completedAt:string|null; createdAt:string; createdBy?:{id:string;name:string}; updatedBy?:{id:string;name:string}; imei?:Imei & {equipment:Equipment}; history?:{id:string; action:string; createdAt:string; metadata:Record<string,unknown>|null;user:{name:string}}[] }
+export interface RegistrationRequest { id:string; code:string; operationId:string; imeiId:string; applicantId?:string|null; applicant?:Client|null; hasMovistarDeclaration?:boolean; status:RegistrationStatus; completedBy?:{id:string;name:string}|null; operator:string; phone:string; referencePhone:string|null; address:string; province?:string|null; department:string; email:string; price:string; hasBox:boolean; occurredAt:string; completedAt:string|null; createdAt:string; createdBy?:{id:string;name:string}; updatedBy?:{id:string;name:string}; imei?:Imei & {equipment:Equipment}; history?:{id:string; action:string; createdAt:string; metadata:Record<string,unknown>|null;user:{name:string}}[] }

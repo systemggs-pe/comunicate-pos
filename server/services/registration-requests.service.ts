@@ -21,7 +21,7 @@ interface Helpers {
   createEquipmentInTx:(tx:Db,input:z.infer<typeof equipmentSchema>)=>Promise<{id:string;ownerId:string|null}>;
   updateRegistrationInTx:(tx:Db,value:string,input:z.infer<typeof registrationSchema>, managed?:boolean)=>Promise<unknown>;
 }
-const requestInclude = { imei:{include:{equipment:{include:{owner:true,imeis:{orderBy:{slot:'asc' as const}},saleEquipment:{include:{sale:true}}}}}}, createdBy:{select:{id:true,name:true}}, updatedBy:{select:{id:true,name:true}},completedBy:{select:{id:true,name:true}} } satisfies Prisma.RegistrationRequestInclude;
+const requestInclude = { applicant:true, imei:{include:{equipment:{include:{owner:true,imeis:{orderBy:{slot:'asc' as const}},saleEquipment:{include:{sale:true}}}}}}, createdBy:{select:{id:true,name:true}}, updatedBy:{select:{id:true,name:true}},completedBy:{select:{id:true,name:true}} } satisfies Prisma.RegistrationRequestInclude;
 export function createRegistrationRequestsService(db:PrismaClient, actor:AuditContext, helpers:Helpers, sessionId?:string,autoAttachIdentity=false,saveClientIdentity=false,evidenceStorage?:EvidenceStorageProvider,origin='') {
   const actorId = () => { if (!actor.userId) throw new DomainError(401,'Sesión requerida.','AUTH_REQUIRED'); return actor.userId; };
   async function detail(tx:Db,id:string) {
@@ -46,7 +46,21 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
     await audit(tx,'REGISTRATION_REQUEST_REGISTERED',id,metadata);
     return detail(tx,id);
   }
-  function search(raw:unknown){const {q,status,equipmentId,clientId,limit,offset,missingMovistarDeclaration}=requestQuerySchema.parse(raw);const where:Prisma.RegistrationRequestWhereInput={status,...(missingMovistarDeclaration?{operator:'MOVISTAR',evidence:{none:{category:movistarDeclarationCategory,evidenceAsset:{status:'READY'}}}}:{}),imei:{equipmentId,equipment:{ownerId:clientId}},...(q?{AND:q.split(/\s+/).map(term=>({OR:[{code:{contains:term,mode:'insensitive' as const}},{imei:{value:{contains:term}}},{imei:{equipment:{owner:{OR:[{dni:{contains:term}},{fullName:{contains:term,mode:'insensitive' as const}},{firstName:{contains:term,mode:'insensitive' as const}},{lastName:{contains:term,mode:'insensitive' as const}}]}}}}]}))}:{})};return {where,limit,offset};}
+  function search(raw:unknown){
+    const {q,status,equipmentId,clientId,limit,offset,missingMovistarDeclaration}=requestQuerySchema.parse(raw);
+    const filters:Prisma.RegistrationRequestWhereInput[]=[];
+    if(clientId)filters.push({OR:[{applicantId:clientId},{applicantId:null,imei:{equipment:{ownerId:clientId}}}]});
+    if(q)for(const term of q.split(/\s+/)){
+      const contains={contains:term,mode:'insensitive' as const};
+      const person:Prisma.ClientWhereInput={OR:[{dni:contains},{otherDocumentNumber:contains},{fullName:contains},{firstName:contains},{lastName:contains}]};
+      filters.push({OR:[{code:contains},{imei:{value:{contains:term}}},{applicant:person},{applicantId:null,imei:{equipment:{owner:person}}}]});
+    }
+    const where:Prisma.RegistrationRequestWhereInput={
+      status,imei:{equipmentId},AND:filters,
+      ...(missingMovistarDeclaration?{operator:'MOVISTAR',evidence:{none:{category:movistarDeclarationCategory,evidenceAsset:{status:'READY'}}}}:{}),
+    };
+    return {where,limit,offset};
+  }
   return {
     createRegistrationOperation: async(raw:unknown)=>{
       const input=operationalRegistrationSchema.parse(raw), userId=actorId();

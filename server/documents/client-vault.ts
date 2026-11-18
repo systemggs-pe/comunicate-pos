@@ -99,6 +99,8 @@ export function clientVault(db:PrismaClient,provider?:EvidenceStorageProvider,ph
   remove:async(state:AuthState,actor:AuditContext,clientId:unknown,id:unknown,raw:unknown)=>{permission(state,'client.documents.delete');z.object({confirm:z.literal(true)}).strict().parse(raw);const c=await client(clientId),d=await document(c.id,id);await db.$transaction(async tx=>{await tx.$queryRaw`SELECT id FROM "EvidenceAsset" WHERE id=${d.evidenceAssetId}::uuid FOR UPDATE`;await tx.clientDocument.delete({where:{id:d.id}});await writeAudit(tx,actor,'CLIENT_DOCUMENT_DELETED','ClientDocument',d.id,{clientId:c.id,assetId:d.evidenceAssetId});});const retained=await db.registrationEvidence.count({where:{evidenceAssetId:d.evidenceAssetId}})>0||await db.clientDocument.count({where:{evidenceAssetId:d.evidenceAssetId}})>0;return {deleted:true,retained,cleanup:await cleanupEvidence(db,provider,[d.evidenceAssetId])};},
   lookupPhotos:async(state:AuthState,actor:AuditContext,clientId:unknown,raw:unknown)=>{permission(state,'client.identity_photo.lookup','client.documents.upload','client.documents.read');const c=await client(clientId),authorization=photoLookupSchema.parse(raw),input={...authorization,purpose:authorization.purpose??'CONSULTA Y ALMACENAMIENTO DE FOTOS DNI CODART',authorizationReference:authorization.authorizationReference??`CASILLA CONFIRMADA POR ${state.user.id} EL ${new Date().toISOString()}`};if(input.refresh)permission(state,'client.documents.replace');const existing=await db.clientDocument.findMany({where:{clientId:c.id,documentType:input.documentType,status:'CURRENT',expiresAt:{gt:new Date()}},include:{evidenceAsset:true}});if(existing.length&&!input.refresh&&!input.reviewOnly){for(const d of existing)if(!await storage().exists(d.evidenceAsset.storageKey))throw new DomainError(503,'REVISA EL ALMACENAMIENTO ANTES DE CONSULTAR OTRA VEZ.','EVIDENCE_STORAGE_MISSING');return {documents:existing.map(publicDoc),reused:true,creditsDeducted:null};}
    if(process.env.CODART_PHOTO_STORAGE_AUTHORIZED!=='true')throw new DomainError(403,'FALTA AUTORIZACIÓN CONTRACTUAL PARA CONSERVAR FOTOS DEL PROVEEDOR.','CODART_STORAGE_NOT_AUTHORIZED');
+   const dni=c.dni;
+   if(!dni)throw new DomainError(422,'La consulta de fotos en CODART requiere un DNI.','CLIENT_DNI_REQUIRED');
    const key=`${c.id}:${input.documentType}:${!!input.reviewOnly}:${!!input.refresh}`,current=pending.get(key);if(current)return current;
    const promise=(async()=>{
     const lease=createHash('sha256').update('photo-lease:'+c.id).digest('hex'),leaseUntil=new Date(Date.now()+120000);
@@ -106,7 +108,7 @@ export function clientVault(db:PrismaClient,provider?:EvidenceStorageProvider,ph
     if(!claim.length)throw new DomainError(409,'YA HAY UNA CONSULTA EN CURSO.','CODART_LOOKUP_BUSY');
     try{
      await externalBudget(db,state.user.id,'codart-photos',10);
-     const result=await photos.photos(c.dni,input.documentType);
+     const result=await photos.photos(dni,input.documentType);
      if(!result.images.length)throw new DomainError(404,'CODART NO DEVOLVIÓ FOTOS PARA ESTE DNI.','CODART_NO_IMAGES');
      const docs=new Map<string,Awaited<ReturnType<typeof save>>>();
      for(const [index,image] of result.images.entries()){

@@ -14,7 +14,15 @@ export const imeiCorrectionSchema=z.object({expectedValue:z.string().min(1).max(
 export const idSchema = z.uuid();
 const text = z.string().trim().transform(normalizeText).pipe(z.string().min(1, 'Este campo es obligatorio.').max(100, 'Máximo 100 caracteres.'));
 const technicalText=z.string().trim().min(1).max(100);
-export const clientSchema = z.object({ dni: dniSchema, fullName:z.string().transform(normalizeText).pipe(z.string().min(1).max(201)).optional(), firstName:z.string().transform(normalizeText).pipe(z.string().max(100)), lastName:z.string().transform(normalizeText).pipe(z.string().max(100)), phone: z.string().trim().max(30).optional(), email: z.string().transform(normalizeEmail).pipe(z.email().max(254)).optional(), address:z.string().max(300).transform(normalizeText).optional(), province:z.string().max(100).transform(normalizeText).optional(), department:z.string().max(100).transform(normalizeText).optional() }).strict().refine(v=>!!v.fullName||!!v.firstName&&!!v.lastName,'COMPLETA EL NOMBRE DEL CLIENTE.');
+const clientFields = z.object({ fullName:z.string().transform(normalizeText).pipe(z.string().min(1).max(201)).optional(), firstName:z.string().transform(normalizeText).pipe(z.string().max(100)), lastName:z.string().transform(normalizeText).pipe(z.string().max(100)), phone: z.string().trim().max(30).optional(), email: z.string().transform(normalizeEmail).pipe(z.email().max(254)).optional(), address:z.string().max(300).transform(normalizeText).optional(), province:z.string().max(100).transform(normalizeText).optional(), department:z.string().max(100).transform(normalizeText).optional() }).strict();
+const hasClientName=(value: z.infer<typeof clientFields>)=>!!value.fullName||!!value.firstName&&!!value.lastName;
+const clientNameError='COMPLETA EL NOMBRE DEL CLIENTE.';
+export const clientSchema = clientFields.extend({dni:dniSchema}).refine(hasClientName,clientNameError);
+export const otherClientDocumentSchema = clientFields.extend({
+  documentType:z.literal('OTROS'),
+  otherDocumentNumber:z.string().trim().min(1).max(100),
+}).refine(hasClientName,clientNameError);
+export const clientDirectoryCreateSchema=z.union([clientSchema,otherClientDocumentSchema]);
 export const imeiSchema = z.object({ slot: z.number().int().min(1).max(2), value: imeiValueSchema, type: z.enum(['PHYSICAL', 'ESIM']).default('PHYSICAL') }).strict();
 // Un segundo campo vacío no crea un IMEI. Un valor no vacío inválido se rechaza.
 export const imeiListSchema = z.preprocess(value => Array.isArray(value) && value.length <= 2

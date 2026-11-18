@@ -2,7 +2,7 @@ import type {EvidenceStorageProvider} from '../storage/provider.js';
 import { createDeletionService } from './deletion.service.js';
 import { createRegistrationRequestsService } from './registration-requests.service.js';
 import { Prisma, type PrismaClient, type EquipmentEventType } from '@prisma/client';
-import { clientSchema, clientEditSchema, dniSchema, equipmentSchema, equipmentEditSchema, externalEquipmentSchema, idSchema, imeiSchema, imeiValueSchema, imeiLookupSchema, imeiCorrectionSchema, listQuerySchema, registrationFlowSchema, registrationSchema, resolveRegistrationSchema } from '../../shared/validation.js';
+import { clientDirectoryCreateSchema, clientEditSchema, dniSchema, equipmentSchema, equipmentEditSchema, externalEquipmentSchema, idSchema, imeiSchema, imeiValueSchema, imeiLookupSchema, imeiCorrectionSchema, listQuerySchema, registrationFlowSchema, registrationSchema, resolveRegistrationSchema } from '../../shared/validation.js';
 import { deriveRegistrationStatus } from '../../shared/registration.js';
 import { repository, type Db } from '../repositories/pos.repository.js';
 import { createSalesService } from './sales.service.js';
@@ -89,7 +89,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
     findClientByDni: (dni: unknown) => repository.findClientByDni(db, dniSchema.parse(dni)),
     getClientById: async (id: unknown) => { const client = await repository.getClientById(db, idSchema.parse(id)); return { ...client, equipment: client.equipment.map(decorated) }; },
     createClient: (raw: unknown) => {
-      const data = clientSchema.parse(raw);
+      const data = clientDirectoryCreateSchema.parse(raw);
       return transaction(async tx => { const client = await tx.client.create({ data }); await audit(tx, 'CREATE', 'Client', client.id); return client; });
     },
     updateClient: (id: unknown, raw: unknown) => {
@@ -198,7 +198,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
     getEquipmentHistory: async (id: unknown) => { const equipmentId = idSchema.parse(id); await repository.getEquipmentById(db, equipmentId); return repository.getHistory(db, equipmentId); },
     listClients: async (raw: unknown = {}) => {
       const { q, offset, limit } = listQuerySchema.parse(raw);
-      const rows = await db.client.findMany({ where: { AND: q.split(/\s+/).filter(Boolean).map(term => ({ OR: [{ dni: { contains: term } }, { code: { contains: term, mode: 'insensitive' as const } }, { firstName: { contains: term, mode: 'insensitive' as const } }, { lastName: { contains: term, mode: 'insensitive' as const } },{ fullName:{contains:term,mode:'insensitive' as const}}, { email: { contains: term, mode: 'insensitive' as const } }] })) }, include: { _count: { select: { equipment: true } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit });
+      const rows = await db.client.findMany({ where: { AND: q.split(/\s+/).filter(Boolean).map(term => ({ OR: [{ dni: { contains: term } }, {otherDocumentNumber:{contains:term,mode:"insensitive" as const}}, { code: { contains: term, mode: 'insensitive' as const } }, { firstName: { contains: term, mode: 'insensitive' as const } }, { lastName: { contains: term, mode: 'insensitive' as const } },{ fullName:{contains:term,mode:'insensitive' as const}}, { email: { contains: term, mode: 'insensitive' as const } }] })) }, include: { _count: { select: { equipment: true } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit });
       return rows.map(({ _count, ...client }) => ({ ...client, equipmentCount: _count.equipment }));
     },
     listEquipment: async (raw: unknown = {}) => {
