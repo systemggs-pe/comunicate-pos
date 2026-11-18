@@ -1,0 +1,56 @@
+.reports-compact{min-width:0;color:#18212d}
+.reports-compact .reports-heading{display:flex;align-items:center;gap:10px;padding:0 0 14px;border-bottom:1px solid #d3dae2}
+.reports-heading>svg{color:#096acb;flex:none}
+.reports-compact .reports-heading h1{font-size:22px;letter-spacing:-.025em;margin:0}
+.reports-compact .reports-heading p{font-size:13px;color:#637086;margin:0 0 0 auto}
+.reports-compact .analytics-workspace{margin-top:14px}
+.reports-compact .report-tabs{display:flex;flex-direction:row;flex-wrap:nowrap;width:fit-content;max-width:100%;overflow-x:auto;gap:2px;padding:3px;margin:0 0 14px;background:transparent;border:0;border-bottom:1px solid #d3dae2;border-radius:0}
+.reports-compact .report-tabs button{flex:0 0 auto;min-height:44px;padding:8px 16px;font-size:13px;white-space:nowrap;border-radius:8px;transition:background-color 140ms ease,color 140ms ease}
+.reports-compact .report-tabs button[aria-pressed=true]{background:#e5f0ff!important;border-color:transparent!important;box-shadow:none;color:#096acb}
+.reports-compact .report-tabs button:hover{background:#ecf1f6}
+.reports-compact .report-panel{padding:16px;margin-bottom:14px;border-radius:12px}
+.reports-compact .report-filters{display:flex;flex-wrap:wrap;align-items:end;gap:12px;padding:12px 14px;background:#fbfdfe}
+.reports-compact .report-filters>label{flex:0 1 190px;font-size:12px;font-weight:500;gap:5px}
+.reports-compact .report-filters input,.reports-compact .report-filters select{font-size:13px;min-height:42px;padding:8px 10px}
+.report-filter-actions{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.reports-compact .report-filter-actions button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:9px 13px;font-size:12px}
+.report-more-filters{flex:1 0 100%;order:3;border-top:1px solid #d3dae2;padding-top:8px}
+.report-more-filters summary,.report-evolution summary,.report-breakdown>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;min-height:44px;font-size:13px;font-weight:600}
+.report-more-filters summary::-webkit-details-marker,.report-evolution summary::-webkit-details-marker,.report-breakdown>summary::-webkit-details-marker{display:none}
+.report-more-filters summary>svg:last-child,.report-evolution summary>svg,.report-breakdown>summary>svg{margin-left:auto;transition:transform 160ms ease-out}
+.report-more-filters[open] summary>svg:last-child,.report-evolution[open] summary>svg,.report-breakdown[open]>summary>svg{transform:rotate(180deg)}
+.report-filter-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;padding:8px 0}
+.reports-compact .report-period{font-size:12px;margin:12px 0;color:#637086}
+.reports-compact .report-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0 0 16px;background:#fbfdfe;border:1px solid #d3dae2;border-radius:12px;overflow:hidden}
+.reports-compact .report-stats>div{padding:14px 18px;background:transparent;border:0;border-radius:0;border-right:1px solid #d3dae2;border-bottom:1px solid #d3dae2}
+.reports-compact .report-stats>div:nth-child(3n){border-right:0}
+.reports-compact .report-stats>div:nth-last-child(-n+3){border-bottom:0}
+.reports-compact .report-stats dt{min-height:0;font-size:12px;font-weight:500;line-height:1.4;color:#637086}
+.reports-compact .report-stats dd{margin:5px 0 0;font-size:24px;font-weight:650;line-height:1.25;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.reports-compact .report-chart-grid{gap:14px;align-items:start}
+.reports-compact .report-chart-grid>.report-panel:last-child:not(.report-evolution){grid-column:auto}
+.reports-compact .report-chart-grid>.report-panel:only-child:not(.report-evolution){grid-column:1/-1}
+.reports-compact .report-chart-grid>.report-evolution{grid-column:1/-1;padding-block:4px}
+.reports-compact .report-panel h2{font-size:13px;font-weight:600;color:#18212d;margin:0 0 10px}
+.report-chart-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.report-chart-heading label{width:auto;max-width:170px;font-size:12px}
+.report-chart-heading select{min-height:36px;padding:6px 10px}
+.reports-compact .report-chart{height:210px;margin-top:10px}
+.reports-compact .report-empty{padding:24px 8px;margin:0;font-size:13px;text-align:center}
+.report-state-list{margin:4px 0 0;display:grid;gap:18px;padding:12px 0}
+.report-state-list>div{display:grid;grid-template-columns:1fr auto;gap:8px}
+.report-state-list dt{font-size:13px;color:#637086}
+.report-state-list dd{display:flex;gap:12px;margin:0;font-variant-numeric:tabular-nums;font-size:13px}
+.report-state-list dd span{color:#637086;min-width:45px;text-align:right}
+.report-state-track{grid-column:1/-1;height:5px;background:#ecf1f6;border-radius:3px;overflow:hidden}
+.report-state-track span{display:block;height:100%;background:#008567}
+.is-blocked .report-state-track span{background:#c43c3c}
+.is-pending .report-state-track span{background:#b7791f}
+.report-breakdowns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.report-breakdown{min-width:0;border:1px solid #d3dae2;border-radius:12px;background:#fbfdfe;padding:4px 16px}
+.reports-compact .report-breakdown .report-panel{border:0;padding:4px 0;margin:0}
+.reports-compact .report-breakdown h2{display:none}
+.reports-compact .report-table-scroll td,.reports-compact .report-table-scroll th{padding:9px 10px;font-size:12px}
+.reports-compact button:focus-visible,.reports-compact summary:focus-visible{outline:2px solid #096acb;outline-offset:3px}
+@media(max-width:760px){.reports-compact .reports-heading p{display:none}.reports-compact .report-tabs{width:100%}.reports-compact .report-tabs button{padding-inline:12px}.reports-compact .report-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.reports-compact .report-stats>div{padding:12px;border-right:1px solid #d3dae2;border-bottom:1px solid #d3dae2}.reports-compact .report-stats>div:nth-child(3n){border-right:1px solid #d3dae2}.reports-compact .report-stats>div:nth-child(2n){border-right:0}.reports-compact .report-stats>div:nth-last-child(-n+3){border-bottom:1px solid #d3dae2}.reports-compact .report-stats>div:nth-last-child(-n+2){border-bottom:0}.reports-compact .report-stats dd{font-size:22px}.reports-compact .report-filters>label{flex:1 1 130px}.report-filter-actions{margin:0;width:100%}.report-filter-actions button{flex:1}.report-breakdowns{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.reports-compact .report-tabs button,.reports-compact summary>svg{transition:none}}

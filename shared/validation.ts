@@ -1,18 +1,34 @@
 import { normalizeText, normalizeEmail } from './normalization.js';
 import { z } from 'zod';
+import {imeiValidationError} from './imei.js';
 
 const digits = (length: number, label: string) => z.string().transform(v => v.replace(/\s/g, '')).pipe(z.string().regex(new RegExp(`^[0-9]{${length}}$`), `${label}: ${length} dígitos exactos`));
 export const dniSchema = digits(8, 'DNI');
-export const imeiValueSchema = digits(15, 'IMEI');
+// Read-only lookup remains compatible with historical identifiers.
+export const imeiLookupSchema = digits(15, 'IMEI');
+export const imeiValueSchema = z.unknown().superRefine((value,ctx)=>{
+  const error=imeiValidationError(value);
+  if(error)ctx.addIssue({code:'custom',message:error.message,params:{imeiCode:error.code}});
+}).transform(value=>value as string);
+export const imeiCorrectionSchema=z.object({expectedValue:z.string().min(1).max(100),value:imeiValueSchema,reason:z.string().trim().min(5).max(300),confirm:z.literal(true)}).strict();
 export const idSchema = z.uuid();
 const text = z.string().trim().transform(normalizeText).pipe(z.string().min(1, 'Este campo es obligatorio.').max(100, 'Máximo 100 caracteres.'));
 const technicalText=z.string().trim().min(1).max(100);
-export const clientSchema = z.object({ dni: dniSchema, fullName:z.string().transform(normalizeText).pipe(z.string().min(1).max(201)).optional(), firstName:z.string().transform(normalizeText).pipe(z.string().max(100)), lastName:z.string().transform(normalizeText).pipe(z.string().max(100)), phone: z.string().trim().max(30).optional(), email: z.string().transform(normalizeEmail).pipe(z.email().max(254)).optional(), address:z.string().max(300).transform(normalizeText).optional(), department:z.string().max(100).transform(normalizeText).optional() }).strict().refine(v=>!!v.fullName||!!v.firstName&&!!v.lastName,'COMPLETA EL NOMBRE DEL CLIENTE.');
+const clientFields = z.object({ fullName:z.string().transform(normalizeText).pipe(z.string().min(1).max(201)).optional(), firstName:z.string().transform(normalizeText).pipe(z.string().max(100)), lastName:z.string().transform(normalizeText).pipe(z.string().max(100)), phone: z.string().trim().max(30).optional(), email: z.string().transform(normalizeEmail).pipe(z.email().max(254)).optional(), address:z.string().max(300).transform(normalizeText).optional(), province:z.string().max(100).transform(normalizeText).optional(), department:z.string().max(100).transform(normalizeText).optional() }).strict();
+const hasClientName=(value: z.infer<typeof clientFields>)=>!!value.fullName||!!value.firstName&&!!value.lastName;
+const clientNameError='COMPLETA EL NOMBRE DEL CLIENTE.';
+export const clientSchema = clientFields.extend({dni:dniSchema}).refine(hasClientName,clientNameError);
+export const otherClientDocumentSchema = clientFields.extend({
+  documentType:z.literal('OTROS'),
+  otherDocumentNumber:z.string().trim().min(1).max(100),
+}).refine(hasClientName,clientNameError);
+export const clientDirectoryCreateSchema=z.union([clientSchema,otherClientDocumentSchema]);
 export const imeiSchema = z.object({ slot: z.number().int().min(1).max(2), value: imeiValueSchema, type: z.enum(['PHYSICAL', 'ESIM']).default('PHYSICAL') }).strict();
 // Un segundo campo vacío no crea un IMEI. Un valor no vacío inválido se rechaza.
 export const imeiListSchema = z.preprocess(value => Array.isArray(value) && value.length <= 2
   ? value.filter(imei => !(imei?.slot === 2 && typeof imei.value === 'string' && !imei.value.trim()))
   : value, z.array(imeiSchema).min(1).max(2).superRefine((imeis, ctx) => {
+  if(!imeis.some(imei=>imei.slot===1))ctx.addIssue({code:'custom',path:[0,'value'],message:'Indica el IMEI 1 del equipo.'});
   if (new Set(imeis.map(i => i.value)).size !== imeis.length) ctx.addIssue({ code: 'custom', message: 'Los IMEIs deben ser diferentes.' });
   if (new Set(imeis.map(i => i.slot)).size !== imeis.length) ctx.addIssue({ code: 'custom', message: 'Los slots deben ser diferentes.' });
 }));
@@ -21,7 +37,7 @@ export const equipmentSchema = z.object({ ownerId: idSchema.optional(), origin: 
 });
 export const externalEquipmentSchema = z.object({ client: clientSchema, brand: text, model: text, serialNumber: technicalText.optional(), commercialName: z.preprocess(value => value === '' ? null : value, text.nullable().optional()), color: z.preprocess(value => value === '' ? null : value, text.nullable().optional()), ram: z.preprocess(value => value === '' ? null : value, text.nullable().optional()), storage: z.preprocess(value => value === '' ? null : value, text.nullable().optional()), imeis: imeiListSchema }).strict();
 export const registrationSchema = z.object({ status: z.enum(['BLOCKED', 'PENDING', 'REGISTERED']), method: text.nullable().optional(), userId: idSchema.optional(), ownerId: idSchema.optional() }).strict();
-export const clientEditSchema = z.object({ fullName:z.string().transform(normalizeText).pipe(z.string().min(1).max(201)).nullable().optional(),firstName:z.string().transform(normalizeText).pipe(z.string().max(100)),lastName:z.string().transform(normalizeText).pipe(z.string().max(100)), phone: z.string().trim().max(30).nullable().optional(), email: z.string().transform(normalizeEmail).pipe(z.email().max(254)).nullable().optional(), address:z.string().max(300).transform(normalizeText).nullable().optional(), department:z.string().max(100).transform(normalizeText).nullable().optional() }).strict();
+export const clientEditSchema = z.object({ fullName:z.string().transform(normalizeText).pipe(z.string().min(1).max(201)).nullable().optional(),firstName:z.string().transform(normalizeText).pipe(z.string().max(100)),lastName:z.string().transform(normalizeText).pipe(z.string().max(100)), phone: z.string().trim().max(30).nullable().optional(), email: z.string().transform(normalizeEmail).pipe(z.email().max(254)).nullable().optional(), address:z.string().max(300).transform(normalizeText).nullable().optional(), province:z.string().max(100).transform(normalizeText).nullable().optional(), department:z.string().max(100).transform(normalizeText).nullable().optional() }).strict().refine(v=>!!v.fullName||!!v.firstName&&!!v.lastName,'COMPLETA EL NOMBRE DEL CLIENTE.');
 export const equipmentEditSchema = z.object({ brand: text, model: text, serialNumber: technicalText.nullable().optional(), commercialName: z.preprocess(value => value === '' ? null : value, text.nullable().optional()), color: z.preprocess(value => value === '' ? null : value, text.nullable().optional()), ram: z.preprocess(value => value === '' ? null : value, text.nullable().optional()), storage: z.preprocess(value => value === '' ? null : value, text.nullable().optional()) }).strict();
 export const listQuerySchema = z.object({ q: z.string().trim().max(100).default(''), ownerId: idSchema.optional(), offset: z.coerce.number().int().min(0).max(1000000).default(0), limit: z.coerce.number().int().min(1).max(100).default(20) }).strict();
 const imeisInput = imeiListSchema;

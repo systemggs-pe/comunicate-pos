@@ -1,0 +1,2 @@
+{"name":"integration-current","exitCode":1,"durationMs":130338,"command":"node node_modules/vitest/vitest.mjs run --project integration --exclude tests/integration/recovery.test.ts --reporter=json --outputFile=docs/p1-remediation/evidence/integration-current.json"}
+JSON report written to C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/docs/p1-remediation/evidence/integration-current.json

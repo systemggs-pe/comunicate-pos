@@ -1,0 +1,2 @@
+Lectura del código histórico del baseline 2751768; NO EJECUTADO en fase 3.
+try{await start();await retrieve();await stop();await promisify(execFile)('docker',['compose','up','-d','--force-recreate','--wait','--wait-timeout','60','minio'],{windowsHide:true,timeout:60000});for(let n=0;n<40;n++){try{if((await fetch(`${storage.config.endpoint}/minio/health/live`)).ok)break;}catch{/* restart */}await sleep(250);}await start();await retrieve();}finally{await stop();}

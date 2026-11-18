@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const reportTypes = ['general', 'sales', 'registrations', 'clients', 'equipment', 'users'] as const;
 export type ReportType = typeof reportTypes[number];
-export const presetLabels = { today: 'HOY', yesterday: 'AYER', last7: 'ÚLTIMOS 7 DÍAS', month: 'ESTE MES', previousMonth: 'MES ANTERIOR', year: 'ESTE AÑO', custom: 'PERSONALIZADO' };
+export const presetLabels = { all: 'Todo el historial', today: 'Hoy', yesterday: 'Ayer', last7: 'Últimos 7 días', month: 'Este mes', previousMonth: 'Mes anterior', year: 'Este año', custom: 'Elegir fechas' };
 export type DatePreset = keyof typeof presetLabels;
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
   const date = new Date(`${value}T00:00:00Z`);
@@ -17,6 +17,8 @@ export function addDays(day: string, count: number) {
 export function presetRange(preset: DatePreset, now = new Date()) {
   const today = limaDay(now), month = today.slice(0, 7), year = today.slice(0, 4);
   switch (preset) {
+    // The service resolves actual history bounds inside its report snapshot.
+    case 'all': return { from: today, to: today };
     case 'today': return { from: today, to: today };
     case 'yesterday': return { from: addDays(today, -1), to: addDays(today, -1) };
     case 'last7': return { from: addDays(today, -6), to: today };
@@ -27,7 +29,7 @@ export function presetRange(preset: DatePreset, now = new Date()) {
 }
 export const reportQuerySchema = z.object({
   from: day.optional(), to: day.optional(),
-  preset: z.enum(['today', 'yesterday', 'last7', 'month', 'previousMonth', 'year', 'custom']).default('month'),
+  preset: z.enum(['all', 'today', 'yesterday', 'last7', 'month', 'previousMonth', 'year', 'custom']).default('month'),
   group: z.enum(['day', 'week', 'month']).default('day'),
   userId: z.uuid().optional(), operator: z.enum(['BITEL', 'CLARO', 'MOVISTAR', 'ENTEL']).optional(),
   status: z.enum(['BLOCKED', 'PENDING', 'REGISTERED']).optional(),
@@ -36,6 +38,7 @@ export const reportQuerySchema = z.object({
   page: z.coerce.number().int().min(1).max(100000).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(25),
 }).strict().superRefine((value, ctx) => {
+  if(value.preset==='all'&&(value.from||value.to))ctx.addIssue({code:'custom',message:'Todo el historial no admite fechas parciales.'});
   if (Boolean(value.from) !== Boolean(value.to) || (value.preset === 'custom' && !value.from)) ctx.addIssue({ code: 'custom', message: 'INDICA AMBAS FECHAS.' });
   if (value.from && value.to && (value.from > value.to || Date.parse(value.to) - Date.parse(value.from) > 731 * 86400000)) ctx.addIssue({ code: 'custom', message: 'PERIODO INVÁLIDO: MÁXIMO 732 DÍAS.' });
 });

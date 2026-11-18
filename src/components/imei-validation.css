@@ -1,0 +1,4 @@
+.imei-validation-feedback{display:flex;align-items:flex-start;gap:5px;font-size:11px;line-height:1.45;margin-top:4px;white-space:normal}
+.imei-validation-feedback svg{flex:none;margin-top:1px}
+.imei-check-valid{color:#08784f;font-weight:500}
+.design-shell input[aria-invalid=true]{border-color:#b42318}

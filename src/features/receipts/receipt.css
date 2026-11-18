@@ -1,4 +1,20 @@
-.receipt-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}.receipt-dialog{max-width:min(95vw,480px);border:1px solid #bbb;border-radius:12px;padding:20px}.receipt-dialog::backdrop{background:#0007}.receipt-preview{padding:12px;min-height:100vh;background:#eee}.receipt-controls{max-width:800px;margin:0 auto 20px}.thermal-receipt{box-sizing:border-box;margin:0 auto;background:#fff;color:#000;overflow-wrap:anywhere;font-family:'Courier New',monospace}.thermal-receipt p{margin:0 0 1.3mm;white-space:pre-wrap;break-inside:avoid}.receipt-48{font-size:9px;line-height:1.35}.receipt-48 p{margin-bottom:1.8mm}.receipt-80{font-size:12px;line-height:1.35}.receipt-80 p[style*="700"]{font-size:13px}.thermal-receipt svg{display:block;margin:3mm auto 1mm;max-width:none}.receipt-identifier{text-align:center}.barcode-fallback{font-size:8px}.receipt-controls .form-actions{flex-wrap:wrap}.receipt-controls a{color:#174381}
+.receipt-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+.receipt-dialog{max-width:min(95vw,480px);border:1px solid #bbb;border-radius:12px;padding:20px}
+.receipt-dialog::backdrop{background:#0007}
+.receipt-preview{padding:12px;min-height:100vh;background:#eee}
+.receipt-controls{max-width:800px;margin:0 auto 20px}
+.receipt-controls .form-actions{flex-wrap:wrap}
+.receipt-controls a{color:#174381}
+.printer-picker .printer-format-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+.thermal-receipt{position:relative;box-sizing:border-box;margin:0 auto;padding:0;background:#fff;color:#121212;overflow-wrap:normal;font-family:'Courier New',Courier,monospace;text-transform:none;font-variant-numeric:normal;font-synthesis:none;letter-spacing:0}
+.thermal-receipt .receipt-row{position:absolute;break-inside:avoid}
+.thermal-receipt .receipt-row p{position:absolute;margin:0;padding:0;border:0;white-space:pre;font-family:inherit;line-height:1.15;letter-spacing:0;text-transform:none}
+.thermal-receipt .receipt-text-line{display:block}
+.thermal-receipt .receipt-field-label{left:0;font-weight:700}
+.thermal-receipt .receipt-right{color:#121212;text-align:right}
+.thermal-receipt svg{position:absolute;top:0;left:0;display:block;margin:0;max-width:none}
+.thermal-receipt .receipt-rule{position:absolute;top:0;left:0;right:0;height:.18mm;background:#b0b0b0}
+.thermal-receipt .receipt-section-band{position:absolute;left:0;right:0;background:#f5f5f5}
+.thermal-receipt .receipt-total-band{position:absolute;inset:0;background:#ebebeb}
 @media(max-width:760px){.app-shell .sidebar nav:has(>.nav-item:nth-child(9)){grid-template-columns:repeat(3,minmax(0,1fr))}}
-.thermal-receipt{text-transform:none}
 @media print{html,body,#root{margin:0;padding:0;background:white;width:auto}.receipt-preview{margin:0;padding:0;background:white;min-height:0}.receipt-controls{display:none!important}.thermal-receipt{margin:0;box-shadow:none}.thermal-receipt p{orphans:2;widows:2}.thermal-receipt svg{break-inside:avoid}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}

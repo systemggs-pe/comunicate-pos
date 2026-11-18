@@ -10,12 +10,13 @@ import {S3EvidenceStorage} from '../../server/storage/s3';
 import {createBackup,verifyBackup} from '../../server/ops/recovery';
 import {publishBackup,fetchBackup,retentionPlan,removeExpiredBackup} from '../../scripts/lib/cloud-backups';
 import {startHttp} from '../../server/ops/runtime';
+import {checksum} from '../../server/evidence/image';
 import {createApp} from '../../server/app';
 import request from 'supertest';
 let f:Awaited<ReturnType<typeof phase9Fixture>>;
 beforeAll(async()=>{f=await phase9Fixture();await mkdir('.test-results/phase10a',{recursive:true});},60000);
 afterAll(async()=>{await f?.close();});
-const options=()=>({lockUrl:f.databaseUrl,batchSize:5,maxBatches:2,timeoutMs:10000});
+const options=()=>({lockUrl:f.databaseUrl,batchSize:100,maxBatches:2,timeoutMs:10000});
 it('real unavailable PostgreSQL responds safe503 without removing session cookie or leaking DSN',async()=>{
  const offline=new PrismaClient({datasources:{db:{url:'postgresql://synthetic:synthetic@127.0.0.1:9/synthetic?connect_timeout=1'}}});try{const app=createApp(offline,{evidenceStorage:f.storage});expect((await request(app).get('/api/health')).status).toBe(200);const result=await request(app).get('/api/auth/me').set('Cookie',f.cookie);expect(result.status).toBe(503);expect(result.body.error.code).toBe('DATABASE_UNAVAILABLE');expect(result.headers['set-cookie']).toBeUndefined();expect(JSON.stringify(result.body)).not.toContain('synthetic');}finally{await offline.$disconnect();}
 });
@@ -31,6 +32,29 @@ it('worker lock excludes overlapping invocations and releases after interrupted 
 });
 it('maintenance and SIGTERM signal prevent cleanup; unknown objects are reported without deleting',async()=>{
  const key=`staging/${randomUUID()}`;await f.storage.client.send(new PutObjectCommand({Bucket:f.storage.config.bucket,Key:key,Body:Buffer.from('synthetic unknown')}));try{expect(await runWorker(f.db,f.storage,{...options(),maintenance:true})).toMatchObject({status:'SUCCESS',reason:'MAINTENANCE',deleted:0});const aborted=new AbortController();aborted.abort();expect((await runWorker(f.db,f.storage,{...options(),signal:aborted.signal})).status).toBe('PARTIAL');const result=await runWorker(f.db,f.storage,options());expect(result.orphans).toBeGreaterThan(0);expect(await f.storage.exists(key)).toBe(true);}finally{await f.storage.delete(key);}
+});
+it('worker conserva una boleta vinculada al equipo y detecta la falta del PDF original',async()=>{
+ const equipment=await f.db.equipment.findFirstOrThrow(),admin=await f.db.user.findFirstOrThrow();
+ const id=randomUUID(),storageKey=`evidence/${id}.webp`,originalStorageKey=`evidence/${id}.pdf`;
+ const thumb=Buffer.from('synthetic thumbnail'),pdf=Buffer.from('synthetic original');
+ await f.storage.upload(storageKey,thumb);
+ await f.storage.upload(originalStorageKey,pdf,'application/pdf');
+ try{
+  await f.db.evidenceAsset.create({data:{id,category:'PURCHASE_RECEIPT',status:'READY',storageKey,originalStorageKey,
+   createdById:admin.id,idempotencyKey:randomUUID(),sourceRequestId:f.link.registrationRequestId,
+   expectedMimeType:'application/pdf',expectedSize:pdf.length,expectedChecksum:checksum(pdf),
+   mimeType:'image/webp',fileSize:thumb.length,checksum:checksum(thumb),originalFileSize:pdf.length,originalChecksum:checksum(pdf),receiptPage:1,
+   width:80,height:120,verifiedAt:new Date(),expiresAt:new Date(),uploadExpiresAt:new Date(0)}});
+  await f.db.equipmentReceiptEvidence.create({data:{equipmentId:equipment.id,evidenceAssetId:id}});
+  expect(await runWorker(f.db,f.storage,options())).toMatchObject({status:'SUCCESS',orphans:0,inconsistent:0});
+  await f.storage.delete(originalStorageKey);
+  expect(await runWorker(f.db,f.storage,options())).toMatchObject({status:'PARTIAL',orphans:0,inconsistent:1});
+ }finally{
+  await f.db.equipmentReceiptEvidence.deleteMany({where:{evidenceAssetId:id}});
+  await f.db.evidenceAsset.deleteMany({where:{id}});
+  await f.storage.delete(storageKey);
+  await f.storage.delete(originalStorageKey);
+ }
 });
 it('HTTP supervisor drains an in-flight request before disconnect, tolerates repeat shutdown and restarts',async()=>{
  const app=express();app.get('/health',(_req,res)=>res.json({status:'ok'}));let entered:()=>void=()=>undefined,release:()=>void=()=>undefined;const started=new Promise<void>(yes=>entered=yes),continueRequest=new Promise<void>(yes=>release=yes);app.get('/slow',async(_req,res)=>{entered();await continueRequest;res.end('finished');});let disconnected=false;const runtime=startHttp(app,0,async()=>{disconnected=true;});await new Promise<void>(yes=>runtime.server.once('listening',yes));const address=runtime.server.address();if(!address||typeof address==='string')throw new Error('LISTEN_FAILED');const response=fetch(`http://127.0.0.1:${address.port}/slow`);await started;const closing=runtime.shutdown();expect(disconnected).toBe(false);release();expect(await (await response).text()).toBe('finished');await closing;await runtime.shutdown();expect(disconnected).toBe(true);const restarted=startHttp(app,address.port,async()=>undefined);try{await new Promise<void>(yes=>restarted.server.once('listening',yes));expect((await fetch(`http://127.0.0.1:${address.port}/health`)).status).toBe(200);}finally{await restarted.shutdown();}

@@ -1,5 +1,5 @@
 export interface EvidenceStorageProvider {
- upload(key:string,bytes:Buffer):Promise<void>;
+ upload(key:string,bytes:Buffer,mimeType?:string):Promise<void>;
  download(key:string,maxBytes:number):Promise<Buffer>;
  delete(key:string):Promise<void>;
  exists(key:string):Promise<boolean>;

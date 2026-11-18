@@ -1,0 +1,74 @@
+.identity-photo-panel {margin-block:1rem;padding:1rem;border:1px solid var(--border,#d7e2df);border-radius:12px;min-width:0;}
+.document-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1rem;margin-block:1rem;}
+.document-card {border:1px solid var(--border,#d7e2df);border-radius:12px;padding:1rem;min-width:0;overflow-wrap:anywhere;}
+.document-card h4 {margin-block:0 .6rem;}
+.document-thumbnail {width:100%;height:180px;object-fit:contain;border-radius:8px;background:#f1f5f4;}
+.document-actions {display:flex;flex-wrap:wrap;gap:.5rem;margin-block:.7rem;}
+.document-actions button {white-space:normal;max-width:100%;}
+.document-modal {max-width:min(94vw,900px);max-height:94vh;border:1px solid #d7e2df;border-radius:12px;}
+.document-modal img {display:block;max-width:100%;max-height:75vh;object-fit:contain;}
+.identity-photo-panel input,.identity-photo-panel select {max-width:100%;min-width:0;}
+.identity-photo-panel .form-grid {margin-block:1rem;}
+
+.document-side-picker{display:grid;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #d3dae2}.document-side-picker label{display:grid;gap:6px;font-size:13px}.document-side-picker select{width:100%;min-width:0;min-height:44px}.document-side-picker button{justify-self:start;min-height:44px}
+/* Fotos del DNI: una tarea, controles breves y movimiento sólo para comunicar estado. */
+.dni-photo-workspace,.dni-photo-main{--dni-ink:var(--design-ink,#18212d);--dni-muted:var(--design-muted,#637086);--dni-line:var(--design-line,#d3dae2);--dni-soft:var(--design-soft,#ecf1f6);--dni-blue:var(--color-brand,#096acb);--dni-ease:cubic-bezier(.16,1,.3,1);color:var(--dni-ink);text-transform:none}
+.dni-photo-workspace.identity-photo-panel{margin:0;padding:0;border:0;border-radius:0;background:transparent}
+.dni-photo-intro{margin-bottom:18px}.dni-photo-intro h3{font-size:19px;line-height:1.3;letter-spacing:-.02em;margin:0 0 5px;font-weight:700}.dni-photo-intro p{margin:0;font-size:13px;color:var(--dni-muted)}
+.dni-photo-types{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.dni-photo-types button{display:flex;align-items:center;gap:10px;min-height:54px;padding:12px 14px;background:#fff;border:1px solid var(--dni-line);border-radius:10px;color:var(--dni-muted);font:inherit;font-size:14px;font-weight:600;text-align:left;cursor:pointer;transition:background-color 160ms,color 160ms,border-color 160ms}
+.dni-photo-types button[aria-pressed=true]{background:var(--design-blue-soft,#dcedff);border-color:var(--dni-blue);color:var(--dni-blue)}
+.dni-type-check{margin-left:auto;flex:0 0 20px;height:20px;display:grid;place-items:center;border-radius:50%}.dni-photo-types button[aria-pressed=true] .dni-type-check{background:var(--dni-blue);color:#fff}.dni-type-check svg{animation:dni-check-confirm 180ms var(--dni-ease)}
+.dni-photo-types button:hover:not(:disabled){border-color:var(--dni-blue)}.dni-photo-types button:disabled{cursor:wait;opacity:.65}
+.dni-photo-help{color:var(--dni-muted);font-size:12px;line-height:1.6;margin:0 0 16px;max-width:65ch}
+.dni-photo-consent.checkbox-label{display:flex;gap:10px;align-items:flex-start;font-size:13px;font-weight:400;line-height:1.55;padding:12px 14px;background:var(--dni-soft);border-radius:9px;margin:0;cursor:pointer;min-height:44px}
+.dni-photo-consent input[type=checkbox]{width:18px;height:18px;min-height:18px;flex:0 0 18px;margin:1px 0 0;accent-color:var(--dni-blue);cursor:pointer}.dni-photo-consent span{min-width:0}
+.dni-photo-request{display:grid;gap:14px;margin-top:12px}.dni-photo-search{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;justify-self:start;font-size:14px!important;padding:11px 18px!important;border-radius:9px!important;transition:background-color 140ms,opacity 140ms,transform 100ms}
+.dni-photo-search:active:not(:disabled){transform:scale(.98)}.dni-photo-search:disabled{transform:none;cursor:not-allowed}
+.dni-photo-extra{margin:12px 0;font-size:13px}.dni-photo-extra summary{cursor:pointer;color:var(--dni-blue);padding:10px 0;min-height:44px}.dni-photo-extra .checkbox-label{font-size:12px;line-height:1.6;margin:6px 0 14px}
+.dni-photo-small-empty{font-size:13px;color:var(--dni-muted);margin:22px 0 0}
+.dni-photo-notice{display:flex;align-items:flex-start;gap:8px;background:#eaf6ee;color:#23633d;border-radius:8px;padding:11px 13px;font-size:13px;line-height:1.5;margin:18px 0}.dni-photo-notice svg{flex:none;margin-top:1px}
+.dni-photo-error{color:#9d2e23;background:#fff0ee;padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.6}.dni-photo-next{font-size:13px;line-height:1.6}
+.dni-photo-state{display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:220px;padding:30px 18px;text-align:center;color:var(--dni-muted);gap:12px}.dni-photo-state strong{font-size:14px;color:var(--dni-ink);font-weight:600}.dni-photo-state p{font-size:13px;line-height:1.6;margin:0}.dni-photo-state>svg{color:var(--dni-blue)}
+.dni-photo-results.document-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin:20px 0 0}
+.dni-photo-card{min-width:0}.dni-photo-card>header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;border:0;padding:0;margin:0 0 10px;color:var(--dni-ink)}.dni-photo-card>header h3{font-size:15px;font-weight:650;line-height:1.4;margin:0}.dni-photo-card>header span{color:var(--dni-muted);font-size:12px}
+.document-photo-frame{position:relative;min-width:0;aspect-ratio:1.586;background:var(--design-soft,#ecf1f6);border-radius:10px;overflow:hidden;display:grid;place-items:center}
+.document-photo-frame .document-thumbnail{width:100%;height:100%;max-height:340px;object-fit:contain;display:block;border-radius:0;background:transparent;grid-area:1/1}
+.document-photo-frame .document-thumbnail.is-loaded{animation:dni-photo-loaded 220ms ease-out}
+.document-photo-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--design-muted,#637086);font-size:12px;pointer-events:none}.document-photo-loading svg{color:var(--color-brand,#096acb)}
+.dni-photo-card .document-actions{gap:8px;margin:10px 0 0}.document-actions button{display:inline-flex;gap:7px;align-items:center;justify-content:center;min-height:44px;font-size:13px}.dni-photo-card .document-actions button{flex:1;min-width:0;border-radius:8px}
+.dni-photo-card .document-side-picker{font-size:12px}.dni-photo-card .document-side-picker select{font-size:13px}
+.document-modal.reference-dialog{width:min(920px,calc(100vw - 28px));padding:24px}.document-modal.reference-dialog>img{width:100%;height:auto;max-height:calc(85dvh - 90px);object-fit:contain}.document-modal.reference-dialog h2{font-size:18px}
+.dni-photo-main.photo-dni-page .module-heading{padding:22px 24px}.dni-photo-main.photo-dni-page .module-heading h1{font-size:23px;letter-spacing:-.02em}.dni-photo-main .dni-photo-types{margin:20px 24px 0}.dni-photo-main .dni-photo-form.module-toolbar{display:flex;align-items:end;gap:12px;padding:18px 24px 12px;border:0;background:transparent}.dni-photo-main .dni-photo-form label{flex:0 1 300px;font-size:13px;gap:7px}.dni-photo-main .dni-photo-form input{font-size:16px;height:44px;min-height:44px;margin:0;border-radius:8px}.dni-photo-main fieldset>.dni-photo-help{margin:0 24px 16px}.dni-photo-main .photo-authorization{background:transparent;padding:0;margin:0 24px 18px}.dni-photo-main .photo-viewer{padding:0 24px 24px;min-height:240px}
+.dni-photo-types :focus-visible,.dni-photo-workspace :focus-visible,.dni-photo-main :focus-visible{outline:2px solid var(--dni-blue);outline-offset:3px}.dni-photo-workspace input,.dni-photo-main input{caret-color:var(--dni-blue)}.dni-photo-workspace ::selection,.dni-photo-main ::selection{background:var(--design-blue-soft,#dcedff);color:var(--dni-ink)}
+.dni-photo-spinner{animation:dni-photo-spin 900ms linear infinite;flex-shrink:0}
+@keyframes dni-photo-spin{to{transform:rotate(360deg)}}
+@keyframes dni-check-confirm{from{transform:scale(.65);opacity:.45}to{transform:scale(1);opacity:1}}
+@keyframes dni-photo-loaded{from{opacity:.35}to{opacity:1}}
+@media(max-width:760px){.dni-photo-main.photo-dni-page .module-heading{padding:18px}.dni-photo-main .dni-photo-types{margin:16px 16px 0}.dni-photo-main .dni-photo-form.module-toolbar{padding:16px;gap:12px}.dni-photo-main .dni-photo-form label{flex:1 1 170px}.dni-photo-main .dni-photo-form button{flex:1 1 130px}.dni-photo-main fieldset>.dni-photo-help{margin:0 16px 14px}.dni-photo-main .photo-authorization{margin:0 16px 16px}.dni-photo-main .photo-viewer{padding:0 16px 20px}.dni-photo-types button{font-size:13px;padding:11px 10px;gap:7px}.dni-photo-types button>svg{width:17px;flex-shrink:0}.dni-photo-results.document-grid{grid-template-columns:minmax(0,1fr);gap:22px}.dni-photo-consent.checkbox-label{font-size:12px}.dni-photo-workspace .dni-photo-search{width:100%;justify-self:stretch}.dni-photo-state{min-height:190px}.dni-photo-card>header span{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.dni-photo-spinner{animation:none}.dni-type-check svg,.document-photo-frame .document-thumbnail.is-loaded{animation:none}.dni-photo-types button,.dni-photo-search{transition:none}.dni-photo-search:active:not(:disabled){transform:none}}
+
+/* Acceso al DNI y actualización: jerarquía compacta y apertura con movimiento acotado. */
+.client-document-access{padding:0!important;border-radius:12px!important;background:var(--design-surface,#fbfdfe);overflow:hidden}
+.client-document-access>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:16px 18px;min-height:72px!important;cursor:pointer;transition:background-color 150ms}
+.client-document-access>summary::-webkit-details-marker,.dni-photo-extra>summary::-webkit-details-marker{display:none}
+.client-document-access>summary::marker,.dni-photo-extra>summary::marker{content:''}
+.client-document-access>summary:hover{background:var(--design-soft,#ecf1f6)}
+.client-dni-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:10px;background:var(--design-blue-soft,#dcedff);color:var(--color-brand,#096acb)}
+.client-dni-title{display:grid;gap:3px;min-width:0;flex:1}.client-dni-title strong{font-size:14px;font-weight:650;color:var(--design-ink,#18212d)}.client-dni-title small{font-size:12px;line-height:1.4;color:var(--design-muted,#637086)}
+.client-dni-chevron{flex-shrink:0;color:var(--design-muted,#637086);transition:transform 220ms cubic-bezier(.16,1,.3,1)}
+.client-document-access[open]>.client-dni-title{color:var(--color-brand,#096acb)}
+.client-document-access[open]>summary .client-dni-chevron{transform:rotate(180deg)}
+.client-document-access[open]>summary{border-bottom:1px solid var(--design-line,#d3dae2)}
+.client-dni-content{padding:20px 18px;animation:dni-disclosure-reveal 220ms cubic-bezier(.16,1,.3,1)}
+.dni-saved-heading.dni-photo-intro{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:0 0 16px}.dni-saved-heading h3{font-size:17px;margin:0}.dni-saved-heading p{margin-top:5px}
+.dni-saved-status{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;border-radius:20px;background:#eaf6ee;color:#23633d;padding:5px 9px;font-size:11px;line-height:1.4;font-weight:600}
+.dni-photo-workspace .dni-photo-extra{margin:0 0 18px}.dni-photo-workspace .dni-photo-extra>summary{display:inline-flex;align-items:center;gap:8px;list-style:none;min-height:40px;padding:9px 12px;border:1px solid var(--dni-line);border-radius:8px;color:var(--dni-blue);background:#fff;font-size:13px;font-weight:600;transition:background-color 150ms,border-color 150ms}
+.dni-photo-workspace .dni-photo-extra>summary:hover{background:var(--design-blue-soft,#dcedff);border-color:var(--dni-blue)}
+.dni-photo-workspace .dni-photo-extra[open]>summary{background:var(--design-blue-soft,#dcedff);border-color:var(--dni-blue)}
+.dni-update-chevron{transition:transform 180ms cubic-bezier(.16,1,.3,1)}.dni-photo-extra[open]>summary .dni-update-chevron{transform:rotate(180deg)}
+.dni-update-body{padding:16px 0 0;animation:dni-disclosure-reveal 200ms cubic-bezier(.16,1,.3,1)}
+.client-document-access>summary:focus-visible{outline:2px solid var(--color-brand,#096acb);outline-offset:-3px}
+@keyframes dni-disclosure-reveal{from{opacity:.45;clip-path:inset(0 0 12px 0)}to{opacity:1;clip-path:inset(0)}}
+@media(max-width:760px){.client-document-access>summary{padding:14px;gap:10px}.client-dni-content{padding:16px 14px}.dni-saved-heading.dni-photo-intro{gap:8px}.dni-saved-heading h3{font-size:16px}.dni-photo-workspace .dni-photo-extra>summary{min-height:44px}}
+@media(prefers-reduced-motion:reduce){.client-dni-content,.dni-update-body{animation:none}.client-dni-chevron,.dni-update-chevron,.client-document-access>summary,.dni-photo-workspace .dni-photo-extra>summary{transition:none}}

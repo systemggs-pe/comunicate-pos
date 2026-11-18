@@ -1,20 +1,24 @@
+import type {EvidenceStorageProvider} from '../storage/provider.js';
 import { createDeletionService } from './deletion.service.js';
 import { createRegistrationRequestsService } from './registration-requests.service.js';
 import { Prisma, type PrismaClient, type EquipmentEventType } from '@prisma/client';
-import { clientSchema, clientEditSchema, dniSchema, equipmentSchema, equipmentEditSchema, externalEquipmentSchema, idSchema, imeiSchema, imeiValueSchema, listQuerySchema, registrationFlowSchema, registrationSchema, resolveRegistrationSchema } from '../../shared/validation.js';
+import { clientDirectoryCreateSchema, clientEditSchema, dniSchema, equipmentSchema, equipmentEditSchema, externalEquipmentSchema, idSchema, imeiSchema, imeiValueSchema, imeiLookupSchema, imeiCorrectionSchema, listQuerySchema, registrationFlowSchema, registrationSchema, resolveRegistrationSchema } from '../../shared/validation.js';
 import { deriveRegistrationStatus } from '../../shared/registration.js';
 import { repository, type Db } from '../repositories/pos.repository.js';
 import { createSalesService } from './sales.service.js';
 import { writeAudit, type AuditContext } from '../lib/audit.js';
 import { DomainError } from '../lib/errors.js';
 
-export function createPosService(db: PrismaClient, actor: AuditContext = {}, sessionId?:string, allowEvidenceDeletion=false) {
+export function createPosService(db: PrismaClient, actor: AuditContext = {}, sessionId?:string, allowEvidenceDeletion=false,evidenceStorage?:EvidenceStorageProvider,autoAttachIdentity=false,saveClientIdentity=false,origin='') {
   // Reintentos acotados sólo cuando PostgreSQL aborta la transacción serializable.
   async function transaction<T>(fn: (tx: Db) => Promise<T>): Promise<T> {
     for (let attempt = 0; ; attempt++) {
       try { return await db.$transaction(fn, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 10000, timeout: 20000 }); }
       catch (error) {
-        if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2034' || attempt >= 2) throw error;
+        const retryable=error instanceof Prisma.PrismaClientKnownRequestError&&(
+          error.code==='P2034'||error.code==='P2010'&&['40001','40P01'].includes(String(error.meta?.code))
+        );
+        if(!retryable||attempt>=2)throw error;
       }
     }
   }
@@ -27,7 +31,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
     return { ...equipment, registrationStatus: deriveRegistrationStatus(equipment.imeis) };
   }
   async function createEquipmentInTx(tx: Db, input: ReturnType<typeof equipmentSchema.parse>) {
-    const { imeis, ...fields } = input;
+    const { imeis, ...fields } = equipmentSchema.parse(input);
     const equipment = await tx.equipment.create({ data: { ...fields, imeis: { create: imeis } }, include: { imeis: true } });
     await history(tx, equipment.id, 'EQUIPMENT_CREATED');
     if (equipment.ownerId) await history(tx, equipment.id, 'OWNER_ASSIGNED', undefined, undefined, { ownerId: equipment.ownerId });
@@ -38,6 +42,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
   async function updateRegistrationInTx(tx: Db, value: string, input: ReturnType<typeof registrationSchema.parse>, managed = false) {
     const found = await repository.findImei(tx, value);
     if (!found) throw new DomainError(404, 'IMEI no encontrado.', 'IMEI_NOT_FOUND');
+    if(!managed&&found.registrationStatus===null)imeiValueSchema.parse(value);
     if (!managed && await tx.registrationRequest.findFirst({where:{imeiId:found.id}})) throw new DomainError(409,'Actualiza la solicitud vinculada a este IMEI.','REQUEST_MANAGED_IMEI');
     // Ambos IMEI comparten el mismo lock de equipo, también en registros individuales.
     await lockEquipmentInTx(tx, found.equipmentId);
@@ -65,6 +70,7 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
     await tx.$queryRaw`SELECT id FROM "Equipment" WHERE id = ${equipmentId}::uuid FOR UPDATE`;
   }
   async function resolveInTx(tx: Db, raw: ReturnType<typeof resolveRegistrationSchema.parse>) {
+    raw=resolveRegistrationSchema.parse(raw);
     const matches = await tx.imei.findMany({ where: { value: { in: raw.imeis.map(i => i.value) } }, include: { equipment: { include: { owner: true } } } });
     const ids = new Set(matches.map(i => i.equipmentId));
     if (ids.size > 1) throw new DomainError(409, 'Los IMEIs pertenecen a equipos distintos. No se pueden combinar.', 'IMEI_EQUIPMENT_CONFLICT');
@@ -79,16 +85,16 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
     return { kind: 'EXISTING' as const, equipment, additions, requiresConfirmation: additions.length > 0 };
   }
   return {
-    ...createDeletionService(db,actor,transaction,allowEvidenceDeletion),
+    ...createDeletionService(db,actor,transaction,allowEvidenceDeletion,evidenceStorage),
     findClientByDni: (dni: unknown) => repository.findClientByDni(db, dniSchema.parse(dni)),
     getClientById: async (id: unknown) => { const client = await repository.getClientById(db, idSchema.parse(id)); return { ...client, equipment: client.equipment.map(decorated) }; },
     createClient: (raw: unknown) => {
-      const data = clientSchema.parse(raw);
+      const data = clientDirectoryCreateSchema.parse(raw);
       return transaction(async tx => { const client = await tx.client.create({ data }); await audit(tx, 'CREATE', 'Client', client.id); return client; });
     },
     updateClient: (id: unknown, raw: unknown) => {
       const clientId = idSchema.parse(id), data = clientEditSchema.parse(raw);
-      return transaction(async tx => { await repository.getClientById(tx, clientId); const client = await tx.client.update({ where: { id: clientId }, data }); await audit(tx, 'UPDATE', 'Client', clientId); return client; });
+      return transaction(async tx => { await repository.getClientById(tx, clientId); const client = await tx.client.update({ where: { id: clientId }, data:{...data,...(data.fullName===undefined?{fullName:null}:{})} }); await audit(tx, 'UPDATE', 'Client', clientId); return client; });
     },
     updateEquipment: (id: unknown, raw: unknown) => {
       const equipmentId = idSchema.parse(id), data = equipmentEditSchema.parse(raw);
@@ -147,13 +153,29 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
       });
     },
     getEquipmentById: async (id: unknown) => decorated(await repository.getEquipmentById(db, idSchema.parse(id))),
-    findEquipmentByImei: async (value: unknown) => { const imei = await repository.findImei(db, imeiValueSchema.parse(value)); return imei ? decorated(imei.equipment) : null; },
+    findEquipmentByImei: async (value: unknown) => { const imei = await repository.findImei(db, imeiLookupSchema.parse(value)); return imei ? decorated(imei.equipment) : null; },
+    correctImeiValue:(equipmentId:unknown,imeiId:unknown,raw:unknown)=>{
+      const equipmentKey=idSchema.parse(equipmentId),imeiKey=idSchema.parse(imeiId),input=imeiCorrectionSchema.parse(raw);
+      return transaction(async tx=>{
+        await lockEquipmentInTx(tx,equipmentKey);
+        const found=await tx.imei.findFirst({where:{id:imeiKey,equipmentId:equipmentKey}});
+        if(!found)throw new DomainError(404,'IMEI no encontrado.','IMEI_NOT_FOUND');
+        if(found.value!==input.expectedValue)throw new DomainError(409,'El IMEI cambió. Actualiza la ficha antes de corregirlo.','IMEI_CORRECTION_CONFLICT');
+        if(found.value===input.value)return decorated(await repository.getEquipmentById(tx,equipmentKey));
+        if(await tx.imei.findUnique({where:{value:input.value}}))throw new DomainError(409,'El IMEI ya pertenece a un equipo.','IMEI_ALREADY_EXISTS');
+        await tx.imei.update({where:{id:imeiKey},data:{value:input.value}});
+        const metadata={reason:input.reason,slot:found.slot,previousSuffix:found.value.slice(-4),newSuffix:input.value.slice(-4)};
+        await history(tx,equipmentKey,'EQUIPMENT_UPDATED',imeiKey,undefined,{action:'IMEI_CORRECTED',...metadata});
+        await audit(tx,'VALUE_CORRECTED','Imei',imeiKey,undefined,metadata);
+        return decorated(await repository.getEquipmentById(tx,equipmentKey));
+      });
+    },
     addImeiToEquipment: (id: unknown, raw: unknown) => {
       const equipmentId = idSchema.parse(id); const input = imeiSchema.parse(raw);
       return transaction(async tx => { await lockEquipmentInTx(tx, equipmentId); await repository.getEquipmentById(tx, equipmentId); const imei = await tx.imei.create({ data: { equipmentId, ...input } }); await history(tx, equipmentId, 'IMEI_ADDED', imei.id); await audit(tx, 'CREATE', 'Imei', imei.id); return decorated(await repository.getEquipmentById(tx, equipmentId)); });
     },
     updateImeiRegistrationStatus: (value: unknown, raw: unknown) => {
-      const normalized = imeiValueSchema.parse(value); const input = registrationSchema.parse(raw);
+      const normalized = imeiLookupSchema.parse(value); const input = registrationSchema.parse(raw);
       return transaction(tx => updateRegistrationInTx(tx, normalized, input));
     },
     // Lookup-first: un IMEI conocido ignora cualquier alta y sólo actualiza su registro.
@@ -176,14 +198,14 @@ export function createPosService(db: PrismaClient, actor: AuditContext = {}, ses
     getEquipmentHistory: async (id: unknown) => { const equipmentId = idSchema.parse(id); await repository.getEquipmentById(db, equipmentId); return repository.getHistory(db, equipmentId); },
     listClients: async (raw: unknown = {}) => {
       const { q, offset, limit } = listQuerySchema.parse(raw);
-      const rows = await db.client.findMany({ where: { AND: q.split(/\s+/).filter(Boolean).map(term => ({ OR: [{ dni: { contains: term } }, { code: { contains: term, mode: 'insensitive' as const } }, { firstName: { contains: term, mode: 'insensitive' as const } }, { lastName: { contains: term, mode: 'insensitive' as const } },{ fullName:{contains:term,mode:'insensitive' as const}}, { email: { contains: term, mode: 'insensitive' as const } }] })) }, include: { _count: { select: { equipment: true } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit });
+      const rows = await db.client.findMany({ where: { AND: q.split(/\s+/).filter(Boolean).map(term => ({ OR: [{ dni: { contains: term } }, {otherDocumentNumber:{contains:term,mode:"insensitive" as const}}, { code: { contains: term, mode: 'insensitive' as const } }, { firstName: { contains: term, mode: 'insensitive' as const } }, { lastName: { contains: term, mode: 'insensitive' as const } },{ fullName:{contains:term,mode:'insensitive' as const}}, { email: { contains: term, mode: 'insensitive' as const } }] })) }, include: { _count: { select: { equipment: true } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit });
       return rows.map(({ _count, ...client }) => ({ ...client, equipmentCount: _count.equipment }));
     },
     listEquipment: async (raw: unknown = {}) => {
-      const { q, ownerId, offset, limit } = listQuerySchema.parse(raw);
-      return (await db.equipment.findMany({ where: { ownerId, ...(q ? { OR: [{ code: { contains: q, mode: 'insensitive' } }, { brand: { contains: q, mode: 'insensitive' } }, { model: { contains: q, mode: 'insensitive' } }, { imeis: { some: { value: q.replace(/\s/g, '') } } }] } : {}) }, include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit })).map(decorated);
+      const { q, ownerId, offset, limit,origin,status } = listQuerySchema.extend({origin:z.enum(['STORE','EXTERNAL']).optional(),status:z.enum(['ACTIVE','RETURNED','BLOCKED','ARCHIVED']).optional()}).parse(raw);
+      return (await db.equipment.findMany({ where: { ownerId,origin,status, ...(q ? { OR: [{ code: { contains: q, mode: 'insensitive' } }, { brand: { contains: q, mode: 'insensitive' } }, { model: { contains: q, mode: 'insensitive' } }, {commercialName:{contains:q,mode:'insensitive'}},{serialNumber:{contains:q,mode:'insensitive'}},{owner:{OR:[{dni:{contains:q}},{fullName:{contains:q,mode:'insensitive'}},{firstName:{contains:q,mode:'insensitive'}},{lastName:{contains:q,mode:'insensitive'}}]}}, { imeis: { some: { value: q.replace(/\s/g, '') } } }] } : {}) }, include: { owner: true, imeis: { orderBy: { slot: 'asc' } } }, orderBy: [{ createdAt: 'desc' }, { id: 'asc' }], skip: offset, take: limit })).map(decorated);
     },
-    ...createRegistrationRequestsService(db, actor, { transaction, resolveInTx, createEquipmentInTx, updateRegistrationInTx }, sessionId),
+    ...createRegistrationRequestsService(db, actor, { transaction, resolveInTx, createEquipmentInTx, updateRegistrationInTx }, sessionId,autoAttachIdentity,saveClientIdentity,evidenceStorage,origin),
     ...createSalesService(db, { transaction, history, audit, createEquipmentInTx, actor }),
   };
 }

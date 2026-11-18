@@ -1,0 +1,13 @@
+{
+  "comparedAtCodeHead": "67875fe6337844750b7d75b1b45edf5cb691b717",
+  "files": 315,
+  "different": [],
+  "independentNodeModules": true,
+  "envCopied": false,
+  "npmCi": {
+    "observedExitCode": 0,
+    "packagesInstalled": 476,
+    "reportedSeconds": 23,
+    "note": "Observed tool result; full install stdout was not retained. No dependency update requested or performed."
+  }
+}

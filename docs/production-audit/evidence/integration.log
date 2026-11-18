@@ -1,0 +1,2 @@
+{"name":"integration","exitCode":1,"durationMs":110920,"command":"node node_modules/vitest/vitest.mjs run --project integration --reporter=json --outputFile=docs/production-audit/evidence/integration-results.json"}
+JSON report written to C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/docs/production-audit/evidence/integration-results.json

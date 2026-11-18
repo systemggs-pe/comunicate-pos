@@ -1,0 +1,172 @@
+{"name":"supplemental-probes","exitCode":0,"durationMs":6818,"command":"node --import tsx .local/audit-probes.ts"}
+{
+  "checks": [
+    {
+      "name": "luhn-valid-and-leading-zero",
+      "status": "PASS",
+      "evidence": {
+        "leadingZeroPreserved": true
+      }
+    },
+    {
+      "name": "luhn-reject-malformed",
+      "status": "PASS",
+      "evidence": {
+        "cases": 5
+      }
+    },
+    {
+      "name": "unauthenticated-private-read",
+      "status": "PASS",
+      "evidence": {
+        "expected": 401
+      }
+    },
+    {
+      "name": "csrf-missing-origin",
+      "status": "PASS",
+      "evidence": {
+        "expected": 403
+      }
+    },
+    {
+      "name": "csrf-untrusted-origin",
+      "status": "PASS",
+      "evidence": {
+        "expected": 403
+      }
+    },
+    {
+      "name": "forged-actor-rejected",
+      "status": "PASS",
+      "evidence": {
+        "expected": 403
+      }
+    },
+    {
+      "name": "direct-api-invalid-luhn-atomic",
+      "status": "PASS",
+      "evidence": {
+        "status": 400,
+        "errorCode": "INVALID_IMEI_CHECKSUM",
+        "rowsCreated": 0
+      }
+    },
+    {
+      "name": "concurrent-sale-idempotency",
+      "status": "PASS",
+      "evidence": {
+        "statuses": [
+          201,
+          201
+        ],
+        "sameSale": true
+      }
+    },
+    {
+      "name": "money-multi-equipment-accessories",
+      "status": "PASS",
+      "evidence": {
+        "total": "120.25",
+        "expected": "120.25"
+      }
+    },
+    {
+      "name": "duplicate-imei-rejected",
+      "status": "PASS",
+      "evidence": {
+        "status": 409
+      }
+    },
+    {
+      "name": "double-imei-two-requests-one-device",
+      "status": "PASS",
+      "evidence": {
+        "status": 201,
+        "requests": 2,
+        "sameEquipment": true
+      }
+    },
+    {
+      "name": "server-enforces-required-dni",
+      "status": "FAIL",
+      "evidence": {
+        "status": 201,
+        "attachments": 0,
+        "observation": "Omitted requireIdentityPhotos and sent no DNI images"
+      }
+    },
+    {
+      "name": "share-uses-province",
+      "status": "FAIL",
+      "evidence": {
+        "status": 200,
+        "containsProvince": false,
+        "usesDepartment": true
+      }
+    },
+    {
+      "name": "concurrent-transition-single-history",
+      "status": "PASS",
+      "evidence": {
+        "statuses": [
+          409,
+          200
+        ],
+        "completionHistory": 1
+      }
+    },
+    {
+      "name": "manual-client-dni-persistence",
+      "status": "PASS",
+      "evidence": {
+        "savedSides": 2
+      }
+    },
+    {
+      "name": "private-storage-denies-anonymous",
+      "status": "PASS",
+      "evidence": {
+        "expected": 403
+      }
+    },
+    {
+      "name": "automatic-dni-reuse-new-procedure",
+      "status": "PASS",
+      "evidence": {
+        "status": 201
+      }
+    },
+    {
+      "name": "seller-rbac-sensitive-reads",
+      "status": "PASS",
+      "evidence": {
+        "statuses": [
+          403,
+          403,
+          403
+        ]
+      }
+    },
+    {
+      "name": "evidence-pdf-generated",
+      "status": "PASS",
+      "evidence": {
+        "status": 200
+      }
+    },
+    {
+      "name": "report-reads-with-lima-timezone",
+      "status": "PASS",
+      "evidence": {
+        "status": 200,
+        "timezone": "America/Lima"
+      }
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "passed": 18,
+    "failed": 2
+  }
+}

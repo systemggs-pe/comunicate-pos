@@ -1,0 +1,37 @@
+{
+  "codeHead": "67875fe6337844750b7d75b1b45edf5cb691b717",
+  "unit": {
+    "unique": 322,
+    "passed": 322,
+    "failed": 0,
+    "method": "Latest COMPLETE result per file; parameterized cases with identical titles retained by occurrence/order within file. Initial 317/322 with five Python-alias failures; complete focused 10/10 rerun of the two PDF files replaces prior outcomes. Not one uninterrupted 322/322 run."
+  },
+  "integration": {
+    "unique": 302,
+    "passed": 302,
+    "failed": 0,
+    "method": "Union of focused P2 and nine related regression suites; no restart/restore/cloud suites rerun."
+  },
+  "e2e": {
+    "unique": 6,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0
+  },
+  "newCases": {
+    "unit": 16,
+    "integration": 9,
+    "e2e": 2
+  },
+  "quality": {
+    "prismaValidate": 0,
+    "prismaDiff": 0,
+    "typescript": 0,
+    "lint": 0,
+    "cleanInstall": 0,
+    "frontendBuild": 0,
+    "backendBuild": 0
+  },
+  "notExecuted": "Full 770 historical suite and unrelated recovery/cloud/restart/hardware/provider-real tests; no full production-readiness recertification."
+}

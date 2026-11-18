@@ -9,10 +9,11 @@ import type {Db} from '../repositories/pos.repository.js';
 import {createDeclarationPdf} from '../documents/declaration.pdf.js';
 export function createDeclarationService(db:PrismaClient,ctx:AuditContext){
  async function load(tx:Db,raw:unknown):Promise<DeclarationData>{
-  const id=idSchema.parse(raw),request=await tx.registrationRequest.findUnique({where:{id},include:{imei:{include:{equipment:{include:{owner:true}}}}}});
+  const id=idSchema.parse(raw),request=await tx.registrationRequest.findUnique({where:{id},include:{applicant:true,imei:{include:{equipment:{include:{owner:true}}}}}});
   if(!request)throw new DomainError(404,'SOLICITUD NO ENCONTRADA.','REQUEST_NOT_FOUND');
-  const imei=request.imei,equipment=imei.equipment,client=equipment.owner;
-  if(imei.equipmentId!==equipment.id||request.imeiId!==imei.id||!client||client.id!==equipment.ownerId)throw new DomainError(409,'REVISA LA RELACIÓN SOLICITUD, IMEI, EQUIPO Y CLIENTE.','DECLARATION_RELATION_INVALID');
+  const imei=request.imei,equipment=imei.equipment,client=request.applicant??equipment.owner;
+  if(imei.equipmentId!==equipment.id||request.imeiId!==imei.id||!client||client.id!==(request.applicantId??equipment.ownerId))throw new DomainError(409,'REVISA LA RELACIÓN SOLICITUD, IMEI, EQUIPO Y CLIENTE.','DECLARATION_RELATION_INVALID');
+  if(!client.dni)throw new DomainError(422,'La plantilla de declaración jurada requiere un DNI.','DECLARATION_DNI_REQUIRED');
   const agent=await tx.user.findUnique({where:{id:ctx.userId},select:{id:true,name:true,identityDocument:true,status:true}});
   if(!agent||agent.status!=='ACTIVE'||!agent.name.trim()||!agent.identityDocument)throw new DomainError(422,'COMPLETA EL NOMBRE Y DNI DEL USUARIO AGENTE EN USUARIOS ANTES DE GENERAR LA DECLARACIÓN.','AGENT_IDENTITY_REQUIRED');
   const fields={requestId:id,code:request.code,applicantName:normalizeText(client.fullName||client.firstName+' '+client.lastName),documentType:'DNI' as const,clientDocument:client.dni,address:request.address,phone:request.phone,brand:equipment.brand,model:equipment.model,imei:imei.value,date:new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',day:'2-digit',month:'2-digit',year:'numeric'}).format(request.occurredAt),agentName:normalizeText(agent.name),agentDocument:agent.identityDocument};

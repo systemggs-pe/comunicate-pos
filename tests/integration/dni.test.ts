@@ -1,3 +1,4 @@
+import {clearEvidenceFixtures} from '../helpers/evidence';
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,7 +15,7 @@ if (!['127.0.0.1', 'localhost'].includes(target.hostname) || target.pathname !==
 const db = new PrismaClient({ datasources: { db: { url } } });
 const provider = { lookup: vi.fn(new MockDniProvider().lookup.bind(new MockDniProvider())) };
 const app = createApp(db, { dniProvider: provider, dniOptions: { timeoutMs: 40, backoffMs: 1 } });
-beforeEach(async () => {
+beforeEach(async () => {await clearEvidenceFixtures(db);
   await db.$transaction([db.session.deleteMany(), db.authRateLimit.deleteMany(), db.registrationRequestHistory.deleteMany(), db.registrationRequest.deleteMany(), db.registrationOperation.deleteMany(), db.saleAccessory.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]);
   await db.rolePermission.deleteMany({ where: { role: { code: 'DNI_TEST' } } }); await db.role.deleteMany({ where: { code: 'DNI_TEST' } });
   provider.lookup.mockReset().mockImplementation(new MockDniProvider().lookup.bind(new MockDniProvider()));
@@ -56,7 +57,7 @@ describe('DNI API, PostgreSQL y flujos comerciales', () => {
   it('registro externo confirmado crea cliente, equipo y dos IMEI sin duplicación posterior', async () => {
     const freshApp = createApp(db, { dniProvider: provider }); const agent = await loginAgent(freshApp);
     const lookup = await agent.get('/api/dni/12345678'); expect(lookup.body.source).toBe('EXTERNAL'); expect(await db.client.count()).toBe(0);
-    const body = { client: { ...lookup.body.data, phone: '999111222' }, imeis: [{ slot: 1, value: '359123456780001' }, { slot: 2, value: '359123456780002' }], equipment: { brand: 'Honor', model: 'Dual' }, selectedImeis: ['359123456780001'], registration: { status: 'REGISTERED' } };
+    const body = { client: { ...lookup.body.data, phone: '999111222' }, imeis: [{ slot: 1, value: '591234567800016' }, { slot: 2, value: '591234567800024' }], equipment: { brand: 'Honor', model: 'Dual' }, selectedImeis: ['591234567800016'], registration: { status: 'REGISTERED' } };
     const registered = await agent.post('/api/registrations').set('Origin', testOrigin).send(body); expect(registered.status).toBe(200); expect(registered.body.registrationStatus).toBe('PARTIALLY_REGISTERED');
     expect((await agent.get('/api/dni/12345678')).body.source).toBe('LOCAL'); expect(provider.lookup).toHaveBeenCalledTimes(1);
     expect((await agent.post('/api/registrations').set('Origin', testOrigin).send({ ...body, expectedEquipmentId: registered.body.id })).status).toBe(200);
@@ -65,20 +66,20 @@ describe('DNI API, PostgreSQL y flujos comerciales', () => {
   it('provider caído no bloquea registro manual', async () => {
     const failedApp = createApp(db, { dniProvider: { lookup: async () => { throw new DniProviderError('DNI_PROVIDER_UNAVAILABLE'); } }, dniOptions: { backoffMs: 1 } }); const agent = await loginAgent(failedApp);
     expect((await agent.get('/api/dni/99999999')).body.source).toBe('NONE');
-    const result = await agent.post('/api/registrations').set('Origin', testOrigin).send({ client: { dni: '99999999', firstName: 'Manual', lastName: 'Pérez' }, imeis: [{ slot: 1, value: '359999999990001' }], equipment: { brand: 'Motorola', model: 'Single' }, selectedImeis: ['359999999990001'], registration: { status: 'PENDING' } });
+    const result = await agent.post('/api/registrations').set('Origin', testOrigin).send({ client: { dni: '99999999', firstName: 'Manual', lastName: 'Pérez' }, imeis: [{ slot: 1, value: '599999999900012' }], equipment: { brand: 'Motorola', model: 'Single' }, selectedImeis: ['599999999900012'], registration: { status: 'PENDING' } });
     expect(result.status).toBe(200); expect(await db.client.count()).toBe(1); expect(await db.imei.count()).toBe(1);
   });
   it('venta con buyer externo y owner distinto reutiliza el mismo sistema', async () => {
     const freshApp = createApp(db, { dniProvider: provider }); const agent = await loginAgent(freshApp);
     const buyer = (await agent.get('/api/dni/12345678')).body.data, owner = (await agent.get('/api/dni/12345679')).body.data;
     expect(await db.client.count()).toBe(0);
-    const body = { buyer: { client: buyer }, items: [{ owner: { client: owner }, equipment: { brand: 'Xiaomi', model: 'Dual', imeis: [{ slot: 1, value: '359123456780001' }, { slot: 2, value: '359123456780002' }] }, unitPrice: '1000' }], paymentMethod: 'CASH' };
+    const body = { buyer: { client: buyer }, items: [{ owner: { client: owner }, equipment: { brand: 'Xiaomi', model: 'Dual', imeis: [{ slot: 1, value: '591234567800016' }, { slot: 2, value: '591234567800024' }] }, unitPrice: '1000' }], paymentMethod: 'CASH' };
     expect((await agent.post('/api/sales/resolve').set('Origin', testOrigin).send(body)).status).toBe(200); expect(await db.client.count()).toBe(0);
     const sale = await agent.post('/api/sales').set('Origin', testOrigin).send(body); expect(sale.status).toBe(201); expect(sale.body.buyerId).not.toBe(sale.body.equipment[0].equipment.ownerId); expect(await db.client.count()).toBe(2);
   });
   it('venta manual sin resultado proveedor continúa', async () => {
     const agent = await loginAgent(app); expect((await agent.get('/api/dni/99999999')).body.source).toBe('NONE');
-    const sale = await agent.post('/api/sales').set('Origin', testOrigin).send({ buyer: { client: { dni: '99999999', firstName: 'Manual', lastName: 'Venta' } }, items: [{ equipment: { brand: 'Apple', model: 'iPhone', imeis: [{ slot: 1, value: '359999999990001' }] }, unitPrice: '1000' }], paymentMethod: 'YAPE' });
+    const sale = await agent.post('/api/sales').set('Origin', testOrigin).send({ buyer: { client: { dni: '99999999', firstName: 'Manual', lastName: 'Venta' } }, items: [{ equipment: { brand: 'Apple', model: 'iPhone', imeis: [{ slot: 1, value: '599999999900012' }] }, unitPrice: '1000' }], paymentMethod: 'YAPE' });
     expect(sale.status).toBe(201); expect(await db.client.count()).toBe(1);
   });
   it.each(['clients.create', 'sales.create', 'registration.create', 'clients.read'])('permiso %s respeta acceso OR', async permission => {

@@ -1,9 +1,9 @@
-import type { DniErrorCode } from '../../shared/dni.js';
+  import type { DniErrorCode } from '../../shared/dni.js';
 export interface DniLookupResult {
-  dni: string; firstName?: string; lastName?: string;
+  simulated?:boolean;dni: string; firstName?: string; lastName?: string;
   paternalLastName?: string; maternalLastName?: string; fullName?: string; source: string;
 }
-export interface DniProvider { lookup(dni: string, signal?: AbortSignal): Promise<DniLookupResult | null> }
+export interface DniProvider { readonly retryLimit?:number; lookup(dni: string, signal?: AbortSignal): Promise<DniLookupResult | null> }
 const messages: Record<DniErrorCode, string> = {
   DNI_INVALID: 'DNI inválido. Usa ocho dígitos.',
   DNI_NOT_FOUND: 'No se encontraron datos para este DNI. Puedes ingresar la información manualmente.',

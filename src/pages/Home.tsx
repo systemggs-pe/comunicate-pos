@@ -1,10 +1,16 @@
-import { Can } from '../app/AuthProvider';
-import { MonitorSmartphone, UserRoundPlus } from 'lucide-react';
-import { Link } from '../app/router';
-import { PageHeading } from '../components/common';
-import { Analytics } from '../features/reports/Analytics';
-
-
-export function HomePage() {
-  return <><PageHeading title="Registro de equipos" description="Encuentra un IMEI o inicia un registro para su propietario." /><Can permission="sales.create"><Link className="primary-button" to="/ventas/nueva">Nueva venta</Link></Can><Analytics dashboard /><section className="home-workspace"><div><MonitorSmartphone size={32} aria-hidden="true" /><h2>Un equipo, un historial</h2><p>Busca primero los IMEIs para continuar sobre el dispositivo correcto. Puedes registrar uno hoy y el segundo después.</p><Can permission="registration.create"><Link className="primary-button" to="/registros/nuevo">Iniciar nuevo registro</Link></Can></div><div className="home-client-action"><UserRoundPlus size={24} aria-hidden="true" /><h2>Clientes</h2><p>Busca por DNI o nombre y consulta sus equipos.</p><Can permission="clients.read"><Link className="inline-link" to="/clientes">Ver clientes</Link></Can></div></section></>;
+import {useEffect} from 'react';
+import {ArrowRight,ClipboardList,ShoppingCart,Users,ImagePlus,Plus} from 'lucide-react';
+import {useAuth,Can} from '../app/AuthProvider';
+import {Link} from '../app/router';
+import {useApiQuery} from '../hooks/useApiQuery';
+import {ErrorNotice} from '../components/common';
+interface HomeSummary {registrations:number|null;sales:number|null;clients:number|null;serverTime:string}
+export function HomePage(){
+ const {user,can}=useAuth(),query=useApiQuery<HomeSummary>('/home-summary');
+ useEffect(()=>{const timer=setInterval(query.refresh,60000);return()=>clearInterval(timer);},[query.refresh]);
+ const now=query.data?new Date(query.data.serverTime):null,hour=now?Number(new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',hour:'numeric',hourCycle:'h23'}).format(now)):null;
+ const greeting=hour===null?'Hola':hour<12?'Buenos días':hour<19?'Buenas tardes':'Buenas noches';
+ const modules=[{label:'Registros',key:'registrations',description:'Equipos en seguimiento',path:'/registros',icon:ClipboardList,permission:'registration.read'}, {label:'Ventas',key:'sales',description:'Operaciones de tienda',path:'/ventas',icon:ShoppingCart,permission:'sales.read'}, {label:'Clientes',key:'clients',description:'Base compartida',path:'/clientes',icon:Users,permission:'clients.read'}] as const;
+ const daily=[{label:'Registros de equipos',description:'IMEI, operador, estado y constancias',path:'/registros',icon:ClipboardList,permission:'registration.read'},{label:'Ventas de tienda',description:'Equipos vendidos, comprobantes e historial',path:'/ventas',icon:ShoppingCart,permission:'sales.read'},{label:'Clientes',description:'Documentos, contacto e historial asociado',path:'/clientes',icon:Users,permission:'clients.read'},{label:'Foto DNI',description:'Captura y gestión de fotografías documentarias',path:'/foto-dni',icon:ImagePlus,permission:'client.documents.read'}] as const;
+ return <section className="home-reference reference-panel"><div className="home-hero"><div><p className="eyebrow">{now?new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',weekday:'long',day:'numeric',month:'long'}).format(now):'Cargando fecha...'}</p><h1>{greeting}, {user?.name}</h1><p>Todo lo necesario para la operación diaria, organizado en un único espacio de trabajo.</p></div><div className="home-top-actions"><Can permission="sales.create"><Link className="secondary-button" to="/ventas/nueva"><Plus size={17}/>Nueva venta</Link></Can><Can permission="registration.create"><Link className="primary-button" to="/registros/nuevo"><Plus size={17}/>Nuevo registro</Link></Can></div></div><ErrorNotice message={query.error?.message}/><div className="home-metrics">{modules.filter(m=>can(m.permission)).map(({key,label,description,path,icon:Icon})=><Link key={key} to={path} className="home-metric"><span className="module-icon"><Icon size={21}/></span><div><h2>{label}</h2><strong>{query.data?.[key]??'—'}</strong><p>{description}</p></div><ArrowRight size={18} aria-hidden="true"/></Link>)}</div><div className="daily-work"><div className="daily-heading"><div><p className="eyebrow">Acceso directo</p><h2>Trabajo diario</h2></div><p>Selecciona un módulo para continuar</p></div>{daily.filter(m=>can(m.permission)).map(({label,description,path,icon:Icon})=><Link className="daily-link" key={path} to={path}><span className="module-icon"><Icon size={21}/></span><div><h3>{label}</h3><p>{description}</p></div><ArrowRight size={18} aria-hidden="true"/></Link>)}</div></section>;
 }

@@ -2,8 +2,9 @@ import {GoogleGenAI} from '@google/genai';
 import {z} from 'zod';
 import {boxScanSchema} from '../../shared/scanner.js';
 import {DomainError} from '../lib/errors.js';
-export interface BoxScannerProvider {scan(bytes:Buffer,signal:AbortSignal):Promise<unknown>}
+export interface BoxScannerProvider {readonly simulated?:boolean;scan(bytes:Buffer,signal:AbortSignal):Promise<unknown>}
 export class GeminiBoxScanner implements BoxScannerProvider {
+ get configured(){return process.env.GEMINI_ENABLED==='true'&&!!process.env.GEMINI_API_KEY&&!!process.env.GEMINI_MODEL;}
  async scan(bytes:Buffer,signal:AbortSignal){
   if(process.env.GEMINI_ENABLED!=='true'||!process.env.GEMINI_API_KEY||!process.env.GEMINI_MODEL)throw new DomainError(503,'ESCANEO NO CONFIGURADO. INGRESA LOS DATOS MANUALMENTE.','SCANNER_NOT_CONFIGURED');
   const ai=new GoogleGenAI({apiKey:process.env.GEMINI_API_KEY,httpOptions:{timeout:20000}});

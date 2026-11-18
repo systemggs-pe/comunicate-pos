@@ -1,0 +1,2 @@
+{"name":"performance-imei-positive","exitCode":0,"durationMs":893,"command":"node --import tsx .local/audit-imei-performance.ts"}
+{"scenario":"imei-existing","requests":20,"concurrency":4,"p50":36.2174,"p95":66.64319999999998,"p99":86.75139999999999,"statuses":{"200":20},"note":"Positive lookup replaces the initial nonexistent synthetic lookup; initial 404 measurements remain recorded separately."}

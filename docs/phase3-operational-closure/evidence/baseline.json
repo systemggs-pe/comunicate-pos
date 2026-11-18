@@ -1,0 +1,165 @@
+{
+  "checkedAt": "2026-10-20T17:01:31.976Z",
+  "branch": "master",
+  "head": "d7c32733be301ac50caeed8cf3cd7ee11ac8be6f",
+  "gitStatus": "?? .impeccable/\n?? output/\n?? tmp/",
+  "database": {
+    "host": "127.0.0.1",
+    "port": "55432",
+    "name": "communicate_pos"
+  },
+  "storage": {
+    "host": "127.0.0.1",
+    "port": "59000",
+    "bucket": "communicate-evidence"
+  },
+  "containers": [
+    {
+      "name": "communicate-pos-minio-1",
+      "createdAt": "2026-10-19T20:18:25.218381711Z",
+      "startedAt": "2026-10-20T15:46:27.939929561Z",
+      "finishedAt": "2026-10-20T15:46:26.463374067Z",
+      "status": "running",
+      "restartCount": 0,
+      "image": "communicate-pos-minio:7aac2a2",
+      "imageId": "sha256:d70331ba88aee552937bac8f778207982130735524787904492688510aad5c51",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "communicate-pos_evidence_data",
+          "destination": "/data",
+          "readWrite": true
+        }
+      ],
+      "ports": {
+        "9000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "59000"
+          }
+        ],
+        "9001/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "59001"
+          }
+        ]
+      },
+      "composeProject": "communicate-pos",
+      "composeService": "minio",
+      "composeConfigHash": "402ecbabd4441f4b0e32f79db8311e91a49f7ec312960b4104dc600eeed8c465"
+    },
+    {
+      "name": "communicate-p1-minio-20261019",
+      "createdAt": "2026-10-19T20:01:58.595386889Z",
+      "startedAt": "2026-10-20T16:02:30.824906719Z",
+      "finishedAt": "2026-10-20T16:15:09.976897144Z",
+      "status": "exited",
+      "restartCount": 0,
+      "image": "communicate-pos-minio:7aac2a2",
+      "imageId": "sha256:d70331ba88aee552937bac8f778207982130735524787904492688510aad5c51",
+      "mounts": [],
+      "ports": {},
+      "composeProject": "communicate-pos",
+      "composeService": "minio"
+    },
+    {
+      "name": "communicate-p1-postgres-20261019",
+      "createdAt": "2026-10-19T20:01:57.872602046Z",
+      "startedAt": "2026-10-20T15:46:35.393960588Z",
+      "finishedAt": "2026-10-20T16:15:09.326457155Z",
+      "status": "exited",
+      "restartCount": 0,
+      "image": "postgres:16-alpine",
+      "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "7c032f4c5e2464f4db2c3a5e3f8d7bc0db417b52d3ad466f80ae33639eeab0e8",
+          "destination": "/var/lib/postgresql/data",
+          "readWrite": true
+        }
+      ],
+      "ports": {}
+    },
+    {
+      "name": "communicate-audit-minio-20261019",
+      "createdAt": "2026-10-19T19:32:35.66940651Z",
+      "startedAt": "2026-10-19T19:32:35.79733269Z",
+      "finishedAt": "2026-10-19T19:54:03.65867568Z",
+      "status": "exited",
+      "restartCount": 0,
+      "image": "communicate-pos-minio:7aac2a2",
+      "imageId": "sha256:d70331ba88aee552937bac8f778207982130735524787904492688510aad5c51",
+      "mounts": [],
+      "ports": {},
+      "composeProject": "communicate-pos",
+      "composeService": "minio"
+    },
+    {
+      "name": "communicate-audit-postgres-20261019",
+      "createdAt": "2026-10-19T19:32:34.816600188Z",
+      "startedAt": "2026-10-19T19:32:35.011138266Z",
+      "finishedAt": "2026-10-19T19:54:02.895478075Z",
+      "status": "exited",
+      "restartCount": 0,
+      "image": "postgres:16-alpine",
+      "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "30e7705f86f7314e0fedd6d14495d22dfcb26fdccdd86430544e468c8e120561",
+          "destination": "/var/lib/postgresql/data",
+          "readWrite": true
+        }
+      ],
+      "ports": {}
+    },
+    {
+      "name": "communicate-pos-postgres-1",
+      "createdAt": "2026-10-09T22:38:30.132696929Z",
+      "startedAt": "2026-10-20T15:46:27.941557074Z",
+      "finishedAt": "2026-10-20T15:46:26.463376472Z",
+      "status": "running",
+      "restartCount": 0,
+      "image": "postgres:16-alpine",
+      "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "communicate-pos_postgres_data",
+          "destination": "/var/lib/postgresql/data",
+          "readWrite": true
+        }
+      ],
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "55432"
+          }
+        ]
+      },
+      "composeProject": "communicate-pos",
+      "composeService": "postgres",
+      "composeConfigHash": "f601544b64cb3d4b65e7c431bbd10fff79c0d3ae672969608d12bd14c73e2ab8"
+    }
+  ],
+  "volumes": [
+    {
+      "name": "communicate-pos_evidence_data",
+      "createdAt": "2026-10-10T21:15:42Z",
+      "driver": "local",
+      "composeProject": "communicate-pos",
+      "composeVolume": "evidence_data"
+    },
+    {
+      "name": "communicate-pos_postgres_data",
+      "createdAt": "2026-10-09T22:38:30Z",
+      "driver": "local",
+      "composeProject": "communicate-pos",
+      "composeVolume": "postgres_data"
+    }
+  ],
+  "secretValuesExported": false
+}

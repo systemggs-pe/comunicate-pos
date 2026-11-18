@@ -1,3 +1,5 @@
+import {fixtureImei} from '../helpers/imei';
+import {postRegistration} from '../helpers/registration-identity';
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { beforeEach, afterAll, it, expect } from 'vitest';
@@ -25,12 +27,12 @@ beforeEach(async () => {
 afterAll(() => db.$disconnect());
 async function sale(two = false, date = '2026-10-10T23:30:00-05:00') {
   const input = workflowInput();
-  const result = await agent.post('/api/sales').set('Origin', testOrigin).send({ buyer: { client: input.client }, items: [{ equipment: { ...input.equipment, imeis: input.imeis }, unitPrice: '100.10' }, ...(two ? [{ equipment: { ...input.equipment, brand: 'Apple', imeis: [{ slot: 1, value: '359708765430003' }] }, unitPrice: '50.20' }] : [])], accessories: [{ name: 'CABLE', quantity: 2, unitPrice: '0.10' }], discount: '0.05', occurredAt: date, paymentMethod: 'YAPE' });
+  const result = await agent.post('/api/sales').set('Origin', testOrigin).send({ buyer: { client: input.client }, items: [{ equipment: { ...input.equipment, imeis: input.imeis }, unitPrice: '100.10' }, ...(two ? [{ equipment: { ...input.equipment, brand: 'Apple', imeis: [{ slot: 1, value: '597087654300033' }] }, unitPrice: '50.20' }] : [])], accessories: [{ name: 'CABLE', quantity: 2, unitPrice: '0.10' }], discount: '0.05', occurredAt: date, paymentMethod: 'YAPE' });
   expect(result.status, JSON.stringify(result.body)).toBe(201); return result.body as { id: string; code: string };
 }
 async function registration(blocked = false) {
   const input = workflowInput();
-  const result = await agent.post('/api/registration-operations').set('Origin', testOrigin).send({ ...input, requests: input.requests.map((r, i) => ({ ...r, price: i ? '0.20' : '0.10', mode: blocked && i === 1 ? 'BLOCKED' : 'REGISTRATION', operator: i ? 'CLARO' : 'BITEL' })) });
+  const result = await postRegistration(agent,{ ...input, requests: input.requests.map((r, i) => ({ ...r, price: i ? '0.20' : '0.10', mode: blocked && i === 1 ? 'BLOCKED' : 'REGISTRATION', operator: i ? 'CLARO' : 'BITEL' })) });
   expect(result.status, JSON.stringify(result.body)).toBe(201); return result.body as { requests: { id: string; code: string }[] };
 }
 it('dashboard vacío: seis métricas cero, importes exactos y grupos vacíos reales', async () => {
@@ -46,7 +48,7 @@ it('doble registro: un cliente, un equipo, dos solicitudes e importes 0.30', asy
   await registration(); expect((await reports.read('general', range)).summary).toMatchObject({ registrationCount: 2, registrationAmount: '0.30', newClients: 1 }); expect((await reports.read('equipment', range)).summary).toMatchObject({ equipmentCount: 1, doubleImei: 1, imeiCount: 2, externalEquipment: 1 }); expect((await reports.read('clients', range)).summary).toMatchObject({ totalClients: 1, registrationClients: 1, repeatClients: 0 });
 });
 it('un solo IMEI atendido cuenta una solicitud sin multiplicar equipos', async () => {
-  const input = workflowInput(); input.requests = [input.requests[0]]; const result = await agent.post('/api/registration-operations').set('Origin', testOrigin).send(input); expect(result.status).toBe(201); expect((await reports.read('registrations', range)).summary.registrationCount).toBe(1); expect((await reports.read('equipment', range)).summary.equipmentCount).toBe(1);
+  const input = workflowInput(); input.requests = [input.requests[0]]; const result = await postRegistration(agent,input); expect(result.status).toBe(201); expect((await reports.read('registrations', range)).summary.registrationCount).toBe(1); expect((await reports.read('equipment', range)).summary.equipmentCount).toBe(1);
 });
 it('estados pendientes bloqueados y registrados y porcentajes reales', async () => {
   const row = await registration(true); let data = await reports.read('registrations', range); expect(data.tables[0].rows).toEqual([{ name: 'BLOQUEADO', count: 1, percent: '50.00' }, { name: 'REGISTRO PENDIENTE', count: 1, percent: '50.00' }, { name: 'REGISTRADO', count: 0, percent: '0.00' }]);
@@ -72,7 +74,7 @@ it('suma Decimal 0.10 + 0.20 sin error de redondeo', async () => { await registr
 it('agregados monetarios superan el límite de una fila sin overflow ni redondeo', async () => {
   const input = workflowInput();
   for (let index = 0; index < 2; index++) {
-    const response = await agent.post('/api/sales').set('Origin', testOrigin).send({ buyer: { client: input.client }, items: [{ equipment: { ...input.equipment, imeis: [{ slot: 1, value: `35970876543000${index + 1}` }] }, unitPrice: '9000000000.11' }], paymentMethod: 'CASH', occurredAt: '2026-10-10T12:00:00-05:00' }); expect(response.status, JSON.stringify(response.body)).toBe(201);
+    const response = await agent.post('/api/sales').set('Origin', testOrigin).send({ buyer: { client: input.client }, items: [{ equipment: { ...input.equipment, imeis: [{ slot: 1, value: fixtureImei(990000+index) }] }, unitPrice: '9000000000.11' }], paymentMethod: 'CASH', occurredAt: '2026-10-10T12:00:00-05:00' }); expect(response.status, JSON.stringify(response.body)).toBe(201);
   }
   expect((await reports.read('sales', range)).summary.salesRevenue).toBe('18000000000.22');
 });
@@ -92,7 +94,7 @@ it('clientes compras y registros no duplicados, DNI no se entrega', async () => 
   await registration(); const data = await reports.read('clients', range); expect(data.total).toBe(1); expect(data.rows[0]).toMatchObject({ requests: 2, purchases: 0 }); expect(JSON.stringify(data)).not.toContain('70876543');
 });
 it('compra más atención doble equivale a dos operaciones del cliente', async () => {
-  await sale(); const input = workflowInput(); input.imeis = input.imeis.map((row, i) => ({ ...row, value: `35970876543001${i}` })); input.requests = input.requests.map((row, i) => ({ ...row, value: input.imeis[i].value })); expect((await agent.post('/api/registration-operations').set('Origin', testOrigin).send(input)).status).toBe(201); expect((await reports.read('clients', range)).summary).toMatchObject({ totalClients: 1, buyingClients: 1, registrationClients: 1, repeatClients: 1 });
+  await sale(); const input = workflowInput(); input.imeis = input.imeis.map((row, i) => ({ ...row, value: fixtureImei(991000+i) })); input.requests = input.requests.map((row, i) => ({ ...row, value: input.imeis[i].value })); expect((await postRegistration(agent,input)).status).toBe(201); expect((await reports.read('clients', range)).summary).toMatchObject({ totalClients: 1, buyingClients: 1, registrationClients: 1, repeatClients: 1 });
 });
 it('marcas normalizadas agrupadas sin modificar nombres históricos', async () => {
   await sale(true); await db.equipment.updateMany({ where: { brand: 'SAMSUNG' }, data: { brand: '  samsung  ' } }); const data = await reports.read('equipment', { ...range, brand: 'SAMSUNG' }); expect(data.total).toBe(1); expect(data.tables[0].rows).toEqual([{ name: 'SAMSUNG', count: 1 }]); expect((await db.equipment.findFirstOrThrow({ where: { brand: '  samsung  ' } })).brand).toBe('  samsung  ');

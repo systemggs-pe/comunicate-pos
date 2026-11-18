@@ -1,0 +1,137 @@
+{"name":"configuration-readiness","exitCode":0,"durationMs":514,"command":"node --import tsx .local/audit-readiness.ts"}
+{
+  "google": [
+    {
+      "key": "GOOGLE_OIDC_CLIENT_ID",
+      "status": "NOT CONFIGURED"
+    },
+    {
+      "key": "GOOGLE_OIDC_CLIENT_SECRET",
+      "status": "NOT CONFIGURED"
+    },
+    {
+      "key": "GOOGLE_OIDC_REDIRECT_URI",
+      "status": "NOT CONFIGURED"
+    },
+    {
+      "key": "GOOGLE_OIDC_APP_ORIGIN",
+      "status": "NOT CONFIGURED"
+    },
+    {
+      "key": "GOOGLE_OIDC_AUTHORIZED_ACCOUNTS",
+      "status": "NOT CONFIGURED"
+    }
+  ],
+  "backupPassphrase": "NOT CONFIGURED",
+  "workerDatabase": "NOT CONFIGURED",
+  "configuredProfileChecks": [
+    {
+      "name": "production-mode",
+      "status": "FAIL"
+    },
+    {
+      "name": "https-exact-origins",
+      "status": "FAIL"
+    },
+    {
+      "name": "DATABASE_URL-tls",
+      "status": "FAIL"
+    },
+    {
+      "name": "bounded-serverless-pool",
+      "status": "FAIL"
+    },
+    {
+      "name": "DIRECT_URL-tls",
+      "status": "FAIL"
+    },
+    {
+      "name": "private-storage-config",
+      "status": "FAIL"
+    },
+    {
+      "name": "storage-https-endpoint",
+      "status": "FAIL"
+    },
+    {
+      "name": "storage-encryption-mode",
+      "status": "FAIL"
+    },
+    {
+      "name": "kms-config-consistent",
+      "status": "PASS"
+    },
+    {
+      "name": "S3_UPLOAD_URL_TTL_SECONDS-bounded",
+      "status": "PASS"
+    },
+    {
+      "name": "S3_DOWNLOAD_URL_TTL_SECONDS-bounded",
+      "status": "PASS"
+    },
+    {
+      "name": "real-dni-provider-config",
+      "status": "FAIL"
+    },
+    {
+      "name": "dni-https-endpoint",
+      "status": "FAIL"
+    },
+    {
+      "name": "bootstrap-credentials-removed",
+      "status": "PASS"
+    },
+    {
+      "name": "maintenance-disabled",
+      "status": "PASS"
+    },
+    {
+      "name": "production-logging-enabled",
+      "status": "PASS"
+    },
+    {
+      "name": "production-db-connectivity-and-ca",
+      "status": "NOT VERIFIED"
+    },
+    {
+      "name": "private-bucket-policy-and-cors",
+      "status": "NOT VERIFIED"
+    },
+    {
+      "name": "production-encryption-evidence",
+      "status": "NOT VERIFIED"
+    },
+    {
+      "name": "production-backup-and-restore",
+      "status": "NOT VERIFIED"
+    },
+    {
+      "name": "signed-url-expiration-on-provider",
+      "status": "NOT VERIFIED"
+    },
+    {
+      "name": "cleanup-and-session-scheduler",
+      "status": "NOT VERIFIED"
+    },
+    {
+      "name": "dns-https-cookies-and-csp",
+      "status": "NOT VERIFIED"
+    },
+    {
+      "name": "real-dni-contract",
+      "status": "NOT VERIFIED"
+    },
+    {
+      "name": "physical-printing-48-80-a4",
+      "status": "NOT VERIFIED"
+    },
+    {
+      "name": "physical-mobile-camera",
+      "status": "NOT VERIFIED"
+    },
+    {
+      "name": "privacy-legal-review",
+      "status": "NOT VERIFIED"
+    }
+  ]
+}

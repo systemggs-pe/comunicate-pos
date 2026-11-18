@@ -1,0 +1,13 @@
+import {useState} from 'react';
+import {useDniLookup} from '../../hooks/useDniLookup';
+import {emptyClient,asClientInput} from '../clients/ClientFields';
+import {displayClientName} from '../clients/displayName';
+import {ValidatedInput} from '../../components/FormValidation';
+import type {ClientReference} from '../../types/pos';
+export function SaleClientFields({onChange}:{onChange:(value:ClientReference|null)=>void}){
+ const [draft,setDraft]=useState({...emptyClient,fullName:''});
+ const lookup=useDniLookup(draft,value=>{setDraft({...value,fullName:value.fullName??''});onChange({client:asClientInput(value)});});
+ function update(next:typeof draft){setDraft(next);onChange({client:asClientInput(next)});}
+ const local=lookup.localClient;
+ return <div className="dni-client-fields sale-client-fields"><div className="form-grid"><div className="document-number"><label>Tipo de documento<select aria-label="Tipo de documento"><option>DNI</option></select></label><label>Número de documento<ValidatedInput name="dni" aria-label="DNI" required inputMode="numeric" maxLength={8} value={draft.dni} onChange={e=>update({...emptyClient,fullName:'',dni:e.target.value})}/></label></div><label>Nombre<ValidatedInput name="fullName" aria-label="Nombre completo" required maxLength={201} value={local?displayClientName(local):displayClientName(draft)} readOnly={!!local} onChange={e=>update({...draft,firstName:'',lastName:'',fullName:e.target.value})}/></label><label>Celular de esta venta<ValidatedInput name="phone" aria-label="Celular de esta venta" type="tel" maxLength={30} value={draft.phone} onChange={e=>update({...draft,phone:e.target.value})}/></label><label>Correo<ValidatedInput name="email" aria-label="Correo" type="email" maxLength={254} value={draft.email} onChange={e=>update({...draft,email:e.target.value})}/></label></div>{lookup.loading&&<div role="status"><p>Consultando DNI...</p><button type="button" className="text-button" onClick={lookup.useManual}>Ingresar datos manualmente</button></div>}{local&&<p className="dni-notice" role="status">Cliente encontrado · {local.code}. Se reutilizará su ficha. El celular y correo de esta venta se guardan sin cambiar su ficha.</p>}{lookup.data?.source==='EXTERNAL'&&lookup.data.data.simulated&&<p role="status">CONSULTA SIMULADA DE PRUEBAS.</p>}{lookup.data?.source==='EXTERNAL'&&<p className="dni-notice" role="status">Nombre encontrado. Revisa antes de continuar.</p>}{(lookup.error||lookup.data?.source==='NONE')&&<p role="status">{lookup.error?.message??(lookup.data?.source==='NONE'?lookup.data.error.message:'Sin resultado. Completa el nombre manualmente.')} <button type="button" className="text-button" onClick={lookup.retry}>Reintentar consulta DNI</button></p>}</div>;
+}

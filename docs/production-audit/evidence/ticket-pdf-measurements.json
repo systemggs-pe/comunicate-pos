@@ -1,0 +1,22 @@
+[
+  {
+    "format": 58,
+    "pages": 1,
+    "widthMm": 58.0,
+    "heightMm": 254.59,
+    "fonts": [
+      "Courier",
+      "Courier-Bold"
+    ]
+  },
+  {
+    "format": 80,
+    "pages": 1,
+    "widthMm": 80.0,
+    "heightMm": 372.1,
+    "fonts": [
+      "Courier",
+      "Courier-Bold"
+    ]
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-10-20T16:14:18.377Z",
+  "mode": "SET TRANSACTION READ ONLY",
+  "expectedAuditBaseline": {
+    "clients": 603,
+    "equipment": 641,
+    "imeis": 643,
+    "sales": 576,
+    "requests": 118,
+    "assets": 2,
+    "documents": 2
+  },
+  "observed": {
+    "clients": 603,
+    "equipment": 641,
+    "imeis": 644,
+    "sales": 576,
+    "requests": 118,
+    "assets": 4,
+    "documents": 4
+  },
+  "countsMatch": false,
+  "limitation": "Counts and isolation evidence do not constitute a full row-by-row baseline hash."
+}

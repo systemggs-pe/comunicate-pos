@@ -20,25 +20,142 @@ export function clientVault(db:PrismaClient,provider?:EvidenceStorageProvider,ph
  let resolved=provider;const storage=()=>resolved??=createEvidenceStorage();
  async function client(id:unknown){const key=idSchema.parse(id);const row=await db.client.findUnique({where:{id:key}});if(!row)throw new DomainError(404,'CLIENTE NO ENCONTRADO.','CLIENT_NOT_FOUND');return row;}
  async function document(clientId:string,id:unknown){const d=await db.clientDocument.findFirst({where:{id:idSchema.parse(id),clientId},include:{evidenceAsset:true}});if(!d)throw new DomainError(404,'DOCUMENTO NO ENCONTRADO.','CLIENT_DOCUMENT_NOT_FOUND');return d;}
- async function save(clientId:string,image:Image,state:AuthState,actor:AuditContext,meta:{category:EvidenceCategory;documentType:string;source:string;sourceOrdinal?:number;purpose:string;authorizationReference:string},replace=false){
-  const s=storage();let asset=await db.evidenceAsset.findFirst({where:{ownerClientId:clientId,checksum:image.checksum,status:'READY',fileSize:image.fileSize}});
-  if(!asset){asset=await db.evidenceAsset.create({data:{storageKey:`evidence/${randomUUID()}.webp`,category:meta.category,status:'PENDING',createdById:state.user.id,ownerClientId:clientId,idempotencyKey:randomUUID(),expectedMimeType:'image/webp',expectedSize:image.fileSize,expectedChecksum:image.checksum,expiresAt:new Date(Date.now()+3600000),uploadExpiresAt:new Date(0)}});try{await s.upload(asset.storageKey,image.bytes);const {bytes:_bytes,...fields}=image;void _bytes;asset=await db.evidenceAsset.update({where:{id:asset.id},data:{...fields,status:'READY',verifiedAt:new Date()}});}catch{await db.evidenceAsset.update({where:{id:asset.id},data:{status:'DELETING'}});throw new DomainError(503,'NO SE PUDO GUARDAR LA FOTO. REINTENTA.','EVIDENCE_STORAGE_UNAVAILABLE');}}
-  const assetId=asset.id;
-  return db.$transaction(async tx=>{await tx.$queryRaw`SELECT id FROM "Client" WHERE id=${clientId}::uuid FOR UPDATE`;const existing=await tx.clientDocument.findUnique({where:{clientId_evidenceAssetId_documentType_source:{clientId,evidenceAssetId:assetId,documentType:meta.documentType,source:meta.source}},include:{evidenceAsset:true}});if(existing)return publicDoc(existing);
-   if(replace)await tx.clientDocument.updateMany({where:{clientId,documentType:meta.documentType,status:'CURRENT',...(meta.category==='IDENTITY_IMAGE'?{source:meta.source}:{category:meta.category})},data:{status:'REPLACED'}});
-   const days=Math.max(1,Math.min(3650,Number(process.env.CLIENT_DOCUMENT_RETENTION_DAYS)||365));const created=await tx.clientDocument.create({data:{clientId,evidenceAssetId:assetId,createdById:state.user.id,...meta,status:meta.source.startsWith('CODART')?'REVIEW':'CURRENT',expiresAt:new Date(Date.now()+days*86400000)},include:{evidenceAsset:true}});await writeAudit(tx,actor,replace?'CLIENT_DOCUMENT_REPLACED':'CLIENT_DOCUMENT_UPLOADED','ClientDocument',created.id,{clientId,assetId,source:meta.source,authorizationRecorded:true});return publicDoc(created);
-  });
+ async function save(clientId:string,image:Image,state:AuthState,actor:AuditContext,meta:{category:EvidenceCategory;documentType:string;source:string;sourceOrdinal?:number;purpose:string;authorizationReference:string;reviewOnly?:boolean},replace=false,expectedDocumentId?:string){
+  const lease=createHash('sha256').update('vault-save:'+clientId).digest('hex'),leaseUntil=new Date(Date.now()+120000);
+  const claim=await db.$queryRaw<{key:string}[]>`INSERT INTO "AuthRateLimit"(key,attempts,"expiresAt") VALUES(${lease},1,${leaseUntil}) ON CONFLICT(key) DO UPDATE SET "expiresAt"=EXCLUDED."expiresAt" WHERE "AuthRateLimit"."expiresAt"<now() RETURNING key`;
+  if(!claim.length)throw new DomainError(409,'HAY UN DOCUMENTO GUARDÁNDOSE. REINTENTA AL TERMINAR.','CLIENT_DOCUMENT_BUSY');
+  let newAssetId:string|undefined;
+  const days=Math.max(1,Math.min(3650,Number(process.env.CLIENT_DOCUMENT_RETENTION_DAYS)||365)),expiresAt=new Date(Date.now()+days*86400000);
+  try{
+   const s=storage();let asset=await db.evidenceAsset.findFirst({where:{ownerClientId:clientId,checksum:image.checksum,status:'READY',fileSize:image.fileSize}});
+   if(asset&&asset.category!=='IDENTITY_IMAGE'&&asset.category!==meta.category)throw new DomainError(409,'EL ARCHIVO YA ESTÁ IDENTIFICADO COMO OTRO LADO DEL DNI.','CLIENT_DOCUMENT_CATEGORY');
+   if(!asset){asset=await db.evidenceAsset.create({data:{storageKey:`evidence/${randomUUID()}.webp`,category:'IDENTITY_IMAGE',status:'PENDING',createdById:state.user.id,ownerClientId:clientId,idempotencyKey:randomUUID(),expectedMimeType:'image/webp',expectedSize:image.fileSize,expectedChecksum:image.checksum,expiresAt:new Date(Date.now()+3600000),uploadExpiresAt:new Date(0)}});newAssetId=asset.id;
+    await s.upload(asset.storageKey,image.bytes);const {bytes:_bytes,...fields}=image;void _bytes;asset=await db.evidenceAsset.update({where:{id:asset.id},data:{...fields,status:'READY',verifiedAt:new Date()}});
+   }
+   const assetId=asset.id;
+   return await db.$transaction(async tx=>{
+    await tx.$queryRaw`SELECT id FROM "Client" WHERE id=${clientId}::uuid FOR UPDATE`;
+    const {reviewOnly,...fields}=meta;
+    const current=await tx.clientDocument.findFirst({where:{clientId,documentType:meta.documentType,category:meta.category,status:'CURRENT'}});
+    if(expectedDocumentId&&current?.id!==expectedDocumentId)throw new DomainError(409,'EL DOCUMENTO CAMBIÓ. ACTUALIZA EL EXPEDIENTE.','CLIENT_DOCUMENT_CHANGED');
+    if(meta.source==='MANUAL_UPLOAD'&&current&&!replace)throw new DomainError(409,'CONFIRMA EL REEMPLAZO DEL DOCUMENTO VIGENTE.','CLIENT_DOCUMENT_REPLACE_REQUIRED');
+    const existing=await tx.clientDocument.findUnique({where:{clientId_evidenceAssetId_documentType_source:{clientId,evidenceAssetId:assetId,documentType:meta.documentType,source:meta.source}},include:{evidenceAsset:true}});
+    if(existing&&existing.category!==meta.category&&meta.source==='MANUAL_UPLOAD')throw new DomainError(409,'ESTA FOTO YA ESTÁ IDENTIFICADA COMO OTRO LADO.','CLIENT_DOCUMENT_CATEGORY');
+    if(replace)await tx.clientDocument.updateMany({where:{clientId,documentType:meta.documentType,status:'CURRENT',...(meta.category==='IDENTITY_IMAGE'?{source:meta.source}:{category:meta.category}),...(existing?{id:{not:existing.id}}:{})},data:{status:'REPLACED'}});
+    if(existing&&reviewOnly&&existing.status==='CURRENT'&&existing.expiresAt>new Date())return publicDoc(existing);
+    if(existing){const providerSide=meta.source.startsWith('CODART')&&existing.category==='IDENTITY_IMAGE'&&['DNI_FRONT','DNI_BACK'].includes(meta.category)&&!await tx.registrationEvidence.count({where:{evidenceAssetId:assetId}})?meta.category:undefined;const renewed=await tx.clientDocument.update({where:{id:existing.id},data:{...(providerSide?{category:providerSide}:{}),expiresAt,purpose:meta.purpose,authorizationReference:meta.authorizationReference,status:meta.source==='MANUAL_UPLOAD'?'CURRENT':reviewOnly?'REVIEW':existing.status},include:{evidenceAsset:true}});await writeAudit(tx,actor,'CLIENT_DOCUMENT_REUSED','ClientDocument',existing.id,{clientId,assetId,authorizationRenewed:true});return publicDoc(renewed);}
+    const created=await tx.clientDocument.create({data:{clientId,evidenceAssetId:assetId,createdById:state.user.id,...fields,status:meta.source.startsWith('CODART')?'REVIEW':'CURRENT',expiresAt},include:{evidenceAsset:true}});
+    await writeAudit(tx,actor,replace?'CLIENT_DOCUMENT_REPLACED':'CLIENT_DOCUMENT_UPLOADED','ClientDocument',created.id,{clientId,assetId,source:meta.source,authorizationRecorded:true});return publicDoc(created);
+   });
+  }catch(error){if(newAssetId)await db.evidenceAsset.updateMany({where:{id:newAssetId,links:{none:{}},clientDocuments:{none:{}}},data:{status:'DELETING'}}).catch(()=>undefined);throw error instanceof DomainError?error:new DomainError(503,'NO SE PUDO GUARDAR LA DOCUMENTACIÓN. REINTENTA.','EVIDENCE_STORAGE_UNAVAILABLE');}
+  finally{await db.authRateLimit.deleteMany({where:{key:lease,expiresAt:leaseUntil}});}
  }
+
+ // Compatibility endpoint: ordering alone is never evidence of the side.
+ async function identifyCodartSides(state:AuthState,_actor:AuditContext,clientId:unknown,raw:unknown){
+  permission(state,'clients.read','client.documents.read','client.documents.replace');
+  await client(clientId);z.object({documentType:z.enum(['BLUE','ELECTRONIC']),confirm:z.literal(true)}).strict().parse(raw);
+  throw new DomainError(409,'REVISA CADA FOTO Y SELECCIONA SU LADO ANTES DE GUARDAR.','CLIENT_DOCUMENT_SIDE_REVIEW_REQUIRED');
+ }
+
  return {
-  list:async(state:AuthState,id:unknown)=>{permission(state,'clients.read','client.documents.read');const c=await client(id);const docs=await db.clientDocument.findMany({where:{clientId:c.id},include:{evidenceAsset:true},take:100,orderBy:{createdAt:'desc'}});const history=await db.registrationEvidence.findMany({where:{registrationRequest:{imei:{equipment:{ownerId:c.id}}},category:{in:['DEVICE_BOX','PURCHASE_RECEIPT','LOGICAL_IMEI']}},include:{registrationRequest:{include:{imei:true}}},take:100,orderBy:{createdAt:'desc'}});return {documents:docs.map(publicDoc),history:history.map(l=>({id:l.id,category:l.category,requestId:l.registrationRequestId,requestCode:l.registrationRequest.code,equipmentId:l.registrationRequest.imei.equipmentId,imeiId:l.registrationRequest.imeiId,createdAt:l.createdAt}))};},
+  identifyCodartSides,
+  identifySide:async(state:AuthState,actor:AuditContext,clientId:unknown,id:unknown,raw:unknown)=>{
+   permission(state,'clients.read','client.documents.read','client.documents.replace');
+   const c=await client(clientId),key=idSchema.parse(id),input=z.object({category:z.enum(['DNI_FRONT','DNI_BACK']),confirm:z.literal(true)}).strict().parse(raw);
+   return db.$transaction(async tx=>{
+    await tx.$queryRaw`SELECT id FROM "Client" WHERE id=${c.id}::uuid FOR UPDATE`;
+    const d=await tx.clientDocument.findFirst({where:{id:key,clientId:c.id},include:{evidenceAsset:true}});
+    if(!d)throw new DomainError(404,'DOCUMENTO NO ENCONTRADO.','CLIENT_DOCUMENT_NOT_FOUND');
+    if(d.status!=='CURRENT'||d.expiresAt<=new Date()||d.evidenceAsset.status!=='READY')throw new DomainError(409,'EL DOCUMENTO REQUIERE REVISIÓN O RENOVACIÓN DE AUTORIZACIÓN EN EL EXPEDIENTE.','CLIENT_DOCUMENT_REVIEW_REQUIRED');
+    if(d.category===input.category)return {id:d.id,category:input.category};
+    if(d.category!=='IDENTITY_IMAGE')throw new DomainError(409,'EL LADO YA FUE IDENTIFICADO. ACTUALIZA LA VISTA ANTES DE CONTINUAR.','CLIENT_DOCUMENT_CHANGED');
+    if(await tx.registrationEvidence.count({where:{evidenceAssetId:d.evidenceAssetId}}))throw new DomainError(409,'NO CAMBIES EL LADO DE UN DOCUMENTO YA UTILIZADO.','CLIENT_DOCUMENT_REFERENCED');
+    if(await tx.clientDocument.count({where:{clientId:c.id,documentType:d.documentType,category:input.category,status:'CURRENT',id:{not:d.id}}}))throw new DomainError(409,'YA EXISTE UNA FOTO VIGENTE PARA ESTE LADO. REVISA LAS IMÁGENES ANTES DE CONTINUAR.','CLIENT_DOCUMENT_REPLACE_REQUIRED');
+    await tx.clientDocument.update({where:{id:d.id},data:{category:input.category}});
+    await writeAudit(tx,actor,'CLIENT_DOCUMENT_SIDE_IDENTIFIED','ClientDocument',d.id,{clientId:c.id,category:input.category,classificationConfirmed:true});
+    return {id:d.id,category:input.category};
+   });
+  },
+  list:async(state:AuthState,id:unknown)=>{permission(state,'clients.read','client.documents.read');const c=await client(id);const docs=await db.clientDocument.findMany({where:{clientId:c.id},include:{evidenceAsset:true},take:100,orderBy:{createdAt:'desc'}});const history=await db.registrationEvidence.findMany({where:{registrationRequest:{imei:{equipment:{ownerId:c.id}}},category:{in:['DNI_FRONT','DNI_BACK','DEVICE_BOX','PURCHASE_RECEIPT','LOGICAL_IMEI']}},include:{registrationRequest:{include:{imei:true}},evidenceAsset:{select:{id:true,fileSize:true,width:true,height:true}}},take:100,orderBy:{createdAt:'desc'}});return {documents:docs.map(d=>({...publicDoc(d),references:history.filter(l=>l.evidenceAssetId===d.evidenceAssetId).map(l=>({requestId:l.registrationRequestId,requestCode:l.registrationRequest.code,equipmentId:l.registrationRequest.imei.equipmentId}))})),history:history.map(l=>({id:l.id,category:l.category,requestId:l.registrationRequestId,requestCode:l.registrationRequest.code,equipmentId:l.registrationRequest.imei.equipmentId,imeiId:l.registrationRequest.imeiId,createdAt:l.createdAt,asset:l.evidenceAsset,linkedDocumentId:docs.find(d=>d.evidenceAssetId===l.evidenceAssetId)?.id??null}))};},
+  incorporate:async(state:AuthState,actor:AuditContext,clientId:unknown,linkId:unknown,raw:unknown)=>{
+   permission(state,'clients.read','client.documents.read','client.documents.upload','registration.read','registration.evidence.read');const c=await client(clientId),key=idSchema.parse(linkId),input=documentAuthorization.strict().parse(raw);
+   return db.$transaction(async tx=>{
+    await tx.$queryRaw`SELECT id FROM "Client" WHERE id=${c.id}::uuid FOR UPDATE`;
+    const link=await tx.registrationEvidence.findFirst({where:{id:key,registrationRequest:{imei:{equipment:{ownerId:c.id}}},category:{in:['DNI_FRONT','DNI_BACK']},evidenceAsset:{status:'READY'}},include:{registrationRequest:{include:{imei:true}},evidenceAsset:{include:{links:{include:{registrationRequest:{include:{imei:{include:{equipment:true}}}}}}}}}});
+    if(!link)throw new DomainError(404,'EVIDENCIA DE IDENTIDAD NO ENCONTRADA PARA ESTE CLIENTE.','CLIENT_DOCUMENT_NOT_FOUND');
+    const equipmentIds=[...new Set(link.evidenceAsset.links.map(l=>l.registrationRequest.imei.equipmentId))];
+    if(link.evidenceAsset.links.some(l=>l.registrationRequest.imei.equipment.ownerId!==c.id)||await tx.equipmentHistory.count({where:{equipmentId:{in:equipmentIds},eventType:'OWNER_CHANGED'}}))throw new DomainError(409,'PROPIETARIO HISTÓRICO AMBIGUO. REVISIÓN MANUAL REQUERIDA.','CLIENT_DOCUMENT_HISTORICAL_REVIEW');
+    const prior=await tx.clientDocument.findFirst({where:{clientId:c.id,evidenceAssetId:link.evidenceAssetId,documentType:'MANUAL',source:'REGISTRATION_EVIDENCE'}});
+    if(await tx.clientDocument.count({where:{clientId:c.id,documentType:'MANUAL',category:link.category,status:'CURRENT',...(prior?{id:{not:prior.id}}:{})}}))throw new DomainError(409,'YA EXISTE UN DOCUMENTO VIGENTE. REEMPLÁZALO EXPLÍCITAMENTE.','CLIENT_DOCUMENT_REPLACE_REQUIRED');
+    const fields={status:'CURRENT',purpose:input.purpose,authorizationReference:input.authorizationReference,expiresAt:new Date(Date.now()+Math.max(1,Math.min(3650,Number(process.env.CLIENT_DOCUMENT_RETENTION_DAYS)||365))*86400000)};
+    const doc=prior?await tx.clientDocument.update({where:{id:prior.id},data:fields,include:{evidenceAsset:true}}):await tx.clientDocument.create({data:{clientId:c.id,evidenceAssetId:link.evidenceAssetId,category:link.category,documentType:'MANUAL',source:'REGISTRATION_EVIDENCE',createdById:state.user.id,...fields},include:{evidenceAsset:true}});
+    await writeAudit(tx,actor,'CLIENT_DOCUMENT_UPLOADED','ClientDocument',doc.id,{clientId:c.id,assetId:link.evidenceAssetId,source:'REGISTRATION_EVIDENCE',requestId:link.registrationRequestId,existingFileReused:true,authorizationRecorded:true});return publicDoc(doc);
+   }).catch(async error=>{if(error instanceof DomainError&&error.code==='CLIENT_DOCUMENT_HISTORICAL_REVIEW')await writeAudit(db,actor,'CLIENT_DOCUMENT_REVIEW_REQUIRED','RegistrationEvidence',key,{clientId:c.id,reviewRequired:true});throw error;});
+  },
   access:async(state:AuthState,actor:AuditContext,clientId:unknown,id:unknown,download=false)=>{permission(state,'clients.read','client.documents.read');const c=await client(clientId),d=await document(c.id,id);if(d.evidenceAsset.status!=='READY'||!await storage().exists(d.evidenceAsset.storageKey))throw new DomainError(503,'EL ARCHIVO NO ESTÁ DISPONIBLE.','EVIDENCE_STORAGE_MISSING');await writeAudit(db,actor,'CLIENT_DOCUMENT_VIEWED','ClientDocument',d.id,{clientId:c.id,assetId:d.evidenceAssetId,download});return storage().authorizeDownload(d.evidenceAsset.storageKey,download?`documento-${d.id}.webp`:undefined);},
-  upload:async(state:AuthState,actor:AuditContext,clientId:unknown,bytes:Buffer,mime:string,raw:unknown)=>{permission(state,'client.documents.upload');const c=await client(clientId);const input=documentAuthorization.extend({category:z.enum(['DNI_FRONT','DNI_BACK']),documentType:z.enum(['BLUE','ELECTRONIC','MANUAL']),replace:z.enum(['true','false']).default('false')}).strict().parse(raw);const exists=await db.clientDocument.count({where:{clientId:c.id,category:input.category,documentType:input.documentType,status:'CURRENT'}});if(exists){permission(state,'client.documents.replace');if(input.replace!=='true')throw new DomainError(409,'CONFIRMA EL REEMPLAZO DEL DOCUMENTO VIGENTE.','CLIENT_DOCUMENT_REPLACE_REQUIRED');}const image=await prepareEvidenceImage(bytes,mime);return save(c.id,image,state,actor,{category:input.category,documentType:input.documentType,purpose:input.purpose,authorizationReference:input.authorizationReference,source:'MANUAL_UPLOAD'},!!exists);},
-  classify:async(state:AuthState,actor:AuditContext,clientId:unknown,id:unknown,raw:unknown)=>{permission(state,'client.documents.replace');const c=await client(clientId),d=await document(c.id,id),input=documentAuthorization.extend({category:z.enum(['DNI_FRONT','DNI_BACK'])}).strict().parse(raw);const result=await db.clientDocument.update({where:{id:d.id},data:{category:input.category,status:'CURRENT',purpose:input.purpose,authorizationReference:input.authorizationReference}});await writeAudit(db,actor,'CLIENT_DOCUMENT_REPLACED','ClientDocument',d.id,{clientId:c.id,classificationConfirmed:true});return {id:result.id};},
+  upload:async(state:AuthState,actor:AuditContext,clientId:unknown,bytes:Buffer,mime:string,raw:unknown)=>{permission(state,'client.documents.upload');const c=await client(clientId);const input=documentAuthorization.extend({category:z.enum(['DNI_FRONT','DNI_BACK']),documentType:z.enum(['BLUE','ELECTRONIC','MANUAL']),replace:z.enum(['true','false']).default('false'),expectedDocumentId:idSchema.optional()}).strict().parse(raw);const exists=await db.clientDocument.count({where:{clientId:c.id,category:input.category,documentType:input.documentType,status:'CURRENT'}});if(exists){permission(state,'client.documents.replace');if(input.replace!=='true')throw new DomainError(409,'CONFIRMA EL REEMPLAZO DEL DOCUMENTO VIGENTE.','CLIENT_DOCUMENT_REPLACE_REQUIRED');}const image=await prepareEvidenceImage(bytes,mime);return save(c.id,image,state,actor,{category:input.category,documentType:input.documentType,purpose:input.purpose,authorizationReference:input.authorizationReference,source:'MANUAL_UPLOAD'},!!exists,input.expectedDocumentId);},
+  classify:async(state:AuthState,actor:AuditContext,clientId:unknown,id:unknown,raw:unknown)=>{permission(state,'client.documents.replace');const c=await client(clientId),d=await document(c.id,id),input=documentAuthorization.extend({category:z.enum(['DNI_FRONT','DNI_BACK'])}).strict().parse(raw);const result=await db.$transaction(async tx=>{await tx.$queryRaw`SELECT id FROM "Client" WHERE id=${c.id}::uuid FOR UPDATE`;if(d.category!==input.category&&await tx.registrationEvidence.count({where:{evidenceAssetId:d.evidenceAssetId}}))throw new DomainError(409,'NO CAMBIES EL LADO DE UN DOCUMENTO YA UTILIZADO.','CLIENT_DOCUMENT_REFERENCED');if(await tx.clientDocument.count({where:{clientId:c.id,documentType:d.documentType,category:input.category,status:'CURRENT',id:{not:d.id}}}))throw new DomainError(409,'YA HAY UN DOCUMENTO VIGENTE PARA ESTE LADO Y TIPO. REEMPLÁZALO EXPLÍCITAMENTE.','CLIENT_DOCUMENT_REPLACE_REQUIRED');return tx.clientDocument.update({where:{id:d.id},data:{category:input.category,status:'CURRENT',purpose:input.purpose,authorizationReference:input.authorizationReference,expiresAt:new Date(Date.now()+Math.max(1,Math.min(3650,Number(process.env.CLIENT_DOCUMENT_RETENTION_DAYS)||365))*86400000)}});});await writeAudit(db,actor,'CLIENT_DOCUMENT_REPLACED','ClientDocument',d.id,{clientId:c.id,classificationConfirmed:true});return {id:result.id};},
   remove:async(state:AuthState,actor:AuditContext,clientId:unknown,id:unknown,raw:unknown)=>{permission(state,'client.documents.delete');z.object({confirm:z.literal(true)}).strict().parse(raw);const c=await client(clientId),d=await document(c.id,id);await db.$transaction(async tx=>{await tx.$queryRaw`SELECT id FROM "EvidenceAsset" WHERE id=${d.evidenceAssetId}::uuid FOR UPDATE`;await tx.clientDocument.delete({where:{id:d.id}});await writeAudit(tx,actor,'CLIENT_DOCUMENT_DELETED','ClientDocument',d.id,{clientId:c.id,assetId:d.evidenceAssetId});});const retained=await db.registrationEvidence.count({where:{evidenceAssetId:d.evidenceAssetId}})>0||await db.clientDocument.count({where:{evidenceAssetId:d.evidenceAssetId}})>0;return {deleted:true,retained,cleanup:await cleanupEvidence(db,provider,[d.evidenceAssetId])};},
-  lookupPhotos:async(state:AuthState,actor:AuditContext,clientId:unknown,raw:unknown)=>{permission(state,'client.identity_photo.lookup','client.documents.upload','client.documents.read');const c=await client(clientId),input=photoLookupSchema.parse(raw);if(input.refresh)permission(state,'client.documents.replace');const existing=await db.clientDocument.findMany({where:{clientId:c.id,documentType:input.documentType,status:'CURRENT',expiresAt:{gt:new Date()}},include:{evidenceAsset:true}});if(existing.length&&!input.refresh){for(const d of existing)if(!await storage().exists(d.evidenceAsset.storageKey))throw new DomainError(503,'REVISA EL ALMACENAMIENTO ANTES DE CONSULTAR OTRA VEZ.','EVIDENCE_STORAGE_MISSING');return {documents:existing.map(publicDoc),reused:true,creditsDeducted:null};}
+  lookupPhotos:async(state:AuthState,actor:AuditContext,clientId:unknown,raw:unknown)=>{permission(state,'client.identity_photo.lookup','client.documents.upload','client.documents.read');const c=await client(clientId),authorization=photoLookupSchema.parse(raw),input={...authorization,purpose:authorization.purpose??'CONSULTA Y ALMACENAMIENTO DE FOTOS DNI CODART',authorizationReference:authorization.authorizationReference??`CASILLA CONFIRMADA POR ${state.user.id} EL ${new Date().toISOString()}`};if(input.refresh)permission(state,'client.documents.replace');const existing=await db.clientDocument.findMany({where:{clientId:c.id,documentType:input.documentType,status:'CURRENT',expiresAt:{gt:new Date()}},include:{evidenceAsset:true}});if(existing.length&&!input.refresh&&!input.reviewOnly){for(const d of existing)if(!await storage().exists(d.evidenceAsset.storageKey))throw new DomainError(503,'REVISA EL ALMACENAMIENTO ANTES DE CONSULTAR OTRA VEZ.','EVIDENCE_STORAGE_MISSING');return {documents:existing.map(publicDoc),reused:true,creditsDeducted:null};}
    if(process.env.CODART_PHOTO_STORAGE_AUTHORIZED!=='true')throw new DomainError(403,'FALTA AUTORIZACIÓN CONTRACTUAL PARA CONSERVAR FOTOS DEL PROVEEDOR.','CODART_STORAGE_NOT_AUTHORIZED');
-   const key=`${c.id}:${input.documentType}`,current=pending.get(key);if(current)return current;
-   const promise=(async()=>{const lease=createHash('sha256').update('photo-lease:'+key).digest('hex'),claim=await db.$queryRaw<{key:string}[]>`INSERT INTO "AuthRateLimit"(key,attempts,"expiresAt") VALUES(${lease},1,now()+interval '2 minutes') ON CONFLICT(key) DO UPDATE SET "expiresAt"=now()+interval '2 minutes' WHERE "AuthRateLimit"."expiresAt"<now() RETURNING key`;if(!claim.length)throw new DomainError(409,'YA HAY UNA CONSULTA EN CURSO.','CODART_LOOKUP_BUSY');try{await externalBudget(db,state.user.id,'codart-photos',10);const result=await photos.photos(c.dni,input.documentType);const docs:Awaited<ReturnType<typeof save>>[]=[];for(const [index,image] of result.images.entries())docs.push(await save(c.id,image,state,actor,{category:'IDENTITY_IMAGE',documentType:input.documentType,source:input.documentType==='BLUE'?'CODART_DNIV':'CODART_DNIVEL',sourceOrdinal:index+1,purpose:input.purpose,authorizationReference:input.authorizationReference}));await db.$transaction(async tx=>{if(input.refresh)await tx.clientDocument.updateMany({where:{clientId:c.id,documentType:input.documentType,status:'CURRENT',id:{notIn:docs.map(d=>d.id)}},data:{status:'REPLACED'}});await tx.clientDocument.updateMany({where:{id:{in:docs.map(d=>d.id)},clientId:c.id},data:{status:'CURRENT'}});});await writeAudit(db,actor,'CODART_PHOTO_LOOKUP','Client',c.id,{documentType:input.documentType,images:docs.length,creditsDeducted:result.creditsDeducted});return {documents:docs.map(d=>({...d,status:'CURRENT'})),reused:false,creditsDeducted:result.creditsDeducted};}finally{await db.authRateLimit.deleteMany({where:{key:lease}});}})();pending.set(key,promise);try{return await promise;}finally{pending.delete(key);}
+   const dni=c.dni;
+   if(!dni)throw new DomainError(422,'La consulta de fotos en CODART requiere un DNI.','CLIENT_DNI_REQUIRED');
+   const key=`${c.id}:${input.documentType}:${!!input.reviewOnly}:${!!input.refresh}`,current=pending.get(key);if(current)return current;
+   const promise=(async()=>{
+    const lease=createHash('sha256').update('photo-lease:'+c.id).digest('hex'),leaseUntil=new Date(Date.now()+120000);
+    const claim=await db.$queryRaw<{key:string}[]>`INSERT INTO "AuthRateLimit"(key,attempts,"expiresAt") VALUES(${lease},1,${leaseUntil}) ON CONFLICT(key) DO UPDATE SET "expiresAt"=EXCLUDED."expiresAt" WHERE "AuthRateLimit"."expiresAt"<now() RETURNING key`;
+    if(!claim.length)throw new DomainError(409,'YA HAY UNA CONSULTA EN CURSO.','CODART_LOOKUP_BUSY');
+    try{
+     await externalBudget(db,state.user.id,'codart-photos',10);
+     const result=await photos.photos(dni,input.documentType);
+     if(!result.images.length)throw new DomainError(404,'CODART NO DEVOLVIÓ FOTOS PARA ESTE DNI.','CODART_NO_IMAGES');
+     const docs=new Map<string,Awaited<ReturnType<typeof save>>>();
+     for(const [index,image] of result.images.entries()){
+      const {side,...prepared}=image;
+      const doc=await save(c.id,prepared,state,actor,{
+       category:side??'IDENTITY_IMAGE',documentType:input.documentType,
+       source:input.documentType==='BLUE'?'CODART_DNIV':'CODART_DNIVEL',
+       sourceOrdinal:index+1,reviewOnly:input.reviewOnly||input.refresh,
+       purpose:input.purpose,authorizationReference:input.authorizationReference
+      });
+      docs.set(doc.id,doc);
+     }
+     const audit={documentType:input.documentType,images:docs.size,creditsDeducted:result.creditsDeducted};
+     let documents=[...docs.values()];
+     if(input.reviewOnly){
+      await writeAudit(db,actor,'CODART_PHOTO_LOOKUP','Client',c.id,audit);
+     }else{
+      const selected={clientId:c.id,id:{in:[...docs.keys()]}};
+      const assets=await db.evidenceAsset.findMany({where:{clientDocuments:{some:selected}},select:{storageKey:true}});
+      for(const asset of assets)if(!await storage().exists(asset.storageKey))throw new DomainError(503,'EL ARCHIVO NO ESTÁ DISPONIBLE.','EVIDENCE_STORAGE_MISSING');
+      const committed=await db.$transaction(async tx=>{
+       const [lockedClient]=await tx.$queryRaw<{dni:string}[]>`SELECT dni FROM "Client" WHERE id=${c.id}::uuid FOR UPDATE`;
+       if(lockedClient?.dni!==c.dni)throw new DomainError(409,'EL DNI DEL CLIENTE CAMBIÓ. VUELVE A CONSULTAR.','CLIENT_DOCUMENT_CHANGED');
+       const incoming=await tx.clientDocument.findMany({where:selected,include:{evidenceAsset:true}});
+       if(incoming.length!==docs.size)throw new DomainError(409,'LOS DOCUMENTOS CAMBIARON. VUELVE A CONSULTAR.','CLIENT_DOCUMENT_CHANGED');
+       if(incoming.some(doc=>doc.evidenceAsset.status!=='READY'))throw new DomainError(503,'EL ARCHIVO NO ESTÁ DISPONIBLE.','EVIDENCE_STORAGE_MISSING');
+       const retired=input.refresh?await tx.clientDocument.findMany({
+        where:{clientId:c.id,category:{in:['DNI_FRONT','DNI_BACK','IDENTITY_IMAGE']},id:{notIn:[...docs.keys()]}},
+        select:{id:true,evidenceAssetId:true},orderBy:{evidenceAssetId:'asc'}
+       }):[];
+       for(const doc of retired)await tx.clientDocument.delete({where:{id:doc.id}});
+       const days=Math.max(1,Math.min(3650,Number(process.env.CLIENT_DOCUMENT_RETENTION_DAYS)||365));
+       await tx.clientDocument.updateMany({where:selected,data:{
+        status:'CURRENT',purpose:input.purpose,authorizationReference:input.authorizationReference,
+        expiresAt:new Date(Date.now()+days*86400000)
+       }});
+       const saved=await tx.clientDocument.findMany({where:selected,include:{evidenceAsset:true},orderBy:{sourceOrdinal:'asc'}});
+       await writeAudit(tx,actor,'CODART_PHOTO_LOOKUP','Client',c.id,{...audit,replacedDocuments:retired.length});
+       return {documents:saved.map(publicDoc),retiredAssets:[...new Set(retired.map(doc=>doc.evidenceAssetId))]};
+      });
+      documents=committed.documents;
+      if(committed.retiredAssets.length)await cleanupEvidence(db,storage(),committed.retiredAssets).catch(()=>undefined);
+     }
+     return {documents,reused:false,creditsDeducted:result.creditsDeducted,...((photos as IdentityPhotoProvider&{simulated?:boolean}).simulated?{simulated:true}:{})};
+    }finally{await db.authRateLimit.deleteMany({where:{key:lease,expiresAt:leaseUntil}});}
+   })();
+   pending.set(key,promise);try{return await promise;}finally{pending.delete(key);}
   }
  };
 }

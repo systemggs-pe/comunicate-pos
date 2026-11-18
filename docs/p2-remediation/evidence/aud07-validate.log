@@ -1,0 +1,6 @@
+{"startedAt":"2026-10-20T18:35:35.251Z","command":"node node_modules/prisma/build/index.js validate","preflight":"PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"}
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+The schema at prisma\schema.prisma is valid 🚀
+
+{"exitCode":0,"durationMs":1006}

@@ -1,7 +1,7 @@
 export type RegistrationStatus = 'BLOCKED' | 'PENDING' | 'REGISTERED';
 export interface Client {
-  id: string; code: string; dni: string; firstName: string; lastName: string;fullName?:string|null;
-  phone: string | null; email: string | null; address?:string|null; department?:string|null; createdAt: string; updatedAt: string; equipmentCount?: number;
+  id: string; code: string; dni: string|null; documentType?: "DNI"|"OTROS"; otherDocumentNumber?: string|null; firstName: string; lastName: string;fullName?:string|null;
+  phone: string | null; email: string | null; province?:string|null; address?:string|null; department?:string|null; createdAt: string; updatedAt: string; equipmentCount?: number;
 }
 export interface Imei {
   id: string; equipmentId: string; slot: number; value: string; type: 'PHYSICAL' | 'ESIM';
@@ -9,7 +9,7 @@ export interface Imei {
   registrationStatus: RegistrationStatus|null; registrationMethod: string | null;
   registrationStartedAt: string | null; registeredAt: string | null;
 }
-export interface Equipment {
+export interface Equipment { updatedAt?:string;
   id: string; code: string; ownerId: string | null; owner: Client | null;
   origin: 'STORE' | 'EXTERNAL'; status: 'ACTIVE' | 'RETURNED' | 'BLOCKED' | 'ARCHIVED';
   commercialName?: string|null; color?: string|null; ram?: string|null; storage?: string|null; brand: string; model: string; serialNumber: string | null; createdAt: string;
@@ -19,7 +19,7 @@ export interface Equipment {
 export interface ClientDetails extends Client { equipment: Equipment[]; purchases?: Sale[] }
 export interface HistoryEvent { id: string; equipmentId: string; imeiId: string | null; eventType: string; createdAt: string; metadata: Record<string, unknown> | null }
 export interface ImeiInput { slot: number; value: string; type: 'PHYSICAL' | 'ESIM' }
-export interface ClientInput { dni: string; firstName: string; lastName: string; fullName?:string;phone?: string; email?: string; address?:string; department?:string }
+export interface ClientInput { dni: string; firstName: string; lastName: string; fullName?:string;phone?: string; email?: string; province?:string; address?:string; department?:string }
 export interface EquipmentInput { commercialName?:string|null; color?:string|null; ram?:string|null; storage?:string|null; brand: string; model: string; serialNumber?: string | null }
 export interface RegistrationResolution { kind: 'NEW' | 'EXISTING'; equipment: Equipment | null; additions: ImeiInput[]; requiresConfirmation: boolean }
 export interface RegistrationInput {
@@ -28,10 +28,10 @@ export interface RegistrationInput {
   equipment?: EquipmentInput; expectedEquipmentId?: string; confirmAddImei?: boolean;
 }
 export type PaymentMethod = 'CASH' | 'YAPE' | 'PLIN' | 'CARD' | 'TRANSFER' | 'OTHER';
-export interface Sale { accessories?:SaleAccessory[]; occurredAt?:string; id: string; code: string; buyerId: string; buyer: Client;  subtotal?: string; discount: string; total: string; paymentMethod: PaymentMethod; notes: string | null; createdAt: string; createdBy: { id: string; name: string } | null; equipmentCount?: number; _count?: { equipment: number }; equipment?: { id: string; unitPrice: string; equipment: Equipment }[] }
+export interface Sale { updatedAt?:string; buyerPhone?:string|null;buyerEmail?:string|null; accessories?:SaleAccessory[]; occurredAt?:string; id: string; code: string; buyerId: string; buyer: Client;  subtotal?: string; discount: string; total: string; paymentMethod: PaymentMethod; notes: string | null; createdAt: string; createdBy: { id: string; name: string } | null; equipmentCount?: number; _count?: { equipment: number }; equipment?: { id: string; unitPrice: string; equipment: Equipment }[] }
 export type ClientReference = { id: string } | { client: ClientInput };
-export interface SaleItemInput { equipment: EquipmentInput & { imeis: ImeiInput[] }; owner?: ClientReference; unitPrice: string }
-export interface SaleInput { buyer: ClientReference; items: SaleItemInput[]; paymentMethod: PaymentMethod; discount: string; notes?: string; accessories?:SaleAccessory[]; occurredAt?:string; idempotencyKey?:string }
+export interface SaleItemInput { equipment: EquipmentInput & { imeis: ImeiInput[]; origin?:'STORE'|'EXTERNAL' }; owner?: ClientReference; unitPrice: string }
+export interface SaleInput { buyerPhone?:string;buyerEmail?:string; buyer: ClientReference; items: SaleItemInput[]; paymentMethod: PaymentMethod; discount: string; notes?: string; accessories?:SaleAccessory[]; occurredAt?:string; idempotencyKey?:string }
 
 export interface SaleAccessory { id?:string; name:string; quantity:number; unitPrice:string }
-export interface RegistrationRequest { id:string; code:string; operationId:string; imeiId:string; status:RegistrationStatus; completedBy?:{id:string;name:string}|null; operator:string; phone:string; referencePhone:string|null; address:string; department:string; email:string; price:string; hasBox:boolean; occurredAt:string; completedAt:string|null; createdAt:string; createdBy?:{id:string;name:string}; updatedBy?:{id:string;name:string}; imei?:Imei & {equipment:Equipment}; history?:{id:string; action:string; createdAt:string; metadata:Record<string,unknown>|null;user:{name:string}}[] }
+export interface RegistrationRequest { id:string; code:string; operationId:string; imeiId:string; applicantId?:string|null; applicant?:Client|null; hasMovistarDeclaration?:boolean; status:RegistrationStatus; completedBy?:{id:string;name:string}|null; operator:string; phone:string; referencePhone:string|null; address:string; province?:string|null; department:string; email:string; price:string; hasBox:boolean; occurredAt:string; completedAt:string|null; createdAt:string; createdBy?:{id:string;name:string}; updatedBy?:{id:string;name:string}; imei?:Imei & {equipment:Equipment}; history?:{id:string; action:string; createdAt:string; metadata:Record<string,unknown>|null;user:{name:string}}[] }

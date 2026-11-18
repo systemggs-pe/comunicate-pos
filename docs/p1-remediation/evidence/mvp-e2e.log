@@ -1,0 +1,113 @@
+{"name":"mvp-e2e","exitCode":1,"durationMs":216220,"command":"node node_modules/@playwright/test/cli.js test --config playwright.mvp.config.ts --reporter=list,json"}
+[WebServer] (node:26184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:14516) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:26560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 32 tests using 1 worker
+
+(node:20324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\e2e\mvp-codart.spec.ts:6:1 › RENIEC autocompleta sólo nombre completo; cliente local evita consulta (3.7s)
+  ok  2 tests\e2e\mvp-codart.spec.ts:9:1 › nombre editado y luego vaciado mientras espera conserva prioridad manual (2.9s)
+  x   3 tests\e2e\mvp-codart.spec.ts:12:1 › DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física (19.6s)
+(node:13448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  4 tests\e2e\mvp-codart.spec.ts:20:1 › sin créditos muestra error, no inventa fotografías y permite reintentar (3.4s)
+  ok  5 tests\e2e\mvp-design-reference.spec.ts:12:1 › inicio real, cápsula de cinco destinos y módulos adicionales a seis anchos (3.7s)
+  ok  6 tests\e2e\mvp-design-reference.spec.ts:17:1 › bloqueado: desbloquear desde listado pide confirmación y sólo cambia el IMEI objetivo (3.1s)
+  ok  7 tests\e2e\mvp-design-reference.spec.ts:24:1 › desbloquear permanece oculto y API denegada sin permiso de actualizar registros (3.1s)
+  ok  8 tests\e2e\mvp-design-reference.spec.ts:29:1 › listado: cinco columnas, filtros, búsqueda, transición confirmada y documentos reales (4.8s)
+  ok  9 tests\e2e\mvp-form-speed.spec.ts:9:1 › registro: contacto reutilizado permite borrar/corregir; foco, contexto y regreso conservan borrador (3.0s)
+  ok 10 tests\e2e\mvp-form-speed.spec.ts:17:1 › venta: agregar equipo lleva el foco al nuevo; revisión y regreso mantienen importes (3.8s)
+  ok 11 tests\e2e\mvp-registration-redesign.spec.ts:14:1 › cuatro pasos responsive: resumen inmediato, referencia automática, edición y PDF real (12.1s)
+  ok 12 tests\e2e\mvp-registration-redesign.spec.ts:21:1 › doble IMEI: fotos comunes compartidas y lógicas separadas; dos PDF, una sola vista automática (5.5s)
+  ok 13 tests\e2e\mvp-registration-redesign.spec.ts:28:1 › PDF falla después del guardado: reintento documental sin repetir la operación (4.6s)
+  x  14 tests\e2e\mvp-registration-redesign.spec.ts:32:1 › cliente nuevo con CODART simulado; referencia vacía persiste contacto y nombre manual (22.6s)
+(node:10184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 15 tests\e2e\mvp-registration-redesign.spec.ts:35:1 › equipo relacionado conserva ID, datos y segundo IMEI al registrar únicamente IMEI 2 (4.3s)
+  ok 16 tests\e2e\mvp-registration-redesign.spec.ts:39:1 › caja no aplica conserva la foto previa y permite ampliarla sin habilitar nuevas capturas (3.9s)
+  ok 17 tests\e2e\mvp-registration-redesign.spec.ts:43:1 › X protege cambios sin guardar y cancelar no crea filas comerciales (2.4s)
+  ok 18 tests\e2e\mvp-sales-reference.spec.ts:10:1 › dos pasos, total exacto, contacto por venta, ticket automático y matriz visual completa (23.1s)
+  ok 19 tests\e2e\mvp-sales-reference.spec.ts:24:1 › check individual por RECO registrado, pendientes y bloqueados sin check; detalle modal (8.0s)
+  ok 20 tests\e2e\mvp-sales-reference.spec.ts:35:1 › respuesta de guardado perdida: reintento recupera la misma venta y no crea huérfanos (4.0s)
+  ok 21 tests\e2e\mvp-sales-reference.spec.ts:41:1 › autocompletado limpia el error nativo previo al completar el nombre (2.5s)
+  ok 22 tests\e2e\mvp-scanner.spec.ts:10:1 › cámara trasera predeterminada y galería alternativa analizan automáticamente en registros y ventas (4.8s)
+  ok 23 tests\e2e\mvp-scanner.spec.ts:16:1 › venta: autocompleta dos IMEI sin Aplicar, conserva edición y guarda sólo al confirmar (4.3s)
+  ok 24 tests\e2e\mvp-scanner.spec.ts:25:1 › cambio A→B ignora A; equipos distintos no mezclan campos; doble evento deduplica (3.8s)
+  ok 25 tests\e2e\mvp-scanner.spec.ts:29:1 › registro: escaneo automático, guardar RECO individual y conservar doble IMEI (4.3s)
+  ok 26 tests\e2e\mvp-scanner.spec.ts:32:1 › respuesta inválida y cuota agotada permiten entrada manual y reintento (3.0s)
+  ok 27 tests\e2e\mvp-vault.spec.ts:27:1 › expediente, cliente recurrente, reutilización, registros independientes y eliminación compartida (13.7s)
+  ok 28 tests\e2e\mvp-vault.spec.ts:32:1 › CODART→cliente: identifica cada imagen con evidencia, luego permite reutilización (7.9s)
+  ok 29 tests\e2e\mvp-vault.spec.ts:37:1 › reemplazo por API autorizado mantiene documento antiguo en registro y nueva versión vigente (7.9s)
+  ok 30 tests\e2e\mvp-vault.spec.ts:40:1 › permiso denegado desde cliente y API, sin exponer miniaturas ni acciones (4.2s)
+  ok 31 tests\e2e\mvp-vault.spec.ts:43:1 › caducidad bloquea reutilización y renovación por API explícita conserva el mismo archivo (4.2s)
+  ok 32 tests\e2e\mvp-vault.spec.ts:47:1 › evidencia desde edición RECO se guarda automáticamente en cliente sin copia (5.4s)
+
+
+  1) tests\e2e\mvp-codart.spec.ts:12:1 › DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Cerrar Anverso', exact: true }).first()
+
+
+      12 | test('DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física',async({page})=>{
+      13 |  await page.goto('/registros/nuevo');await page.locator('.dni-client-fields').getByLabel('DNI',{exact:false}).fill('70000003');await expect(page.getByLabel('Nombre completo',{exact:true})).toHaveValue('CLIENTE SINTÉTICO DE PRUEBA');await page.getByText('DOCUMENTACIÓN PRIVADA DEL CLIENTE',{exact:true}).click();await page.getByRole('button',{name:'GUARDAR CLIENTE PARA DOCUMENTACIÓN',exact:true}).click();await expect(page.getByText('Cliente encontrado',{exact:true})).toBeVisible();await page.getByRole('button',{name:'DNI azul',exact:true}).click();await page.getByRole('checkbox',{name:'Tengo permiso para consultar y guardar estas fotos del DNI.'}).check();await page.getByRole('button',{name:'Buscar fotos',exact:true}).click();await expect(page.getByText('Estas fotos son de demostración.')).toBeVisible();await expect(page.locator('.document-thumbnail')).toHaveCount(2);await expect.poll(()=>page.locator('.document-thumbnail').evaluateAll(images=>images.every(i=>(i as HTMLImageElement).naturalWidth>0))).toBe(true);await expect(page.getByRole('heading',{name:'Anverso',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Reverso',exact:true})).toBeVisible();expect(await mvpDb.clientDocument.count()).toBe(2);expect(await mvpDb.evidenceAsset.count()).toBe(2);expect(await mvpDb.registrationRequest.count()).toBe(0);await widthsMvp(page);
+    > 14 |  await page.getByRole('button',{name:'Ampliar',exact:true}).first().click();await expect(page.locator('.document-modal[open]')).toBeVisible();await page.getByRole('button',{name:'Cerrar Anverso',exact:true}).first().click();const download=page.waitForEvent('download');await page.getByRole('button',{name:'Descargar',exact:true}).first().click();expect((await download).suggestedFilename()).toMatch(/documento-.+\.webp/);
+         |                                                                                                                                                                                                                         ^
+      15 |  // Reopening uses stored photos without another provider call.
+      16 |  const savedClient=await mvpDb.client.findUniqueOrThrow({where:{dni:'70000003'}});await page.goto(`/clientes/${savedClient.id}`);await page.locator('.client-document-access>summary').click();await expect(page.locator('.document-thumbnail')).toHaveCount(2);expect((await(await page.request.get('/api/_test/control')).json()).photoCalls).toBe(1);
+      17 |  await page.locator('.dni-photo-extra>summary').click();await page.getByRole('button',{name:'DNI electrónico',exact:true}).click();await page.getByRole('checkbox',{name:'Tengo permiso para consultar y guardar estas fotos del DNI.'}).check();await page.getByRole('button',{name:'Actualizar DNI',exact:true}).click();await expect(page.getByText('Estas fotos son de demostración.',{exact:true})).toBeVisible();expect(await mvpDb.clientDocument.count()).toBe(4);expect(await mvpDb.evidenceAsset.count()).toBe(2);expect((await(await page.request.get('/api/_test/control')).json()).photoCalls).toBe(2);
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-codart.spec.ts:14:217
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-codart-DNI-azul-y-elec-cc860-aché-y-deduplicación-física\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-codart-DNI-azul-y-elec-cc860-aché-y-deduplicación-física\error-context.md
+
+    Error Context: .test-results\e2e\mvp-codart-DNI-azul-y-elec-cc860-aché-y-deduplicación-física\error-context.md
+
+  2) tests\e2e\mvp-registration-redesign.spec.ts:32:1 › cliente nuevo con CODART simulado; referencia vacía persiste contacto y nombre manual
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first() with timeout 15000ms
+      - waiting for getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first()
+
+
+      31 | });
+      32 | test('cliente nuevo con CODART simulado; referencia vacía persiste contacto y nombre manual',async({page})=>{
+    > 33 |  await page.goto('/registros/nuevo');await page.getByLabel('DNI',{exact:true}).fill('70000881');await expect(page.getByLabel('Nombre completo',{exact:true})).toHaveValue('CLIENTE SINTÉTICO DE PRUEBA');await page.getByLabel('Nombre completo',{exact:true}).fill('NOMBRE MANUAL SINTÉTICO');await page.getByLabel('Celular de este registro',{exact:true}).fill('934567890');await page.getByLabel('Correo de atención',{exact:true}).fill('NEW@EXAMPLE.TEST');await page.getByLabel('Dirección de atención',{exact:true}).fill('Dirección sintética');await page.getByLabel('Departamento',{exact:true}).selectOption('TACNA');await next(page);await equipment(page);await next(page);await next(page);await uploadMissingRegistrationIdentity(page);await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();await expect(page.getByRole('heading',{name:'REGISTRO GUARDADO CORRECTAMENTE'})).toBeVisible();const client=await mvpDb.client.findUniqueOrThrow({where:{dni:'70000881'}}),row=await mvpDb.registrationRequest.findFirstOrThrow();expect(client.fullName).toBe('NOMBRE MANUAL SINTÉTICO');expect(client.email).toBe('new@example.test');expect(row.referencePhone).toBe('934567890');expect((await(await page.request.get('/api/_test/control')).json()).nameCalls).toBe(1);await page.getByRole('button',{name:'CERRAR PDF',exact:true}).click();await page.getByRole('link',{name:'IR AL DETALLE DEL REGISTRO',exact:true}).click();await expect(page.getByRole('dialog',{name:'Detalle del registro',exact:true})).toContainText('NOMBRE MANUAL SINTÉTICO');await page.goto(`/clientes/${client.id}`);await expect(page.getByRole('heading',{name:'NOMBRE MANUAL SINTÉTICO',exact:true})).toBeVisible();await page.goto('/clientes');await expect(page.locator('tbody')).toContainText('NOMBRE MANUAL SINTÉTICO');await page.getByLabel('Buscar por IMEI',{exact:true}).fill('597087654480017');await page.getByRole('button',{name:'Buscar IMEI',exact:true}).click();await expect(page.locator('.search-result')).toContainText('NOMBRE MANUAL SINTÉTICO');await page.getByRole('link',{name:'Ver equipo y registrar',exact:true}).click();await expect(page.getByRole('link',{name:'NOMBRE MANUAL SINTÉTICO',exact:true}).first()).toBeVisible();await page.goto('/ventas/nueva');await saleClient(page,client.dni);const item=page.getByTestId('sale-item-0');await item.getByLabel('Nombre comercial',{exact:true}).fill('Equipo de prueba');await item.getByLabel('Marca',{exact:true}).fill('Samsung');await item.getByLabel('Modelo',{exact:true}).fill('MODELO SINTÉTICO');await item.getByLabel('IMEI 1 del equipo 1',{exact:true}).fill('597087654490016');await item.getByLabel('Precio del equipo 1 (S/)',{exact:true}).fill('1.00');await saveSale(page);await expect(page.getByRole('dialog',{name:'Detalle de venta',exact:true})).toBeVisible();await expect(page.locator('.sale-preview-client')).toContainText('NOMBRE MANUAL SINTÉTICO');await expect(page.locator('.sale-preview-equipment')).toContainText('EQUIPO DE PRUEBA');await page.goto('/ventas');await expect(page.locator('tbody')).toContainText('NOMBRE MANUAL SINTÉTICO');await page.goto('/equipos');await expect(page.locator('tbody')).toContainText('NOMBRE MANUAL SINTÉTICO');
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+      34 | });
+      35 | test('equipo relacionado conserva ID, datos y segundo IMEI al registrar únicamente IMEI 2',async({page})=>{
+      36 |  const input=workflowInput(),client=await mvpDb.client.findUniqueOrThrow({where:{dni:'70876543'}});const eq=await mvpDb.equipment.create({data:{...input.equipment,origin:'STORE',ownerId:client.id,imeis:{create:input.imeis}}});await page.goto('/registros/nuevo');await page.getByLabel('DNI',{exact:true}).fill(client.dni);await expect(page.getByText('Cliente encontrado',{exact:true})).toBeVisible();await page.getByRole('button',{name:new RegExp(eq.code)}).click();await next(page);await expect(page.getByLabel('Marca',{exact:true})).toHaveAttribute('readonly','');await page.getByRole('radio',{name:/IMEI 2: 597087654300025/}).check();await next(page);await expect(page.getByLabel('Celular IMEI 2',{exact:true})).toHaveValue('912345678');await next(page);await uploadMissingRegistrationIdentity(page);await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();await expect(page.getByRole('heading',{name:'REGISTRO GUARDADO CORRECTAMENTE'})).toBeVisible();expect(await mvpDb.equipment.count()).toBe(1);expect((await mvpDb.imei.findUniqueOrThrow({where:{value:input.imeis[0].value}})).registrationStatus).toBeNull();expect((await mvpDb.imei.findUniqueOrThrow({where:{value:input.imeis[1].value}})).equipmentId).toBe(eq.id);expect((await mvpDb.equipment.findUniqueOrThrow({where:{id:eq.id}})).updatedAt).toEqual(eq.updatedAt);
+        at C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\tests\e2e\mvp-registration-redesign.spec.ts:33:2195
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    .test-results\e2e\mvp-registration-redesign--a66c8-te-contacto-y-nombre-manual\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: .test-results\e2e\mvp-registration-redesign--a66c8-te-contacto-y-nombre-manual\error-context.md
+
+    Error Context: .test-results\e2e\mvp-registration-redesign--a66c8-te-contacto-y-nombre-manual\error-context.md
+
+  2 failed
+    tests\e2e\mvp-codart.spec.ts:12:1 › DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física
+    tests\e2e\mvp-registration-redesign.spec.ts:32:1 › cliente nuevo con CODART simulado; referencia vacía persiste contacto y nombre manual
+  30 passed (3.6m)

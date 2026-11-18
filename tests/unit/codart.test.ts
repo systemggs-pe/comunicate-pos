@@ -1,0 +1,50 @@
+import {beforeEach,afterEach,it,expect,vi} from 'vitest';
+import sharp from 'sharp';
+import {CodartProvider,decodeIdentityImage,readProviderJson} from '../../server/integrations/codart';
+import {createDniProvider,MockDniProvider} from '../../server/dni/providers';
+import {createDniLookupService} from '../../server/dni/lookup.service';
+it.each([
+ {labels:[{side:'BACK'},{side:'FRONT'}],expected:['DNI_BACK','DNI_FRONT']},
+ {labels:[{side:'FRONT'},{}],expected:['DNI_FRONT',undefined]},
+ {labels:[{side:'FRONT',lado:'REVERSO'},{}],expected:[undefined,undefined]},
+ {labels:[{side:'FRONT'},{side:'FRONT'}],expected:[undefined,undefined]},
+ {labels:[{},{}],expected:[undefined,undefined]},
+])('AUD-08 only unambiguous explicit labels assign sides: $expected',async({labels,expected})=>{
+ const images=await Promise.all(labels.map(async label=>({...label,data_uri:await uri()})));
+ const provider=new CodartProvider('synthetic-token',vi.fn<typeof fetch>().mockResolvedValue(Response.json({success:true,data:{images}})));
+ const actual=(await provider.photos('70876543','BLUE')).images.map(i=>i.side);
+ expect(actual).toEqual(expected);
+});
+let old:string|undefined;
+beforeEach(()=>{old=process.env.CODART_ENABLED;process.env.CODART_ENABLED='true';});
+afterEach(()=>{if(old===undefined)delete process.env.CODART_ENABLED;else process.env.CODART_ENABLED=old;});
+const png=async()=>sharp({create:{width:100,height:150,channels:3,background:'#123456'}}).png().toBuffer();
+const uri=async()=>`data:image/png;base64,${(await png()).toString('base64')}`;
+it('GET RENIEC con Bearer backend extrae sólo full_name y normaliza espacios',async()=>{
+ const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({success:true,result:{full_name:'  CLIENTE   SINTÉTICO ',birth_date:'PRIVATE',gender:'PRIVATE',address:'PRIVATE',phone:'PRIVATE',email:'PRIVATE'}}));const provider=new CodartProvider('synthetic-token',fetcher);expect(await provider.lookup('70876543')).toEqual({dni:'70876543',fullName:'CLIENTE SINTÉTICO',source:'codart'});expect(fetcher).toHaveBeenCalledWith('https://api-codart.cgrt.org/api/v1/consultas/reniec/dni/70876543',expect.objectContaining({method:'GET',redirect:'manual',headers:expect.objectContaining({'Content-Type':'application/json',Authorization:'Bearer synthetic-token'})}));
+});
+it.each([['BLUE','dniv'],['ELECTRONIC','dnivel']] as const)('%s llama sólo %s y conserva el orden sin inferir anverso/reverso',async(type,endpoint)=>{
+ const jpeg=await sharp(await png()).jpeg().toBuffer(),fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({success:true,data:{images:[{data_uri:await uri()},{data_uri:'data:image/jpeg;base64,'+jpeg.toString('base64')}]},credits_deducted:2}));const result=await new CodartProvider('synthetic-token',fetcher).photos('70876543',type);expect(fetcher).toHaveBeenCalledTimes(1);expect(String(fetcher.mock.calls[0][0])).toContain(`/fd/${endpoint}/70876543`);expect(result.images).toHaveLength(2);expect(result.creditsDeducted).toBe(2);expect(result.images[0]).toMatchObject({width:100,height:150,mimeType:'image/webp'});expect(result.images[0]).not.toHaveProperty('category');expect(result.images.every(image=>image.side===undefined)).toBe(true);
+});
+it.each(['7087654','708765432','70876A43'])('DNI %s inválido no consulta al proveedor',async dni=>{const fetcher=vi.fn<typeof fetch>();await expect(new CodartProvider('synthetic-token',fetcher).lookup(dni)).rejects.toThrow();expect(fetcher).not.toHaveBeenCalled();});
+it.each([401,403,402,429,500])('maneja HTTP %i sin filtrar datos del proveedor',async status=>{
+ const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({secret:'DO NOT EXPOSE'},{status}));await expect(new CodartProvider('synthetic-token',fetcher).photos('70876543','BLUE')).rejects.toMatchObject({code:[402,429].includes(status)?'CODART_CREDITS':[401,403].includes(status)?'CODART_AUTHORIZATION':'CODART_UNAVAILABLE'});
+});
+it.each([{}, {success:false,result:{full_name:'NO'}}, {success:true,result:{}}, {success:true,result:{full_name:''}}])('respuesta de nombre inválida permite ingreso manual',async body=>{await expect(new CodartProvider('token',vi.fn<typeof fetch>().mockResolvedValue(Response.json(body))).lookup('70876543')).rejects.toMatchObject({code:'DNI_PROVIDER_UNAVAILABLE'});});
+it.each([{success:true,data:{images:[]}}, {success:false,data:{images:[]}}, {success:true,data:{}}, {success:true,data:{images:[{}, {}, {}, {}, {}]}}])('rechaza fotografías ausentes o colección inválida',async body=>{await expect(new CodartProvider('token',vi.fn<typeof fetch>().mockResolvedValue(Response.json(body))).photos('70876543','BLUE')).rejects.toMatchObject({code:'CODART_INVALID_IMAGES'});});
+it.each(['data:image/png;base64,!!!!','data:image/svg+xml;base64,AAAA','data:image/jpeg;base64,AAAA','https://public.example/image.png'])('rechaza URI, base64 o firma inválidos',async value=>{await expect(decodeIdentityImage(value)).rejects.toMatchObject({code:'CODART_IMAGE_INVALID'});});
+it('decode valida firma real y dimensiones, rechaza MIME fingido e imágenes desmesuradas',async()=>{
+ expect((await decodeIdentityImage(await uri())).width).toBe(100);await expect(decodeIdentityImage((await uri()).replace('image/png','image/jpeg'))).rejects.toMatchObject({code:'CODART_IMAGE_INVALID'});const huge=await sharp({create:{width:12001,height:2,channels:3,background:'#000000'}}).png().toBuffer();await expect(decodeIdentityImage('data:image/png;base64,'+huge.toString('base64'))).rejects.toThrow();
+});
+it('sin habilitación o token no efectúa peticiones',async()=>{const fetcher=vi.fn<typeof fetch>();process.env.CODART_ENABLED='false';await expect(new CodartProvider('token',fetcher).photos('70876543','BLUE')).rejects.toMatchObject({code:'CODART_NOT_CONFIGURED'});process.env.CODART_ENABLED='true';await expect(new CodartProvider('',fetcher).photos('70876543','BLUE')).rejects.toMatchObject({code:'CODART_NOT_CONFIGURED'});expect(fetcher).not.toHaveBeenCalled();});
+it('créditos no informados permanecen desconocidos',async()=>{const result=await new CodartProvider('token',vi.fn<typeof fetch>().mockResolvedValue(Response.json({success:true,data:{images:[{data_uri:await uri()}]}}))).photos('70876543','BLUE');expect(result.creditsDeducted).toBeNull();});
+it('limita JSON inválido o excesivo',async()=>{await expect(readProviderJson(new Response('x'.repeat(1000)),100)).rejects.toThrow();await expect(new CodartProvider('token',vi.fn<typeof fetch>().mockResolvedValue(new Response('not JSON'))).photos('70876543','BLUE')).rejects.toMatchObject({code:'CODART_INVALID_RESPONSE'});});
+it('cliente local evita CODART; concurrentes comparten petición; no reintenta cargos fallidos',async()=>{
+ const fetcher=vi.fn<typeof fetch>().mockImplementation(async()=>{await new Promise(r=>setTimeout(r,20));return Response.json({success:true,result:{full_name:'SINTÉTICO'}});});const provider=new CodartProvider('token',fetcher),local={dni:'70876543'};expect((await createDniLookupService(async()=>local,provider).lookup(local.dni)).source).toBe('LOCAL');expect(fetcher).not.toHaveBeenCalled();const service=createDniLookupService(async()=>null,provider);const results=await Promise.all([service.lookup(local.dni),service.lookup(local.dni)]);expect(results.every(r=>r.source==='EXTERNAL')).toBe(true);expect(fetcher).toHaveBeenCalledTimes(1);const failed=vi.fn<typeof fetch>().mockResolvedValue(Response.json({}, {status:429}));await createDniLookupService(async()=>null,new CodartProvider('token',failed)).lookup(local.dni);expect(failed).toHaveBeenCalledTimes(1);
+});
+
+it('habilitar CODART sin DNI_PROVIDER selecciona CODART, nunca el mock por defecto',()=>{expect(createDniProvider({CODART_ENABLED:'true',CODART_API_KEY:'synthetic-token'})).toBeInstanceOf(CodartProvider);});
+it('habilitar CODART sin clave falla cerrado en su adaptador, sin recurrir al mock',()=>{expect(createDniProvider({CODART_ENABLED:'true'})).toBeInstanceOf(CodartProvider);});
+it.each(['mock','disabled','api'])('proveedor explícito %s prevalece sobre habilitación CODART',kind=>{const provider=createDniProvider({DNI_PROVIDER:kind,CODART_ENABLED:'true',CODART_API_KEY:'synthetic-token'});expect(provider).not.toBeInstanceOf(CodartProvider);if(kind==='mock')expect(provider).toBeInstanceOf(MockDniProvider);});
+
+it('las pruebas no activan implícitamente el proveedor real por claves de .env',()=>{expect(createDniProvider({NODE_ENV:'test',CODART_ENABLED:'true',CODART_API_KEY:'synthetic-token'})).toBeInstanceOf(MockDniProvider);});

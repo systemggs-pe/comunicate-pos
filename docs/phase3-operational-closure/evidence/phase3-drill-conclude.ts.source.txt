@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {readdir,readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {join} from 'node:path';
+import {PrismaClient} from '@prisma/client';
+import {ListObjectsV2Command} from '@aws-sdk/client-s3';
+import {S3EvidenceStorage,storageConfig} from '../server/storage/s3';
+import {verifyBackup} from '../server/ops/recovery';
+const root='.local/phase3-archives',names=(await readdir(root)).filter(n=>!n.endsWith('-tampered'));const choices=[];
+for(const name of names){const key=await readFile(join('.local/phase3-key-custody',name+'.key'),'utf8');const manifest=await verifyBackup(join(root,name),key.trim());choices.push({name,manifest});}
+choices.sort((a,b)=>a.manifest.createdAt.localeCompare(b.manifest.createdAt));const {name,manifest}=choices.at(-1)!;
+const target=new URL(process.env.DATABASE_URL!);target.pathname='/communicate_pos_restore_p3_'+name.slice(0,20);const source=new URL(process.env.DATABASE_URL!);source.pathname='/communicate_pos_phase9_load';
+const sourceDb=new PrismaClient({datasources:{db:{url:source.toString()}}}),targetDb=new PrismaClient({datasources:{db:{url:target.toString()}}});
+const configs=[{label:'source',config:{...storageConfig(),bucket:'communicate-evidence-phase9-load'}},{label:'restored',config:{...storageConfig(),bucket:'communicate-evidence-restore-p3-'+name.slice(0,20)}}];
+const inventories=[];
+try{
+ for(const {label,config}of configs){const storage=new S3EvidenceStorage(config);try{const objects=await storage.client.send(new ListObjectsV2Command({Bucket:config.bucket}));assert.equal(objects.IsTruncated,false);assert.equal(objects.Contents?.length,manifest.objects.length);assert.deepEqual(new Set(objects.Contents?.map(o=>o.Key)),new Set(manifest.objects.map(o=>o.key)));let verified=0;for(const object of manifest.objects){const bytes=await storage.download(object.key,10485760);assert.equal(bytes.length,object.size);assert.equal(createHash('sha256').update(bytes).digest('hex'),object.hash);verified++;}inventories.push({resource:label,objects:objects.Contents!.length,final:objects.Contents!.filter(o=>o.Key?.startsWith('evidence/')).length,staging:objects.Contents!.filter(o=>o.Key?.startsWith('staging/')).length,checksumsVerified:verified,unknownKeys:0});}finally{storage.client.destroy();}}
+ const counts=await sourceDb.$transaction(async tx=>{await tx.$executeRawUnsafe('SET TRANSACTION READ ONLY');return {clients:await tx.client.count(),sales:await tx.sale.count(),assets:await tx.evidenceAsset.count(),links:await tx.registrationEvidence.count(),documents:await tx.clientDocument.count()};});assert.deepEqual(counts,{clients:1000,sales:20,assets:40,links:80,documents:40});
+ const last=JSON.parse(await readFile('docs/phase3-operational-closure/evidence/official-cli-drill-attempt2.json','utf8'));assert.equal(last.checks.length,18);assert.ok(last.checks.every((c:{status:string})=>c.status==='PASS'));assert.equal(last.verifiedObjects,40);assert.equal(last.relationships,120);
+ const summary={checkedAt:new Date().toISOString(),status:'PASS_LOCAL',method:'Read-only focused completion; no new backup/restore or changes to existing archives',originalRunnerExit:1,originalFailure:'Expected 40 source objects; observed 80 because 40 staging objects are also included. Not a restore failure.',checks:[...last.checks,{name:'source and restored buckets exactly match encrypted manifest including staging; every checksum matches',status:'PASS'}],inventories,sourceCounts:counts,timings:last.timings,manifestObjects:manifest.objects.length,manifestCreatedAt:manifest.createdAt,snapshotLagMs:last.snapshotLagMs,verifiedReadyObjects:last.verifiedObjects,relationships:last.relationships,publicTables:Object.keys(last.sourceCounts).length,totalObjectBytes:last.totalObjectBytes,commands:last.commands,keyCustody:last.keyCustody,rpoRto:last.rpoRto,archivesRetained:true,commercialWrites:0,cloudCalls:0};
+ await writeFile('docs/phase3-operational-closure/evidence/official-cli-final-verification.json',JSON.stringify(summary,null,2));console.log(JSON.stringify({status:summary.status,checks:summary.checks.length,inventories,timings:summary.timings}));
+}finally{await sourceDb.$disconnect();await targetDb.$disconnect();}

@@ -1,0 +1,23 @@
+{"name":"typescript","exitCode":2,"durationMs":15626,"command":"node node_modules/typescript/bin/tsc --noEmit"}
+src/features/auth/Login.tsx(13,1429): error TS2322: Type 'string | null' is not assignable to type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+src/features/receipts/pdf.ts(17,29): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/features/receipts/pdf.ts(21,21): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/features/receipts/pdf.ts(24,21): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/features/registrations/OperationalRegistrationFlow.tsx(114,2014): error TS2783: 'operator' is specified more than once, so this usage will be overwritten.
+src/features/registrations/OperationalRegistrationFlow.tsx(114,2031): error TS2783: 'mode' is specified more than once, so this usage will be overwritten.
+src/features/registrations/OperationalRegistrationFlow.tsx(114,2051): error TS2783: 'price' is specified more than once, so this usage will be overwritten.
+src/features/registrations/RegistrationFlow.tsx(31,57): error TS2345: Argument of type 'ClientFieldsValue | { phone: string; email: string; address: string; department: string; id: string; code: string; dni: string; firstName: string; lastName: string; fullName?: string | ... 1 more ... | undefined; province?: string | ... 1 more ... | undefined; createdAt: string; updatedAt: string; equipmentCount?: n...' is not assignable to parameter of type 'ClientFieldsValue'.
+  Type '{ phone: string; email: string; address: string; department: string; id: string; code: string; dni: string; firstName: string; lastName: string; fullName?: string | null; province?: string | null; createdAt: string; updatedAt: string; equipmentCount?: number; }' is not assignable to type 'ClientFieldsValue'.
+    Types of property 'province' are incompatible.
+      Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+        Type 'null' is not assignable to type 'string | undefined'.
+src/features/registrations/RegistrationFlow.tsx(31,76): error TS2345: Argument of type '{ phone: string; email: string; address: string; department: string; dni: string; firstName: string; lastName: string; fullName?: string | null | undefined; province?: string | undefined; } | { ...; }' is not assignable to parameter of type 'SetStateAction<ClientFieldsValue>'.
+  Type '{ phone: string; email: string; address: string; department: string; dni: string; firstName: string; lastName: string; fullName?: string | null; province?: string | null; id: string; code: string; createdAt: string; updatedAt: string; equipmentCount?: number; }' is not assignable to type 'SetStateAction<ClientFieldsValue>'.
+    Type '{ phone: string; email: string; address: string; department: string; dni: string; firstName: string; lastName: string; fullName?: string | null; province?: string | null; id: string; code: string; createdAt: string; updatedAt: string; equipmentCount?: number; }' is not assignable to type 'ClientFieldsValue'.
+      Types of property 'province' are incompatible.
+        Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+          Type 'null' is not assignable to type 'string | undefined'.
+tests/unit/receipts.test.ts(8,104): error TS2345: Argument of type '48' is not assignable to parameter of type 'ReceiptFormat'.
+tests/unit/receipts.test.ts(8,262): error TS2345: Argument of type '48' is not assignable to parameter of type 'ReceiptFormat'.
+tests/unit/receipts.test.ts(11,189): error TS2345: Argument of type '48' is not assignable to parameter of type 'ReceiptFormat'.

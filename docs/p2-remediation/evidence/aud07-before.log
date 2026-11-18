@@ -1,0 +1,48 @@
+{"startedAt":"2026-10-20T17:46:44.237Z","command":"node node_modules/prisma/build/index.js migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --exit-code --script","preflight":"PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"}
+-- DropForeignKey
+ALTER TABLE "ClientDocument" DROP CONSTRAINT "ClientDocument_clientId_fkey";
+
+-- DropForeignKey
+ALTER TABLE "ClientDocument" DROP CONSTRAINT "ClientDocument_createdById_fkey";
+
+-- DropForeignKey
+ALTER TABLE "ClientDocument" DROP CONSTRAINT "ClientDocument_evidenceAssetId_fkey";
+
+-- DropForeignKey
+ALTER TABLE "CompanySettings" DROP CONSTRAINT "CompanySettings_updatedById_fkey";
+
+-- DropForeignKey
+ALTER TABLE "EvidenceAsset" DROP CONSTRAINT "EvidenceAsset_ownerClientId_fkey";
+
+-- DropForeignKey
+ALTER TABLE "RegistrationRequest" DROP CONSTRAINT "RegistrationRequest_completedById_fkey";
+
+-- DropIndex
+DROP INDEX "request_distinct_phone_per_operation";
+
+-- AlterTable
+ALTER TABLE "ClientDocument" ALTER COLUMN "id" DROP DEFAULT,
+ALTER COLUMN "updatedAt" DROP DEFAULT;
+
+-- AlterTable
+ALTER TABLE "CompanySettings" ALTER COLUMN "updatedAt" DROP DEFAULT;
+
+-- AddForeignKey
+ALTER TABLE "CompanySettings" ADD CONSTRAINT "CompanySettings_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RegistrationRequest" ADD CONSTRAINT "RegistrationRequest_completedById_fkey" FOREIGN KEY ("completedById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "EvidenceAsset" ADD CONSTRAINT "EvidenceAsset_ownerClientId_fkey" FOREIGN KEY ("ownerClientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClientDocument" ADD CONSTRAINT "ClientDocument_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClientDocument" ADD CONSTRAINT "ClientDocument_evidenceAssetId_fkey" FOREIGN KEY ("evidenceAssetId") REFERENCES "EvidenceAsset"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ClientDocument" ADD CONSTRAINT "ClientDocument_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+{"exitCode":2,"durationMs":879}

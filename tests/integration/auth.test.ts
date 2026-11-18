@@ -1,9 +1,11 @@
+import {clearEvidenceFixtures} from '../helpers/evidence';
 import 'dotenv/config';
 import {PrismaClient} from '@prisma/client';
 import request from 'supertest';
-import {beforeEach,afterAll,describe,it,expect} from 'vitest';
+import {beforeEach,afterAll,describe,it,expect,vi} from 'vitest';
 import {createApp} from '../../server/app';
 import {createAuthService,hashToken} from '../../server/services/auth.service';
+import {recoverSuperadmin} from '../../server/ops/admin-recovery';
 import {permissionKeys,sellerPermissions,adminPermissions} from '../../shared/auth';
 import {seedTestAdmin,loginAgent,testEmail,testPassword,testOrigin} from '../helpers/auth';
 const url=process.env.TEST_DATABASE_URL!;const target=new URL(url);if(!['localhost','127.0.0.1'].includes(target.hostname)||target.pathname!=='/communicate_pos_test')throw new Error('Sólo PostgreSQL de prueba local');
@@ -11,15 +13,45 @@ const db=new PrismaClient({datasources:{db:{url}}}),app=createApp(db),auth=creat
 let root:Awaited<ReturnType<typeof loginAgent>>,rootId:string;
 async function role(code:string){return db.role.findUniqueOrThrow({where:{code}});}
 async function make(code='SELLER',email='seller@example.com'){const result=await root.post('/api/users').set('Origin',testOrigin).send({name:code,email,password:testPassword,roleId:(await role(code)).id,status:'ACTIVE'});expect(result.status).toBe(201);return result.body as {id:string;email:string};}
-async function commercial(agent:typeof root,imei='359600000000001'){return agent.post('/api/sales').set('Origin',testOrigin).send({buyer:{client:{dni:'60606060',firstName:'Brand',lastName:'Peralta'}},items:[{equipment:{brand:'Samsung',model:'S25 Ultra',imeis:[{slot:1,value:imei}]},unitPrice:'3500'}],paymentMethod:'YAPE'});}
+async function commercial(agent:typeof root,imei='596000000000018'){return agent.post('/api/sales').set('Origin',testOrigin).send({buyer:{client:{dni:'60606060',firstName:'Brand',lastName:'Peralta'}},items:[{equipment:{brand:'Samsung',model:'S25 Ultra',imeis:[{slot:1,value:imei}]},unitPrice:'3500'}],paymentMethod:'YAPE'});}
 async function cancel(agent:typeof root,id:string){const preview=await agent.get(`/api/sales/${id}/deletion-preview`);return agent.delete(`/api/sales/${id}`).set('Origin',testOrigin).send({confirm:'ELIMINAR',fingerprint:preview.body.fingerprint,reason:'Prueba administrativa'});}
-beforeEach(async()=>{
+beforeEach(async()=>{await clearEvidenceFixtures(db);
  await db.$transaction([db.session.deleteMany(),db.authRateLimit.deleteMany(),db.registrationRequestHistory.deleteMany(), db.registrationRequest.deleteMany(), db.registrationOperation.deleteMany(), db.saleAccessory.deleteMany(), db.equipmentHistory.deleteMany(),db.auditLog.deleteMany(),db.saleEquipment.deleteMany(),db.sale.deleteMany(),db.imei.deleteMany(),db.equipment.deleteMany(),db.client.deleteMany(),db.user.deleteMany()]);
  // Restaurar matrices tras casos que editan permisos, exclusivamente DB test.
  for(const [code,permissions]of [['SUPERADMIN',permissionKeys],['ADMIN',adminPermissions],['SELLER',sellerPermissions]] as const){const r=await role(code);await db.rolePermission.deleteMany({where:{roleId:r.id}});await db.rolePermission.createMany({data:permissions.map(permissionKey=>({roleId:r.id,permissionKey}))});}
  await seedTestAdmin(db);root=await loginAgent(app);rootId=(await root.get('/api/auth/me')).body.id;
 });
 afterAll(()=>db.$disconnect());
+it('recuperación desde el host cambia la clave del superadmin y revoca sus sesiones',async()=>{
+ const seller=await make();
+ await expect(recoverSuperadmin(db,seller.email,'fixture-recovery-only-2026')).rejects.toMatchObject({code:'SUPERADMIN_RECOVERY_TARGET'});
+ const newPassword='fixture-recovery-only-2026';
+ await expect(recoverSuperadmin(db,testEmail,newPassword)).resolves.toMatchObject({revokedSessions:1});
+ expect((await root.get('/api/auth/me')).status).toBe(401);
+ expect((await request(app).post('/api/auth/login').set('Origin',testOrigin).send({email:testEmail,password:testPassword})).status).toBe(401);
+ expect((await (await loginAgent(app,testEmail,newPassword)).get('/api/auth/me')).status).toBe(200);
+ expect(await db.auditLog.count({where:{action:'USER_PASSWORD_RESET',entityId:rootId,metadata:{path:['method'],equals:'HOST_RECOVERY'}}})).toBe(1);
+});
+it('Google usa el callback HTTPS del subdominio de API del POS y rechaza un dominio ajeno',async()=>{
+ const origin='https://pos.test-communicate.example',api='https://api.test-communicate.example';
+ const redirect=api+'/api/auth/google/callback';
+ const configured={AUTH_ALLOWED_ORIGINS:origin,WEB_SITE_DOMAIN:'test-communicate.example',
+  GOOGLE_OIDC_APP_ORIGIN:origin,GOOGLE_OIDC_API_ORIGIN:api,GOOGLE_OIDC_REDIRECT_URI:redirect,
+  GOOGLE_OIDC_CLIENT_ID:'fixture-client',GOOGLE_OIDC_CLIENT_SECRET:'fixture-only',GOOGLE_OIDC_AUTHORIZED_ACCOUNTS:'{"operator@example.test":"fixture-id"}'};
+ for(const [key,value] of Object.entries(configured))vi.stubEnv(key,value);
+ vi.stubEnv('NODE_ENV','production');
+ try{
+  expect((await request(app).get('/api/auth/google/config').set('Origin',origin)).body.enabled).toBe(true);
+  const start=await request(app).post('/api/auth/google/start').set('Origin',origin).send({});
+  expect(start.status).toBe(200);
+  expect(new URL(start.body.url).searchParams.get('redirect_uri')).toBe(redirect);
+  expect(start.headers['set-cookie'][0]).toContain('__Host-pos_google=');
+  expect(start.headers['set-cookie'][0]).toContain('Secure');
+  vi.stubEnv('GOOGLE_OIDC_API_ORIGIN','https://elsewhere.example');
+  vi.stubEnv('GOOGLE_OIDC_REDIRECT_URI','https://elsewhere.example/api/auth/google/callback');
+  expect((await request(app).get('/api/auth/google/config').set('Origin',origin)).body.enabled).toBe(false);
+ }finally{vi.unstubAllEnvs();}
+});
 describe('Phase 4 — sesiones, permisos y auditoría reales',()=>{
  it('1 login correcto y lastLoginAt',async()=>{const result=await request(app).post('/api/auth/login').set('Origin',testOrigin).send({email:testEmail,password:testPassword});expect(result.status).toBe(200);expect(result.body.lastLoginAt).toBeTruthy();});
  it('2 password incorrecto',async()=>{const result=await request(app).post('/api/auth/login').set('Origin',testOrigin).send({email:testEmail,password:'incorrect-password'});expect(result.body.error.code).toBe('INVALID_CREDENTIALS');});
@@ -62,7 +94,7 @@ describe('Phase 4 — sesiones, permisos y auditoría reales',()=>{
  it('39 desactivar usuario audit actor',async()=>{const user=await make();await root.post(`/api/users/${user.id}/disable`).set('Origin',testOrigin).send({});expect(await db.auditLog.count({where:{action:'USER_DISABLED',userId:rootId,entityId:user.id}})).toBe(1);});
  it('40 venta audit actor e historial sin credenciales',async()=>{const user=await make(),sale=await commercial(await loginAgent(app,user.email));expect(await db.auditLog.count({where:{action:'SALE_CREATED',userId:user.id,entityId:sale.body.id}})).toBe(1);expect((await db.equipmentHistory.findFirstOrThrow({where:{eventType:'SOLD'}})).userId).toBe(user.id);});
  it('41 cancelación audit actor',async()=>{const sale=await commercial(root);await cancel(root,sale.body.id);expect(await db.auditLog.count({where:{action:'PERMANENT_DELETION',userId:rootId,entityId:sale.body.id}})).toBe(1);});
- it('42 registro IMEI audit antes/después y registeredById',async()=>{const sale=await commercial(root);const result=await root.patch('/api/imeis/359600000000001/registration').set('Origin',testOrigin).send({status:'REGISTERED'});expect(result.status).toBe(200);const imei=await db.imei.findFirstOrThrow();expect(imei.registeredById).toBe(rootId);expect((await db.auditLog.findFirstOrThrow({where:{action:'IMEI_REGISTRATION_UPDATED',userId:rootId}})).metadata).toEqual({from:null,to:'REGISTERED'});expect(sale.status).toBe(201);});
+ it('42 registro IMEI audit antes/después y registeredById',async()=>{const sale=await commercial(root);const result=await root.patch('/api/imeis/596000000000018/registration').set('Origin',testOrigin).send({status:'REGISTERED'});expect(result.status).toBe(200);const imei=await db.imei.findFirstOrThrow();expect(imei.registeredById).toBe(rootId);expect((await db.auditLog.findFirstOrThrow({where:{action:'IMEI_REGISTRATION_UPDATED',userId:rootId}})).metadata).toEqual({from:null,to:'REGISTERED'});expect(sale.status).toBe(201);});
  it('43 auditoría nunca guarda credenciales/tokens/hash',async()=>{const user=await make();await root.post(`/api/users/${user.id}/reset-password`).set('Origin',testOrigin).send({password:'new-test-password-only'});const data=JSON.stringify(await db.auditLog.findMany());expect(data).not.toContain(testPassword);expect(data).not.toContain('new-test-password-only');expect(data).not.toMatch(/passwordHash|tokenHash|sessionToken/);});
  it('CSRF login y escritura, CORS cerrado',async()=>{const evil=await request(app).post('/api/auth/login').set('Origin','https://evil.example').send({email:testEmail,password:testPassword});expect(evil.status).toBe(403);expect(evil.headers['access-control-allow-origin']).toBeUndefined();expect((await root.post('/api/clients').send({})).status).toBe(403);const preflight=await request(app).options('/api/users').set('Origin',testOrigin);expect(preflight.status).toBe(204);expect(preflight.headers['access-control-allow-origin']).toBe(testOrigin);});
  it('rate limit compartido PostgreSQL',async()=>{for(let i=0;i<10;i++)await request(app).post('/api/auth/login').set('Origin',testOrigin).send({email:'missing@example.com',password:testPassword});const result=await request(createApp(db)).post('/api/auth/login').set('Origin',testOrigin).send({email:'missing@example.com',password:testPassword});expect(result.status).toBe(429);});

@@ -1,0 +1,286 @@
+# COMUNIC@TE POS 2.0 — IMPLEMENTATION REPORT
+
+## Corrección posterior — dirección operativa
+
+Por instrucción posterior del usuario, la dirección final y los tres formatos de Compartir usan **DIRECCIÓN - DEPARTAMENTO**. Provincia se retiró de los formularios y detalles comerciales. No se eliminan columnas ni datos existentes; no se aplica otra migración. Esta corrección sustituye las menciones de Provincia como componente de dirección en el reporte original. No se ejecutan pruebas, push ni deploy.
+
+## Corrección posterior — autorización de fotos CODART
+
+La consulta de fotos CODART requiere únicamente una casilla explícita de autorización para consultar y almacenar. Se retiran finalidad y referencia del formulario de fotos; el backend registra el contexto de esa confirmación con usuario y fecha cuando no se reciben los campos del contrato anterior. Se conserva la casilla obligatoria en backend, permisos, almacenamiento privado y autorización contractual existente. La carga manual y clasificación documental conservan sus formularios anteriores. Sin pruebas, push ni deploy.
+
+## Corrección posterior — errores de consulta CODART
+
+El adaptador solicita JSON explícitamente y clasifica redirecciones, rechazo de autorización, errores de red/DNS/TLS y tiempo de espera. No sigue redirecciones ni envía la clave a otro destino. Las fotos tienen un margen de respuesta de veinte segundos frente a los ocho anteriores. Se registra únicamente un código de transporte permitido, sin DNI, claves o contenido del proveedor.
+
+El mensaje de la captura anterior no permite atribuir una causa concreta: el adaptador agrupaba redirecciones y errores de transporte bajo un mensaje genérico. Se revisó resolución DNS y acceso HTTPS a la raíz pública del proveedor, sin consultar DNI ni fotos. La consulta real de fotos sigue sin comprobarse; no se ejecutan suites, push ni deploy.
+
+## Ampliación posterior — identificar anverso y reverso
+
+Foto DNI y el panel de consulta de fotos del expediente permiten seleccionar y confirmar el lado de una imagen sin identificar. Tras guardar, muestran ANVERSO DEL DNI o REVERSO DEL DNI. Se utiliza el archivo privado existente, sin llamadas adicionales a CODART, copias ni cambio de caducidad o autorización. El backend exige permisos documentales, confirmación explícita y documento vigente; impide sobrescribir otra foto del mismo lado, cambiar un lado ya identificado o reclasificar archivos vinculados a evidencias. Registra la identificación en auditoría. No se presupone que imagen 1 sea anverso o imagen 2 reverso. Sin pruebas, push ni deploy.
+
+## Corrección posterior — lado indicado por CODART
+
+El adaptador ya no descarta las etiquetas explícitas de lado de cada imagen. Reconoce valores de anverso/frontal/front y reverso/back en los metadatos de la imagen (side, lado, face, cara, label, name, nombre, type, tipo, category), conserva esa clasificación en el documento y muestra el lado automáticamente. No deduce el lado del índice. Las etiquetas incompatibles o duplicadas se dejan sin identificar y conservan la opción manual.
+
+Al reutilizar un archivo durante una consulta autorizada, permite completar la clasificación desconocida con la etiqueta recibida, siempre que no esté vinculado a evidencias. No sobrescribe una clasificación previa conocida. No se modifica el almacenamiento de las imágenes con campos ajenos a su esquema.
+
+Las fotos guardadas antes del cambio no conservaban los metadatos originales; su lectura del expediente no dispara consultas nuevas ni consume créditos. No se ejecutó una consulta real para recuperar esas etiquetas. La documentación pública de CODART requiere inicio de sesión; se solicitó al usuario la clave y valor del campo del proveedor, sin datos personales, para confirmar el nombre exacto si difiere de los campos contemplados. No se ejecutaron pruebas, push ni deploy.
+
+## Regla posterior confirmada por el usuario — orden CODART
+
+El usuario confirmó que la respuesta real sólo contiene data_uri y autorizó la regla: imagen 1 anverso, imagen 2 reverso. Para respuestas de dos imágenes sin etiqueta explícita se utiliza ese orden. Si el proveedor incluye etiquetas reconocidas, se conservan.
+
+Al consultar Foto DNI, los documentos CODART ya guardados se identifican mediante su sourceOrdinal, sin solicitudes externas ni consumo de créditos. La clasificación se persiste mediante una operación explícita, con permisos y auditoría, únicamente para pares vigentes de la misma fuente y tipo, ordenados 1/2. No sobrescribe lados conocidos, no cambia documentos asociados a evidencias, no renueva autorizaciones ni modifica archivos. Otros conjuntos conservan la identificación manual. No se ejecutó consulta real ni suite de pruebas.
+
+## Simplificación posterior — ficha documental del cliente
+
+Por solicitud del usuario, se retiran completamente de DocumentVault la autorización documental con finalidad/referencia, carga manual de identidad y sus confirmaciones, listado separado de documentos de identidad, documentación histórica de registros y equipos y acciones de incorporación/reemplazo/eliminación de esos bloques. La ficha conserva únicamente la consulta y visor de fotos CODART con su casilla de autorización. No se eliminan documentos, archivos, relaciones ni datos históricos. El selector de documentos utilizado por Registros conserva su contrato de datos. No se ejecutan pruebas, push ni deploy.
+
+## Mejora posterior — diseño y movimiento de Fotos del DNI
+
+Se aplican Impeccable y UI/UX Pro Max al panel de fotos de la ficha del cliente y a Foto DNI. Se conserva la identidad azul del POS y se reduce el anidamiento visual. Se comparten selector de DNI, mensajes de estado, carga y visor de anverso/reverso. Los textos se simplifican: Buscar fotos, Ampliar, Descargar, Parte de adelante/Parte de atrás y una casilla breve de permiso. Pedir fotos nuevas conserva la indicación de posible consumo de créditos.
+
+Las fotos reservan espacio mientras cargan. Se añaden indicadores de carga reales, confirmación breve de selección y aparición suave de la imagen, con duración acotada. Se respeta prefers-reduced-motion y se preservan estados de foco, botones táctiles y mensajes accesibles. La ampliación utiliza el modal compartido. No se agregan librerías de animación ni imágenes decorativas.
+
+La configuración de consultas, permisos, almacenamiento y datos existentes se conserva. No se ejecutaron suites, builds, auditorías ni comparaciones visuales, por la instrucción vigente de implementación sin pruebas; se omiten también las comprobaciones automáticas sugeridas por las skills. No se afirma verificación del resultado visual. Sin push ni deploy.
+
+## Ajuste posterior — DNI guardado y actualización
+
+Cuando el cliente ya tiene fotos vigentes del DNI, la ficha oculta el selector de tipo y la explicación inicial de créditos. Detecta el tipo de DNI guardado en vez de presuponer siempre DNI azul. Muestra las fotos y una opción Actualizar DNI, que despliega el tipo de DNI, el aviso de posible consumo de créditos y la casilla de permiso sólo al abrirla. Se conserva el permiso para reemplazar documentos y no se llama a CODART al desplegar opciones. Sin pruebas, push ni deploy.
+
+## Ajuste posterior — apertura del bloque DNI
+
+El acceso de la ficha se presenta como DNI del cliente, con icono y una explicación breve. Se sustituyen los triángulos nativos por flechas con giro y estados de foco. El contenido aparece con una transición breve de opacidad y recorte; no se animan alturas ni se añaden dependencias. El estado real DNI guardado se muestra como una etiqueta discreta. Actualizar DNI tiene apariencia de botón y abre su formulario con el mismo movimiento. Se respeta movimiento reducido. El expediente sigue cargándose únicamente al abrirlo. Sin pruebas, push ni deploy.
+
+## Optimización posterior — espacio de la ficha del cliente
+
+Se elimina la estructura de dos columnas con alturas desiguales que dejaba una gran zona vacía al lado de los equipos. El resumen pasa a una franja compacta; contacto, equipos e historial utilizan el ancho completo en orden de lectura. Equipos se organiza en dos columnas dentro de su propia sección y pasa a una en pantallas estrechas. El historial agrupa fecha, equipo e IMEI con menos separación. Se compacta el encabezado y se amplía el modal hasta 760 px, respetando el ancho disponible.
+
+Se conservan todos los contactos, equipos, IMEIs, series, movimientos y métricas autorizadas, sin cambiar cálculos ni datos. Los marcadores repetidos NO CONSIGNADO se presentan como dirección no registrada. Se mantiene la diferencia entre importe de ventas y servicios sin cobro confirmado. Hay una transición breve de entrada, desactivada para movimiento reducido; los controles no dependen de que termine la animación. Se aplican Impeccable y UI/UX Pro Max y se registra la preferencia del usuario de utilizarlas en futuros cambios de diseño y movimiento. Sin pruebas, auditorías, push ni deploy en esta fase.
+
+## Pulido posterior — ficha minimalista
+
+Con Impeccable y UI/UX Pro Max se refina la ficha compacta sin cambiar su estructura funcional. Resumen plano sin fondo adicional, tipografía y pesos más contenidos, identidad separada en DNI/código, teléfonos y correos legibles sin separadores amontonados, iconos más discretos y bloque DNI integrado sin un recuadro anidado. Se mantienen todos los valores y sus restricciones por permiso.
+
+Los controles conservan foco visible y objetivos táctiles; se pulen hover, pulsación y una sola entrada breve del contenido. Movimiento reducido mantiene la vista estática. No se agregan dependencias, consultas ni cambios de datos. Sin pruebas, auditorías, push ni deploy.
+
+## Refinamiento posterior — detalle y edición de equipos
+
+Se aplica el estilo minimalista del POS al detalle del equipo con Impeccable y UI/UX Pro Max: encabezado compacto con código y estado, propietario/DNI/origen agrupados, edición independiente, características en cuadrícula sin panel gris y bloques claros para cada IMEI. Se preservan todas las características, solicitudes y enlaces autorizados.
+
+El historial completo se conserva dentro de un desplegable con número de eventos. La presentación compacta elimina el margen excesivo del timeline y alinea fecha/evento, sin modificar su orden o contenido. La información comercial y la eliminación permanecen bajo sus permisos; la eliminación conserva su confirmación original y sólo cambia la etiqueta del acceso. La edición mantiene sus formularios y actualización técnica autorizada, con la misma presentación.
+
+Hay apertura breve y giro de flecha sin dependencias nuevas, con preferencia de movimiento reducido, foco visible y tamaños táctiles. No se modifican datos ni se ejecutan pruebas, auditorías, push o deploy.
+
+## Ajuste posterior — historial sólo de registro
+
+El detalle del equipo muestra Historial de registro filtrado por eventos de registro e IMEI. Los rótulos son Registro iniciado, Registro pendiente y Registro completado. Una transición real a BLOQUEADO se presenta como Solicitud de desbloqueo recibida; una transición de BLOQUEADO a REGISTRADO se presenta como Equipo registrado y desbloqueado. Cuando inicio y estado pendiente corresponden al mismo evento, el título es Registro iniciado y el detalle Registro pendiente, conservando su fecha real. No se inventan eventos o fechas ni se usa el estado del otro IMEI.
+
+Se ocultan creación del equipo, asignación de propietario, incorporación de IMEI, ventas y cambios técnicos sin transición de registro. El contador incluye sólo los movimientos mostrados. La API y los eventos internos se conservan intactos. Sin pruebas, push ni deploy.
+
+## Ajuste posterior — navegación flotante con frosted glass
+
+Por solicitud del usuario, el contenido vuelve a desplazarse detrás de la cápsula de navegación, eliminando la franja fija que reservaba parte de la altura del área principal. El área usa el alto restante del contenedor flex; conserva margen de desplazamiento al final y scroll-padding para que los últimos controles puedan subir por encima del menú y del área segura del móvil.
+
+La cápsula usa fondo con 60 % de opacidad (40 % de transparencia), desenfoque de 18 px, borde tenue y sombra suave. La transparencia afecta al fondo, sin reducir la opacidad de iconos o textos. Se conservan las cinco opciones, permisos, estados activos, foco y movimiento reducido; el efecto tiene una alternativa opaca para navegadores sin backdrop-filter. Se utilizan Impeccable y UI/UX Pro Max. Sin pruebas, auditorías, push ni deploy.
+
+## Integración posterior — DNI del cliente como evidencia automática
+
+Las fotos vigentes e identificadas del DNI del cliente se vinculan automáticamente a los registros nuevos, sin seleccionar manualmente cada documento. Para registros existentes, la sección de evidencias realiza una sincronización explícita autorizada antes de leer las fotos. La generación del expediente PDF también completa las asociaciones faltantes cuando el usuario dispone de los permisos correspondientes.
+
+Se reutiliza EvidenceAsset y se crean únicamente las asociaciones RegistrationEvidence que faltan para DNI_FRONT/DNI_BACK. No se copian archivos, consultan proveedores ni consumen créditos CODART. Cada IMEI mantiene su propia solicitud y puede compartir los archivos del mismo cliente. La operación es transaccional e idempotente y no reemplaza evidencias adjuntas. Se conserva el tipo de DNI ya vinculado cuando se conoce.
+
+Sólo se consideran documentos CURRENT, vigentes y con archivo READY del cliente propietario. No se vinculan automáticamente equipos con cambios de propietario históricos, grupos ambiguos o archivos incompatibles. Se conservan RBAC, auditoría y almacenamiento privado. El autovínculo exige permiso documental y de adjuntar evidencias; en registros existentes también exige edición del registro. La vista espera la sincronización y muestra un mensaje si falla. Las fotos de caja y boleta siguen siendo propias de cada registro. No se ejecutan pruebas, auditorías, push ni deploy; no se aplica migración ni backfill masivo.
+
+## Aclaración posterior — DNI reutilizable del cliente y carga en registro
+
+Las fotos vigentes del cliente se seleccionan automáticamente en el paso de evidencias, con vista previa privada. Se ocultan los controles de carga de cada lado ya guardado y se pide únicamente el que falte. Una carga manual de DNI sirve para ambos IMEI de la misma operación. Al confirmar, el mismo archivo se vincula al registro y a la ficha del cliente, sin duplicarlo ni consultar CODART. Las demás evidencias permanecen opcionales. El asistente solicita frontal y posterior, y el backend valida ambos cuando se recibe `requireIdentityPhotos`; los consumidores anteriores conservan su contrato opcional.
+
+El guardado manual requiere permiso `client.documents.upload`, conserva las fotos vigentes anteriores, registra operador y fecha de confirmación y aplica la retención documental existente. Completar un lado manual permite reutilizar la otra foto guardada de tipo azul o electrónico. Eliminar evidencia de un registro no elimina la copia vinculada al cliente. En un registro histórico con cambio de propietario o sin propietario no se atribuye automáticamente la foto: se guarda en el registro y se muestra que requiere revisión. No se modifican propietarios, ventas ni datos históricos.
+
+Se aplican Impeccable y UI/UX Pro Max a la simplificación del paso, estados de carga/error, texto y aparición breve de las fotos, respetando movimiento reducido. No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy, conforme a la fase de implementación indicada.
+
+## Refinamiento posterior — reportes compactos y total histórico
+
+Reportes abre con **Todo el historial** y agrupación mensual, conservando los filtros elegidos explícitamente y el periodo mensual predeterminado del Inicio. El nuevo periodo se calcula con los límites reales de ventas, registros, clientes y equipos dentro de la misma transacción del reporte; no utiliza una fecha arbitraria ni aplica el límite de 732 días de los rangos personalizados. La exportación recibe el mismo periodo y conserva sus límites existentes.
+
+Se sustituye la cabecera de gran tamaño por una línea breve, se corrige la herencia que apilaba las pestañas en columna, y se compactan filtros e indicadores. Las ventas muestran cantidad y total vendido; el gráfico abre con importe vendido. El estado de registros usa barras pequeñas con cantidad y porcentaje, evitando repetirlo en otra tabla. Evolución, métodos de pago y operadores se consultan al desplegarlos; la evolución carga su gráfico solo al abrirse. Los filtros adicionales siguen disponibles, con indicación cuando hay alguno activo. Tablas y controles se adaptan al ancho móvil. Se aplican Impeccable y UI/UX Pro Max, con transiciones breves y respeto por movimiento reducido.
+
+No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy, siguiendo la fase indicada. No se modificaron los datos comerciales.
+
+## Corrección posterior — celular del segundo IMEI
+
+Al seleccionar registrar dos IMEI, el paso de equipo muestra inmediatamente «Celular del IMEI 2», obligatorio, de nueve dígitos y distinto del celular del primer IMEI. Se valida antes de continuar y se conserva asociado al valor del segundo IMEI al pasar al precio y al confirmar. Se mantienen la validación del backend por solicitud y la prohibición de celulares repetidos. No se ejecutaron pruebas ni compilaciones; sin push ni deploy.
+
+## Corrección posterior — edición operativa de ventas
+
+«Editar venta» deja de ser un formulario exclusivo de notas. El editor permite cambiar comprador, contacto propio de la venta, fecha y hora, método de pago, precios por equipo, descuento, accesorios y notas. Los datos técnicos del equipo se editan con `equipment.update`; los IMEI muestran acceso a la corrección controlada de su ficha. Se aplican Impeccable y UI/UX Pro Max al formulario compacto con secciones y datos técnicos desplegables.
+
+El backend valida el nuevo contrato y recalcula el total con Decimal dentro de una transacción. Bloquea los equipos y la venta, verifica las versiones esperadas y conserva las asociaciones existentes. Cambiar comprador no cambia propietario ni solicitante de registros. Las ventas históricas con checksum inválido admiten edición de campos ajenos al IMEI. El total y la precisión de la fecha originales se mantienen cuando no se modifican sus campos. Crear clientes y editar equipos requieren sus permisos respectivos. La auditoría de venta guarda datos anteriores y posteriores de precios, pago, descuento, comprador y fecha. Los borradores se conservan ante errores y se avisa al salir con cambios pendientes.
+
+No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy. No se alteraron ventas de la base durante la implementación. No se agregan, reemplazan ni eliminan equipos de una venta existente desde este editor.
+
+## Ajuste posterior — editar ventas según referencia de dos pasos
+
+Por las nuevas capturas del usuario, la edición de venta adopta la estructura de Nueva venta: cabecera con cierre, progreso **Cliente → Equipo y precio**, campos iniciales precargados de DNI/nombre/contacto y botones Cancelar/Siguiente/Atrás/Confirmar y guardar. El segundo paso muestra directamente IMEI 1 y 2, serie, nombre comercial, marca, modelo, RAM, memoria, color, precio, origen, método de pago y fecha, con accesorios y total. Se usa Impeccable y UI/UX Pro Max para conservar la apariencia del POS, con transición discreta del título y movimiento reducido.
+
+Ahora se pueden corregir los IMEI desde la misma edición de venta y agregar un segundo IMEI cuando falta. El backend exige Luhn en cada valor nuevo o modificado, permiso de equipos, coincidencia del identificador anterior y de la versión del equipo; verifica pertenencia, posiciones, máximo dos y unicidad. Conserva los UUID existentes y sus vínculos. Estos cambios, los importes y los datos de la venta se guardan en una sola transacción. Los IMEI históricos sin modificar no bloquean una corrección de otros campos. Se conserva el escáner, con protección frente a sobrescrituras y candidatos inválidos.
+
+No se ejecutaron pruebas, compilaciones, auditorías, push ni deploy. No se modificaron ventas ni equipos de la base durante esta implementación. Esta sección sustituye la indicación anterior de que los IMEI debían corregirse fuera del editor de venta.
+
+## Refinamiento posterior — vista previa de venta
+
+La vista previa usa una sola columna de contenido y una cabecera compacta con código y fecha. El total aparece una sola vez junto al medio de pago y a las acciones Ticket/Editar. Se retiran las notas de la vista, los contenedores grises anidados y los datos repetidos; el descuento solo se informa si realmente es distinto de cero, sin modificar importes. Cliente y características del equipo se distribuyen en rejillas compactas; cada IMEI mantiene su estado independiente. Los accesorios solo aparecen cuando existen. Eliminar conserva su flujo de confirmación y se ubica al pie.
+
+Se aplican Impeccable y UI/UX Pro Max, con aparición breve del contenido, foco visible, adaptación al ancho disponible y respeto por movimiento reducido. No se modifican los datos, fotografías, documentos ni tickets almacenados. No se ejecutaron pruebas, compilaciones, auditorías, comparaciones visuales, push ni deploy.
+
+## Ajuste posterior — contenido exacto del recibo térmico
+
+El recibo de 48 y 80 mm y su PDF comparten la plantilla solicitada: COMUNIC@TE y Recibo de Venta en negrita; número visible VEN, giro comercial, dirección, local y teléfono; cliente con nombre y DNI; características de cada equipo, modelo comercial, IMEI presentes y S/N; medio de pago, tabla de equipos/precios, accesorios si existen y total; códigos de barras de los S/N disponibles; fecha y hora de Lima; y el texto de conformidad y no devolución indicado por el usuario. Se retiran subtotal, descuento, vendedor, notas y pie configurable de este formato.
+
+El prefijo VEN es de presentación: no se renumeran ventas ni se modifican sus códigos persistidos. Dirección, local y número usan address, city y phone de la configuración empresarial. El S/N sin dato se identifica como NO CONSIGNADO; nunca se sustituye por el código de venta ni por un IMEI. Los códigos conservan dimensiones mínimas de lectura y, si un S/N no cabe o contiene caracteres no codificables, permanece su texto legible. La posición del código de barras, columnas y texto final se comparte en HTML y PDF. La descarga conserva ambos anchos y la paginación de recibos extensos.
+
+No se ejecutaron pruebas, compilaciones, comparación de PDF, auditorías, push ni deploy, siguiendo la fase de implementación indicada. No se modificaron datos históricos ni credenciales.
+
+## Ajuste posterior — formato de la referencia VENTA-VEN-0047.pdf
+
+La referencia entregada mide 58 × 196,96 mm y usa Courier/Courier-Bold. Se incorpora **58 mm · Original** a la descarga y las vistas previas, manteniendo 48 y 80 mm. En 58 mm se usan los márgenes de 3 mm, tamaños tipográficos y espaciado de la referencia; los otros anchos adaptan proporcionalmente el mismo diseño y mantienen sus márgenes configurados. El nuevo formato se selecciona en la interfaz sin cambiar la configuración persistida ni su restricción de base de datos a 48/80; una configuración existente sigue teniendo preferencia en la vista de venta guardada.
+
+La plantilla compartida define posiciones, tamaños y cortes de línea para HTML y PDF: marca y título centrados en negrita, dirección/local/teléfono sin etiquetas administrativas, bandas grises con regla superior para Cliente/Equipo/Pago, etiquetas en negrita con valores alineados, nombre largo dentro de su columna, RAM y memoria numéricas con GB, precio del equipo a la derecha y total destacado sobre gris. Se retira el encabezado extra EQUIPO/PRECIO. El código de barras corresponde al S/N real, seguido del S/N legible sin prefijo, fecha/hora de Lima y pie en el mismo texto y capitalización del original. Se conservan múltiples equipos, accesorios y descarga directa al elegir tamaño. El alto crece con el contenido y el PDF pagina recibos extensos.
+
+Se leyó y renderizó exclusivamente el PDF de referencia para extraer su geometría y fuentes. No se generaron tickets de prueba ni se ejecutaron pruebas, compilaciones, comparación visual del resultado, lint o comprobación de tipos, de acuerdo con la fase de implementación vigente. La fidelidad final en pantalla e impresora queda pendiente de comprobación. No se modificaron ventas, clientes ni datos empresariales. Sin push ni deploy.
+
+## Ajuste posterior — mayúsculas en el acceso
+
+Se elimina la transformación visual a mayúsculas en campos y botones de la pantalla de acceso. El correo se muestra tal como se escribe y los botones conservan «Continuar con Google» e «Iniciar sesión». Se mantiene la normalización del correo al autenticar y la contraseña no se modifica. Cambio de estilos limitado al acceso. Sin pruebas ni compilación, siguiendo la fase de implementación vigente.
+
+## Ajuste posterior — únicamente 58 y 80 mm
+
+Los selectores de descarga, vista previa, impresión y configuración empresarial ofrecen únicamente 58 y 80 mm. Los enlaces antiguos con formato 48 o un valor no admitido abren 58 mm. Se elimina el tipo y componente de 48 mm; el esquema del servidor acepta únicamente 58/80 o preguntar siempre. La preferencia persistida 48 se convierte a 58 mediante la migración `20261019000100_receipt_formats_58_80`, aplicada a la base local. El margen se expone como margin58 en Prisma y API, manteniendo el nombre físico de la columna antigua para compatibilidad; su valor inicial pasa de 1 a 3 mm. El margen de 80 mm se conserva. Cliente Prisma regenerado y API local reiniciada para cargarlo. Se actualizan las referencias de formatos en los archivos de pruebas existentes, sin ejecutarlas. Sin compilación, lint, comprobación de tipos, push ni deploy.
+
+## ESTADO
+
+**IMPLEMENTADO**, en alcance de desarrollo. Google queda preparado y pendiente de configuración real. No se declara la aplicación comprobada ni completamente verificada.
+
+Especificación: refinamiento exclusivo de implementación recibido el 18/10/2026. Referencia recibida: `LOGIN.pdf`, cinco páginas; el texto la denomina `LOGIN(1).pdf`. Se leyeron las cinco páginas de la referencia. No se realizaron comparaciones de screenshots ni pruebas del producto.
+
+## LOGIN
+
+- Cambios realizados: diseño en dos columnas, mensaje «Claridad para cada equipo, venta y cliente.», indicación de acceso restringido, tarjeta blanca, icono de identidad, bienvenida y botón Google. Estilos para móvil. Sin imágenes decorativas ni textos legales no aprobados.
+- Integración Google preparada: OAuth/OIDC con código de autorización, PKCE, estado vinculado al navegador, nonce, validación del ID token en backend y sesión HttpOnly existente. Lista explícita de pares correo/identificador Google previamente autorizados, cuenta existente activa y rol obligatorio. No crea usuarios ni asigna privilegios. Vinculación única y auditoría interna. Cierre de sesión existente conservado.
+- Configuración pendiente: cliente OAuth, secreto del backend, origen autorizado, callback y mapa de identidades aprobadas. El acceso administrativo con correo y contraseña se conserva. Google permanece deshabilitado mientras falte configuración.
+- Guía: [google-auth-configuration.md](google-auth-configuration.md). Preparación basada en la [documentación oficial de Google OIDC](https://developers.google.com/identity/openid-connect/openid-connect).
+
+## FOTO DNI
+
+- Diseño implementado: encabezado Documento / Foto DNI, selección DNI azul o electrónico, campo de ocho dígitos y botón dinámico de consulta. Estado vacío, carga, errores, vista previa, ampliación y descarga autorizada.
+- Integración existente utilizada: expediente documental, adaptador CODART y acceso privado MinIO mediante enlaces temporales autorizados. No consulta al escribir; busca el cliente y las fotos guardadas al confirmar. Sin fotos vigentes, exige autorización antes de solicitar al proveedor. No ofrece renovación externa automática ni asigna anverso/reverso a imágenes sin identificar.
+- Se conserva la necesidad de un cliente existente para asociar la documentación privada. Si no existe, se ofrece registrar sus datos reales desde Clientes; no se crean fichas ficticias ni se consultan fotos sin propietario documental.
+
+## EQUIPOS
+
+- Cambios visuales: panel compartido, icono azul, búsqueda por código, características, propietario o IMEI, filtros reales de origen y estado, tabla con IMEIs, características, propietario y badges.
+- Detalle en modal de consulta. Edición independiente con el formulario existente y opciones técnicas previas para los permisos correspondientes. Conserva relaciones, registros asociados, información comercial e historial del equipo. No cambia ni duplica dispositivos por motivos visuales.
+
+## USUARIOS
+
+- Cambios visuales: tabla compacta, nombre/código, correo, rol, estado, vinculación Google y acciones por permiso; búsqueda y filtros de estado/rol. Modal de consulta y modalidad de edición separada.
+- Conserva creación, edición, activación/desactivación confirmada y restablecimiento de contraseña. El backend conserva la protección del superadministrador y la invalidación de sesiones. Sólo expone un indicador de vinculación Google; no publica el identificador, tokens ni contraseñas.
+
+## ROLES
+
+- Cambios visuales: panel compacto, búsqueda, secciones desplegables por rol, descripción contextual, número real de usuarios asignados y permisos agrupados por módulo, incluida documentación privada.
+- Las descripciones contextuales son textos de interfaz; no se ha añadido edición del nombre o descripción de los roles. Conserva los permisos almacenados, SUPERADMIN protegido y confirmación de cambios. La administración de permisos mantiene su restricción existente a SUPERADMIN.
+
+## REPORTES
+
+- Cambios visuales: encabezado azul, fondo claro, filtros compactos, pestañas, tarjetas, gráficos y tablas con la presentación compartida.
+- Conserva los reportes, filtros, fechas, series, cálculos y exportación CSV existentes. No modifica `Analytics` ni los servicios de cálculo. Mantiene separados ingresos de ventas e importes registrados de servicios, sin presentarlos como cobros confirmados.
+
+## COMPARTIR
+
+- Formato BLOQUEADO: DESBLOQUEO LISTA BLANCA con prioridad por el estado de la solicitud objetivo, tipo TIENDA/EXTERNO e IMEI exacto a desbloquear.
+- Formato REGISTRO: IMEIs físicos disponibles, teléfono de la solicitud e IMEI exacto a registrar. IMEI 2 vacío cuando no existe.
+- Formato REGISTRO DOBLE: sólo dos solicitudes distintas de la misma operación, del mismo equipo y cliente, con slots 1 y 2 y datos comunes coherentes. Teléfonos distintos asociados a sus respectivos IMEIs. Si no cumple estas condiciones, utiliza el formato individual. Tener dos IMEIs físicos no basta.
+- Copia al portapapeles desde listado y detalle, con mensaje «DATOS COPIADOS AL PORTAPAPELES». Si el navegador lo bloquea, muestra un modal con texto seleccionable para copiar manualmente. No abre WhatsApp, envía mensajes ni crea enlaces públicos.
+- Plantillas con saltos de línea, mayúsculas operativas y TIENE CAJA: SI/NO. Provincia se captura mediante campo aditivo independiente de Departamento. No rellena provincias históricas: el espacio permanece vacío en el texto compartido cuando no está registrado.
+
+## VENTAS Y REGISTROS
+
+- Historial visible retirado: bloques de cambios administrativos, Creada por / Fecha de sistema, FINALIZADO POR y Último responsable en RECO; operador administrativo retirado del detalle comercial de venta. No se sustituyen por paneles equivalentes.
+- Visualización sólo lectura: venta en modal con código, fecha operativa, total, pago, cliente, equipos, IMEIs y accesorios. Registro en modal informativo y evidencias consultables sin controles de modificación.
+- Edición independiente: venta abre únicamente su corrección de notas ya autorizada; registro abre formulario separado de datos operativos y evidencias bajo sus permisos existentes. Las transiciones de estado siguen en sus acciones comerciales explícitas del listado.
+- Conserva acceso autorizado a Ticket, declaración jurada A4, expediente A4 de evidencias, copia de datos y eliminación independiente. Los generadores A4 y térmicos no se modifican.
+- Conserva AuditLog, historial interno, fechas operativas e historial comercial de Clientes. La ficha de cliente muestra Provincia cuando esté registrada.
+
+## IMPRESIÓN
+
+- Modal actualizado: centrado, blanco, icono de impresora, dos botones de tamaño y Cancelar. Conserva apertura del ticket y sus funciones actuales de impresión y descarga PDF.
+- Formatos conservados: **48 mm y 80 mm**. No introduce 58 mm ni cambia los generadores existentes.
+
+## ENTREGA
+
+- Commit inicial: `205aff6`.
+- Commit de backend y datos operativos: `508309b`.
+- Commit final de implementación de interfaces: `608d3d4`.
+- El hash del commit documental final se indica en la entrega del chat.
+- Archivos creados: **8**. Archivos modificados: **29**. Total: **37**.
+- Migraciones: **1**, aditiva: `20261018110000_interface_google_province`, aplicada a la base local `communicate_pos`. Añade Provincia opcional en Client/RegistrationRequest, identificador Google único opcional en User y tabla temporal GoogleAuthAttempt. Sin backfill, eliminación ni reemplazo de datos comerciales. Cliente Prisma regenerado.
+- Dependencia añadida: `jose`, para validación del ID token y JWKS. Instalación sin scripts ni auditoría.
+- Pendientes de configuración: las cinco variables Google descritas en `.env.example` y la configuración del cliente OAuth en Google Cloud.
+- Limitaciones: sin credenciales reales Google, sin comprobación real de autenticación, proveedor CODART, impresión o interacción de las interfaces. No se ejecutó compilación, lint, comprobación de tipos, auditoría ni validación final. Los estilos adaptativos están implementados pero no comprobados en esta fase. Las fotos requieren cliente existente y las autorizaciones documentales vigentes. Los cambios no se presentan como verificados.
+
+### Archivos creados
+
+1. `server/auth/google.ts`
+2. `shared/registration-share.ts`
+3. `prisma/migrations/20261018110000_interface_google_province/migration.sql`
+4. `src/features/registrations/ShareRegistration.tsx`
+5. `src/features/sales/SaleDetails.tsx`
+6. `src/refinement.css`
+7. `docs/google-auth-configuration.md`
+8. `docs/interface-refinement-implementation-report.md`
+
+### Archivos modificados
+
+1. `.env.example`
+2. `package.json`
+3. `package-lock.json`
+4. `prisma/schema.prisma`
+5. `server/app.ts`
+6. `server/services/auth.service.ts`
+7. `server/services/pos.service.ts`
+8. `server/services/registration-requests.service.ts`
+9. `server/services/users.service.ts`
+10. `shared/auth.ts`
+11. `shared/validation.ts`
+12. `shared/workflow.ts`
+13. `src/app/App.tsx`
+14. `src/features/auth/Login.tsx`
+15. `src/features/clients/ClientFields.tsx`
+16. `src/features/clients/ClientForm.tsx`
+17. `src/features/clients/Directory.tsx`
+18. `src/features/evidence/EvidenceSection.tsx`
+19. `src/features/receipts/Receipt.tsx`
+20. `src/features/registrations/OperationalRegistrationFlow.tsx`
+21. `src/hooks/useDniLookup.ts`
+22. `src/pages/Equipment.tsx`
+23. `src/pages/PhotoDni.tsx`
+24. `src/pages/RegistrationRequests.tsx`
+25. `src/pages/Reports.tsx`
+26. `src/pages/Roles.tsx`
+27. `src/pages/Sales.tsx`
+28. `src/pages/Users.tsx`
+29. `src/types/pos.ts`
+
+## PRUEBAS
+
+**NO EJECUTADAS POR INSTRUCCIÓN DEL USUARIO.**
+
+## PUSH
+
+NO.
+
+## DEPLOY
+
+NO.

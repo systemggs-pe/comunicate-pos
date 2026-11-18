@@ -1,0 +1,3 @@
+
+> communicate-pos@0.1.0 build:api
+> node scripts/build-backend.mjs

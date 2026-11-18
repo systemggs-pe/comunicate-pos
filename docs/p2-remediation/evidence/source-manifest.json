@@ -1,0 +1,70 @@
+{
+  "codeHead": "67875fe6337844750b7d75b1b45edf5cb691b717",
+  "files": [
+    {
+      "path": "prisma/schema.prisma",
+      "sha256": "232af3b441cce2f379f299afd1484f2810e411be2c11a7c5d341f31d509b6844"
+    },
+    {
+      "path": "server/documents/client-vault.ts",
+      "sha256": "c763f83bff4d8ffd9ebee60ef197d9b1390a60abc92c76f9f38321a810204cda"
+    },
+    {
+      "path": "server/integrations/codart.ts",
+      "sha256": "561084b2dc6ebe7635fb7ba85df20744ad742c4eb8aab176313bc763e683297d"
+    },
+    {
+      "path": "shared/registration-share.ts",
+      "sha256": "9703d35b75155c3429c2fae0dd2407ed1df7330327b4f7735565b66e0533d70a"
+    },
+    {
+      "path": "src/features/registrations/OperationalRegistrationFlow.tsx",
+      "sha256": "1ccaebf97634ed73e0f5f3acbb28e227d4354a8b638127a856f4ddf6b13a6610"
+    },
+    {
+      "path": "src/pages/CompanySettings.tsx",
+      "sha256": "154cb60f0278167ce648e4eaf3e5a0bbfaa795f259877cf58fd9b289c1c85523"
+    },
+    {
+      "path": "src/pages/PhotoDni.tsx",
+      "sha256": "e78ca15a03be5605f31f36c0bf35f9b7e1de833fe5e599c8c4b53bfb32592761"
+    },
+    {
+      "path": "tests/e2e/audit-p2.spec.ts",
+      "sha256": "e3a914801ddf6420989e492e9c3d329e55298c1175ecbb2df3df91095c4b0bdc"
+    },
+    {
+      "path": "tests/e2e/receipts.spec.ts",
+      "sha256": "5b249e14c4cf02837feff37a0e5c2b2680ff058c4fab0f55036036ba8bf56924"
+    },
+    {
+      "path": "tests/integration/codart.test.ts",
+      "sha256": "390818c17c14899592eb356e9eb8139f7c5b389e87b6cb803d5346523008cc01"
+    },
+    {
+      "path": "tests/integration/historical-imei.test.ts",
+      "sha256": "33bac045023d31a7afba442b6d1be446338f4f060598bdac772bd8ca4d047d8e"
+    },
+    {
+      "path": "tests/integration/migration-contract.test.ts",
+      "sha256": "47e62465c98fc161dcdb432dc8040e3870e1937c59a59956f463194e80fbfb97"
+    },
+    {
+      "path": "tests/integration/refinement.test.ts",
+      "sha256": "ebf0ec15e40fc0abaf0b226e118291e5a1c6a22dda4371d33e5204113744101d"
+    },
+    {
+      "path": "tests/unit/codart.test.ts",
+      "sha256": "bf3023507c6f62f2aa658f1ea3b909fcb7b66348a4498036ee36b6be921de868"
+    },
+    {
+      "path": "tests/unit/receipts.test.ts",
+      "sha256": "59508aeda9ae52408da7c558ab99f088a3df0c33c2bcb24728eea1e0a6f3105b"
+    },
+    {
+      "path": "tests/unit/registration-share.test.ts",
+      "sha256": "58192314a71f6c47793696211f95e14af2da8ed1404e491e8111d6babf740648"
+    }
+  ],
+  "normalization": "UTF-8 LF / Git representation"
+}

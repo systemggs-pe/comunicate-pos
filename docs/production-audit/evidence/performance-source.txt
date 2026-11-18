@@ -1,0 +1,14 @@
+import {config} from 'dotenv';config({path:'.local/audit-isolated.env',override:true,quiet:true});config({path:'.local/audit-browser.env',override:true,quiet:true});
+import {PrismaClient} from '@prisma/client';import {readFileSync,writeFileSync} from 'node:fs';import {performance} from 'node:perf_hooks';
+import {isValidImeiLuhn} from '../shared/imei.js';
+const db=new PrismaClient(),target=new URL(process.env.DATABASE_URL!);if(target.port!=='55434'||target.pathname!=='/communicate_pos_audit_probe')throw Error('ISOLATION_REQUIRED');
+const state=JSON.parse(readFileSync('.local/audit-browser-state.json','utf8'));const base='http://127.0.0.1:3004',origin='http://127.0.0.1:5176';
+try{
+ await db.client.createMany({data:Array.from({length:1000},(_,i)=>({dni:String(80000000+i),firstName:'SYNTHETIC',lastName:`AUDIT ${i}`})),skipDuplicates:true});
+ const login=await fetch(base+'/api/auth/login',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({email:state.email,password:state.password})});if(login.status!==200)throw Error('LOGIN_FAILED');const cookie=login.headers.get('set-cookie')!.split(';')[0];
+ const results=[];const started=process.cpuUsage();let peak=process.memoryUsage().rss;
+ const scenarios=[['clients','/api/clients?limit=20'],['imei','/api/equipment/by-imei/000000000070039'],['sales','/api/sales'],['registrations','/api/registration-requests'],['reports','/api/reports/general?preset=all']];
+ for(const [name,path]of scenarios){const times:number[]=[],statuses:Record<string,number>={};let next=0;await Promise.all(Array.from({length:4},async()=>{while(next++<20){const start=performance.now(),response=await fetch(base+path,{headers:{Origin:origin,Cookie:cookie}});await response.arrayBuffer();times.push(performance.now()-start);statuses[response.status]=(statuses[response.status]??0)+1;peak=Math.max(peak,process.memoryUsage().rss);}}));times.sort((a,b)=>a-b);results.push({scenario:name,requests:times.length,concurrency:4,p50:times[Math.floor(times.length*.5)],p95:times[Math.ceil(times.length*.95)-1],p99:times[Math.ceil(times.length*.99)-1],statuses});}
+ const output={dataset:{clients:await db.client.count(),sales:await db.sale.count(),requests:await db.registrationRequest.count()},results,driverPeakRssMiB:peak/1048576,driverCpuMicroseconds:process.cpuUsage(started),note:'CPU/RSS measure the load driver, not the API server. No production SLA inferred.'};
+ writeFileSync('docs/production-audit/evidence/performance.json',JSON.stringify(output,null,2));console.log(JSON.stringify(output));
+}finally{await db.$disconnect();}

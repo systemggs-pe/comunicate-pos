@@ -51,8 +51,8 @@ export class ApiDniProvider implements DniProvider {
   }
 }
 export function createDniProvider(env: NodeJS.ProcessEnv = process.env): DniProvider {
-  if(env.DNI_PROVIDER==='codart')return new CodartProvider(env.CODART_API_TOKEN||env.DNI_API_TOKEN||'');
-  const kind = env.DNI_PROVIDER ?? (env.NODE_ENV === 'production' ? 'disabled' : 'mock');
+  const kind = env.DNI_PROVIDER ?? (env.CODART_ENABLED === 'true' && env.NODE_ENV !== 'test' ? 'codart' : env.NODE_ENV === 'production' ? 'disabled' : 'mock');
+  if(kind==='codart')return new CodartProvider(env.CODART_API_KEY||env.CODART_API_TOKEN||env.DNI_API_TOKEN||'');
   if (kind === 'mock' && env.NODE_ENV !== 'production') return new MockDniProvider();
   if (kind === 'api') return new ApiDniProvider(env.DNI_API_URL ?? '', env.DNI_API_TOKEN ?? '');
   return new UnavailableDniProvider();

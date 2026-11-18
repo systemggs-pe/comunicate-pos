@@ -1,0 +1,82 @@
+{"name":"frontend-build","exitCode":0,"durationMs":11415,"command":"node node_modules/vite/bin/vite.js build"}
+vite v7.3.7 building client environment for production...
+transforming...
+node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 2138 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                          0.41 kB │ gzip:   0.29 kB
+dist/.vite/manifest.json                                17.01 kB │ gzip:   2.30 kB
+dist/assets/pdf.worker.min-CjEcRF4W.mjs              1,264.34 kB
+dist/assets/FormValidation-DfUcV7g5.css                  0.30 kB │ gzip:   0.22 kB
+dist/assets/RegistrationRequests-DyOx8GwE.css            0.98 kB │ gzip:   0.41 kB
+dist/assets/Receipt-DJNhUzjb.css                         2.02 kB │ gzip:   0.79 kB
+dist/assets/EvidencePdfAction-DOLBHotE.css               2.04 kB │ gzip:   0.82 kB
+dist/assets/sales-reference-BYIsEcln.css                 2.64 kB │ gzip:   0.83 kB
+dist/assets/Reports-Ci1rXz9L.css                         6.51 kB │ gzip:   1.63 kB
+dist/assets/Sales-Bo4Ewfxv.css                           7.25 kB │ gzip:   1.79 kB
+dist/assets/Equipment-CXUREIdq.css                       7.88 kB │ gzip:   1.86 kB
+dist/assets/Clients-DqYPnmU3.css                         9.01 kB │ gzip:   2.03 kB
+dist/assets/operational-date-DsgUbJnh.css               11.62 kB │ gzip:   2.71 kB
+dist/assets/IdentityPhotoLookup-JChiYM1e.css            12.60 kB │ gzip:   3.02 kB
+dist/assets/index-D8udV9HV.css                          66.50 kB │ gzip:  13.54 kB
+dist/assets/pdf.worker.min-CdXBBzB4.js                   0.07 kB │ gzip:   0.09 kB
+dist/assets/check-B2N0s1CS.js                            0.12 kB │ gzip:   0.13 kB
+dist/assets/chevron-down-B3-AOWG9.js                     0.12 kB │ gzip:   0.14 kB
+dist/assets/circle-check-D9IWRbWS.js                     0.17 kB │ gzip:   0.16 kB
+dist/assets/smartphone-DJybdOpX.js                       0.19 kB │ gzip:   0.18 kB
+dist/assets/printer-Dug0Ke8X.js                          0.32 kB │ gzip:   0.23 kB
+dist/assets/refresh-cw-BmBrVPoJ.js                       0.32 kB │ gzip:   0.22 kB
+dist/assets/image-plus-DoPsSQ8S.js                       0.36 kB │ gzip:   0.25 kB
+dist/assets/operational-date-BPWLO3sQ.js                 0.40 kB │ gzip:   0.30 kB
+dist/assets/ReferenceDialog-DlTWh6jr.js                  0.50 kB │ gzip:   0.34 kB
+dist/assets/square-pen-BpEi8SpE.js                       0.52 kB │ gzip:   0.32 kB
+dist/assets/common-BKDvNIOX.js                           0.90 kB │ gzip:   0.58 kB
+dist/assets/useEquipmentIdentity-tptlAtW_.js             1.05 kB │ gzip:   0.61 kB
+dist/assets/InlineIdentityDocuments-CIqCzggW.js          1.14 kB │ gzip:   0.69 kB
+dist/assets/sales-reference-IEQbzLdw.js                  1.93 kB │ gzip:   0.82 kB
+dist/assets/FormValidation-CJtdlokW.js                   2.01 kB │ gzip:   1.04 kB
+dist/assets/DniClientFields-B1rfujo9.js                  2.59 kB │ gzip:   1.08 kB
+dist/assets/Audit-Ct5j8Zan.js                            2.79 kB │ gzip:   1.14 kB
+dist/assets/Home-E9Gx_l-G.js                             3.38 kB │ gzip:   1.29 kB
+dist/assets/EquipmentForm-DSjK2B0G.js                    3.42 kB │ gzip:   1.19 kB
+dist/assets/sales-BBeSDrUv.js                            3.45 kB │ gzip:   1.45 kB
+dist/assets/PermanentDelete-RgVkBHGd.js                  3.60 kB │ gzip:   1.69 kB
+dist/assets/CompanySettings-3rs4_vav.js                  3.64 kB │ gzip:   1.78 kB
+dist/assets/Roles-COrHHuk1.js                            4.12 kB │ gzip:   1.82 kB
+dist/assets/ImeiCard-cwPFZB1p.js                         4.24 kB │ gzip:   1.67 kB
+dist/assets/PhotoDni-DDuRNci_.js                         4.29 kB │ gzip:   1.95 kB
+dist/assets/ClientFields-k2THf_Ar.js                     4.35 kB │ gzip:   1.67 kB
+dist/assets/workflow-Ueq5ZTPR.js                         4.50 kB │ gzip:   1.96 kB
+dist/assets/BoxScanner-CbzOARzA.js                       5.90 kB │ gzip:   2.95 kB
+dist/assets/RegistrationFlow-CJmWVdtb.js                 6.28 kB │ gzip:   2.56 kB
+dist/assets/EvidencePdfAction-B78XuJ1E.js                6.99 kB │ gzip:   3.13 kB
+dist/assets/Users-BnDSC32D.js                           10.22 kB │ gzip:   3.12 kB
+dist/assets/IdentityPhotoLookup-MJRA8R1M.js             10.45 kB │ gzip:   3.88 kB
+dist/assets/Equipment-D8RS7-BK.js                       10.89 kB │ gzip:   3.51 kB
+dist/assets/Clients-DikXgBzv.js                         11.98 kB │ gzip:   3.93 kB
+dist/assets/Reports-qDJXKBYX.js                         15.28 kB │ gzip:   5.50 kB
+dist/assets/NewSale-DWQxPiUD.js                         15.62 kB │ gzip:   5.47 kB
+dist/assets/Sales-BZnBj4uR.js                           22.11 kB │ gzip:   7.07 kB
+dist/assets/purify.es-BPuvlvQ_.js                       29.05 kB │ gzip:  11.09 kB
+dist/assets/RegistrationRequests-DQS4U9zH.js            30.46 kB │ gzip:   9.28 kB
+dist/assets/OperationalRegistrationFlow-Bxux5wvL.js     33.68 kB │ gzip:  11.64 kB
+dist/assets/Receipt-CjG5z_L8.js                         78.93 kB │ gzip:  19.11 kB
+dist/assets/Charts-B4Lle2Yp.js                         157.85 kB │ gzip:  55.38 kB
+dist/assets/index.es-fJUjAVrz.js                       159.12 kB │ gzip:  53.14 kB
+dist/assets/html2canvas.esm-DXEQVQnt.js                201.04 kB │ gzip:  47.43 kB
+dist/assets/index-Ck9-7Y-N.js                          351.31 kB │ gzip: 107.71 kB
+dist/assets/pdf-WYt7u-gv.js                            387.50 kB │ gzip: 127.00 kB
+dist/assets/pdf-CfhDiWmk.js                            437.62 kB │ gzip: 131.39 kB
+✓ built in 10.45s

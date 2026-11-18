@@ -1,19 +1,47 @@
 import {jsPDF} from 'jspdf';
-import {receiptRows,receiptBarcode,type ReceiptData,type ReceiptFormat} from '../../../shared/receipt';
+import {receiptLayout,receiptSaleCode,type ReceiptData,type ReceiptFormat} from '../../../shared/receipt';
 export function createReceiptPdf(data:ReceiptData,format:ReceiptFormat){
- const margin=format===48?data.company.margin48:data.company.margin80,available=format-2*margin,font=format===48?7:9,step=font*0.352778*1.35;
- const measure=new jsPDF({unit:'mm',format:[format,100]});measure.setFont('courier');measure.setFontSize(font);
- const lines=receiptRows(data,format).map(row=>({...row,lines:measure.splitTextToSize(row.text,available) as string[]}));
- const footer=measure.splitTextToSize(data.company.receiptFooter,available) as string[],identifier=measure.splitTextToSize(data.sale.code,available) as string[];
- const barcode=receiptBarcode(data.sale.code,available),height=Math.max(40,margin*2+lines.reduce((sum,r)=>sum+r.lines.length*step+1.3,0)+(barcode?16:4)+(identifier.length+footer.length+2)*step+2);
- // Long sales continue on correctly sized pages instead of exceeding PDF page limits.
- const pageHeight=Math.min(height,1000),doc=new jsPDF({unit:'mm',format:[format,pageHeight],compress:true});let y=margin+step;
- doc.setFontSize(font);
- for(const row of lines){doc.setFont('courier',row.bold?'bold':'normal');for(const line of row.lines){if(y>pageHeight-margin-step){doc.addPage([format,pageHeight]);y=margin+step;}doc.text(line,row.align==='center'?format/2:row.align==='right'?format-margin:margin,y,{align:row.align??'left'});y+=step;}y+=1.3;}
- const extra=barcode?20:12;if(y+extra>pageHeight-margin){doc.addPage([format,pageHeight]);y=margin+step;}
- if(barcode){const x=(format-barcode.width)/2+barcode.quiet;Array.from(barcode.bits).forEach((bit,i)=>{if(bit==='1')doc.rect(x+i*barcode.module,y,barcode.module,barcode.height,'F');});y+=16;}
- else {doc.setFontSize(6);doc.text('IDENTIFICADOR EN TEXTO',format/2,y,{align:'center'});y+=4;}
- doc.setFont('courier','normal');doc.setFontSize(font);
- for(const line of [...identifier,...footer]){if(y>pageHeight-margin-step){doc.addPage([format,pageHeight]);y=margin+step;}doc.text(line,format/2,y,{align:'center'});y+=step;}return doc;
+ const layout=receiptLayout(data,format),{margin,width,scale}=layout;
+ const pageHeight=Math.min(1000,Math.max(40,layout.height));
+ const doc=new jsPDF({unit:'mm',format:[format,pageHeight],compress:true});
+ let offset=0;
+ const rule=(y:number)=>{doc.setDrawColor(176);doc.setLineWidth(.18*scale);doc.line(margin,y,format-margin,y);};
+ for(const item of layout.items){
+  const {row,lines,font,rightFont,lineHeight,labelWidth,inset,barcode}=item;
+  const top=item.y+offset;
+  if(top+item.height>pageHeight-margin&&item.y>5*scale){
+   doc.addPage([format,pageHeight]);offset=margin-item.y;
+  }
+  const y=item.y+offset,baseline=item.baseline+offset;
+  if(row.kind==='section'){
+   rule(y);doc.setFillColor('#f5f5f5');doc.rect(margin,y+scale,width,5.6*scale,'F');
+  }
+  if(row.kind==='rule'){rule(y);continue;}
+  if(row.kind==='total'){
+   doc.setFillColor('#ebebeb');doc.rect(margin,y,width,item.height,'F');
+  }
+  if(barcode){
+   doc.setFillColor('#000000');
+   const x=margin+barcode.quiet;
+   // Draw whole black runs to avoid hairline gaps between adjacent modules.
+   for(let i=0;i<barcode.bits.length;){
+    if(barcode.bits[i]!=='1'){i++;continue;}
+    const start=i;while(barcode.bits[i]==='1')i++;
+    doc.rect(x+start*barcode.module,y,(i-start)*barcode.module,12*scale,'F');
+   }
+  }
+  doc.setFontSize(font);doc.setFont('courier',row.bold?'bold':'normal');
+  doc.setTextColor(row.color??18);
+  const textX=row.align==='center'?format/2:row.align==='right'?format-margin:margin+labelWidth+inset+(row.kind==='section'?1.4*scale:0);
+  lines.forEach((line,index)=>doc.text(line,textX,baseline+index*lineHeight,{align:row.align??'left'}));
+  if(row.label){
+   doc.setFont('courier','bold');doc.setTextColor(88);doc.text(row.label,margin,baseline);
+  }
+  if(row.right){
+   doc.setFont('courier',row.bold?'bold':'normal');doc.setFontSize(rightFont);doc.setTextColor(18);
+   doc.text(row.right,format-margin-inset,baseline,{align:'right'});
+  }
+ }
+ return doc;
 }
-export async function downloadReceiptPdf(data:ReceiptData,format:ReceiptFormat){createReceiptPdf(data,format).save(`${data.sale.code}-${format}mm.pdf`);}
+export async function downloadReceiptPdf(data:ReceiptData,format:ReceiptFormat){createReceiptPdf(data,format).save(`${receiptSaleCode(data.sale.code)}-${format}mm.pdf`);}

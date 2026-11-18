@@ -1,0 +1,250 @@
+{"name":"receipt-e2e","exitCode":0,"durationMs":18562,"command":"node node_modules/@playwright/test/cli.js test tests/e2e/receipts.spec.ts --reporter=json"}
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\ASUS\\.local\\nodejs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/receipts.spec.ts",
+      "--reporter=json"
+    ],
+    "configFile": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\playwright.config.ts",
+    "rootDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/.test-results/e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/tests/e2e",
+        "testIgnore": [
+          "mvp-*.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e",
+        "snapshotDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e",
+        "testIgnore": "mvp-*.spec.ts",
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 120000,
+        "use": {
+          "actionTimeout": 15000,
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:5175",
+          "channel": "msedge",
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "receipts.spec.ts",
+      "file": "receipts.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "configuración editable persiste y es responsive 375 390 430",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2389,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:17:30.263Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-fe4062e942eeee2e1f32",
+          "file": "receipts.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "ticket 58 mm: vista automática, descarga exacta e impresión",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4030,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:17:32.890Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-3a6c37fdf7cbd9e3adc7",
+          "file": "receipts.spec.ts",
+          "line": 21,
+          "column": 29
+        },
+        {
+          "title": "ticket 80 mm: vista automática, descarga exacta e impresión",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4010,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:17:36.929Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-03c5c9ca81b44c7a1a6d",
+          "file": "receipts.spec.ts",
+          "line": 21,
+          "column": 29
+        },
+        {
+          "title": "selector ofrece sólo 58/80, descarga al seleccionar y permite cancelar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2769,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-19T20:17:40.949Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb2a7a9b25a1c3115b01-e81a4392cb9853103d5b",
+          "file": "receipts.spec.ts",
+          "line": 37,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-19T20:17:26.149Z",
+    "duration": 18133.657,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

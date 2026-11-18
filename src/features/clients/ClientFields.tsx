@@ -1,7 +1,7 @@
 import { ValidatedInput } from '../../components/FormValidation';
 import type { ClientInput } from '../../types/pos';
-export interface ClientFieldsValue { dni: string; firstName: string; lastName: string; phone: string; email: string; address:string; department:string;fullName?:string|null }
-export const emptyClient: ClientFieldsValue = { dni: '', firstName: '', lastName: '', phone: '', email: '', address:'', department:'' };
+export interface ClientFieldsValue { dni: string; firstName: string; lastName: string; phone: string; email: string; address:string; department:string;province?:string;fullName?:string|null }
+export const emptyClient: ClientFieldsValue = { dni: '', firstName: '', lastName: '', phone: '', email: '', address:'', department:'',province:'' };
 export function asClientInput(value: ClientFieldsValue): ClientInput { return { dni: value.dni, firstName: value.fullName?'':value.firstName, lastName: value.fullName?'':value.lastName,...(value.fullName?{fullName:value.fullName}:{}), phone: value.phone.trim() || undefined, email: value.email.trim() || undefined,address:(value.address??'').trim()||undefined,department:(value.department??'').trim()||undefined }; }
 export function ClientFields({ value, onChange, showDni = true, readOnlyDni = false, readOnly=false }: { value: ClientFieldsValue; onChange: (value: ClientFieldsValue) => void; showDni?: boolean; readOnlyDni?: boolean; readOnly?:boolean }) {
   return <div className="form-grid">

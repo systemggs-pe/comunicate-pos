@@ -65,6 +65,7 @@ model User {
   email           String             @unique
   name            String
   passwordHash    String?
+  googleSubject   String? @unique @db.VarChar(255)
   identityDocument String? @db.VarChar(8)
   status          UserStatus         @default(DISABLED)
   roleId          String?            @db.Uuid
@@ -98,37 +99,49 @@ model CompanySettings {
  email String @default("") @db.VarChar(254)
  receiptFooter String @default("") @db.VarChar(500)
  defaultFormat Int?
- margin48 Float @default(1)
+ margin58 Float @default(3) @map("margin48")
  margin80 Float @default(2)
  showClientContact Boolean @default(true)
  showSerial Boolean @default(true)
  showSeller Boolean @default(true)
- updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(3)
  updatedById String? @db.Uuid
- updatedBy User? @relation(fields:[updatedById],references:[id],onDelete:SetNull)
+ updatedBy User? @relation(fields:[updatedById],references:[id],onDelete:SetNull,onUpdate:NoAction)
+}
+
+enum ClientDocumentType {
+  DNI
+  OTROS
 }
 
 model Client {
+  foreignReceipts ForeignReceipt[]
   id        String      @id @default(uuid()) @db.Uuid
   code      String      @unique @default(dbgenerated("next_visible_code('client_code_seq'::regclass, 'CL-'::text)"))
-  dni       String      @unique @db.VarChar(8)
+  dni       String?     @unique @db.VarChar(8)
+  documentType ClientDocumentType @default(DNI)
+  otherDocumentNumber String? @db.VarChar(100)
   firstName String      @db.VarChar(100)
   lastName  String      @db.VarChar(100)
   fullName  String?     @db.VarChar(201)
   phone     String?     @db.VarChar(30)
   address   String?     @db.VarChar(300)
   department String?    @db.VarChar(100)
+  province String?      @db.VarChar(100)
   email     String?     @db.VarChar(254)
   createdAt DateTime    @default(now()) @db.Timestamptz(3)
   updatedAt DateTime    @updatedAt @db.Timestamptz(3)
   equipment Equipment[]
   @@index([createdAt])
   purchases Sale[]
+  registrationApplications RegistrationRequest[]
   documents ClientDocument[]
   identityAssets EvidenceAsset[]
 }
 
 model Equipment {
+  receiptEvidence EquipmentReceiptEvidence[]
+  foreignReceiptLinks ForeignReceiptLine[]
   id            String             @id @default(uuid()) @db.Uuid
   code          String             @unique @default(dbgenerated("next_visible_code('equipment_code_seq'::regclass, 'EQ-'::text)"))
   ownerId       String?            @db.Uuid
@@ -182,6 +195,9 @@ model Sale {
   id            String          @id @default(uuid()) @db.Uuid
   code          String          @unique @default(dbgenerated("next_visible_code('sale_code_seq'::regclass, 'SALE-'::text)"))
   buyerId       String          @db.Uuid
+  buyerPhone    String?         @db.VarChar(30)
+  buyerEmail    String?         @db.VarChar(254)
+  historicalBuyerName String?   @db.VarChar(201)
   buyer         Client          @relation(fields: [buyerId], references: [id], onDelete: Restrict)
   total         Decimal         @db.Decimal(12, 2)
   discount      Decimal         @default(0) @db.Decimal(12, 2)
@@ -203,17 +219,75 @@ model Sale {
 }
 
 model SaleEquipment {
+  foreignReceiptLinks ForeignReceiptLine[]
   id          String    @id @default(uuid()) @db.Uuid
   saleId      String    @db.Uuid
   sale        Sale      @relation(fields: [saleId], references: [id], onDelete: Restrict)
   equipmentId String    @db.Uuid
   equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
   unitPrice   Decimal   @db.Decimal(12, 2)
+  historicalEquipment Json?
   createdAt   DateTime  @default(now()) @db.Timestamptz(3)
 
   @@unique([saleId, equipmentId])
   @@unique([equipmentId], map: "sale_equipment_unique_device")
   @@index([equipmentId])
+}
+
+model ForeignReceipt {
+  evidenceVersions EquipmentReceiptEvidence[]
+  id             String   @id @default(uuid()) @db.Uuid
+  folio          Int      @unique
+  format         Int
+  source         String   @db.VarChar(10)
+  clientId       String?  @db.Uuid
+  client         Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  document       String   @db.VarChar(20)
+  issuedAt       DateTime @db.Timestamptz(3)
+  purchaseAt     DateTime? @db.Timestamptz(3)
+  totalPen       Decimal  @db.Decimal(14, 2)
+  totalClp       Decimal  @db.Decimal(16, 2)
+  totalUsd       Decimal  @db.Decimal(14, 2)
+  snapshot       Json
+  requestKey     String?  @unique @db.Uuid
+  requestHash    String?  @db.VarChar(64)
+  legacyId       String?  @unique @db.VarChar(200)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+  lines          ForeignReceiptLine[]
+  imeis          ForeignReceiptImei[]
+  @@index([document, folio])
+}
+
+model ForeignReceiptLine {
+  receiptId       String @db.Uuid
+  position        Int
+  receipt         ForeignReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  equipmentId     String? @db.Uuid
+  equipment       Equipment? @relation(fields: [equipmentId], references: [id], onDelete: SetNull)
+  saleEquipmentId String? @db.Uuid
+  saleEquipment   SaleEquipment? @relation(fields: [saleEquipmentId], references: [id], onDelete: SetNull)
+  @@id([receiptId, position])
+  @@index([equipmentId])
+  @@index([saleEquipmentId])
+}
+
+model ForeignReceiptImei {
+  imei      String @id @db.VarChar(15)
+  receiptId String @db.Uuid
+  receipt   ForeignReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  @@index([receiptId])
+}
+
+model ForeignReceiptIssuer {
+  format    Int @id
+  config    Json
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model ForeignReceiptCounter {
+  id   Int @id
+  last Int
 }
 
 model EquipmentHistory {
@@ -312,6 +386,8 @@ model RegistrationRequest {
   operation RegistrationOperation @relation(fields: [operationId], references: [id], onDelete: Restrict)
   imeiId String @db.Uuid
   imei Imei @relation(fields: [imeiId], references: [id], onDelete: Restrict)
+  applicantId String? @db.Uuid
+  applicant Client? @relation(fields: [applicantId], references: [id], onDelete: Restrict)
   status RequestStatus @default(PENDING)
   legacyBlockStatus String? @db.VarChar(30)
   legacyStatus String? @db.VarChar(30)
@@ -320,13 +396,14 @@ model RegistrationRequest {
   referencePhone String? @db.VarChar(9)
   address String @db.VarChar(300)
   department String @db.VarChar(100)
+  province String? @db.VarChar(100)
   email String @db.VarChar(254)
   price Decimal @db.Decimal(12,2)
   hasBox Boolean
   legacyConditions String? @db.VarChar(1000)
   occurredAt DateTime @db.Timestamptz(3)
   completedById String? @db.Uuid
-  completedBy User? @relation("RequestCompleter", fields: [completedById], references: [id], onDelete: Restrict)
+  completedBy User? @relation("RequestCompleter", fields: [completedById], references: [id], onDelete: Restrict, onUpdate: NoAction)
   completedAt DateTime? @db.Timestamptz(3)
   legacyCompletedAt DateTime? @db.Timestamptz(3)
   createdById String @db.Uuid
@@ -338,14 +415,24 @@ model RegistrationRequest {
   history RegistrationRequestHistory[]
   evidence RegistrationEvidence[]
   @@unique([operationId, imeiId])
+  @@unique([operationId, phone], map: "request_distinct_phone_per_operation")
   @@unique([imeiId], map: "request_one_per_imei")
   @@index([imeiId, createdAt])
+  @@index([applicantId])
   @@index([status, createdAt])
   @@index([occurredAt])
   @@index([operator, status, occurredAt])
   @@index([createdById, createdAt])
   @@index([completedAt])
   @@index([completedById, completedAt])
+}
+model GoogleAuthAttempt {
+  stateHash String @id @db.VarChar(64)
+  browserHash String @db.VarChar(64)
+  nonce String @db.VarChar(43)
+  verifier String @db.VarChar(43)
+  expiresAt DateTime @db.Timestamptz(3)
+  @@index([expiresAt])
 }
 model RegistrationRequestHistory {
   id String @id @default(uuid()) @db.Uuid
@@ -383,8 +470,14 @@ enum EvidenceCategory {
  DEVICE_BOX
  PURCHASE_RECEIPT
  LOGICAL_IMEI
+ MOVISTAR_DECLARATION
 }
 model EvidenceAsset {
+ originalStorageKey String? @unique @db.VarChar(200)
+ originalFileSize Int?
+ originalChecksum String? @db.VarChar(64)
+ receiptPage Int?
+ equipmentReceipts EquipmentReceiptEvidence[]
  id String @id @default(uuid()) @db.Uuid
  storageKey String @unique @db.VarChar(200)
  stagingKey String? @unique @db.VarChar(200)
@@ -416,16 +509,30 @@ model EvidenceAsset {
  links RegistrationEvidence[]
  clientDocuments ClientDocument[]
  ownerClientId String? @db.Uuid
- ownerClient Client? @relation(fields:[ownerClientId],references:[id],onDelete:Restrict)
+ ownerClient Client? @relation(fields:[ownerClientId],references:[id],onDelete:Restrict,onUpdate:NoAction)
  @@index([status,expiresAt])
  @@index([ownerSessionId,status])
 }
-model ClientDocument {
- id String @id @default(uuid()) @db.Uuid
- clientId String @db.Uuid
- client Client @relation(fields:[clientId],references:[id],onDelete:Restrict)
+
+model EquipmentReceiptEvidence {
+ equipmentId String @db.Uuid
  evidenceAssetId String @db.Uuid
+ foreignReceiptId String? @db.Uuid
+ version DateTime? @db.Timestamptz(3)
+ equipment Equipment @relation(fields:[equipmentId],references:[id],onDelete:Cascade)
  evidenceAsset EvidenceAsset @relation(fields:[evidenceAssetId],references:[id],onDelete:Restrict)
+ foreignReceipt ForeignReceipt? @relation(fields:[foreignReceiptId],references:[id],onDelete:SetNull)
+ @@id([equipmentId,evidenceAssetId])
+ @@index([evidenceAssetId])
+ @@index([equipmentId,foreignReceiptId,version])
+ @@index([foreignReceiptId])
+}
+model ClientDocument {
+ id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+ clientId String @db.Uuid
+ client Client @relation(fields:[clientId],references:[id],onDelete:Restrict,onUpdate:NoAction)
+ evidenceAssetId String @db.Uuid
+ evidenceAsset EvidenceAsset @relation(fields:[evidenceAssetId],references:[id],onDelete:Restrict,onUpdate:NoAction)
  category String @db.VarChar(30)
  documentType String @db.VarChar(20)
  source String @db.VarChar(30)
@@ -435,9 +542,9 @@ model ClientDocument {
  authorizationReference String @db.VarChar(200)
  expiresAt DateTime @db.Timestamptz(3)
  createdAt DateTime @default(now()) @db.Timestamptz(3)
- updatedAt DateTime @updatedAt @db.Timestamptz(3)
+ updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz(3)
  createdById String? @db.Uuid
- createdBy User? @relation(fields:[createdById],references:[id],onDelete:SetNull)
+ createdBy User? @relation(fields:[createdById],references:[id],onDelete:SetNull,onUpdate:NoAction)
  @@unique([clientId,evidenceAssetId,documentType,source])
  @@index([clientId,status,documentType])
  @@index([evidenceAssetId])

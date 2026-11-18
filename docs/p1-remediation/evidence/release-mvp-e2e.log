@@ -1,0 +1,50 @@
+{"name":"release-mvp-e2e","exitCode":0,"durationMs":190217,"command":"node node_modules/@playwright/test/cli.js test --config playwright.mvp.config.ts --reporter=list,json"}
+[WebServer] (node:25028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:26372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:13684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:20608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:23140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 32 tests using 1 worker
+
+(node:5632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\e2e\mvp-codart.spec.ts:6:1 › RENIEC autocompleta sólo nombre completo; cliente local evita consulta (4.5s)
+  ok  2 tests\e2e\mvp-codart.spec.ts:9:1 › nombre editado y luego vaciado mientras espera conserva prioridad manual (3.4s)
+  ok  3 tests\e2e\mvp-codart.spec.ts:12:1 › DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física (5.8s)
+  ok  4 tests\e2e\mvp-codart.spec.ts:20:1 › sin créditos muestra error, no inventa fotografías y permite reintentar (3.2s)
+  ok  5 tests\e2e\mvp-design-reference.spec.ts:12:1 › inicio real, cápsula de cinco destinos y módulos adicionales a seis anchos (3.0s)
+  ok  6 tests\e2e\mvp-design-reference.spec.ts:17:1 › bloqueado: desbloquear desde listado pide confirmación y sólo cambia el IMEI objetivo (3.0s)
+  ok  7 tests\e2e\mvp-design-reference.spec.ts:24:1 › desbloquear permanece oculto y API denegada sin permiso de actualizar registros (2.4s)
+  ok  8 tests\e2e\mvp-design-reference.spec.ts:29:1 › listado: cinco columnas, filtros, búsqueda, transición confirmada y documentos reales (4.8s)
+  ok  9 tests\e2e\mvp-form-speed.spec.ts:9:1 › registro: contacto reutilizado permite borrar/corregir; foco, contexto y regreso conservan borrador (3.8s)
+  ok 10 tests\e2e\mvp-form-speed.spec.ts:17:1 › venta: agregar equipo lleva el foco al nuevo; revisión y regreso mantienen importes (3.9s)
+  ok 11 tests\e2e\mvp-registration-redesign.spec.ts:14:1 › cuatro pasos responsive: resumen inmediato, referencia automática, edición y PDF real (11.2s)
+  ok 12 tests\e2e\mvp-registration-redesign.spec.ts:21:1 › doble IMEI: fotos comunes compartidas y lógicas separadas; dos PDF, una sola vista automática (6.5s)
+  ok 13 tests\e2e\mvp-registration-redesign.spec.ts:28:1 › PDF falla después del guardado: reintento documental sin repetir la operación (3.9s)
+  ok 14 tests\e2e\mvp-registration-redesign.spec.ts:32:1 › cliente nuevo con CODART simulado; referencia vacía persiste contacto y nombre manual (11.2s)
+  ok 15 tests\e2e\mvp-registration-redesign.spec.ts:35:1 › equipo relacionado conserva ID, datos y segundo IMEI al registrar únicamente IMEI 2 (3.2s)
+  ok 16 tests\e2e\mvp-registration-redesign.spec.ts:39:1 › caja no aplica conserva la foto previa y permite ampliarla sin habilitar nuevas capturas (3.9s)
+  ok 17 tests\e2e\mvp-registration-redesign.spec.ts:43:1 › X protege cambios sin guardar y cancelar no crea filas comerciales (2.4s)
+  ok 18 tests\e2e\mvp-sales-reference.spec.ts:10:1 › dos pasos, total exacto, contacto por venta, ticket automático y matriz visual completa (24.9s)
+  ok 19 tests\e2e\mvp-sales-reference.spec.ts:24:1 › check individual por RECO registrado, pendientes y bloqueados sin check; detalle modal (8.6s)
+  ok 20 tests\e2e\mvp-sales-reference.spec.ts:35:1 › respuesta de guardado perdida: reintento recupera la misma venta y no crea huérfanos (4.0s)
+  ok 21 tests\e2e\mvp-sales-reference.spec.ts:41:1 › autocompletado limpia el error nativo previo al completar el nombre (3.8s)
+  ok 22 tests\e2e\mvp-scanner.spec.ts:10:1 › cámara trasera predeterminada y galería alternativa analizan automáticamente en registros y ventas (5.4s)
+  ok 23 tests\e2e\mvp-scanner.spec.ts:16:1 › venta: autocompleta dos IMEI sin Aplicar, conserva edición y guarda sólo al confirmar (4.2s)
+  ok 24 tests\e2e\mvp-scanner.spec.ts:25:1 › cambio A→B ignora A; equipos distintos no mezclan campos; doble evento deduplica (4.2s)
+  ok 25 tests\e2e\mvp-scanner.spec.ts:29:1 › registro: escaneo automático, guardar RECO individual y conservar doble IMEI (3.3s)
+  ok 26 tests\e2e\mvp-scanner.spec.ts:32:1 › respuesta inválida y cuota agotada permiten entrada manual y reintento (3.0s)
+  ok 27 tests\e2e\mvp-vault.spec.ts:27:1 › expediente, cliente recurrente, reutilización, registros independientes y eliminación compartida (13.6s)
+  ok 28 tests\e2e\mvp-vault.spec.ts:32:1 › CODART→cliente: identifica cada imagen con evidencia, luego permite reutilización (8.0s)
+  ok 29 tests\e2e\mvp-vault.spec.ts:37:1 › reemplazo por API autorizado mantiene documento antiguo en registro y nueva versión vigente (7.9s)
+  ok 30 tests\e2e\mvp-vault.spec.ts:40:1 › permiso denegado desde cliente y API, sin exponer miniaturas ni acciones (3.5s)
+  ok 31 tests\e2e\mvp-vault.spec.ts:43:1 › caducidad bloquea reutilización y renovación por API explícita conserva el mismo archivo (4.1s)
+  ok 32 tests\e2e\mvp-vault.spec.ts:47:1 › evidencia desde edición RECO se guarda automáticamente en cliente sin copia (5.3s)
+
+  32 passed (3.2m)

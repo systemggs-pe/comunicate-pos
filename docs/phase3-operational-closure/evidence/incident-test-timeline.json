@@ -1,0 +1,74 @@
+[
+  {
+    "source": "integration-current.json",
+    "case": "expediente y referencias sobreviven backup cifrado, restauración aislada y reinicio real de MinIO",
+    "status": "failed",
+    "suiteStartTime": 1792440605309,
+    "suiteEndTime": 1792440607902.4973,
+    "caseDurationMs": 2593.4974
+  },
+  {
+    "source": "integration-current.json",
+    "case": "HTTP supervisor drains an in-flight request before disconnect, tolerates repeat shutdown and restarts",
+    "status": "passed",
+    "suiteStartTime": 1792440612231,
+    "suiteEndTime": 1792440633537.4197,
+    "caseDurationMs": 3021.8227
+  },
+  {
+    "source": "integration-current.json",
+    "case": "real MinIO container recreation and API process restart preserve private photo retrieval",
+    "status": "failed",
+    "suiteStartTime": 1792440522791,
+    "suiteEndTime": 1792440544135.6333,
+    "caseDurationMs": 331.4467000000004
+  },
+  {
+    "source": "integration-evidence.json",
+    "case": "expediente y referencias sobreviven backup cifrado, restauración aislada y reinicio real de MinIO",
+    "status": "failed",
+    "suiteStartTime": 1792440990840,
+    "suiteEndTime": 1792440993628.0127,
+    "caseDurationMs": 2788.0126
+  },
+  {
+    "source": "integration-evidence.json",
+    "case": "HTTP supervisor drains an in-flight request before disconnect, tolerates repeat shutdown and restarts",
+    "status": "passed",
+    "suiteStartTime": 1792440896820,
+    "suiteEndTime": 1792440911975.7754,
+    "caseDurationMs": 3014.4168
+  },
+  {
+    "source": "integration-evidence.json",
+    "case": "real MinIO container recreation and API process restart preserve private photo retrieval",
+    "status": "passed",
+    "suiteStartTime": 1792440912691,
+    "suiteEndTime": 1792440969444.2778,
+    "caseDurationMs": 9449.4532
+  },
+  {
+    "source": "integration-final.json",
+    "case": "expediente y referencias sobreviven backup cifrado, restauración aislada y reinicio real de MinIO",
+    "status": "passed",
+    "suiteStartTime": 1792441356052,
+    "suiteEndTime": 1792441366485.4417,
+    "caseDurationMs": 10433.4417
+  },
+  {
+    "source": "integration-final.json",
+    "case": "HTTP supervisor drains an in-flight request before disconnect, tolerates repeat shutdown and restarts",
+    "status": "passed",
+    "suiteStartTime": 1792441444468,
+    "suiteEndTime": 1792441459044.8723,
+    "caseDurationMs": 3023.1341999999995
+  },
+  {
+    "source": "integration-final.json",
+    "case": "isolated MinIO container restart and API process restart preserve private photo retrieval",
+    "status": "passed",
+    "suiteStartTime": 1792441391496,
+    "suiteEndTime": 1792441442892.7651,
+    "caseDurationMs": 4076.6492
+  }
+]

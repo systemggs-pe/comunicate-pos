@@ -14,6 +14,7 @@ function subscribe(callback: () => void) {
   return () => { window.removeEventListener('popstate', callback); window.removeEventListener('pos:navigate', callback); };
 }
 export function usePathname() { return useSyncExternalStore(subscribe, () => window.location.pathname, () => '/'); }
+export function useSearch() { return useSyncExternalStore(subscribe, () => window.location.search, () => ''); }
 export function navigate(path: string) { if(!window.dispatchEvent(new Event('pos:before-navigate',{cancelable:true})))return; window.history.pushState({ posIndex: ++currentIndex }, '', path); currentUrl = window.location.href; window.dispatchEvent(new Event('pos:navigate')); window.scrollTo({ top: 0 }); }
 export function Link({ to, children, onClick, ...props }: AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }) {
   return <a {...props} href={to} onClick={event => {

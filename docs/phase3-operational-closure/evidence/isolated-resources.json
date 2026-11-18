@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-10-20T17:03:39.101Z",
+  "purpose": "phase3-operational-closure",
+  "names": {
+    "postgres": "communicate-test-phase3-20261020-postgres",
+    "minio": "communicate-test-phase3-20261020-minio",
+    "pgVolume": "communicate-test-phase3-20261020-pgdata",
+    "s3Volume": "communicate-test-phase3-20261020-s3data"
+  },
+  "project": "communicate-phase3-20261020",
+  "ports": {
+    "postgres": 55436,
+    "minio": 59030
+  },
+  "credentials": "Fresh synthetic credentials in ignored private env file; no existing credentials modified",
+  "volumes": "New named volumes; preserved, never deleted"
+}

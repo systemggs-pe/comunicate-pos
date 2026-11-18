@@ -9,12 +9,13 @@ export const permissionKeys = [
   'equipment.read', 'equipment.create', 'equipment.update', 'equipment.delete',
   'registration.read', 'registration.create', 'registration.update', 'registration.delete',
   'sales.read', 'sales.create', 'sales.delete', 'sales.update',
+  'foreign-receipts.read','foreign-receipts.create','foreign-receipts.update','foreign-receipts.issuers',
   'users.read', 'users.create', 'users.update', 'users.disable',
   'roles.read', 'roles.update', 'audit.read', 'settings.read', 'settings.update',
 ] as const;
 export type PermissionKey = typeof permissionKeys[number];
-export const sellerPermissions = permissionKeys.filter(p => ['clients.read','clients.create','clients.update','equipment.read','equipment.create','registration.read','registration.create','registration.update','sales.read','sales.create'].includes(p));
-export const adminPermissions = permissionKeys.filter(p => !p.startsWith('client.')&&!p.startsWith('reports.')&&!p.startsWith('registration.evidence.')&&!['roles.update','settings.update','registration.delete','sales.delete','equipment.delete'].includes(p));
+export const sellerPermissions = permissionKeys.filter(p => ['clients.read','clients.create','clients.update','equipment.read','equipment.create','registration.read','registration.create','registration.update','sales.read','sales.create','foreign-receipts.read','foreign-receipts.create'].includes(p));
+export const adminPermissions = permissionKeys.filter(p => !p.startsWith('client.')&&!p.startsWith('reports.')&&!p.startsWith('registration.evidence.')&&!['roles.update','settings.update','registration.delete','sales.delete','equipment.delete','foreign-receipts.issuers'].includes(p));
 export const emailSchema = z.string().trim().toLowerCase().email().max(254);
 export const passwordSchema = z.string().min(10, 'Usa al menos 10 caracteres.').max(128, 'Usa como máximo 128 caracteres.');
 export const loginSchema = z.object({ email: emailSchema, password: z.string().min(1).max(128) }).strict();
@@ -25,5 +26,5 @@ export const resetPasswordSchema = z.object({ password: passwordSchema }).strict
 export const roleUpdateSchema = z.object({ permissions: z.array(z.enum(permissionKeys)).max(permissionKeys.length).refine(v => new Set(v).size === v.length, 'Permisos repetidos.') }).strict();
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(v => { const d = new Date(`${v}T00:00:00Z`); return !Number.isNaN(d.getTime()) && d.toISOString().slice(0,10) === v; }, 'Fecha inválida.');
 export const auditQuerySchema = listQuerySchema.omit({ ownerId: true }).extend({ userId: idSchema.optional(), action: z.string().trim().max(100).optional(), from: day.optional(), to: day.optional() }).refine(v => !v.from || !v.to || v.from <= v.to, 'Rango de fechas inválido.');
-export interface AuthUser { identityDocument?:string|null; id: string; code: string; name: string; email: string; status: 'ACTIVE' | 'DISABLED'; role: { id: string; code: string }; permissions: PermissionKey[]; lastLoginAt: string | null; createdAt: string }
-export interface RoleView { id: string; code: string; permissions: PermissionKey[] }
+export interface AuthUser { googleLinked?:boolean; identityDocument?:string|null; id: string; code: string; name: string; email: string; status: 'ACTIVE' | 'DISABLED'; role: { id: string; code: string }; permissions: PermissionKey[]; lastLoginAt: string | null; createdAt: string }
+export interface RoleView { id: string; code: string; permissions: PermissionKey[]; userCount?:number; description?:string }

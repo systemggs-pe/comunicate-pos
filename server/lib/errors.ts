@@ -7,7 +7,11 @@ export class DomainError extends Error {
 export function publicError(error: unknown): { status: number; code: string; message: string } {
   if ((error instanceof Prisma.PrismaClientKnownRequestError&&['P1001','P1002','P1008','P1017','P2024'].includes(error.code)) || error instanceof Prisma.PrismaClientInitializationError) return {status:503,code:'DATABASE_UNAVAILABLE',message:'Servicio temporalmente no disponible. Conserva tus datos y reintenta.'};
   if (error instanceof DomainError) return { status: error.status, code: error.code, message: error.message };
-  if (error instanceof ZodError) return { status: 400, code: 'VALIDATION_ERROR', message: error.issues.map(i => i.message).join('; ') };
+  if (error instanceof ZodError) {
+    const imei=error.issues.find(issue=>issue.code==='custom'&&typeof issue.params?.imeiCode==='string');
+    if(imei?.code==='custom')return {status:400,code:String(imei.params?.imeiCode),message:error.issues.map(issue=>`${issue.path.length?issue.path.join('.')+': ':''}${issue.message}`).join('; ')};
+    return { status: 400, code: 'VALIDATION_ERROR', message: error.issues.map(i => i.message).join('; ') };
+  }
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === 'P2002') {
       const target = String(error.meta?.target ?? '');

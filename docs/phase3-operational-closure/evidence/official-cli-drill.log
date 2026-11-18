@@ -1,0 +1,48 @@
+{"startedAt":"2026-10-20T17:09:53.671Z","command":"node node_modules/tsx/dist/cli.mjs .local/phase3-drill.ts","preflight":"PASS: explicit new container names, labels, ports and volumes; no shared commercial mounts"}
+PASS new isolated fixture: 1000 synthetic clients, dedicated PostgreSQL/MinIO and named volumes
+{"event":"http","requestId":"ba2b727f-575e-40b4-8ac8-166e20a43ab3","method":"GET","route":"unmatched","status":503,"durationMs":1,"errorCode":"MAINTENANCE_MODE"}
+{"event":"http","requestId":"1d479888-613d-4c8a-9547-799b2e715964","method":"GET","route":"unmatched","status":503,"durationMs":1,"errorCode":"MAINTENANCE_MODE"}
+{"event":"http","requestId":"f23166a7-df1f-4ece-81db-9a6cf756e98c","method":"GET","route":"unmatched","status":503,"durationMs":0,"errorCode":"MAINTENANCE_MODE"}
+{"event":"http","requestId":"800cabb3-607f-454e-8891-95e1dfd87ef8","method":"POST","route":"unmatched","status":503,"durationMs":0,"errorCode":"MAINTENANCE_MODE"}
+PASS maintenance blocks reads/writes without changing audit/rate counters; liveness remains 200
+PASS only fixture API drained and stopped; no worker or cleanup process launched
+WAIT signed-upload windows: 125 seconds, synthetic resources only
+QUIESCENCE elapsed 40010 ms
+QUIESCENCE elapsed 80012 ms
+QUIESCENCE elapsed 125017 ms
+PASS official scripts/backup.ts create CLI exits PASS
+PASS encrypted manifest, streamed database GCM/hash and every object checksum verified
+PASS synthetic key stored outside backup; archive excludes plaintext key
+PASS wrong key rejects official restore before creating destination database/bucket
+PASS tampered encrypted manifest rejects restore before creating resources; original archive retained
+PASS official restore CLI recovers into a new database and private bucket
+PASS all PostgreSQL table counts match except deliberately revoked sessions/counters
+PASS shared RECO links and client documents retain correct owner/asset associations
+PASS all 40 synthetic restored objects match SHA-256 and size
+PASS money totals and preexisting session revocation verified before login
+PASS authorized document opening/download works; anonymous and old-session access denied
+PASS SELLER without document permission denied after restore
+PASS restored visible-code sequence continues above existing records
+PASS existing destination rejected; no overwrite
+PASS source synthetic database unchanged after backup and restoration
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+80 !== 40
+
+    at <anonymous> (C:\Users\ASUS\Documents\comunic@te\comunicate 2.0\.local\phase3-drill.ts:61:115)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 80,
+  expected: 40,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.21.0
+
+{"exitCode":1,"durationMs":146139}

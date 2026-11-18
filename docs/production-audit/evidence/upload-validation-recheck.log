@@ -1,0 +1,2 @@
+{"name":"upload-validation-recheck","exitCode":0,"durationMs":2001,"command":"node --import tsx .local/audit-upload-recheck.ts"}
+{"name":"mime-spoofed-upload-rejected","status":"PASS","evidence":{"status":400,"errorCode":"EVIDENCE_TYPE_INVALID"},"recheckReason":"Initial request was blocked by the replacement confirmation guard before reaching image validation. This request supplies the expected document and replacement confirmation."}

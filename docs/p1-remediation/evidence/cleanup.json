@@ -1,0 +1,9 @@
+{
+  "checkedAt": "2026-10-20T16:15:36.203675+00:00",
+  "ownedContainers": {
+    "communicate-p1-postgres-20261019": "exited",
+    "communicate-p1-minio-20261019": "exited"
+  },
+  "deletedContainers": false,
+  "habitualServicesStoppedByCleanup": false
+}

@@ -1,0 +1,25 @@
+{"name":"migration-drift","exitCode":2,"durationMs":1804,"command":"node node_modules/prisma/build/index.js migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --exit-code"}
+
+[*] Changed the `ClientDocument` table
+  [-] Removed foreign key on columns (clientId)
+  [-] Removed foreign key on columns (createdById)
+  [-] Removed foreign key on columns (evidenceAssetId)
+  [*] Altered column `id` (default changed from `Some(DbGenerated(Some("gen_random_uuid()")))` to `None`)
+  [*] Altered column `updatedAt` (default changed from `Some(Now)` to `None`)
+  [+] Added foreign key on columns (clientId)
+  [+] Added foreign key on columns (evidenceAssetId)
+  [+] Added foreign key on columns (createdById)
+
+[*] Changed the `CompanySettings` table
+  [-] Removed foreign key on columns (updatedById)
+  [*] Altered column `updatedAt` (default changed from `Some(Now)` to `None`)
+  [+] Added foreign key on columns (updatedById)
+
+[*] Changed the `EvidenceAsset` table
+  [-] Removed foreign key on columns (ownerClientId)
+  [+] Added foreign key on columns (ownerClientId)
+
+[*] Changed the `RegistrationRequest` table
+  [-] Removed foreign key on columns (completedById)
+  [-] Removed unique index on columns (operationId, phone)
+  [+] Added foreign key on columns (completedById)

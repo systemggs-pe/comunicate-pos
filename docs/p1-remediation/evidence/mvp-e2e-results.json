@@ -1,0 +1,1331 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\ASUS\\.local\\nodejs\\node-v24.21.0-win-x64\\node.exe",
+      "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "playwright.mvp.config.ts",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\playwright.mvp.config.ts",
+    "rootDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/.test-results/e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/ASUS/Documents/comunic@te/comunicate 2.0/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "mvp-*.spec.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e",
+        "snapshotDir": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e",
+        "testIgnore": [],
+        "testMatch": "mvp-*.spec.ts",
+        "timeout": 120000,
+        "use": {
+          "actionTimeout": 15000,
+          "screenshot": "only-on-failure",
+          "baseURL": "http://127.0.0.1:5175",
+          "channel": "msedge",
+          "viewport": {
+            "width": 1280,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "mvp-codart.spec.ts",
+      "file": "mvp-codart.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "RENIEC autocompleta sólo nombre completo; cliente local evita consulta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3744,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:56:18.504Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2c5f43a0034f3ccd5181-5aa20799f0863a123dc1",
+          "file": "mvp-codart.spec.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "nombre editado y luego vaciado mientras espera conserva prioridad manual",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2925,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:56:22.468Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2c5f43a0034f3ccd5181-8b18ca980765e86beb16",
+          "file": "mvp-codart.spec.ts",
+          "line": 9,
+          "column": 1
+        },
+        {
+          "title": "DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 19641,
+                  "error": {
+                    "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Cerrar Anverso', exact: true }).first()\u001b[22m\n",
+                    "stack": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Cerrar Anverso', exact: true }).first()\u001b[22m\n\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\mvp-codart.spec.ts:14:217",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\mvp-codart.spec.ts",
+                      "column": 217,
+                      "line": 14
+                    },
+                    "snippet": "  12 | test('DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física',async({page})=>{\n  13 |  await page.goto('/registros/nuevo');await page.locator('.dni-client-fields').getByLabel('DNI',{exact:false}).fill('70000003');await expect(page.getByLabel('Nombre completo',{exact:true})).toHaveValue('CLIENTE SINTÉTICO DE PRUEBA');await page.getByText('DOCUMENTACIÓN PRIVADA DEL CLIENTE',{exact:true}).click();await page.getByRole('button',{name:'GUARDAR CLIENTE PARA DOCUMENTACIÓN',exact:true}).click();await expect(page.getByText('Cliente encontrado',{exact:true})).toBeVisible();await page.getByRole('button',{name:'DNI azul',exact:true}).click();await page.getByRole('checkbox',{name:'Tengo permiso para consultar y guardar estas fotos del DNI.'}).check();await page.getByRole('button',{name:'Buscar fotos',exact:true}).click();await expect(page.getByText('Estas fotos son de demostración.')).toBeVisible();await expect(page.locator('.document-thumbnail')).toHaveCount(2);await expect.poll(()=>page.locator('.document-thumbnail').evaluateAll(images=>images.every(i=>(i as HTMLImageElement).naturalWidth>0))).toBe(true);await expect(page.getByRole('heading',{name:'Anverso',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Reverso',exact:true})).toBeVisible();expect(await mvpDb.clientDocument.count()).toBe(2);expect(await mvpDb.evidenceAsset.count()).toBe(2);expect(await mvpDb.registrationRequest.count()).toBe(0);await widthsMvp(page);\n> 14 |  await page.getByRole('button',{name:'Ampliar',exact:true}).first().click();await expect(page.locator('.document-modal[open]')).toBeVisible();await page.getByRole('button',{name:'Cerrar Anverso',exact:true}).first().click();const download=page.waitForEvent('download');await page.getByRole('button',{name:'Descargar',exact:true}).first().click();expect((await download).suggestedFilename()).toMatch(/documento-.+\\.webp/);\n     |                                                                                                                                                                                                                         ^\n  15 |  // Reopening uses stored photos without another provider call.\n  16 |  const savedClient=await mvpDb.client.findUniqueOrThrow({where:{dni:'70000003'}});await page.goto(`/clientes/${savedClient.id}`);await page.locator('.client-document-access>summary').click();await expect(page.locator('.document-thumbnail')).toHaveCount(2);expect((await(await page.request.get('/api/_test/control')).json()).photoCalls).toBe(1);\n  17 |  await page.locator('.dni-photo-extra>summary').click();await page.getByRole('button',{name:'DNI electrónico',exact:true}).click();await page.getByRole('checkbox',{name:'Tengo permiso para consultar y guardar estas fotos del DNI.'}).check();await page.getByRole('button',{name:'Actualizar DNI',exact:true}).click();await expect(page.getByText('Estas fotos son de demostración.',{exact:true})).toBeVisible();expect(await mvpDb.clientDocument.count()).toBe(4);expect(await mvpDb.evidenceAsset.count()).toBe(2);expect((await(await page.request.get('/api/_test/control')).json()).photoCalls).toBe(2);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\mvp-codart.spec.ts",
+                        "column": 217,
+                        "line": 14
+                      },
+                      "message": "TimeoutError: locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Cerrar Anverso', exact: true }).first()\u001b[22m\n\n\n  12 | test('DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física',async({page})=>{\n  13 |  await page.goto('/registros/nuevo');await page.locator('.dni-client-fields').getByLabel('DNI',{exact:false}).fill('70000003');await expect(page.getByLabel('Nombre completo',{exact:true})).toHaveValue('CLIENTE SINTÉTICO DE PRUEBA');await page.getByText('DOCUMENTACIÓN PRIVADA DEL CLIENTE',{exact:true}).click();await page.getByRole('button',{name:'GUARDAR CLIENTE PARA DOCUMENTACIÓN',exact:true}).click();await expect(page.getByText('Cliente encontrado',{exact:true})).toBeVisible();await page.getByRole('button',{name:'DNI azul',exact:true}).click();await page.getByRole('checkbox',{name:'Tengo permiso para consultar y guardar estas fotos del DNI.'}).check();await page.getByRole('button',{name:'Buscar fotos',exact:true}).click();await expect(page.getByText('Estas fotos son de demostración.')).toBeVisible();await expect(page.locator('.document-thumbnail')).toHaveCount(2);await expect.poll(()=>page.locator('.document-thumbnail').evaluateAll(images=>images.every(i=>(i as HTMLImageElement).naturalWidth>0))).toBe(true);await expect(page.getByRole('heading',{name:'Anverso',exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Reverso',exact:true})).toBeVisible();expect(await mvpDb.clientDocument.count()).toBe(2);expect(await mvpDb.evidenceAsset.count()).toBe(2);expect(await mvpDb.registrationRequest.count()).toBe(0);await widthsMvp(page);\n> 14 |  await page.getByRole('button',{name:'Ampliar',exact:true}).first().click();await expect(page.locator('.document-modal[open]')).toBeVisible();await page.getByRole('button',{name:'Cerrar Anverso',exact:true}).first().click();const download=page.waitForEvent('download');await page.getByRole('button',{name:'Descargar',exact:true}).first().click();expect((await download).suggestedFilename()).toMatch(/documento-.+\\.webp/);\n     |                                                                                                                                                                                                                         ^\n  15 |  // Reopening uses stored photos without another provider call.\n  16 |  const savedClient=await mvpDb.client.findUniqueOrThrow({where:{dni:'70000003'}});await page.goto(`/clientes/${savedClient.id}`);await page.locator('.client-document-access>summary').click();await expect(page.locator('.document-thumbnail')).toHaveCount(2);expect((await(await page.request.get('/api/_test/control')).json()).photoCalls).toBe(1);\n  17 |  await page.locator('.dni-photo-extra>summary').click();await page.getByRole('button',{name:'DNI electrónico',exact:true}).click();await page.getByRole('checkbox',{name:'Tengo permiso para consultar y guardar estas fotos del DNI.'}).check();await page.getByRole('button',{name:'Actualizar DNI',exact:true}).click();await expect(page.getByText('Estas fotos son de demostración.',{exact:true})).toBeVisible();expect(await mvpDb.clientDocument.count()).toBe(4);expect(await mvpDb.evidenceAsset.count()).toBe(2);expect((await(await page.request.get('/api/_test/control')).json()).photoCalls).toBe(2);\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\mvp-codart.spec.ts:14:217"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:56:25.409Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\mvp-codart-DNI-azul-y-elec-cc860-aché-y-deduplicación-física\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\mvp-codart-DNI-azul-y-elec-cc860-aché-y-deduplicación-física\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\mvp-codart-DNI-azul-y-elec-cc860-aché-y-deduplicación-física\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\mvp-codart.spec.ts",
+                    "column": 217,
+                    "line": 14
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2c5f43a0034f3ccd5181-ad1f28514f3bf0e4c855",
+          "file": "mvp-codart.spec.ts",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "sin créditos muestra error, no inventa fotografías y permite reintentar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3359,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:56:45.761Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2c5f43a0034f3ccd5181-256196f5f1d4ecffbd88",
+          "file": "mvp-codart.spec.ts",
+          "line": 20,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "mvp-design-reference.spec.ts",
+      "file": "mvp-design-reference.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "inicio real, cápsula de cinco destinos y módulos adicionales a seis anchos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3749,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:56:49.498Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4ca1d371f7d7fad3d850-e2a5fd89daf22c37f765",
+          "file": "mvp-design-reference.spec.ts",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "bloqueado: desbloquear desde listado pide confirmación y sólo cambia el IMEI objetivo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3105,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:56:53.266Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4ca1d371f7d7fad3d850-48f987bc0fdf728fc244",
+          "file": "mvp-design-reference.spec.ts",
+          "line": 17,
+          "column": 1
+        },
+        {
+          "title": "desbloquear permanece oculto y API denegada sin permiso de actualizar registros",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3087,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:56:56.391Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4ca1d371f7d7fad3d850-7b62a9fdb55602846bc9",
+          "file": "mvp-design-reference.spec.ts",
+          "line": 24,
+          "column": 1
+        },
+        {
+          "title": "listado: cinco columnas, filtros, búsqueda, transición confirmada y documentos reales",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4757,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:56:59.493Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4ca1d371f7d7fad3d850-c1dcb593b9dce3b94a46",
+          "file": "mvp-design-reference.spec.ts",
+          "line": 29,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "mvp-form-speed.spec.ts",
+      "file": "mvp-form-speed.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "registro: contacto reutilizado permite borrar/corregir; foco, contexto y regreso conservan borrador",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3023,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:57:04.323Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f928eb054cc97677dd8d-d429ef30f893bb7f2b1c",
+          "file": "mvp-form-speed.spec.ts",
+          "line": 9,
+          "column": 1
+        },
+        {
+          "title": "venta: agregar equipo lleva el foco al nuevo; revisión y regreso mantienen importes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3772,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:57:07.360Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f928eb054cc97677dd8d-c2eec0b11b3465a47245",
+          "file": "mvp-form-speed.spec.ts",
+          "line": 17,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "mvp-registration-redesign.spec.ts",
+      "file": "mvp-registration-redesign.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "cuatro pasos responsive: resumen inmediato, referencia automática, edición y PDF real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12141,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:57:11.187Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e10964899f715185531f-8575dd2e3c772279c8a0",
+          "file": "mvp-registration-redesign.spec.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "doble IMEI: fotos comunes compartidas y lógicas separadas; dos PDF, una sola vista automática",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5529,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:57:23.344Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e10964899f715185531f-8c2006c2f285a6c1b8cc",
+          "file": "mvp-registration-redesign.spec.ts",
+          "line": 21,
+          "column": 1
+        },
+        {
+          "title": "PDF falla después del guardado: reintento documental sin repetir la operación",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4584,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:57:28.889Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e10964899f715185531f-a8ef8c541f9db1bfbe1f",
+          "file": "mvp-registration-redesign.spec.ts",
+          "line": 28,
+          "column": 1
+        },
+        {
+          "title": "cliente nuevo con CODART simulado; referencia vacía persiste contacto y nombre manual",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 22580,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first() with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first()\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first() with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first()\u001b[22m\n\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\mvp-registration-redesign.spec.ts:33:2195",
+                    "location": {
+                      "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\mvp-registration-redesign.spec.ts",
+                      "column": 2195,
+                      "line": 33
+                    },
+                    "snippet": "  31 | });\n  32 | test('cliente nuevo con CODART simulado; referencia vacía persiste contacto y nombre manual',async({page})=>{\n> 33 |  await page.goto('/registros/nuevo');await page.getByLabel('DNI',{exact:true}).fill('70000881');await expect(page.getByLabel('Nombre completo',{exact:true})).toHaveValue('CLIENTE SINTÉTICO DE PRUEBA');await page.getByLabel('Nombre completo',{exact:true}).fill('NOMBRE MANUAL SINTÉTICO');await page.getByLabel('Celular de este registro',{exact:true}).fill('934567890');await page.getByLabel('Correo de atención',{exact:true}).fill('NEW@EXAMPLE.TEST');await page.getByLabel('Dirección de atención',{exact:true}).fill('Dirección sintética');await page.getByLabel('Departamento',{exact:true}).selectOption('TACNA');await next(page);await equipment(page);await next(page);await next(page);await uploadMissingRegistrationIdentity(page);await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();await expect(page.getByRole('heading',{name:'REGISTRO GUARDADO CORRECTAMENTE'})).toBeVisible();const client=await mvpDb.client.findUniqueOrThrow({where:{dni:'70000881'}}),row=await mvpDb.registrationRequest.findFirstOrThrow();expect(client.fullName).toBe('NOMBRE MANUAL SINTÉTICO');expect(client.email).toBe('new@example.test');expect(row.referencePhone).toBe('934567890');expect((await(await page.request.get('/api/_test/control')).json()).nameCalls).toBe(1);await page.getByRole('button',{name:'CERRAR PDF',exact:true}).click();await page.getByRole('link',{name:'IR AL DETALLE DEL REGISTRO',exact:true}).click();await expect(page.getByRole('dialog',{name:'Detalle del registro',exact:true})).toContainText('NOMBRE MANUAL SINTÉTICO');await page.goto(`/clientes/${client.id}`);await expect(page.getByRole('heading',{name:'NOMBRE MANUAL SINTÉTICO',exact:true})).toBeVisible();await page.goto('/clientes');await expect(page.locator('tbody')).toContainText('NOMBRE MANUAL SINTÉTICO');await page.getByLabel('Buscar por IMEI',{exact:true}).fill('597087654480017');await page.getByRole('button',{name:'Buscar IMEI',exact:true}).click();await expect(page.locator('.search-result')).toContainText('NOMBRE MANUAL SINTÉTICO');await page.getByRole('link',{name:'Ver equipo y registrar',exact:true}).click();await expect(page.getByRole('link',{name:'NOMBRE MANUAL SINTÉTICO',exact:true}).first()).toBeVisible();await page.goto('/ventas/nueva');await saleClient(page,client.dni);const item=page.getByTestId('sale-item-0');await item.getByLabel('Nombre comercial',{exact:true}).fill('Equipo de prueba');await item.getByLabel('Marca',{exact:true}).fill('Samsung');await item.getByLabel('Modelo',{exact:true}).fill('MODELO SINTÉTICO');await item.getByLabel('IMEI 1 del equipo 1',{exact:true}).fill('597087654490016');await item.getByLabel('Precio del equipo 1 (S/)',{exact:true}).fill('1.00');await saveSale(page);await expect(page.getByRole('dialog',{name:'Detalle de venta',exact:true})).toBeVisible();await expect(page.locator('.sale-preview-client')).toContainText('NOMBRE MANUAL SINTÉTICO');await expect(page.locator('.sale-preview-equipment')).toContainText('EQUIPO DE PRUEBA');await page.goto('/ventas');await expect(page.locator('tbody')).toContainText('NOMBRE MANUAL SINTÉTICO');await page.goto('/equipos');await expect(page.locator('tbody')).toContainText('NOMBRE MANUAL SINTÉTICO');\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^\n  34 | });\n  35 | test('equipo relacionado conserva ID, datos y segundo IMEI al registrar únicamente IMEI 2',async({page})=>{\n  36 |  const input=workflowInput(),client=await mvpDb.client.findUniqueOrThrow({where:{dni:'70876543'}});const eq=await mvpDb.equipment.create({data:{...input.equipment,origin:'STORE',ownerId:client.id,imeis:{create:input.imeis}}});await page.goto('/registros/nuevo');await page.getByLabel('DNI',{exact:true}).fill(client.dni);await expect(page.getByText('Cliente encontrado',{exact:true})).toBeVisible();await page.getByRole('button',{name:new RegExp(eq.code)}).click();await next(page);await expect(page.getByLabel('Marca',{exact:true})).toHaveAttribute('readonly','');await page.getByRole('radio',{name:/IMEI 2: 597087654300025/}).check();await next(page);await expect(page.getByLabel('Celular IMEI 2',{exact:true})).toHaveValue('912345678');await next(page);await uploadMissingRegistrationIdentity(page);await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();await expect(page.getByRole('heading',{name:'REGISTRO GUARDADO CORRECTAMENTE'})).toBeVisible();expect(await mvpDb.equipment.count()).toBe(1);expect((await mvpDb.imei.findUniqueOrThrow({where:{value:input.imeis[0].value}})).registrationStatus).toBeNull();expect((await mvpDb.imei.findUniqueOrThrow({where:{value:input.imeis[1].value}})).equipmentId).toBe(eq.id);expect((await mvpDb.equipment.findUniqueOrThrow({where:{id:eq.id}})).updatedAt).toEqual(eq.updatedAt);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\mvp-registration-redesign.spec.ts",
+                        "column": 2195,
+                        "line": 33
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first() with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('link', { name: 'NOMBRE MANUAL SINTÉTICO', exact: true }).first()\u001b[22m\n\n\n  31 | });\n  32 | test('cliente nuevo con CODART simulado; referencia vacía persiste contacto y nombre manual',async({page})=>{\n> 33 |  await page.goto('/registros/nuevo');await page.getByLabel('DNI',{exact:true}).fill('70000881');await expect(page.getByLabel('Nombre completo',{exact:true})).toHaveValue('CLIENTE SINTÉTICO DE PRUEBA');await page.getByLabel('Nombre completo',{exact:true}).fill('NOMBRE MANUAL SINTÉTICO');await page.getByLabel('Celular de este registro',{exact:true}).fill('934567890');await page.getByLabel('Correo de atención',{exact:true}).fill('NEW@EXAMPLE.TEST');await page.getByLabel('Dirección de atención',{exact:true}).fill('Dirección sintética');await page.getByLabel('Departamento',{exact:true}).selectOption('TACNA');await next(page);await equipment(page);await next(page);await next(page);await uploadMissingRegistrationIdentity(page);await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();await expect(page.getByRole('heading',{name:'REGISTRO GUARDADO CORRECTAMENTE'})).toBeVisible();const client=await mvpDb.client.findUniqueOrThrow({where:{dni:'70000881'}}),row=await mvpDb.registrationRequest.findFirstOrThrow();expect(client.fullName).toBe('NOMBRE MANUAL SINTÉTICO');expect(client.email).toBe('new@example.test');expect(row.referencePhone).toBe('934567890');expect((await(await page.request.get('/api/_test/control')).json()).nameCalls).toBe(1);await page.getByRole('button',{name:'CERRAR PDF',exact:true}).click();await page.getByRole('link',{name:'IR AL DETALLE DEL REGISTRO',exact:true}).click();await expect(page.getByRole('dialog',{name:'Detalle del registro',exact:true})).toContainText('NOMBRE MANUAL SINTÉTICO');await page.goto(`/clientes/${client.id}`);await expect(page.getByRole('heading',{name:'NOMBRE MANUAL SINTÉTICO',exact:true})).toBeVisible();await page.goto('/clientes');await expect(page.locator('tbody')).toContainText('NOMBRE MANUAL SINTÉTICO');await page.getByLabel('Buscar por IMEI',{exact:true}).fill('597087654480017');await page.getByRole('button',{name:'Buscar IMEI',exact:true}).click();await expect(page.locator('.search-result')).toContainText('NOMBRE MANUAL SINTÉTICO');await page.getByRole('link',{name:'Ver equipo y registrar',exact:true}).click();await expect(page.getByRole('link',{name:'NOMBRE MANUAL SINTÉTICO',exact:true}).first()).toBeVisible();await page.goto('/ventas/nueva');await saleClient(page,client.dni);const item=page.getByTestId('sale-item-0');await item.getByLabel('Nombre comercial',{exact:true}).fill('Equipo de prueba');await item.getByLabel('Marca',{exact:true}).fill('Samsung');await item.getByLabel('Modelo',{exact:true}).fill('MODELO SINTÉTICO');await item.getByLabel('IMEI 1 del equipo 1',{exact:true}).fill('597087654490016');await item.getByLabel('Precio del equipo 1 (S/)',{exact:true}).fill('1.00');await saveSale(page);await expect(page.getByRole('dialog',{name:'Detalle de venta',exact:true})).toBeVisible();await expect(page.locator('.sale-preview-client')).toContainText('NOMBRE MANUAL SINTÉTICO');await expect(page.locator('.sale-preview-equipment')).toContainText('EQUIPO DE PRUEBA');await page.goto('/ventas');await expect(page.locator('tbody')).toContainText('NOMBRE MANUAL SINTÉTICO');await page.goto('/equipos');await expect(page.locator('tbody')).toContainText('NOMBRE MANUAL SINTÉTICO');\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ^\n  34 | });\n  35 | test('equipo relacionado conserva ID, datos y segundo IMEI al registrar únicamente IMEI 2',async({page})=>{\n  36 |  const input=workflowInput(),client=await mvpDb.client.findUniqueOrThrow({where:{dni:'70876543'}});const eq=await mvpDb.equipment.create({data:{...input.equipment,origin:'STORE',ownerId:client.id,imeis:{create:input.imeis}}});await page.goto('/registros/nuevo');await page.getByLabel('DNI',{exact:true}).fill(client.dni);await expect(page.getByText('Cliente encontrado',{exact:true})).toBeVisible();await page.getByRole('button',{name:new RegExp(eq.code)}).click();await next(page);await expect(page.getByLabel('Marca',{exact:true})).toHaveAttribute('readonly','');await page.getByRole('radio',{name:/IMEI 2: 597087654300025/}).check();await next(page);await expect(page.getByLabel('Celular IMEI 2',{exact:true})).toHaveValue('912345678');await next(page);await uploadMissingRegistrationIdentity(page);await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();await expect(page.getByRole('heading',{name:'REGISTRO GUARDADO CORRECTAMENTE'})).toBeVisible();expect(await mvpDb.equipment.count()).toBe(1);expect((await mvpDb.imei.findUniqueOrThrow({where:{value:input.imeis[0].value}})).registrationStatus).toBeNull();expect((await mvpDb.imei.findUniqueOrThrow({where:{value:input.imeis[1].value}})).equipmentId).toBe(eq.id);expect((await mvpDb.equipment.findUniqueOrThrow({where:{id:eq.id}})).updatedAt).toEqual(eq.updatedAt);\n    at C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\mvp-registration-redesign.spec.ts:33:2195"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:57:33.489Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\mvp-registration-redesign--a66c8-te-contacto-y-nombre-manual\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\mvp-registration-redesign--a66c8-te-contacto-y-nombre-manual\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\.test-results\\e2e\\mvp-registration-redesign--a66c8-te-contacto-y-nombre-manual\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\ASUS\\Documents\\comunic@te\\comunicate 2.0\\tests\\e2e\\mvp-registration-redesign.spec.ts",
+                    "column": 2195,
+                    "line": 33
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e10964899f715185531f-d3037c66150bc211c92b",
+          "file": "mvp-registration-redesign.spec.ts",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "equipo relacionado conserva ID, datos y segundo IMEI al registrar únicamente IMEI 2",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4337,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:57:56.790Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e10964899f715185531f-da388d1e8fdf0e7dadde",
+          "file": "mvp-registration-redesign.spec.ts",
+          "line": 35,
+          "column": 1
+        },
+        {
+          "title": "caja no aplica conserva la foto previa y permite ampliarla sin habilitar nuevas capturas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3888,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:58:01.340Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e10964899f715185531f-0a5bf1e4f8d6892b3d5a",
+          "file": "mvp-registration-redesign.spec.ts",
+          "line": 39,
+          "column": 1
+        },
+        {
+          "title": "X protege cambios sin guardar y cancelar no crea filas comerciales",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2405,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:58:05.244Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e10964899f715185531f-8f11416914f72a2934d3",
+          "file": "mvp-registration-redesign.spec.ts",
+          "line": 43,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "mvp-sales-reference.spec.ts",
+      "file": "mvp-sales-reference.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "dos pasos, total exacto, contacto por venta, ticket automático y matriz visual completa",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 23057,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:58:07.696Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9dd16df2ee9cb097daee-23b5a2a39b01ccd7f171",
+          "file": "mvp-sales-reference.spec.ts",
+          "line": 10,
+          "column": 1
+        },
+        {
+          "title": "check individual por RECO registrado, pendientes y bloqueados sin check; detalle modal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8042,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:58:30.765Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9dd16df2ee9cb097daee-dd6d019c9f15409a4993",
+          "file": "mvp-sales-reference.spec.ts",
+          "line": 24,
+          "column": 1
+        },
+        {
+          "title": "respuesta de guardado perdida: reintento recupera la misma venta y no crea huérfanos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3987,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:58:38.818Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9dd16df2ee9cb097daee-d5a0e8216d4fb49dc2f1",
+          "file": "mvp-sales-reference.spec.ts",
+          "line": 35,
+          "column": 1
+        },
+        {
+          "title": "autocompletado limpia el error nativo previo al completar el nombre",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2536,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:58:42.817Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9dd16df2ee9cb097daee-63a022ca658c5f534086",
+          "file": "mvp-sales-reference.spec.ts",
+          "line": 41,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "mvp-scanner.spec.ts",
+      "file": "mvp-scanner.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "cámara trasera predeterminada y galería alternativa analizan automáticamente en registros y ventas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4781,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:58:45.401Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5fd48b6d4ca7be8ea891-4fc4610ab9a0b8a19d53",
+          "file": "mvp-scanner.spec.ts",
+          "line": 10,
+          "column": 1
+        },
+        {
+          "title": "venta: autocompleta dos IMEI sin Aplicar, conserva edición y guarda sólo al confirmar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4300,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:58:50.192Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5fd48b6d4ca7be8ea891-cd932a5514739a7538c6",
+          "file": "mvp-scanner.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "cambio A→B ignora A; equipos distintos no mezclan campos; doble evento deduplica",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3800,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:58:54.512Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5fd48b6d4ca7be8ea891-6c25cfaee108cc1c8571",
+          "file": "mvp-scanner.spec.ts",
+          "line": 25,
+          "column": 1
+        },
+        {
+          "title": "registro: escaneo automático, guardar RECO individual y conservar doble IMEI",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4308,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:58:58.326Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5fd48b6d4ca7be8ea891-c049a673fccaa9ddaafb",
+          "file": "mvp-scanner.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "respuesta inválida y cuota agotada permiten entrada manual y reintento",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3035,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:59:02.650Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5fd48b6d4ca7be8ea891-04bc517e66a6d5336124",
+          "file": "mvp-scanner.spec.ts",
+          "line": 32,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "mvp-vault.spec.ts",
+      "file": "mvp-vault.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "expediente, cliente recurrente, reutilización, registros independientes y eliminación compartida",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13744,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:59:05.731Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc5b73f9ca3bce5e8398-87d24d64ca20916b60f2",
+          "file": "mvp-vault.spec.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "CODART→cliente: identifica cada imagen con evidencia, luego permite reutilización",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7919,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:59:19.487Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc5b73f9ca3bce5e8398-3d2c97e5078e1108d073",
+          "file": "mvp-vault.spec.ts",
+          "line": 32,
+          "column": 1
+        },
+        {
+          "title": "reemplazo por API autorizado mantiene documento antiguo en registro y nueva versión vigente",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7947,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:59:27.424Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc5b73f9ca3bce5e8398-8602a6f907c15c2f1276",
+          "file": "mvp-vault.spec.ts",
+          "line": 37,
+          "column": 1
+        },
+        {
+          "title": "permiso denegado desde cliente y API, sin exponer miniaturas ni acciones",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4248,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:59:35.387Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc5b73f9ca3bce5e8398-d93e52da07b4f0b54e0b",
+          "file": "mvp-vault.spec.ts",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "caducidad bloquea reutilización y renovación por API explícita conserva el mismo archivo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4159,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:59:39.659Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc5b73f9ca3bce5e8398-c0d22d8742f9bb513f82",
+          "file": "mvp-vault.spec.ts",
+          "line": 43,
+          "column": 1
+        },
+        {
+          "title": "evidencia desde edición RECO se guarda automáticamente en cliente sin copia",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5361,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T15:59:43.839Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc5b73f9ca3bce5e8398-928a5a4c580ddf29d91c",
+          "file": "mvp-vault.spec.ts",
+          "line": 47,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T15:56:13.989Z",
+    "duration": 215777.662,
+    "expected": 30,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

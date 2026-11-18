@@ -1,0 +1,13 @@
+import 'dotenv/config';
+import {config} from 'dotenv';
+if(process.argv.includes('--isolated')){config({path:'.local/audit-isolated.env',override:true,quiet:true});process.argv=process.argv.filter(value=>value!=='--isolated');}
+import {spawn} from 'node:child_process';
+import {writeFileSync,mkdirSync} from 'node:fs';
+const secrets=Object.entries(process.env).filter(([k,v])=>/PASSWORD|SECRET|TOKEN|API_KEY|DATABASE_URL|DIRECT_URL|ACCESS_KEY/i.test(k)&&v&&v.length>5).map(([,v])=>v);
+function clean(s){for(const value of secrets)s=s.split(value).join('[REDACTED]');return s.replace(/postgres(?:ql)?:\/\/[^\s'"<>]+/g,'postgresql://[REDACTED]').replace(/\u001b\[[0-9;]*m/g,'');}
+const [name,...args]=process.argv.slice(2),start=Date.now();
+if(name==='mvp-e2e')process.env.PLAYWRIGHT_JSON_OUTPUT_NAME='docs/production-audit/evidence/mvp-e2e-results.json';
+mkdirSync('docs/production-audit/evidence',{recursive:true});
+const child=spawn(process.execPath,args,{env:process.env,windowsHide:true});let output='';
+child.stdout.on('data',b=>output+=b);child.stderr.on('data',b=>output+=b);
+child.on('close',code=>{const result={name,exitCode:code,durationMs:Date.now()-start,command:['node',...args].join(' ')};writeFileSync(`docs/production-audit/evidence/${name}.log`,JSON.stringify(result)+'\n'+clean(output));console.log(JSON.stringify(result));console.log(clean(output).slice(-2200));});

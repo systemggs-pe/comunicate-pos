@@ -1,9 +1,17 @@
+import {registerGoogleAuth} from './auth/google.js';
+import {registrationShareText} from '../shared/registration-share.js';
+import {idSchema} from '../shared/validation.js';
+import {registrationReceiptChoice} from '../shared/registration-receipt.js';
+import {registrationReceiptOptions} from './services/registration-receipt.service.js';
+import {createClientDirectory} from './services/client-directory.service.js';
+import {createEvidencePdfService} from './services/evidence-pdf.service.js';
 import {createEvidenceService} from './evidence/service.js';
 import {clientVault} from './documents/client-vault.js';
 import type {IdentityPhotoProvider} from './integrations/codart.js';
 import {scannerService} from './integrations/scanner-service.js';
 import type {BoxScannerProvider} from './integrations/gemini.js';
 import { registerReportRoutes } from './routes/reports.routes.js';
+import { registerForeignReceiptRoutes,registerPublicForeignReceiptRoutes } from './routes/foreign-receipts.routes.js';
 import {observeHttp,maintenanceGuard,apiThrottle} from './ops/security.js';
 import {HeadBucketCommand} from '@aws-sdk/client-s3';
 import {createEvidenceStorage,S3EvidenceStorage} from './storage/s3.js';
@@ -29,7 +37,7 @@ import type { DniProvider } from './dni/provider.js';
 export function createApp(db: PrismaClient, options: { dniProvider?: DniProvider; dniOptions?: DniLookupOptions; evidenceStorage?:EvidenceStorageProvider;boxScanner?:BoxScannerProvider;identityPhotos?:IdentityPhotoProvider } = {}) {
 const auth = createAuthService(db);
 const dniLookup = createDniLookupService(dni => db.client.findUnique({ where: { dni } }), options.dniProvider ?? createDniProvider(), options.dniOptions ?? dniLookupOptions());
-const pos = (req: Request,res: Response) => createPosService(db,requestContext(req,authState(res).user.id),authState(res).sessionId,authState(res).user.permissions.includes('registration.evidence.delete'));
+const pos = (req: Request,res: Response) => createPosService(db,requestContext(req,authState(res).user.id),authState(res).sessionId,authState(res).user.permissions.includes('registration.evidence.delete'),options.evidenceStorage,(['client.documents.read','registration.evidence.upload'] as const).every(permission=>authState(res).user.permissions.includes(permission)),authState(res).user.permissions.includes('client.documents.upload'),req.get('origin'));
 const users = (req: Request,res: Response) => createUsersService(db,authState(res).user,requestContext(req,authState(res).user.id));
 const evidence=(req:Request,res:Response)=>createEvidenceService(db,authState(res),requestContext(req,authState(res).user.id),options.evidenceStorage);
 const app = express();
@@ -44,6 +52,8 @@ app.use('/api', (_req,res,next) => { res.set('Cache-Control','no-store'); next()
 app.get('/api/health', (_req, res) => res.json({ name: 'COMUNIC@TE POS', status: 'ok' }));
 app.use('/api', originGuard);
 app.use('/api',maintenanceGuard);
+registerPublicForeignReceiptRoutes(app,db);
+registerGoogleAuth(app,db);
 app.post('/api/auth/login', async (req,res) => { const result=await auth.login(req.body,requestContext(req)); res.cookie(cookieName(),result.token,{...cookieOptions(),expires:result.expiresAt}); res.json(result.user); });
 app.use('/api',requireAuth(auth));
 app.use('/api',rejectActorInput);
@@ -54,23 +64,31 @@ app.get('/api/readiness',requirePermission('settings.read'),async(_req,res)=>{
  const storage=options.evidenceStorage??createEvidenceStorage();try{if(!(storage instanceof S3EvidenceStorage))throw new Error('STORAGE_PROBE_UNAVAILABLE');await storage.client.send(new HeadBucketCommand({Bucket:storage.config.bucket}));checks.storage='PASS';res.json({status:'ready',checks});}catch{res.status(503).json({status:'degraded',checks});}finally{if(!options.evidenceStorage&&(storage instanceof S3EvidenceStorage))storage.client.destroy();}
 });
 registerReportRoutes(app, db);
+registerForeignReceiptRoutes(app,db);
 app.get('/api/clients/:clientId/documents',async(req,res)=>res.json(await vault.list(authState(res),req.params.clientId)));
+app.post('/api/clients/:clientId/documents/identify-codart-sides',async(req,res)=>res.json(await vault.identifyCodartSides(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.body)));
+app.post('/api/clients/:clientId/documents/history/:linkId',async(req,res)=>res.status(201).json(await vault.incorporate(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.linkId,req.body)));
 app.get('/api/clients/:clientId/documents/:id/access',async(req,res)=>res.json(await vault.access(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.id,req.query.download==='true')));
 app.post('/api/clients/:clientId/documents',express.raw({type:['image/jpeg','image/png','image/webp'],limit:'10mb'}),async(req,res)=>res.status(201).json(await vault.upload(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.body,req.get('content-type')??'',{...req.query,confirmed:req.query.confirmed==='true'})));
 app.post('/api/clients/:clientId/identity-photos',async(req,res)=>res.json(await vault.lookupPhotos(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.body)));
+app.patch('/api/clients/:clientId/documents/:id/side',async(req,res)=>res.json(await vault.identifySide(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.id,req.body)));
 app.patch('/api/clients/:clientId/documents/:id',async(req,res)=>res.json(await vault.classify(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.id,req.body)));
 app.delete('/api/clients/:clientId/documents/:id',async(req,res)=>res.json(await vault.remove(authState(res),requestContext(req,authState(res).user.id),req.params.clientId,req.params.id,req.body)));
-app.post('/api/scans/box',express.raw({type:['image/jpeg','image/png','image/webp'],limit:'10mb'}),async(req,res)=>{const state=authState(res);if(!state.user.permissions.some(p=>p==='sales.create'||p==='registration.create'))throw new DomainError(403,'NO TIENES PERMISO PARA ESCANEAR EQUIPOS.','PERMISSION_REQUIRED');const controller=new AbortController();const stop=()=>{if(!res.writableEnded)controller.abort();};res.once('close',stop);try{res.json(await scan(state.user.id,req.body,req.get('content-type')??'',controller.signal));}finally{res.off('close',stop);}});
+app.post('/api/scans/box',express.raw({type:['image/jpeg','image/png','image/webp'],limit:'10mb'}),async(req,res)=>{const state=authState(res);if(!state.user.permissions.some(p=>p==='sales.create'||p==='registration.create'||p==='foreign-receipts.create'||p==='foreign-receipts.update'))throw new DomainError(403,'NO TIENES PERMISO PARA ESCANEAR EQUIPOS.','PERMISSION_REQUIRED');const controller=new AbortController();const stop=()=>{if(!res.writableEnded)controller.abort();};res.once('close',stop);try{res.json(await scan(state.user.id,req.body,req.get('content-type')??'',controller.signal));}finally{res.off('close',stop);}});
+app.get('/api/server-time',(_req,res)=>res.json({serverTime:new Date().toISOString()}));
+app.get('/api/home-summary',async(_req,res)=>{const permissions=authState(res).user.permissions;const [registrations,sales,clients]=await Promise.all([permissions.includes('registration.read')?db.registrationRequest.count():null,permissions.includes('sales.read')?db.sale.count():null,permissions.includes('clients.read')?db.client.count():null]);res.json({registrations,sales,clients,serverTime:new Date().toISOString()});});
 app.get('/api/auth/me', (_req,res) => res.json(authState(res).user));
 app.post('/api/evidence/uploads',async(req,res)=>res.status(201).json(await evidence(req,res).init(req.body)));
-app.post('/api/evidence/uploads/:id/verify',async(req,res)=>res.json(await evidence(req,res).verify(req.params.id)));
+app.post('/api/evidence/uploads/:id/verify',async(req,res)=>res.json(await evidence(req,res).verify(req.params.id,req.body)));
 app.delete('/api/evidence/uploads/:id',async(req,res)=>res.json(await evidence(req,res).abandon(req.params.id)));
 app.post('/api/evidence/cleanup',async(req,res)=>res.json(await evidence(req,res).cleanup()));
 app.get('/api/registration-requests/:id/evidence',async(req,res)=>res.json(await evidence(req,res).list(req.params.id)));
-app.get('/api/registration-requests/:id/evidence/:linkId/access',async(req,res)=>res.json(await evidence(req,res).access(req.params.id,req.params.linkId,req.query.download==='true')));
+app.post('/api/registration-requests/:id/evidence/client-identity',async(req,res)=>res.json(await evidence(req,res).syncClientIdentity(req.params.id)));
+app.get('/api/registration-requests/:id/evidence/:linkId/access',async(req,res)=>res.json(await evidence(req,res).access(req.params.id,req.params.linkId,req.query.download==='true',req.query.original==='true')));
 app.post('/api/registration-requests/:id/evidence',async(req,res)=>res.json(await evidence(req,res).attach(req.params.id,req.body)));
 app.delete('/api/registration-requests/:id/evidence/:linkId',async(req,res)=>res.json(await evidence(req,res).remove(req.params.id,req.params.linkId,req.body)));
 
+app.post('/api/registration-requests/:id/evidence-pdf',requirePermission('registration.read','registration.evidence.read'),async(req,res)=>res.json(await createEvidencePdfService(db,requestContext(req,authState(res).user.id),options.evidenceStorage,(['registration.update','registration.evidence.upload','client.documents.read'] as const).every(permission=>authState(res).user.permissions.includes(permission))).generate(req.params.id,req.body)));
 app.get('/api/registration-requests/:id/declaration-data',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).data(req.params.id)));
 app.post('/api/registration-requests/:id/declaration',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).generate(req.params.id,req.body)));
 app.get('/api/settings/company',requirePermission('settings.read'),async(_req,res)=>res.json(await createCompanyService(db).get()));
@@ -88,13 +106,41 @@ for(const [path,kind,permission] of [['sales','sale','sales.delete'],['registrat
  app.get(`/api/${path}/:id/deletion-preview`,requirePermission(permission),async(req,res)=>res.json(await pos(req,res).deletionPreview(kind,req.params.id,req.query.removeOrphanEquipment==='true')));
  app.delete(`/api/${path}/:id`,requirePermission(permission),async(req,res)=>{const preview=await pos(req,res).deletionPreview(kind,req.params.id,req.body?.removeOrphanEquipment===true);if(preview.counts.evidence>0&&!authState(res).user.permissions.includes('registration.evidence.delete'))throw new DomainError(403,'LA ELIMINACIÓN INCLUYE FOTOS Y REQUIERE PERMISO PARA ELIMINAR EVIDENCIAS.','PERMISSION_REQUIRED');res.json(await pos(req,res).deletePermanently(kind,req.params.id,req.body));});
 }
+app.get('/api/registration-requests/summary',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).registrationSummary(req.query)));
 app.get('/api/registration-requests',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).listRegistrationRequests(req.query)));
-app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>{if((req.body?.evidence?.length||req.body?.documentEvidence?.length)&&!authState(res).user.permissions.includes('registration.evidence.upload'))throw new DomainError(403,'NO TIENES PERMISOS PARA ADJUNTAR EVIDENCIAS.','PERMISSION_REQUIRED');if(req.body?.documentEvidence?.length&&!authState(res).user.permissions.includes('client.documents.read'))throw new DomainError(403,'SE REQUIERE PERMISO DE DOCUMENTACIÓN.','PERMISSION_REQUIRED');res.status(201).json(await pos(req,res).createRegistrationOperation(req.body));});
+app.post('/api/registration-receipts/resolve',requirePermission('registration.create','registration.evidence.read','registration.evidence.upload'),async(req,res)=>{
+ const {permissions}=authState(res).user;
+ res.json(await registrationReceiptOptions(db,req.body,{
+  foreign:permissions.includes('foreign-receipts.read'),issue:permissions.includes('foreign-receipts.read')&&permissions.includes('foreign-receipts.create'),sales:permissions.includes('sales.read'),
+ }));
+});
+app.post('/api/registration-operations',requirePermission('registration.create','clients.create','equipment.create'),async(req,res)=>{
+ const identityChanges=req.body?.identityChanges;
+ if(Array.isArray(identityChanges)&&identityChanges.length){
+  const {permissions}=authState(res).user;
+  if(!permissions.includes('registration.evidence.upload')||!permissions.includes('client.documents.upload')||!permissions.includes('client.documents.read')||
+   identityChanges.some(change=>Array.isArray(change?.expectedIds)&&change.expectedIds.length>0)&&!permissions.includes('client.documents.replace')||
+   identityChanges.some(change=>change?.documentId)&&!permissions.includes('client.identity_photo.lookup')){
+   throw new DomainError(403,'Tu rol no permite guardar o reemplazar estas fotos del DNI.','PERMISSION_REQUIRED');
+  }
+ }
+
+if(req.body?.receipt){
+ const choice=registrationReceiptChoice.parse(req.body.receipt),{permissions}=authState(res).user;
+ if(!permissions.includes('registration.evidence.read')||!permissions.includes('registration.evidence.upload')||
+  choice.kind!=='STORED'&&!permissions.includes('foreign-receipts.read')||
+  ['SALE','MANUAL'].includes(choice.kind)&&!permissions.includes('foreign-receipts.create')||
+  choice.kind==='SALE'&&!permissions.includes('sales.read'))throw new DomainError(403,'Tu rol no permite adjuntar o emitir esta boleta.','PERMISSION_REQUIRED');
+}if(req.body?.clientNameCorrection&&!authState(res).user.permissions.includes('clients.update'))throw new DomainError(403,'SE REQUIERE PERMISO PARA CORREGIR EL CLIENTE.','PERMISSION_REQUIRED');if(Array.isArray(req.body?.evidence)&&req.body.evidence.some((row:{category?:string})=>['DNI_FRONT','DNI_BACK'].includes(row?.category??''))&&!authState(res).user.permissions.includes('client.documents.upload'))throw new DomainError(403,'Se requiere permiso para guardar el DNI en la ficha del cliente.','PERMISSION_REQUIRED');if((req.body?.evidence?.length||req.body?.documentEvidence?.length)&&!authState(res).user.permissions.includes('registration.evidence.upload'))throw new DomainError(403,'NO TIENES PERMISOS PARA ADJUNTAR EVIDENCIAS.','PERMISSION_REQUIRED');if(req.body?.documentEvidence?.length&&!authState(res).user.permissions.includes('client.documents.read'))throw new DomainError(403,'SE REQUIERE PERMISO DE DOCUMENTACIÓN.','PERMISSION_REQUIRED');res.status(201).json(await pos(req,res).createRegistrationOperation(req.body));});
 app.post('/api/registration-requests/complete',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).completeRegistrationRequests(req.body)));
+app.get('/api/registration-requests/:id/share-text',requirePermission('registration.read'),async(req,res)=>{
+ const id=idSchema.parse(req.params.id);
+ const text=await db.$transaction(async tx=>{const include={applicant:true,imei:{include:{equipment:{include:{owner:true,imeis:true}}}}} as const;const target=await tx.registrationRequest.findUnique({where:{id},include});if(!target)throw new DomainError(404,'Registro no encontrado.','REQUEST_NOT_FOUND');if(!target.applicant&&!target.imei.equipment.owner)throw new DomainError(409,'Falta el cliente del registro.','CLIENT_REQUIRED');const siblings=await tx.registrationRequest.findMany({where:{operationId:target.operationId},include});return registrationShareText(target,siblings);},{isolationLevel:'RepeatableRead'});res.json({text});
+});
 app.get('/api/registration-requests/:id',requirePermission('registration.read'),async(req,res)=>res.json(await pos(req,res).getRegistrationRequest(req.params.id)));
-app.patch('/api/registration-requests/:id',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).updateRegistrationRequest(req.params.id,req.body)));
+app.patch('/api/registration-requests/:id',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).updateRegistrationRequest(req.params.id,req.body,authState(res).user.permissions.includes('registration.evidence.upload'))));
 app.post('/api/registration-requests/:id/transition',requirePermission('registration.update'),async(req,res)=>res.json(await pos(req,res).transitionRegistrationRequest(req.params.id,req.body)));
-app.patch('/api/sales/:id',requirePermission('sales.update'),async(req,res)=>res.json(await pos(req,res).updateSaleNotes(req.params.id,req.body)));
+app.patch('/api/sales/:id',requirePermission('sales.update'),async(req,res)=>res.json(await pos(req,res).updateSale(req.params.id,req.body,{canCreateClient:authState(res).user.permissions.includes('clients.create'),canEditEquipment:authState(res).user.permissions.includes('equipment.update')})));
 app.post('/api/auth/logout', async (req,res) => { const state=authState(res); await auth.logout(state.sessionId,requestContext(req,state.user.id)); clearSessionCookie(res); res.json({logout:true}); });
 app.get('/api/users',requirePermission('users.read'),async (req,res)=>res.json(await users(req,res).list(req.query)));
 app.get('/api/users/:id',requirePermission('users.read'),async (req,res)=>res.json(await users(req,res).get(req.params.id)));
@@ -110,6 +156,9 @@ app.post('/api/users/:id/reset-password',requirePermission('users.update'),async
 app.get('/api/roles',requirePermission('roles.read'),async (req,res)=>res.json(await users(req,res).roles()));
 app.patch('/api/roles/:id',requirePermission('roles.update'),async (req,res)=>res.json(await users(req,res).updateRole(req.params.id,req.body)));
 app.get('/api/audit',requirePermission('audit.read'),async (req,res)=>res.json(await users(req,res).audit(req.query)));
+app.get('/api/client-directory', requirePermission('clients.read'), async(req,res)=>res.json(await createClientDirectory(db,authState(res).user.permissions).list(req.query)));
+app.get('/api/client-directory/:id', requirePermission('clients.read'), async(req,res)=>res.json(await createClientDirectory(db,authState(res).user.permissions).detail(req.params.id as string)));
+app.get('/api/sales-summary',requirePermission('sales.read'),async(_req,res)=>res.json({total:await db.sale.count()}));
 app.get('/api/clients', requirePermission('clients.read'), async (req, res) => res.json(await pos(req,res).listClients(req.query)));
 app.get('/api/clients/by-dni/:dni', requirePermission('clients.read'), async (req, res) => { const client = await pos(req,res).findClientByDni(req.params.dni); if (!client) throw new DomainError(404, 'Cliente no encontrado.', 'CLIENT_NOT_FOUND'); res.json(client); });
 app.get('/api/clients/:id', requirePermission('clients.read'), async (req, res) => res.json(await pos(req,res).getClientById(req.params.id)));
@@ -122,6 +171,7 @@ app.get('/api/equipment/:id', requirePermission('equipment.read'), async (req, r
 app.post('/api/equipment', requirePermission('equipment.create'), async (req, res) => res.status(201).json(await pos(req,res).createEquipment(req.body)));
 app.patch('/api/equipment/:id', requirePermission('equipment.update'), async (req, res) => res.json(await pos(req,res).updateEquipment(req.params.id, req.body)));
 app.post('/api/equipment/external', requirePermission('equipment.create','clients.create'), async (req, res) => res.status(201).json(await pos(req,res).createExternalEquipment(req.body)));
+app.patch('/api/equipment/:id/imeis/:imeiId', requirePermission('equipment.update'), async(req,res)=>res.json(await pos(req,res).correctImeiValue(req.params.id,req.params.imeiId,req.body)));
 app.post('/api/equipment/:id/imeis', requirePermission('equipment.update'), async (req, res) => res.status(201).json(await pos(req,res).addImeiToEquipment(req.params.id, req.body)));
 app.patch('/api/imeis/:value/registration', requirePermission('registration.update'), async (req, res) => res.json(await pos(req,res).updateImeiRegistrationStatus(req.params.value, req.body)));
 app.post('/api/registrations/external', requirePermission('registration.create','registration.update','clients.create','equipment.create'), async (req, res) => res.json(await pos(req,res).registerExternalImei(req.body)));

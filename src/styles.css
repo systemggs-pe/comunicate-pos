@@ -794,3 +794,10 @@ body, button, input, textarea, select, option { text-transform: uppercase; }
 input[type="password"], .technical-value, .history-metadata { text-transform: none; }
 .delete-dialog { width: min(94vw, 620px); max-height: 90vh; overflow: auto; border: 1px solid #c5d5ce; border-radius: 12px; padding: 24px; }
 .delete-dialog::backdrop { background: #142d2580; }
+
+.form-progress-current { margin:16px 0 8px; font-size:14px; font-weight:700; }
+.form-progress .workflow-steps { margin:0 0 20px; }
+.form-context { display:flex; flex-wrap:wrap; gap:8px 20px; padding-bottom:12px; margin-bottom:20px; border-bottom:1px solid #d9e5df; font-size:14px; overflow-wrap:anywhere; }
+[data-step-heading],.sale-item h3,.form-progress { scroll-margin-top:24px; }
+[data-step-heading]:focus-visible,.sale-item h3:focus-visible { outline:3px solid #206b57; outline-offset:4px; }
+@media(max-width:600px) { .form-progress .workflow-steps { display:none; } .form-progress-current { margin-bottom:16px; } }

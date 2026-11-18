@@ -28,6 +28,16 @@ Requisitos locales: Docker Compose del proyecto con PostgreSQL 16 y MinIO saluda
 
 ## Plan productivo pendiente
 
+### Perfil aislado y preflight comprobado en fase 3
+
+El perfil local predeterminado conserva 55432/Compose para operación local explícita. Para una prueba de recuperación, definir **ambas** variables `RECOVERY_POSTGRES_CONTAINER` y `RECOVERY_POSTGRES_PORT` junto con URLs de bases sintéticas; no apuntar pruebas al PostgreSQL ni al MinIO habituales. La corrección P1 permite este perfil alternativo conservando las allowlists del producto.
+
+Antes de cualquier escritura de prueba, comprobar por `docker inspect`: nombres exclusivos, propósito, proyecto Compose distinto, puerto publicado en loopback correspondiente a la URL y volúmenes nombrados nuevos sin mounts comerciales. La imagen MinIO local contiene etiquetas Compose heredadas del proyecto habitual; sobrescribirlas explícitamente al crear recursos de pruebas. Un nombre distinto de contenedor no basta. No usar `docker compose up`, `--force-recreate`, `down`, `rm` ni comandos de limpieza del proyecto habitual para preparar el ensayo. No ejecutar `npm run local` como sustituto del aprovisionamiento aislado.
+
+La fase 3 ensayó `scripts/backup.ts create --confirm-quiesced` y `scripts/backup.ts restore` en 55436/59030, con dos volúmenes nuevos y preflight de identidad. Se comprobaron mantenimiento, drenaje del API sintético y 125 segundos de espera; no se pausó el POS habitual. El respaldo contiene objetos finales **y staging**: comparar cantidades y checksums con el manifest, no con el número de assets READY ni sólo con RegistrationEvidence. Objetos temporales no se limpian para hacer coincidir números.
+
+Evidencias, mediciones y límites: `docs/phase3-operational-closure/04-backup-restore.md`. No acredita custodia independiente de una clave operativa, RPO/RTO productivos, copia externa ni autorización de despliegue.
+
 Propuesta inicial para aprobar con operaciones: RPO 1 hora y RTO 4 horas; DB con PITR y respaldo horario, respaldo completo conjunto diario, objetos versionados/replicados a cuenta externa privada. Retención propuesta: 7 diarios, 4 semanales y 3 mensuales, sujeta a finalidad/legal y capacidad. Realizar simulacro mensual y después de cambios de esquema/proveedor. Esos objetivos no están garantizados por el pequeño simulacro local.
 
 Para PostgreSQL administrado usar conexión **directa** con TLS y verificación de certificado, `pg_dump/pg_restore` versión compatible y secretos fuera de CLI; no el pool transaccional del API. El operador debe instalar y validar este transporte productivo, seleccionar una estrategia consistente entre DB y versiones de objetos, y automatizar cifrado, copia externa, retención, alerta de fallo/antigüedad y restauración completa. No tratar un dump DB como backup de fotografías. S3/R2 versioning no es por sí mismo un backup externo.

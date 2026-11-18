@@ -1,0 +1,60 @@
+import 'dotenv/config';
+import {PrismaClient} from '@prisma/client';
+import {randomUUID} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import {writeFileSync} from 'node:fs';
+import request from 'supertest';
+import sharp from 'sharp';
+import {CreateBucketCommand} from '@aws-sdk/client-s3';
+import {createApp} from '../server/app.js';
+import {S3EvidenceStorage,storageConfig} from '../server/storage/s3.js';
+import {hashPassword} from '../server/lib/password.js';
+import {isValidImeiLuhn,imeiValidationError} from '../shared/imei.js';
+const target=new URL(process.env.TEST_DATABASE_URL!);if(target.port!=='55434'||target.hostname!=='127.0.0.1')throw Error('ISOLATION_REQUIRED');
+const adminUrl=new URL(target);adminUrl.pathname='/postgres';const admin=new PrismaClient({datasources:{db:{url:adminUrl.href}}});
+await admin.$executeRawUnsafe('CREATE DATABASE communicate_pos_audit_probe');await admin.$disconnect();target.pathname='/communicate_pos_audit_probe';process.env.DATABASE_URL=target.href;process.env.S3_BUCKET='communicate-evidence-audit-probe';process.env.AUTH_ALLOWED_ORIGINS='http://127.0.0.1:5176,http://127.0.0.1:5175';
+const migration=spawnSync(process.execPath,['node_modules/prisma/build/index.js','migrate','deploy'],{env:process.env,stdio:'pipe',windowsHide:true});if(migration.status!==0)throw Error('PROBE_MIGRATIONS_FAILED');
+const db=new PrismaClient({datasources:{db:{url:target.href}}}),storage=new S3EvidenceStorage(storageConfig());await storage.client.send(new CreateBucketCommand({Bucket:storage.config.bucket}));
+const app=createApp(db,{evidenceStorage:storage}),agent=request.agent(app),origin='http://127.0.0.1:5176',email='audit-superadmin@example.test',password='Synthetic-Audit-Only-2026';
+const role=await db.role.findUniqueOrThrow({where:{code:'SUPERADMIN'}});await db.user.create({data:{email,name:'AUDIT SYNTHETIC ADMIN',roleId:role.id,status:'ACTIVE',passwordHash:await hashPassword(password)}});
+const login=await agent.post('/api/auth/login').set('Origin',origin).send({email,password});if(login.status!==200)throw Error('SYNTHETIC_LOGIN_FAILED');
+const results:any[]=[];const record=(name:string,pass:boolean,evidence:unknown)=>{results.push({name,status:pass?'PASS':'FAIL',evidence});};
+const imei=(n:number)=>{const base=String(n).padStart(14,'0');for(let d=0;d<10;d++)if(isValidImeiLuhn(base+d))return base+d;throw Error('IMEI_GENERATION_FAILED');};
+const equipment=(n:number)=>({brand:'SYNTHETIC',model:'AUDIT',commercialName:'AUDIT PHONE',serialNumber:`AUDIT${n}`,ram:'8',storage:'128',color:'BLUE',imeis:[{slot:1,value:imei(n),type:'PHYSICAL'}]});
+const saleInput=(n:number)=>({buyer:{client:{dni:String(n).padStart(8,'0'),firstName:'AUDIT',lastName:'SYNTHETIC'}},items:[{equipment:equipment(n),unitPrice:'100.10'}],accessories:[{name:'SYNTHETIC CABLE',quantity:2,unitPrice:'0.10'}],paymentMethod:'CASH',discount:'0.05',occurredAt:'2026-10-19T12:00:00-05:00',idempotencyKey:randomUUID()});
+try{
+ record('luhn-valid-and-leading-zero',isValidImeiLuhn(imei(7001))&&imei(7001).startsWith('0'),{leadingZeroPreserved:true});
+ record('luhn-reject-malformed',[imei(7001).slice(0,14),imei(7001)+'1',' '+imei(7001),'A'.repeat(15),'123456789012345'].every(v=>imeiValidationError(v)!==null),{cases:5});
+ record('unauthenticated-private-read',(await request(app).get('/api/clients')).status===401,{expected:401});
+ record('csrf-missing-origin',(await agent.post('/api/clients').send({dni:'00007000',firstName:'AUDIT',lastName:'SYNTHETIC'})).status===403,{expected:403});
+ record('csrf-untrusted-origin',(await agent.post('/api/clients').set('Origin','https://untrusted.example.test').send({})).status===403,{expected:403});
+ record('forged-actor-rejected',(await agent.post('/api/clients').set('Origin',origin).send({userId:randomUUID()})).status===403,{expected:403});
+ const invalid=saleInput(7002);invalid.items[0].equipment.imeis[0].value='123456789012345';const before=await db.sale.count(),bad=await agent.post('/api/sales').set('Origin',origin).send(invalid);record('direct-api-invalid-luhn-atomic',bad.status===400&&await db.sale.count()===before,{status:bad.status,errorCode:bad.body.error?.code,rowsCreated:(await db.sale.count())-before});
+ const input=saleInput(7003);input.items.push({equipment:equipment(7004),unitPrice:'20.00'});const sales=await Promise.all([agent.post('/api/sales').set('Origin',origin).send(input),agent.post('/api/sales').set('Origin',origin).send(input)]);const saved=sales.find(r=>r.status===201)?.body;record('concurrent-sale-idempotency',sales.every(r=>r.status===201)&&sales[0].body.id===sales[1].body.id,{statuses:sales.map(r=>r.status),sameSale:sales[0].body.id===sales[1].body.id});
+ record('money-multi-equipment-accessories',saved?.total==='120.25',{total:saved?.total,expected:'120.25'});
+ const duplicate=await agent.post('/api/sales').set('Origin',origin).send({...input,idempotencyKey:randomUUID()});record('duplicate-imei-rejected',duplicate.status===409,{status:duplicate.status});
+ const i1=imei(7010),i2=imei(7011);const fields={operator:'BITEL',phone:'912345678',address:'SYNTHETIC ADDRESS',province:'PROVINCIA AUDIT',department:'LIMA',email:'client@example.test',price:'50.00',hasBox:false,occurredAt:'2026-10-19T12:00:00-05:00',mode:'REGISTRATION'};
+ const registration={idempotencyKey:randomUUID(),client:{dni:'00007010',firstName:'AUDIT',lastName:'SYNTHETIC'},equipment:equipment(7010),imeis:[{slot:1,value:i1,type:'PHYSICAL'},{slot:2,value:i2,type:'PHYSICAL'}],requests:[{...fields,value:i1},{...fields,value:i2,phone:'987654321'}]};delete (registration.equipment as any).imeis;
+ const created=await agent.post('/api/registration-operations').set('Origin',origin).send(registration);const requests=created.body.requests??[];
+ record('double-imei-two-requests-one-device',created.status===201&&requests.length===2&&requests[0].imei.equipmentId===requests[1].imei.equipmentId,{status:created.status,requests:requests.length,sameEquipment:requests.length===2&&requests[0].imei.equipmentId===requests[1].imei.equipmentId});
+ const attachments=requests.length?await db.registrationEvidence.count({where:{registrationRequestId:{in:requests.map((r:any)=>r.id)}}}):0;
+ record('server-enforces-required-dni',created.status===400,{status:created.status,attachments,observation:'Omitted requireIdentityPhotos and sent no DNI images'});
+ if(requests.length){
+ const share=await agent.get(`/api/registration-requests/${requests[0].id}/share-text`);record('share-uses-province',share.body.text?.includes('PROVINCIA AUDIT'),{status:share.status,containsProvince:!!share.body.text?.includes('PROVINCIA AUDIT'),usesDepartment:!!share.body.text?.includes(' - LIMA')});
+ const transitions=await Promise.all([agent.post(`/api/registration-requests/${requests[0].id}/transition`).set('Origin',origin).send({confirm:true,action:'MARK_REGISTERED',reason:'Synthetic audit'}),agent.post(`/api/registration-requests/${requests[0].id}/transition`).set('Origin',origin).send({confirm:true,action:'MARK_REGISTERED',reason:'Synthetic audit'})]);record('concurrent-transition-single-history',transitions.map(r=>r.status).sort().join(',')==='200,409',{statuses:transitions.map(r=>r.status),completionHistory:await db.registrationRequestHistory.count({where:{requestId:requests[0].id,action:'MARK_REGISTERED'}})});
+ }
+ const buyerId=saved?.buyerId;let documents:any[]=[];
+ if(buyerId){for(const [category,color]of [['DNI_FRONT','#123456'],['DNI_BACK','#654321']]){const image=await sharp({create:{width:80,height:120,channels:3,background:color}}).png().toBuffer();const doc=await agent.post(`/api/clients/${buyerId}/documents`).query({purpose:'SYNTHETIC AUDIT',authorizationReference:'SYNTHETIC CONSENT',confirmed:'true',category,documentType:'MANUAL'}).set('Origin',origin).set('Content-Type','image/png').send(image);if(doc.status===201)documents.push(doc.body);}
+ record('manual-client-dni-persistence',documents.length===2,{savedSides:documents.length});
+ if(documents[0]){const asset=await db.evidenceAsset.findUniqueOrThrow({where:{id:documents[0].asset.id}});record('private-storage-denies-anonymous',(await fetch(`${storage.config.endpoint}/${storage.config.bucket}/${asset.storageKey}`)).status===403,{expected:403});}
+ const nextImei=imei(7020),next={...registration,idempotencyKey:randomUUID(),client:input.buyer.client,equipment:equipment(7020),imeis:[{slot:1,value:nextImei,type:'PHYSICAL'}],requests:[{...fields,value:nextImei}],requireIdentityPhotos:true};delete (next.equipment as any).imeis;const reused=await agent.post('/api/registration-operations').set('Origin',origin).send(next);record('automatic-dni-reuse-new-procedure',reused.status===201&&await db.registrationEvidence.count({where:{registrationRequestId:reused.body.requests?.[0]?.id??randomUUID()}})===2,{status:reused.status,errorCode:reused.body.error?.code});
+ }
+ const seller=await db.role.findUniqueOrThrow({where:{code:'SELLER'}});await db.user.create({data:{email:'audit-seller@example.test',name:'AUDIT SELLER',roleId:seller.id,status:'ACTIVE',passwordHash:await hashPassword(password)}});const restricted=request.agent(app);await restricted.post('/api/auth/login').set('Origin',origin).send({email:'audit-seller@example.test',password});
+ const statuses=await Promise.all(['/api/users','/api/settings/company',`/api/clients/${buyerId}/documents`].map(path=>restricted.get(path)));record('seller-rbac-sensitive-reads',statuses.every(r=>r.status===403),{statuses:statuses.map(r=>r.status)});
+ const pdf=await agent.post(`/api/registration-requests/${requests[0]?.id}/evidence-pdf`).set('Origin',origin).send({});record('evidence-pdf-generated',pdf.status===200,{status:pdf.status,errorCode:pdf.body.error?.code});
+ const reports=await agent.get('/api/reports/general?preset=all');record('report-reads-with-lima-timezone',reports.status===200&&reports.body.period?.timezone==='America/Lima',{status:reports.status,timezone:reports.body.period?.timezone});
+ writeFileSync('.local/audit-browser-state.json',JSON.stringify({email,password,saleId:saved?.id,clientId:buyerId,equipmentId:saved?.equipment?.[0]?.equipmentId,requestId:requests[0]?.id}));
+ writeFileSync('.local/audit-browser.env',`DATABASE_URL=${target.href}\nS3_BUCKET=${storage.config.bucket}\nAUTH_ALLOWED_ORIGINS=${process.env.AUTH_ALLOWED_ORIGINS}\nPORT=3004\n`);
+ console.log(JSON.stringify({checks:results,summary:{total:results.length,passed:results.filter(r=>r.status==='PASS').length,failed:results.filter(r=>r.status==='FAIL').length}},null,2));
+ writeFileSync('docs/production-audit/evidence/supplemental-probes.json',JSON.stringify(results,null,2));
+}finally{storage.client.destroy();await db.$disconnect();}

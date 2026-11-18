@@ -7,7 +7,7 @@ import { dniError, DniProviderError, type DniLookupResult, type DniProvider } fr
 
 const name = z.string().trim().transform(value => value.replace(/\s+/g, ' ')).pipe(z.string().min(1).max(100));
 function normalize(raw: DniLookupResult, dni: string): DniData {
-  if(raw.source==='codart'&&raw.dni===dni&&typeof raw.fullName==='string'&&raw.fullName.trim()&&raw.fullName.length<=201)return {dni,fullName:normalizeText(raw.fullName),firstName:'',lastName:''};
+  if(raw.source==='codart'&&raw.dni===dni&&typeof raw.fullName==='string'&&raw.fullName.trim()&&raw.fullName.length<=201)return {dni,fullName:normalizeText(raw.fullName),firstName:'',lastName:'',...(raw.simulated?{simulated:true}:{})};
   const parsedDni = dniSchema.safeParse(raw.dni);
   const first = name.safeParse(raw.firstName);
   const last = name.safeParse(raw.lastName ?? [raw.paternalLastName, raw.maternalLastName].filter(Boolean).join(' '));
@@ -23,10 +23,11 @@ export function createDniLookupService<TClient>(findLocal: (dni: string) => Prom
   const inflight = new Map<string, Promise<External>>();
   async function external(dni: string): Promise<External> {
     const deadline = Date.now() + timeoutMs;
-    for (let attempt = 0; attempt < 2; attempt++) {
+    const attempts=provider.retryLimit??2;
+    for (let attempt = 0; attempt < attempts; attempt++) {
       const controller = new AbortController();
       const remaining = Math.max(1, deadline - Date.now());
-      const budget = attempt === 0 ? Math.max(1, Math.floor((remaining - backoff) / 2)) : remaining;
+      const budget = attempts>1&&attempt === 0 ? Math.max(1, Math.floor((remaining - backoff) / 2)) : remaining;
       let timer: ReturnType<typeof setTimeout> | undefined;
       try {
         const raw = await Promise.race([
@@ -36,7 +37,7 @@ export function createDniLookupService<TClient>(findLocal: (dni: string) => Prom
         return raw ? { source: 'EXTERNAL', data: normalize(raw, dni) } : { source: 'NONE', error: dniError('DNI_NOT_FOUND') };
       } catch (error) {
         const safe = error instanceof DniProviderError ? error : new DniProviderError('DNI_PROVIDER_UNAVAILABLE');
-        if (attempt === 0 && ['DNI_PROVIDER_UNAVAILABLE', 'DNI_PROVIDER_TIMEOUT', 'DNI_PROVIDER_RATE_LIMIT'].includes(safe.code) && Date.now() + backoff < deadline) {
+        if (attempt+1<attempts && ['DNI_PROVIDER_UNAVAILABLE', 'DNI_PROVIDER_TIMEOUT', 'DNI_PROVIDER_RATE_LIMIT'].includes(safe.code) && Date.now() + backoff < deadline) {
           await new Promise(resolve => setTimeout(resolve, backoff));
         } else return { source: 'NONE', error: dniError(safe.code) };
       } finally { if (timer) clearTimeout(timer); controller.abort(); }

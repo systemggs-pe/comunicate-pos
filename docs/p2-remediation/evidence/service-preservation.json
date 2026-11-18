@@ -1,0 +1,133 @@
+{
+  "checkedAt": "2026-10-20T18:47:55.196Z",
+  "comparisonBaseline": "Phase3 closing metadata, not a whole-database snapshot",
+  "habitual": [
+    {
+      "name": "communicate-pos-postgres-1",
+      "createdAt": "2026-10-09T22:38:30.132696929Z",
+      "startedAt": "2026-10-20T15:46:27.941557074Z",
+      "finishedAt": "2026-10-20T15:46:26.463376472Z",
+      "status": "running",
+      "project": "communicate-pos",
+      "purpose": null,
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "communicate-pos_postgres_data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "55432"
+          }
+        ]
+      },
+      "sameCreatedSincePhase3": true,
+      "sameStartedSincePhase3": true,
+      "sameMountNamesSincePhase3": true
+    },
+    {
+      "name": "communicate-pos-minio-1",
+      "createdAt": "2026-10-19T20:18:25.218381711Z",
+      "startedAt": "2026-10-20T15:46:27.939929561Z",
+      "finishedAt": "2026-10-20T15:46:26.463374067Z",
+      "status": "running",
+      "project": "communicate-pos",
+      "purpose": null,
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "communicate-pos_evidence_data",
+          "destination": "/data"
+        }
+      ],
+      "ports": {
+        "9000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "59000"
+          }
+        ],
+        "9001/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "59001"
+          }
+        ]
+      },
+      "sameCreatedSincePhase3": true,
+      "sameStartedSincePhase3": true,
+      "sameMountNamesSincePhase3": true
+    }
+  ],
+  "ownContainers": [
+    {
+      "name": "communicate-test-phase4-20261020-postgres",
+      "createdAt": "2026-10-20T17:46:31.676134898Z",
+      "startedAt": "2026-10-20T17:46:31.76266666Z",
+      "finishedAt": "2026-10-20T18:47:53.958080734Z",
+      "status": "exited",
+      "project": "communicate-phase4-20261020",
+      "purpose": "p2-remediation",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "communicate-test-phase4-20261020-pgdata",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "55438"
+          }
+        ]
+      }
+    },
+    {
+      "name": "communicate-test-phase4-20261020-minio",
+      "createdAt": "2026-10-20T17:46:32.134250638Z",
+      "startedAt": "2026-10-20T17:46:32.223692048Z",
+      "finishedAt": "2026-10-20T18:47:54.669613671Z",
+      "status": "exited",
+      "project": "communicate-phase4-20261020",
+      "purpose": "p2-remediation",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "communicate-test-phase4-20261020-s3data",
+          "destination": "/data"
+        }
+      ],
+      "ports": {
+        "9000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "59040"
+          }
+        ]
+      }
+    }
+  ],
+  "ownVolumes": [
+    {
+      "name": "communicate-test-phase4-20261020-pgdata",
+      "createdAt": "2026-10-20T17:46:31Z",
+      "purpose": "p2-remediation"
+    },
+    {
+      "name": "communicate-test-phase4-20261020-s3data",
+      "createdAt": "2026-10-20T17:46:31Z",
+      "purpose": "p2-remediation"
+    }
+  ],
+  "operation": "Purpose-guarded stop of two own containers only. No removal/recreation/reset of habitual resources. All volumes retained.",
+  "commercialDatabaseQueries": 0,
+  "commercialS3ObjectDownloads": 0,
+  "commercialApplicationWritesByTheseScripts": 0,
+  "limits": "Does not certify zero concurrent writes by the active POS or full row-by-row identity. No commercial DB contents or photos inspected in phase4."
+}

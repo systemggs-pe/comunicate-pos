@@ -1,0 +1,20 @@
+{"name":"mvp-target-e2e","exitCode":0,"durationMs":24028,"command":"node node_modules/@playwright/test/cli.js test --config playwright.mvp.config.ts --grep DNI azul y electrónico|cliente nuevo con CODART --reporter=list,json"}
+[WebServer] (node:17152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:9576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:11692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:12512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:8300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:25560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 tests\e2e\mvp-codart.spec.ts:12:1 › DNI azul y electrónico: dos fotos privadas, vistas previas, caché y deduplicación física (6.0s)
+  ok 2 tests\e2e\mvp-registration-redesign.spec.ts:32:1 › cliente nuevo con CODART simulado; referencia vacía persiste contacto y nombre manual (12.4s)
+
+  2 passed (23.6s)

@@ -1,3 +1,4 @@
+import {clearEvidenceFixtures} from '../helpers/evidence';
 import {seedTestAdmin,loginAgent,testOrigin} from '../helpers/auth';
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
@@ -8,12 +9,12 @@ const url = process.env.TEST_DATABASE_URL!; const target = new URL(url);
 if (!['localhost', '127.0.0.1'].includes(target.hostname) || target.pathname !== '/communicate_pos_test') throw new Error('Sólo base de prueba local');
 const db = new PrismaClient({ datasources: { db: { url } } }); const service = createPosService(db);
 const buyer = { dni: '60543210', firstName: 'Brand', lastName: 'Peralta' }, owner = { dni: '60543211', firstName: 'Gianfranco', lastName: 'Peralta' };
-const imei1 = '359605432100001', imei2 = '359605432100002';
+const imei1 = '596054321000017', imei2 = '596054321000025';
 const item = { equipment: { brand: 'Samsung', model: 'S25 Ultra', imeis: [{ slot: 1, value: imei1 }, { slot: 2, value: imei2 }] }, unitPrice: '3500' };
-const item2 = { equipment: { brand: 'Samsung', model: 'A56', imeis: [{ slot: 1, value: '359605432100003' }] }, unitPrice: '1400' };
+const item2 = { equipment: { brand: 'Samsung', model: 'A56', imeis: [{ slot: 1, value: '596054321000033' }] }, unitPrice: '1400' };
 const input = { buyer: { client: buyer }, items: [item], paymentMethod: 'YAPE' };
 async function counts() { return { client: await db.client.count(), equipment: await db.equipment.count(), imei: await db.imei.count(), sale: await db.sale.count(), line: await db.saleEquipment.count(), history: await db.equipmentHistory.count(), audit: await db.auditLog.count() }; }
-beforeEach(async () => { await db.$transaction([db.session.deleteMany(), db.authRateLimit.deleteMany(), db.registrationRequestHistory.deleteMany(), db.registrationRequest.deleteMany(), db.registrationOperation.deleteMany(), db.saleAccessory.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]); });
+beforeEach(async () => {await clearEvidenceFixtures(db); await db.$transaction([db.session.deleteMany(), db.authRateLimit.deleteMany(), db.registrationRequestHistory.deleteMany(), db.registrationRequest.deleteMany(), db.registrationOperation.deleteMany(), db.saleAccessory.deleteMany(), db.equipmentHistory.deleteMany(), db.auditLog.deleteMany(), db.saleEquipment.deleteMany(), db.sale.deleteMany(), db.imei.deleteMany(), db.equipment.deleteMany(), db.client.deleteMany(), db.user.deleteMany()]); });
 afterAll(() => db.$disconnect());
 describe('Phase 3 — PostgreSQL real', () => {
   it('1 comprador existente se reutiliza sin cambiar contactos', async () => { const existing = await service.createClient({ ...buyer, phone: '999999999' }); const sale = await service.createSale({ ...input, buyer: { id: existing.id } }); expect(sale.buyerId).toBe(existing.id); expect(sale.buyer.phone).toBe('999999999'); expect(await db.client.count()).toBe(1); });

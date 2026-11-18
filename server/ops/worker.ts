@@ -23,15 +23,33 @@ export async function runWorker(db:PrismaClient, storage:S3EvidenceStorage, opti
    result.pending=pending.size;
    if(!options.signal?.aborted&&Date.now()-start<options.timeoutMs){
     const sessions=await createAuthService(db).cleanup();result.expiredSessions=sessions[0].count;
-    const page=await storage.client.send(new ListObjectsV2Command({Bucket:storage.config.bucket,MaxKeys:100}));
-    const keys=(page.Contents??[]).map(o=>o.Key).filter((k):k is string=>!!k);
-    const referenced=await db.evidenceAsset.findMany({where:{OR:[{storageKey:{in:keys}},{stagingKey:{in:keys}}]},select:{storageKey:true,stagingKey:true}});
-    const known=new Set(referenced.flatMap(a=>[a.storageKey,a.stagingKey]));
-    // Unknown physical objects are reported only. Never delete without provenance/approval.
-    result.orphans=keys.filter(k=>!known.has(k)).length;result.scanTruncated=!!page.IsTruncated;
+    const storedKeys=new Set<string>();
+    let continuation:string|undefined;
+    do{
+     const page=await storage.client.send(new ListObjectsV2Command({Bucket:storage.config.bucket,MaxKeys:1000,ContinuationToken:continuation}));
+     const keys=(page.Contents??[]).map(object=>object.Key).filter((key):key is string=>!!key);
+     keys.forEach(key=>storedKeys.add(key));
+     const referenced=await db.evidenceAsset.findMany({where:{OR:[
+      {storageKey:{in:keys}},{stagingKey:{in:keys}},{originalStorageKey:{in:keys}},
+     ]},select:{storageKey:true,stagingKey:true,originalStorageKey:true}});
+     const known=new Set(referenced.flatMap(asset=>[asset.storageKey,asset.stagingKey,asset.originalStorageKey]));
+     result.orphans+=keys.filter(key=>!known.has(key)).length;
+     result.scanTruncated=!!page.IsTruncated;
+     continuation=page.NextContinuationToken;
+    }while(result.scanTruncated&&continuation&&!options.signal?.aborted&&Date.now()-start<options.timeoutMs);
+    // Check current objects again before reporting a miss because uploads can finish during the scan.
+    if(!result.scanTruncated){
+     const ready=await db.evidenceAsset.findMany({where:{status:'READY'},select:{storageKey:true,originalStorageKey:true}});
+     for(const asset of ready){
+      if(options.signal?.aborted||Date.now()-start>=options.timeoutMs){result.scanTruncated=true;break;}
+      for(const key of [asset.storageKey,asset.originalStorageKey]){
+       if(key&&!storedKeys.has(key)&&!await storage.exists(key))result.inconsistent++;
+      }
+     }
+    }
    }
    const remaining=await db.evidenceAsset.count({where:{status:'DELETING'}});result.pending=Math.max(result.pending,remaining);
-   result.inconsistent=await db.evidenceAsset.count({where:{status:'READY',links:{none:{}}}});
+   result.inconsistent+=await db.evidenceAsset.count({where:{status:'READY',links:{none:{}},clientDocuments:{none:{}},equipmentReceipts:{none:{}}}});
    if(result.pending||result.orphans||result.inconsistent||result.scanTruncated||options.signal?.aborted){result.status='PARTIAL';result.reason??='REVIEW_OR_RETRY';}
   },{timeout:options.timeoutMs+25000,maxWait:5000});
  }catch{result.status='FAILED';result.reason='WORKER_RETRY';}

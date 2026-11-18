@@ -8,6 +8,7 @@ RUN npx prisma generate
 COPY server ./server
 COPY shared ./shared
 COPY scripts ./scripts
+COPY src/features/foreign-receipts ./src/features/foreign-receipts
 RUN npm run build:api
 RUN npm prune --omit=dev
 

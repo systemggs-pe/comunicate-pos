@@ -1,0 +1,70 @@
+{
+  "dataset": {
+    "clients": 1002,
+    "sales": 1,
+    "requests": 3
+  },
+  "results": [
+    {
+      "scenario": "clients",
+      "requests": 20,
+      "concurrency": 4,
+      "p50": 18.952800000000025,
+      "p95": 42.488399999999956,
+      "p99": 44.277000000000044,
+      "statuses": {
+        "200": 20
+      }
+    },
+    {
+      "scenario": "imei",
+      "requests": 20,
+      "concurrency": 4,
+      "p50": 17.06320000000005,
+      "p95": 23.191400000000044,
+      "p99": 24.154300000000035,
+      "statuses": {
+        "404": 20
+      }
+    },
+    {
+      "scenario": "sales",
+      "requests": 20,
+      "concurrency": 4,
+      "p50": 24.615999999999985,
+      "p95": 32.82710000000009,
+      "p99": 40.923200000000065,
+      "statuses": {
+        "200": 20
+      }
+    },
+    {
+      "scenario": "registrations",
+      "requests": 20,
+      "concurrency": 4,
+      "p50": 28.278499999999894,
+      "p95": 33.95930000000021,
+      "p99": 34.909400000000005,
+      "statuses": {
+        "200": 20
+      }
+    },
+    {
+      "scenario": "reports",
+      "requests": 20,
+      "concurrency": 4,
+      "p50": 32.90599999999995,
+      "p95": 67.41380000000004,
+      "p99": 68.50700000000006,
+      "statuses": {
+        "200": 20
+      }
+    }
+  ],
+  "driverPeakRssMiB": 105.0859375,
+  "driverCpuMicroseconds": {
+    "user": 141000,
+    "system": 31000
+  },
+  "note": "CPU/RSS measure the load driver, not the API server. No production SLA inferred."
+}

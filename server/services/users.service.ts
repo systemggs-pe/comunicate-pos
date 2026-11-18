@@ -1,3 +1,4 @@
+import {z} from 'zod';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { newUserSchema, updateUserSchema, resetPasswordSchema, roleUpdateSchema, auditQuerySchema, type AuthUser } from '../../shared/auth.js';
 import { idSchema, listQuerySchema } from '../../shared/validation.js';
@@ -31,16 +32,16 @@ export function createUsersService(db: PrismaClient, actor: AuthUser, ctx: Audit
     });
   }
   // Usuarios históricos sin rol son visibles para que el administrador pueda rehabilitarlos.
-  const safe = (row: Prisma.UserGetPayload<{ select: typeof userSelect }>) => row.role ? publicUser(row) : { ...row, permissions: [] };
+  const safe = (row: Prisma.UserGetPayload<{ select: typeof userSelect }>) => {const {googleSubject,...fields}=row;return row.role ? publicUser(row) : { ...fields,googleLinked:!!googleSubject,permissions: [] };};
   return {
-    list: async (raw: unknown) => { const { q,offset,limit } = listQuerySchema.parse(raw); return (await db.user.findMany({ where: { OR: [{ name: { contains:q,mode:'insensitive' } }, { email: { contains:q,mode:'insensitive' } }, { code: { contains:q,mode:'insensitive' } }] }, select:userSelect, orderBy:[{createdAt:'desc'},{id:'asc'}], skip:offset,take:limit })).map(safe); },
+    list: async (raw: unknown) => { const { q,offset,limit,status,roleId } = listQuerySchema.extend({status:z.enum(['ACTIVE','DISABLED']).optional(),roleId:idSchema.optional()}).parse(raw); return (await db.user.findMany({ where: {status,roleId, OR: [{ name: { contains:q,mode:'insensitive' } }, { email: { contains:q,mode:'insensitive' } }, { code: { contains:q,mode:'insensitive' } }] }, select:userSelect, orderBy:[{createdAt:'desc'},{id:'asc'}], skip:offset,take:limit })).map(safe); },
     get: async (id: unknown) => safe(await get(db,idSchema.parse(id))),
     create: async (raw: unknown) => { const { password,...fields } = newUserSchema.parse(raw); const passwordHash = await hashPassword(password); return locked(async tx => { protect((await role(tx,fields.roleId)).code); const user = await tx.user.create({ data: { ...fields,passwordHash }, select:userSelect }); await writeAudit(tx,ctx,'USER_CREATED','User',user.id); return safe(user); }); },
     update,
     disable: (id: unknown) => update(id,{},'DISABLED'),
     enable: (id: unknown) => update(id,{},'ACTIVE'),
     reset: async (rawId: unknown,raw: unknown) => { const id = idSchema.parse(rawId), { password } = resetPasswordSchema.parse(raw); const passwordHash = await hashPassword(password); return locked(async tx => { protect((await get(tx,id)).role?.code); await tx.user.update({ where:{id},data:{passwordHash} }); await tx.session.deleteMany({where:{userId:id}}); await writeAudit(tx,ctx,'USER_PASSWORD_RESET','User',id); return { reset:true }; }); },
-    roles: async () => (await db.role.findMany({ include:{permissions:{select:{permissionKey:true}}},orderBy:{code:'asc'} })).map(r => ({...r,permissions:r.permissions.map(p=>p.permissionKey)})),
+    roles: async () => (await db.role.findMany({ include:{permissions:{select:{permissionKey:true}},_count:{select:{users:true}}},orderBy:{code:'asc'} })).map(r => ({id:r.id,code:r.code,userCount:r._count.users,permissions:r.permissions.map(p=>p.permissionKey)})),
     updateRole: async (rawId: unknown,raw: unknown) => { const id=idSchema.parse(rawId), input=roleUpdateSchema.parse(raw); return locked(async tx => { const current=await role(tx,id); if(current.code==='SUPERADMIN') throw new DomainError(409,'SUPERADMIN conserva todos los permisos.','ROLE_PROTECTED'); if(actor.role.code!=='SUPERADMIN') throw new DomainError(403,'Sólo el superadministrador puede editar permisos.','FORBIDDEN'); await tx.rolePermission.deleteMany({where:{roleId:id}}); await tx.rolePermission.createMany({data:input.permissions.map(permissionKey=>({roleId:id,permissionKey}))}); await tx.session.deleteMany({where:{user:{roleId:id}}}); await writeAudit(tx,ctx,'ROLE_PERMISSIONS_UPDATED','Role',id,{permissions:input.permissions}); return {updated:true}; }); },
     audit: async (raw: unknown) => { const {offset,limit,userId,action,from,to}=auditQuerySchema.parse(raw); return db.auditLog.findMany({where:{userId,action,createdAt:{...(from?{gte:new Date(`${from}T00:00:00-05:00`)}:{}),...(to?{lt:new Date(new Date(`${to}T00:00:00-05:00`).getTime()+86400000)}:{})}},include:{user:{select:{id:true,code:true,name:true,email:true}}},orderBy:[{createdAt:'desc'},{id:'asc'}],skip:offset,take:limit}); },
   };

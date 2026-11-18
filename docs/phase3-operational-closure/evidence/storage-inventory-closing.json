@@ -1,0 +1,779 @@
+{
+  "checkedAt": "2026-10-20T17:20:08.894Z",
+  "mode": "REPEATABLE READ, READ ONLY + S3 LIST/HEAD, at most four bounded GETs",
+  "commercialWrites": 0,
+  "objectDownloads": 4,
+  "commercialCounts": {
+    "clients": 604,
+    "equipment": 641,
+    "imeis": 644,
+    "sales": 576,
+    "requests": 118
+  },
+  "postgresql": {
+    "EvidenceAsset": 6,
+    "RegistrationEvidence": 2,
+    "ClientDocument": 6,
+    "activeDocumentReferences": 6,
+    "activeRequestReferences": 2,
+    "totalActiveReferences": 8,
+    "assetsWithoutAnyReference": 0,
+    "assetsWithoutActiveReference": 0,
+    "readyAssets": 6,
+    "pendingAssets": 0,
+    "expectedFinalObjects": 6,
+    "expectedKnownKeys": 6,
+    "foreignKeys": 34,
+    "unvalidatedForeignKeys": 0,
+    "orphanCounts": [
+      {
+        "concept": "evidence_without_asset",
+        "count": 0
+      },
+      {
+        "concept": "evidence_without_request",
+        "count": 0
+      },
+      {
+        "concept": "document_without_asset_or_client",
+        "count": 0
+      },
+      {
+        "concept": "request_without_imei",
+        "count": 0
+      },
+      {
+        "concept": "imei_without_equipment",
+        "count": 0
+      }
+    ],
+    "auditActionsSinceOct19": [
+      {
+        "action": "EQUIPMENT_UPDATED",
+        "count": 6
+      },
+      {
+        "action": "IMEI_CREATE",
+        "count": 1
+      },
+      {
+        "action": "CLIENT_DOCUMENT_VIEWED",
+        "count": 12
+      },
+      {
+        "action": "SALE_UPDATE",
+        "count": 6
+      },
+      {
+        "action": "COMPANY_SETTINGS_UPDATE",
+        "count": 1
+      },
+      {
+        "action": "CLIENT_DOCUMENT_UPLOADED",
+        "count": 4
+      },
+      {
+        "action": "CLIENT_CREATED",
+        "count": 1
+      },
+      {
+        "action": "CODART_PHOTO_LOOKUP",
+        "count": 2
+      },
+      {
+        "action": "LOGIN",
+        "count": 2
+      }
+    ],
+    "recentImeiCreationTimes": [
+      "2026-10-20T15:51:57.796Z"
+    ]
+  },
+  "buckets": [
+    {
+      "bucket": "other-bucket-1",
+      "configured": false,
+      "createdAt": "2026-10-11T20:19:25.837Z",
+      "objects": 8,
+      "bytes": 320770,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 8,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-2",
+      "configured": false,
+      "createdAt": "2026-10-14T20:03:32.619Z",
+      "objects": 4,
+      "bytes": 176998,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 4,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-3",
+      "configured": false,
+      "createdAt": "2026-10-17T19:30:11.690Z",
+      "objects": 4,
+      "bytes": 179805,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 4,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-4",
+      "configured": false,
+      "createdAt": "2026-10-17T21:52:17.217Z",
+      "objects": 4,
+      "bytes": 185488,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 4,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-5",
+      "configured": false,
+      "createdAt": "2026-10-11T20:34:45.401Z",
+      "objects": 8,
+      "bytes": 321916,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 8,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-6",
+      "configured": false,
+      "createdAt": "2026-10-14T20:08:18.471Z",
+      "objects": 4,
+      "bytes": 178892,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 4,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-7",
+      "configured": false,
+      "createdAt": "2026-10-11T20:09:14.514Z",
+      "objects": 8,
+      "bytes": 320548,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 8,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-8",
+      "configured": false,
+      "createdAt": "2026-10-17T21:28:11.912Z",
+      "objects": 4,
+      "bytes": 183595,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 4,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-9",
+      "configured": false,
+      "createdAt": "2026-10-12T08:38:02.812Z",
+      "objects": 4,
+      "bytes": 161343,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 4,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-10",
+      "configured": false,
+      "createdAt": "2026-10-17T20:44:48.442Z",
+      "objects": 4,
+      "bytes": 181463,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 4,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-11",
+      "configured": false,
+      "createdAt": "2026-10-17T19:11:35.914Z",
+      "objects": 4,
+      "bytes": 178074,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 4,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-12",
+      "configured": false,
+      "createdAt": "2026-10-12T08:58:23.368Z",
+      "objects": 4,
+      "bytes": 161899,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 4,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "communicate-evidence",
+      "configured": true,
+      "createdAt": "2026-10-10T21:16:15.305Z",
+      "objects": 6,
+      "bytes": 2777820,
+      "stagingObjects": 0,
+      "finalObjects": 6,
+      "versions": 6,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": 0
+    },
+    {
+      "bucket": "other-bucket-14",
+      "configured": false,
+      "createdAt": "2026-10-11T00:58:35.760Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-15",
+      "configured": false,
+      "createdAt": "2026-10-12T08:58:33.237Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-16",
+      "configured": false,
+      "createdAt": "2026-10-17T19:13:07.945Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-17",
+      "configured": false,
+      "createdAt": "2026-10-17T20:45:02.295Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-18",
+      "configured": false,
+      "createdAt": "2026-10-11T01:19:01.916Z",
+      "objects": 2,
+      "bytes": 421,
+      "stagingObjects": 1,
+      "finalObjects": 1,
+      "versions": 2,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-19",
+      "configured": false,
+      "createdAt": "2026-10-11T20:35:05.454Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-20",
+      "configured": false,
+      "createdAt": "2026-10-17T21:28:25.011Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-21",
+      "configured": false,
+      "createdAt": "2026-10-14T20:03:44.292Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-22",
+      "configured": false,
+      "createdAt": "2026-10-17T21:52:37.721Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-23",
+      "configured": false,
+      "createdAt": "2026-10-12T08:37:53.453Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-24",
+      "configured": false,
+      "createdAt": "2026-10-11T01:29:31.282Z",
+      "objects": 2,
+      "bytes": 421,
+      "stagingObjects": 1,
+      "finalObjects": 1,
+      "versions": 2,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-25",
+      "configured": false,
+      "createdAt": "2026-10-11T01:06:07.045Z",
+      "objects": 2,
+      "bytes": 421,
+      "stagingObjects": 1,
+      "finalObjects": 1,
+      "versions": 2,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-26",
+      "configured": false,
+      "createdAt": "2026-10-17T19:30:28.277Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-27",
+      "configured": false,
+      "createdAt": "2026-10-14T20:08:27.166Z",
+      "objects": 1,
+      "bytes": 44,
+      "stagingObjects": 0,
+      "finalObjects": 1,
+      "versions": 1,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-28",
+      "configured": false,
+      "createdAt": "2026-10-11T01:33:41.202Z",
+      "objects": 2,
+      "bytes": 421,
+      "stagingObjects": 1,
+      "finalObjects": 1,
+      "versions": 2,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-29",
+      "configured": false,
+      "createdAt": "2026-10-11T01:01:19.374Z",
+      "objects": 2,
+      "bytes": 421,
+      "stagingObjects": 1,
+      "finalObjects": 1,
+      "versions": 2,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-30",
+      "configured": false,
+      "createdAt": "2026-10-11T18:42:38.263Z",
+      "objects": 0,
+      "bytes": 0,
+      "stagingObjects": 0,
+      "finalObjects": 0,
+      "versions": 0,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    },
+    {
+      "bucket": "other-bucket-31",
+      "configured": false,
+      "createdAt": "2026-10-10T21:18:13.346Z",
+      "objects": 2,
+      "bytes": 421,
+      "stagingObjects": 1,
+      "finalObjects": 1,
+      "versions": 2,
+      "deleteMarkers": 0,
+      "versioning": "NOT_ENABLED",
+      "policy": "NoSuchBucketPolicy",
+      "lifecycle": "NoSuchLifecycleConfiguration",
+      "unknownDatabaseKeys": null
+    }
+  ],
+  "assets": [
+    {
+      "asset": "A001",
+      "idFingerprint": "95916c468319cd8b",
+      "createdAt": "2026-10-18T19:45:18.033Z",
+      "updatedAt": "2026-10-18T19:45:18.072Z",
+      "verifiedAt": "2026-10-18T19:45:18.071Z",
+      "status": "READY",
+      "category": "IDENTITY_IMAGE",
+      "size": 411900,
+      "checksumPresent": true,
+      "finalPresent": true,
+      "physicalSizeMatches": true,
+      "objectLastModified": "2026-10-18T19:45:18.063Z",
+      "stagingPresent": false,
+      "requestLinks": 1,
+      "documents": 1,
+      "activeDocuments": 1,
+      "documentStates": [
+        "CURRENT"
+      ],
+      "documentSources": [
+        "CODART_DNIV"
+      ],
+      "documentCreatedAt": [
+        "2026-10-18T19:45:18.087Z"
+      ],
+      "documentOwnerMismatch": 0,
+      "requestOwnerMismatch": 0,
+      "categoryMismatch": 1,
+      "sourceRequestHasLink": null,
+      "deleteAttempts": 0,
+      "lastDeleteErrorCode": null,
+      "checksumVerified": true,
+      "anonymousStatus": 403
+    },
+    {
+      "asset": "A002",
+      "idFingerprint": "d4210b1ddadf8106",
+      "createdAt": "2026-10-18T19:45:18.108Z",
+      "updatedAt": "2026-10-18T19:45:18.122Z",
+      "verifiedAt": "2026-10-18T19:45:18.121Z",
+      "status": "READY",
+      "category": "IDENTITY_IMAGE",
+      "size": 361752,
+      "checksumPresent": true,
+      "finalPresent": true,
+      "physicalSizeMatches": true,
+      "objectLastModified": "2026-10-18T19:45:18.118Z",
+      "stagingPresent": false,
+      "requestLinks": 1,
+      "documents": 1,
+      "activeDocuments": 1,
+      "documentStates": [
+        "CURRENT"
+      ],
+      "documentSources": [
+        "CODART_DNIV"
+      ],
+      "documentCreatedAt": [
+        "2026-10-18T19:45:18.132Z"
+      ],
+      "documentOwnerMismatch": 0,
+      "requestOwnerMismatch": 0,
+      "categoryMismatch": 1,
+      "sourceRequestHasLink": null,
+      "deleteAttempts": 0,
+      "lastDeleteErrorCode": null,
+      "checksumVerified": true,
+      "anonymousStatus": 403
+    },
+    {
+      "asset": "A003",
+      "idFingerprint": "d43cc0527d5edc3b",
+      "createdAt": "2026-10-20T16:10:44.045Z",
+      "updatedAt": "2026-10-20T16:10:44.089Z",
+      "verifiedAt": "2026-10-20T16:10:44.088Z",
+      "status": "READY",
+      "category": "IDENTITY_IMAGE",
+      "size": 361278,
+      "checksumPresent": true,
+      "finalPresent": true,
+      "physicalSizeMatches": true,
+      "objectLastModified": "2026-10-20T16:10:44.083Z",
+      "stagingPresent": false,
+      "requestLinks": 0,
+      "documents": 1,
+      "activeDocuments": 1,
+      "documentStates": [
+        "CURRENT"
+      ],
+      "documentSources": [
+        "CODART_DNIV"
+      ],
+      "documentCreatedAt": [
+        "2026-10-20T16:10:44.104Z"
+      ],
+      "documentOwnerMismatch": 0,
+      "requestOwnerMismatch": 0,
+      "categoryMismatch": 0,
+      "sourceRequestHasLink": null,
+      "deleteAttempts": 0,
+      "lastDeleteErrorCode": null,
+      "checksumVerified": true,
+      "anonymousStatus": 403
+    },
+    {
+      "asset": "A004",
+      "idFingerprint": "95832b5acd932567",
+      "createdAt": "2026-10-20T16:10:44.129Z",
+      "updatedAt": "2026-10-20T16:10:44.152Z",
+      "verifiedAt": "2026-10-20T16:10:44.151Z",
+      "status": "READY",
+      "category": "IDENTITY_IMAGE",
+      "size": 409250,
+      "checksumPresent": true,
+      "finalPresent": true,
+      "physicalSizeMatches": true,
+      "objectLastModified": "2026-10-20T16:10:44.146Z",
+      "stagingPresent": false,
+      "requestLinks": 0,
+      "documents": 1,
+      "activeDocuments": 1,
+      "documentStates": [
+        "CURRENT"
+      ],
+      "documentSources": [
+        "CODART_DNIV"
+      ],
+      "documentCreatedAt": [
+        "2026-10-20T16:10:44.162Z"
+      ],
+      "documentOwnerMismatch": 0,
+      "requestOwnerMismatch": 0,
+      "categoryMismatch": 0,
+      "sourceRequestHasLink": null,
+      "deleteAttempts": 0,
+      "lastDeleteErrorCode": null,
+      "checksumVerified": true,
+      "anonymousStatus": 403
+    },
+    {
+      "asset": "A005",
+      "idFingerprint": "b9fd806f26e91bd3",
+      "createdAt": "2026-10-20T17:18:33.812Z",
+      "updatedAt": "2026-10-20T17:18:33.840Z",
+      "verifiedAt": "2026-10-20T17:18:33.838Z",
+      "status": "READY",
+      "category": "IDENTITY_IMAGE",
+      "size": 407632,
+      "checksumPresent": true,
+      "finalPresent": true,
+      "physicalSizeMatches": true,
+      "objectLastModified": "2026-10-20T17:18:33.833Z",
+      "stagingPresent": false,
+      "requestLinks": 0,
+      "documents": 1,
+      "activeDocuments": 1,
+      "documentStates": [
+        "CURRENT"
+      ],
+      "documentSources": [
+        "CODART_DNIVEL"
+      ],
+      "documentCreatedAt": [
+        "2026-10-20T17:18:33.857Z"
+      ],
+      "documentOwnerMismatch": 0,
+      "requestOwnerMismatch": 0,
+      "categoryMismatch": 0,
+      "sourceRequestHasLink": null,
+      "deleteAttempts": 0,
+      "lastDeleteErrorCode": null,
+      "checksumVerified": null,
+      "anonymousStatus": null
+    },
+    {
+      "asset": "A006",
+      "idFingerprint": "9a20d479fc5327b8",
+      "createdAt": "2026-10-20T17:18:33.881Z",
+      "updatedAt": "2026-10-20T17:18:33.909Z",
+      "verifiedAt": "2026-10-20T17:18:33.908Z",
+      "status": "READY",
+      "category": "IDENTITY_IMAGE",
+      "size": 826008,
+      "checksumPresent": true,
+      "finalPresent": true,
+      "physicalSizeMatches": true,
+      "objectLastModified": "2026-10-20T17:18:33.903Z",
+      "stagingPresent": false,
+      "requestLinks": 0,
+      "documents": 1,
+      "activeDocuments": 1,
+      "documentStates": [
+        "CURRENT"
+      ],
+      "documentSources": [
+        "CODART_DNIVEL"
+      ],
+      "documentCreatedAt": [
+        "2026-10-20T17:18:33.920Z"
+      ],
+      "documentOwnerMismatch": 0,
+      "requestOwnerMismatch": 0,
+      "categoryMismatch": 0,
+      "sourceRequestHasLink": null,
+      "deleteAttempts": 0,
+      "lastDeleteErrorCode": null,
+      "checksumVerified": null,
+      "anonymousStatus": null
+    }
+  ],
+  "unknownObjects": [],
+  "missingReadyObjects": [],
+  "limitations": [
+    "READ ONLY database snapshot and subsequent S3 listing are not globally atomic; active application is not paused.",
+    "Metadata owner consistency does not identify the human depicted in a photo.",
+    "Phase 2 preserved only aggregate checksums/counts, not asset ID fingerprints; exact longitudinal identity cannot be cryptographically proved.",
+    "No mass download; assets newer than the phase-2 cutoff are metadata-only."
+  ]
+}

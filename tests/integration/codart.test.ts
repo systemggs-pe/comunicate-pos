@@ -1,0 +1,57 @@
+import 'dotenv/config';
+import {beforeEach,afterAll,it,expect} from 'vitest';
+import {PrismaClient} from '@prisma/client';
+import sharp from 'sharp';
+import request from 'supertest';
+import {createApp} from '../../server/app';
+import {CodartProvider} from '../../server/integrations/codart';
+import {seedTestAdmin,loginAgent,testOrigin,testEmail,testPassword} from '../helpers/auth';
+import {clearEvidenceFixtures,evidenceTestStorage} from '../helpers/evidence';
+import {permissionKeys} from '../../shared/auth';
+const url=new URL(process.env.TEST_DATABASE_URL!);if(url.pathname!=='/communicate_pos_test'||!['127.0.0.1','localhost'].includes(url.hostname))throw Error('TEST DB ONLY');
+const db=new PrismaClient({datasources:{db:{url:url.toString()}}}),storage=evidenceTestStorage();
+const old={enabled:process.env.CODART_ENABLED,authorized:process.env.CODART_PHOTO_STORAGE_AUTHORIZED};
+const authorization={purpose:'REGISTRO SINTÉTICO',authorizationReference:'SYNTHETIC-CONSENT',confirmed:true,documentType:'BLUE'};
+let calls:string[],photoMode:string,clientId:string,app:ReturnType<typeof createApp>,agent:Awaited<ReturnType<typeof loginAgent>>;
+beforeEach(async()=>{
+ process.env.CODART_ENABLED='true';process.env.CODART_PHOTO_STORAGE_AUTHORIZED='true';calls=[];photoMode='ok';await clearEvidenceFixtures(db);
+ await db.$transaction([db.companySettings.deleteMany(),db.session.deleteMany(),db.authRateLimit.deleteMany(),db.registrationRequestHistory.deleteMany(),db.registrationRequest.deleteMany(),db.registrationOperation.deleteMany(),db.saleAccessory.deleteMany(),db.equipmentHistory.deleteMany(),db.auditLog.deleteMany(),db.saleEquipment.deleteMany(),db.sale.deleteMany(),db.imei.deleteMany(),db.equipment.deleteMany(),db.client.deleteMany(),db.user.deleteMany()]);
+ const role=await db.role.findUniqueOrThrow({where:{code:'SUPERADMIN'}});await db.rolePermission.deleteMany({where:{roleId:role.id}});await db.rolePermission.createMany({data:permissionKeys.map(permissionKey=>({roleId:role.id,permissionKey}))});await seedTestAdmin(db);const c=await db.client.create({data:{dni:'70876543',firstName:'Cliente',lastName:'Sintético'}});clientId=c.id;
+ const photos=await Promise.all(['#123456','#654321'].map(color=>sharp({create:{width:100,height:120,channels:3,background:color}}).png().toBuffer()));
+ const fetcher:typeof fetch=async input=>{const path=String(input);calls.push(path);await new Promise(r=>setTimeout(r,20));if(path.includes('/reniec/'))return Response.json({success:true,result:{full_name:'NOMBRE SINTÉTICO',address:'UNUSED',birth_date:'UNUSED'}});if(photoMode==='credits')return Response.json({}, {status:402});return Response.json({success:true,data:{images:photos.map((photo,i)=>({data_uri:photoMode==='invalid'&&i===1?'data:image/png;base64,AAAA':'data:image/png;base64,'+photo.toString('base64')}))},credits_deducted:2});};
+ const provider=new CodartProvider('synthetic-token',fetcher,true);app=createApp(db,{evidenceStorage:storage,dniProvider:provider,identityPhotos:provider});agent=await loginAgent(app);
+});
+afterAll(async()=>{await clearEvidenceFixtures(db);storage.client.destroy();await db.$disconnect();for(const [key,value]of Object.entries({CODART_ENABLED:old.enabled,CODART_PHOTO_STORAGE_AUTHORIZED:old.authorized})){if(value===undefined)delete process.env[key];else process.env[key]=value;}});
+const lookup=(body:object=authorization)=>agent.post(`/api/clients/${clientId}/identity-photos`).set('Origin',testOrigin).send(body);
+it('AUD-08 unlabeled photos require explicit review, including the legacy order endpoint',async()=>{
+ const first=await lookup();expect(first.status).toBe(200);const [a,b]=first.body.documents;
+ expect([a.category,b.category]).toEqual(['IDENTITY_IMAGE','IDENTITY_IMAGE']);
+ const automatic=await agent.post(`/api/clients/${clientId}/documents/identify-codart-sides`).set('Origin',testOrigin).send({documentType:'BLUE',confirm:true});
+ expect(automatic.status).toBe(409);expect(automatic.body.error.code).toBe('CLIENT_DOCUMENT_SIDE_REVIEW_REQUIRED');
+ const path=(id:string)=>`/api/clients/${clientId}/documents/${id}/side`;
+ expect((await agent.patch(path(b.id)).set('Origin',testOrigin).send({category:'DNI_FRONT',confirm:false})).status).toBe(400);
+ const read=await agent.get(`/api/clients/${clientId}/documents`);expect(read.body.documents.every((d:{category:string})=>d.category==='IDENTITY_IMAGE')).toBe(true);
+ expect(await db.auditLog.count({where:{action:'CLIENT_DOCUMENT_SIDE_IDENTIFIED'}})).toBe(0);
+ // Explicit human choice reverses ordinal order: no index rule survives.
+ expect((await agent.patch(path(b.id)).set('Origin',testOrigin).send({category:'DNI_FRONT',confirm:true})).status).toBe(200);
+ expect((await agent.patch(path(a.id)).set('Origin',testOrigin).send({category:'DNI_BACK',confirm:true})).status).toBe(200);
+ const reused=await lookup();expect(reused.body.reused).toBe(true);expect(calls).toHaveLength(1);
+ expect((await db.clientDocument.findUniqueOrThrow({where:{id:a.id}})).category).toBe('DNI_BACK');
+ expect((await db.clientDocument.findUniqueOrThrow({where:{id:b.id}})).category).toBe('DNI_FRONT');
+ expect(await db.auditLog.count({where:{action:'CLIENT_DOCUMENT_SIDE_IDENTIFIED'}})).toBe(2);
+ expect(await db.evidenceAsset.count()).toBe(2);
+});
+it('consulta nombre exclusivo, crea cliente sólo por confirmación y gana caché local',async()=>{
+ expect((await agent.get('/api/dni/70876543')).body.source).toBe('LOCAL');expect(calls).toHaveLength(0);const response=await agent.get('/api/dni/70000011');expect(response.body).toMatchObject({source:'EXTERNAL',data:{fullName:'NOMBRE SINTÉTICO',firstName:'',lastName:''}});expect(JSON.stringify(response.body)).not.toContain('UNUSED');expect(await db.client.count()).toBe(1);const created=await agent.post('/api/clients').set('Origin',testOrigin).send({dni:'70000011',firstName:'',lastName:'',fullName:response.body.data.fullName});expect(created.status).toBe(201);expect((await agent.get('/api/dni/70000011')).body.source).toBe('LOCAL');expect(calls).toHaveLength(1);expect((await db.client.findUniqueOrThrow({where:{dni:'70000011'}})).address).toBeNull();
+});
+it('ambos tipos persisten privados sin base64, conservan orden y deduplican archivos',async()=>{
+ for(const type of ['BLUE','ELECTRONIC']){const result=await lookup({...authorization,documentType:type});expect(result.status,JSON.stringify(result.body)).toBe(200);expect(result.body.documents.map((d:{sourceOrdinal:number})=>d.sourceOrdinal)).toEqual([1,2]);expect(result.body.documents.map((d:{category:string})=>d.category)).toEqual(['IDENTITY_IMAGE','IDENTITY_IMAGE']);}
+ expect(calls.map(path=>path.split('/fd/')[1])).toEqual(['dniv/70876543','dnivel/70876543']);expect(await db.clientDocument.count()).toBe(4);expect(await db.evidenceAsset.count()).toBe(2);const assets=await db.evidenceAsset.findMany();for(const asset of assets){expect(await storage.exists(asset.storageKey)).toBe(true);expect(asset.storageKey).not.toContain('70876543');}const listed=await agent.get(`/api/clients/${clientId}/documents`);expect(JSON.stringify(listed.body)).not.toMatch(/data:image|base64|storageKey|authorizationReference|checksum/);const logs=JSON.stringify(await db.auditLog.findMany());expect(logs).not.toMatch(/synthetic-token|data:image|UNUSED/);
+});
+it('reutiliza fotografías sin consulta aun si proveedor queda desactivado',async()=>{const first=await lookup();expect(first.status).toBe(200);process.env.CODART_ENABLED='false';process.env.CODART_PHOTO_STORAGE_AUTHORIZED='false';const second=await lookup();expect(second.status).toBe(200);expect(second.body.reused).toBe(true);expect(calls).toHaveLength(1);expect(await db.evidenceAsset.count()).toBe(2);});
+it('dos acciones concurrentes comparten una sola petición y las mismas referencias',async()=>{const results=await Promise.all([lookup(),lookup()]);expect(results.map(r=>r.status)).toEqual([200,200]);expect(calls).toHaveLength(1);expect(results[0].body.documents.map((d:{id:string})=>d.id)).toEqual(results[1].body.documents.map((d:{id:string})=>d.id));expect(await db.evidenceAsset.count()).toBe(2);});
+it('sin consentimiento o autorización de conservación no consulta ni persiste',async()=>{const bad=await lookup({...authorization,confirmed:false});expect(bad.status).toBe(400);process.env.CODART_PHOTO_STORAGE_AUTHORIZED='false';expect((await lookup()).status).toBe(403);expect(calls).toHaveLength(0);expect(await db.evidenceAsset.count()).toBe(0);});
+it('fallo de créditos e imagen inválida no inventan imágenes ni dejan cargas parciales',async()=>{photoMode='credits';expect((await lookup()).status).toBe(429);photoMode='invalid';expect((await lookup()).status).toBe(400);expect(await db.clientDocument.count()).toBe(0);expect(await db.evidenceAsset.count()).toBe(0);photoMode='ok';expect((await lookup()).status).toBe(200);});
+it('401/403 protegen interfaz de datos, consulta, descarga e IDs de otro cliente',async()=>{
+ expect((await request(app).get(`/api/clients/${clientId}/documents`)).status).toBe(401);const role=await db.role.findUniqueOrThrow({where:{code:'SELLER'}});await agent.post('/api/users').set('Origin',testOrigin).send({email:'limited-codart@example.test',name:'Prueba limitada',password:testPassword,status:'ACTIVE',roleId:role.id});const limited=await loginAgent(app,'limited-codart@example.test');expect((await limited.get(`/api/clients/${clientId}/documents`)).status).toBe(403);expect((await limited.post(`/api/clients/${clientId}/identity-photos`).set('Origin',testOrigin).send(authorization)).status).toBe(403);expect(calls).toHaveLength(0);const result=await lookup(),doc=result.body.documents[0];const second=await db.client.create({data:{dni:'70000012',firstName:'Otro',lastName:'Sintético'}});expect((await agent.get(`/api/clients/${second.id}/documents/${doc.id}/access`)).status).toBe(404);const access=await agent.get(`/api/clients/${clientId}/documents/${doc.id}/access`);expect(access.status).toBe(200);const signed=await fetch(access.body.url);expect(signed.status).toBe(200);expect((await fetch(access.body.url.split('?')[0])).status).toBe(403);expect(await db.auditLog.count({where:{action:'CLIENT_DOCUMENT_VIEWED'}})).toBeGreaterThan(0);expect((await db.user.findUniqueOrThrow({where:{email:testEmail}})).status).toBe('ACTIVE');
+});
