@@ -61,6 +61,11 @@
 .home-hero h1 { margin-bottom:8px; }
 .home-hero>div>p:last-child { max-width:540px; color:var(--design-muted); font-size:14px; margin:0; }
 .home-top-actions { display:flex; gap:10px; align-items:flex-start; flex-shrink:0; }
+@media (max-width: 650px) {
+  .design-shell .home-reference a { min-width: 44px; min-height: 44px; }
+  .design-shell .home-top-actions { flex-wrap: wrap; }
+  .design-shell .home-top-actions a { flex: 1 1 auto; }
+}
 .home-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-block:1px solid var(--design-line); }
 .home-metric { display:flex; gap:13px; padding:25px 22px; border-right:1px solid var(--design-line); }
 .home-metric:last-child { border:0; }

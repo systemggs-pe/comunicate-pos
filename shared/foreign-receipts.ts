@@ -11,6 +11,9 @@ export const foreignReceiptFormats=[
  {id:7,label:'Thermer · 48 mm',currency:'CLP'},
 ] as const;
 export const foreignReceiptFormat=z.coerce.number().int().min(1).max(7);
+export const activeForeignReceiptFormats=foreignReceiptFormats.filter(({id})=>id!==4&&id!==5&&id!==6);
+export const isActiveForeignReceiptFormat=(id:number)=>activeForeignReceiptFormats.some(format=>format.id===id);
+export const activeForeignReceiptFormat=foreignReceiptFormat.refine(isActiveForeignReceiptFormat,'Este formato ya no está disponible para emisión.');
 export const normalizeReceiptDocument=(value:string)=>value.trim().toUpperCase().replace(/[.\s-]/g,'');
 const document=z.string().max(40).transform(normalizeReceiptDocument).pipe(z.string().regex(/^[A-Z0-9]{3,20}$/,'Ingresa un documento válido.'));
 const amount=moneySchema.refine(value=>Number(value)>0,'El importe debe ser mayor que cero.');
@@ -39,8 +42,8 @@ const manual=z.object({
  issuedAt:foreignReceiptLocalDateTime,
 }).strict();
 export const foreignReceiptCreate=z.discriminatedUnion('source',[
- z.object({source:z.literal('SALE'),format:foreignReceiptFormat,requestKey:idSchema,document,saleLineIds:z.array(idSchema).min(1).max(20)}).strict(),
- manual.extend({source:z.literal('MANUAL'),format:foreignReceiptFormat,requestKey:idSchema}).strict(),
+ z.object({source:z.literal('SALE'),format:activeForeignReceiptFormat,requestKey:idSchema,document,saleLineIds:z.array(idSchema).min(1).max(20)}).strict(),
+ manual.extend({source:z.literal('MANUAL'),format:activeForeignReceiptFormat,requestKey:idSchema}).strict(),
 ]);
 export const foreignReceiptUpdate=z.object({
  expectedUpdatedAt:z.iso.datetime({offset:true}),

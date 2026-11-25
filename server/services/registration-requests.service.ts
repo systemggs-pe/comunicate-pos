@@ -72,9 +72,9 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
       const alreadySaved=await replay(db);if(alreadySaved)return alreadySaved;
       const movistarImeis=input.requests.filter(request=>request.operator==='MOVISTAR').map(request=>request.value);
       const declarations=input.evidence?.filter(row=>row.category===movistarDeclarationCategory)??[];
-      if(declarations.length!==movistarImeis.length||declarations.some(row=>
+      if(new Set(declarations.map(row=>row.imeiValues[0])).size!==declarations.length||declarations.some(row=>
         row.imeiValues.length!==1||!movistarImeis.includes(row.imeiValues[0]))){
-        throw new DomainError(400,'Adjunta una declaración jurada válida por cada IMEI de Movistar.','MOVISTAR_DECLARATION_REQUIRED');
+        throw new DomainError(400,'Cada declaración jurada debe corresponder a un IMEI distinto de Movistar.','MOVISTAR_DECLARATION_CONFLICT');
       }
       const needsGenerated=input.receipt&&input.receipt.kind!=='STORED';
       const staged=needsGenerated?await reserveRegistrationReceipt(db,input.idempotencyKey,actor,sessionId,evidenceStorage):undefined;
@@ -151,7 +151,7 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
         if(error instanceof Prisma.PrismaClientKnownRequestError&&error.code==='P2002'){const previous=await replay(db);if(previous)return previous;}throw error;
       }finally{await staged?.release().catch(()=>undefined);}
     },
-    listRegistrationRequests:async(raw:unknown={})=>{const {where,limit,offset}=search(raw);return db.registrationRequest.findMany({where,include:requestInclude,orderBy:[{createdAt:'desc'},{id:'asc'}],take:limit,skip:offset});},
+    listRegistrationRequests:async(raw:unknown={})=>{const {where,limit,offset}=search(raw);return db.registrationRequest.findMany({where,include:requestInclude,orderBy:[{occurredAt:'desc'},{id:'desc'}],take:limit,skip:offset});},
     registrationSummary:async(raw:unknown={})=>{const {where}=search(raw);const [total,filtered]=await Promise.all([db.registrationRequest.count(),db.registrationRequest.count({where})]);return {total,filtered};},
     getRegistrationRequest:(id:unknown)=>detail(db,idSchema.parse(id)),
     updateRegistrationRequest:(id:unknown,raw:unknown,canAttachDeclaration=false)=>{
@@ -167,9 +167,6 @@ export function createRegistrationRequestsService(db:PrismaClient, actor:AuditCo
         const declaration=await tx.registrationEvidence.findUnique({where:{
           registrationRequestId_category:{registrationRequestId:requestId,category:movistarDeclarationCategory},
         }});
-        if(operator==='MOVISTAR'&&!found.hasMovistarDeclaration&&!declarationAssetId){
-          throw new DomainError(400,'Adjunta una declaración jurada válida para el IMEI de esta solicitud.','MOVISTAR_DECLARATION_REQUIRED');
-        }
         if(declarationAssetId){
           if(operator!=='MOVISTAR'||(declaration&&(!found.hasMovistarDeclaration||declaration.evidenceAssetId!==declarationAssetId)))throw new DomainError(409,'La declaración no corresponde al estado de esta solicitud. Actualiza el expediente.','MOVISTAR_DECLARATION_CONFLICT');
           if(!declaration){

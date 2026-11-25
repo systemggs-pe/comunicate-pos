@@ -2,6 +2,22 @@ import {it,expect} from 'vitest';
 import {companySchema,companyDefaults,type CompanySettings} from '../../shared/company';
 import {receiptRows,receiptBarcode,receiptLayout,type ReceiptData} from '../../shared/receipt';
 import {createReceiptPdf} from '../../src/features/receipts/pdf';
+import sharp from 'sharp';
+it('centers a logo without overlap and embeds it in both ticket PDFs',async()=>{
+ const bytes=await sharp({create:{width:300,height:100,channels:3,background:'black'}}).jpeg().toBuffer();
+ const data={...sample,company:{...sample.company,receiptLogo:{dataUrl:`data:image/jpeg;base64,${bytes.toString('base64')}`,width:300,height:100}}};
+ for(const format of [58,80] as const){
+  const layout=receiptLayout(data,format);
+  const logo=layout.logo!;
+  expect(logo.width/logo.height).toBeCloseTo(3);
+  expect(logo.x+logo.width/2).toBeCloseTo(format/2);
+  expect(logo.y+logo.height).toBeLessThan(layout.items[0].y);
+  expect(layout.items[0].row.text).toBe('RECIBO DE VENTA');
+  expect(layout.items.some(({row})=>row.text==='COMUNIC@TE')).toBe(false);
+  expect(createReceiptPdf(data,format).output()).toContain('/Subtype /Image');
+  expect(createReceiptPdf(sample,format).output()).not.toContain('/Subtype /Image');
+ }
+});
 it('AUD-09 effective settings change contact and geometry; legacy preferences cannot alter the approved ticket',()=>{
  const legacy={...sample,company:{...sample.company,receiptFooter:'UNUSED FOOTER',showSeller:false,showSerial:false,showClientContact:false,businessType:'UNUSED TYPE',email:'unused@example.test'}};
  expect(receiptRows(legacy,58)).toEqual(receiptRows(sample,58));
@@ -14,7 +30,9 @@ export const sample:ReceiptData={company:{...companyDefaults,id:1,updatedAt:'202
 it('valida empresa, normaliza texto y correo, rechaza formatos no admitidos',()=>{expect(companySchema.parse({...companyDefaults,businessName:'comunicáte',email:'ADMIN@EXAMPLE.TEST'})).toMatchObject({businessName:'COMUNICÁTE',email:'admin@example.test'});for(const defaultFormat of [48,72])expect(companySchema.safeParse({...companyDefaults,defaultFormat}).success).toBe(false);expect(companySchema.safeParse({...companyDefaults,margin58:6}).success).toBe(false);});
 it.each([58,80] as const)('%i mm conserva la plantilla, los IMEI y el total exacto',format=>{
  const rows=receiptRows(sample,format),text=rows.map(r=>r.text).join('\n');
- for(const value of ['COMUNIC@TE','RECIBO DE VENTA','VEN-000123','597087654300116','597087654300124','ANA MUÑOZ','AbC123'])expect(text).toContain(value);
+ for(const value of ['RECIBO DE VENTA','VEN-000123','597087654300116','597087654300124','ANA MUÑOZ','AbC123'])expect(text).toContain(value);
+ expect(rows[0].text).toBe('RECIBO DE VENTA');
+ expect(text).not.toContain('COMUNIC@TE');
  expect(rows.find(r=>r.kind==='total')?.right).toBe('S/. 100.15');
  expect(rows.find(r=>r.text==='CABLE X 2')?.right).toBe('S/. 0.20');
  expect(rows.some(r=>r.label==='Nombre:'&&r.text==='ANA MUÑOZ')).toBe(true);

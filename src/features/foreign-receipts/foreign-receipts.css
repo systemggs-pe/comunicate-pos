@@ -62,12 +62,14 @@
 .foreign-sale-line input { width: 20px; height: 20px; }
 .foreign-history-row {
   width: 100%;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   background: transparent;
   color: var(--design-ink);
   border-radius: 0;
   border-width: 0 0 1px;
   text-align: start;
 }
+.foreign-history-actions { display: none; }
 .foreign-sale-line:hover, .foreign-history-row:hover { background: var(--design-soft); }
 .foreign-sale-line small, .foreign-history-row small, .foreign-totals small { display: block; color: var(--design-muted); }
 .foreign-totals { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
@@ -88,6 +90,30 @@
   .foreign-header .text-button { margin-inline-start: 0; }
   .foreign-modes button { flex: 1 1 auto; }
   .foreign-totals, .foreign-public-panel .form-grid { grid-template-columns: minmax(0,1fr); }
-  .foreign-history-row { grid-template-columns: 1fr 1fr; }
-  .foreign-history-row > span:last-child { grid-column: 2; }
+  .foreign-workspace :is(button, select, input:not([type="checkbox"]), summary, .foreign-header a),
+  .design-shell .foreign-public-panel :is(button, select, input) { min-height: 44px; min-width: 44px; }
+  .foreign-workspace :is(input, select), .foreign-public-panel input { font-size: 16px; }
+  .foreign-header a { display: inline-flex; align-items: center; }
+  .foreign-search { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .foreign-section-title { flex-wrap: wrap; }
+  .foreign-section-title > div { min-width: 0; }
+  .foreign-history { display: grid; gap: 8px; }
+  .foreign-history > li {
+    min-width: 0;
+    border: 1px solid var(--design-line);
+    border-radius: 10px;
+    background: var(--design-surface);
+  }
+  .foreign-history-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "folio amount" "customer customer" "date date";
+    gap: 6px 12px;
+    padding: 12px;
+    border-radius: 9px 9px 0 0;
+  }
+  .foreign-history-actions { display: flex; justify-content: flex-end; padding: 8px 12px; }
+  .foreign-history-folio { grid-area: folio; }
+  .foreign-history-amount { grid-area: amount; text-align: end; font-weight: 700; }
+  .foreign-history-customer { grid-area: customer; min-width: 0; }
+  .foreign-history-date { grid-area: date; color: var(--design-muted); font-size: .875rem; }
 }

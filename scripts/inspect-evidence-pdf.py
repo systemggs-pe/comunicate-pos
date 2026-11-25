@@ -7,7 +7,7 @@ assert not r.is_encrypted and not r.attachments
 pages=[]
 with pdfplumber.open(sys.argv[1]) as pdf:
  for p in pdf.pages:
-  assert abs(p.width-210/25.4*72)<.02 and abs(p.height-297/25.4*72)<.02
+  assert abs(p.width-595.32)<.02 and abs(p.height-841.92)<.02
   images=[]
   for image in p.images:
    assert image['x0']>=0 and image['x1']<=p.width and image['top']>=0 and image['bottom']<=p.height

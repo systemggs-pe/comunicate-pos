@@ -1,7 +1,9 @@
 import {useSubmit} from '../hooks/useSubmit';
+import {useMobileViewport} from '../hooks/useMobileViewport';
 import {BottomNavigation} from './BottomNavigation';
 import '../design.css';
 import '../refinement.css';
+import '../mobile-operations.css';
 import { Home, Users, MonitorSmartphone, Plus, ShoppingBag,LogOut } from 'lucide-react';
 import { useEffect,lazy,Suspense } from 'react';
 import {RouteBoundary} from './RouteBoundary';
@@ -62,6 +64,7 @@ function Workspace() {
 
 }
 export function App() {
+ useMobileViewport();
  const path=usePathname();
  if(path==='/boleta')return <RouteBoundary><Suspense fallback={<Loading/>}><ForeignReceiptPublic/></Suspense></RouteBoundary>;
  return <AuthProvider><Workspace /></AuthProvider>;

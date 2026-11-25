@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -65,7 +66,6 @@ model User {
   email           String             @unique
   name            String
   passwordHash    String?
-  googleSubject   String? @unique @db.VarChar(255)
   identityDocument String? @db.VarChar(8)
   status          UserStatus         @default(DISABLED)
   roleId          String?            @db.Uuid
@@ -98,6 +98,7 @@ model CompanySettings {
  phone String @default("") @db.VarChar(30)
  email String @default("") @db.VarChar(254)
  receiptFooter String @default("") @db.VarChar(500)
+ receiptLogo Json?
  defaultFormat Int?
  margin58 Float @default(3) @map("margin48")
  margin80 Float @default(2)
@@ -117,7 +118,7 @@ enum ClientDocumentType {
 model Client {
   foreignReceipts ForeignReceipt[]
   id        String      @id @default(uuid()) @db.Uuid
-  code      String      @unique @default(dbgenerated("next_visible_code('client_code_seq'::regclass, 'CL-'::text)"))
+  code      String      @unique @default(dbgenerated("next_visible_code('client_code_seq'::regclass, 'CL'::text)"))
   dni       String?     @unique @db.VarChar(8)
   documentType ClientDocumentType @default(DNI)
   otherDocumentNumber String? @db.VarChar(100)
@@ -425,14 +426,6 @@ model RegistrationRequest {
   @@index([createdById, createdAt])
   @@index([completedAt])
   @@index([completedById, completedAt])
-}
-model GoogleAuthAttempt {
-  stateHash String @id @db.VarChar(64)
-  browserHash String @db.VarChar(64)
-  nonce String @db.VarChar(43)
-  verifier String @db.VarChar(43)
-  expiresAt DateTime @db.Timestamptz(3)
-  @@index([expiresAt])
 }
 model RegistrationRequestHistory {
   id String @id @default(uuid()) @db.Uuid

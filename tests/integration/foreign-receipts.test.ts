@@ -48,10 +48,10 @@ it('emite desde líneas de distintas ventas, deduplica ambos IMEIs, edita el fol
    equipment:{create:{equipmentId:second.id,unitPrice:400}},accessories:{create:{name:'ACCESORIO PRUEBA',quantity:1,unitPrice:500}}},include:{equipment:true}}),
  ]);
  expect((await request(app).get(endpoint)).status).toBe(401);
- expect((await agent.patch(`${endpoint}/issuers/4`).set('Origin',testOrigin).send(issuer)).status).toBe(200);
+ expect((await agent.patch(`${endpoint}/issuers/1`).set('Origin',testOrigin).send(issuer)).status).toBe(200);
  const lookup=await agent.get(`${endpoint}/sales`).query({document:client.dni});
  expect(lookup.body.lines).toEqual(expect.arrayContaining([expect.objectContaining({id:oldSale.equipment[0].id}),expect.objectContaining({id:newSale.equipment[0].id})]));
- const input={source:'SALE',format:4,document:client.dni,saleLineIds:[oldSale.equipment[0].id,newSale.equipment[0].id],requestKey:randomUUID()};
+ const input={source:'SALE',format:1,document:client.dni,saleLineIds:[oldSale.equipment[0].id,newSale.equipment[0].id],requestKey:randomUUID()};
  const issue=(key:string)=>agent.post(endpoint).set('Origin',testOrigin).send({...input,requestKey:key});
  const [one,two]=await Promise.all([issue(input.requestKey),issue(randomUUID())]);
  expect([one.status,two.status].sort()).toEqual([200,201]);
@@ -63,21 +63,21 @@ it('emite desde líneas de distintas ventas, deduplica ambos IMEIs, edita el fol
  const history=await agent.get(endpoint).query({by:'imei',q:imei[1]});
  expect(history.body.rows.map((row:{id:string})=>row.id)).toEqual([receipt.id]);
  const edited=await agent.patch(`${endpoint}/${receipt.id}`).set('Origin',testOrigin)
-  .send({format:4,expectedUpdatedAt:receipt.updatedAt,issuedAt:'2026-10-30T10:00'});
+  .send({format:1,expectedUpdatedAt:receipt.updatedAt,issuedAt:'2026-10-30T10:00'});
  expect(edited.status,JSON.stringify(edited.body)).toBe(200);
  expect(edited.body).toMatchObject({folio:receipt.folio,issuedAt:'2026-10-30T15:00:00.000Z',purchaseAt:receipt.purchaseAt});
  const verify=(amount:string)=>request(app).post(verification).set('Origin',testOrigin)
   .send({issuerDocument:issuer.rut,folio:receipt.folio,date:'2026-10-30',amount});
- expect((await verify('175')).body).toEqual({found:true,folio:receipt.folio,issuer:issuer.nombre});
- expect((await verify('174.99')).body).toEqual({found:false});
+ expect((await verify(receipt.totalClp)).body).toEqual({found:true,folio:receipt.folio,issuer:issuer.nombre});
+ expect((await verify('0.01')).body).toEqual({found:false});
  for(let i=0;i<10;i++)await verify('174');
- const limited=await verify('175');
+ const limited=await verify(receipt.totalClp);
  expect(limited.status).toBe(429);expect(Number(limited.headers['retry-after'])).toBeGreaterThan(0);
 });
 
 it('permite emisión manual con fecha declarada y conserva montos y folios al importar dos veces',async()=>{
- expect((await agent.patch(`${endpoint}/issuers/4`).set('Origin',testOrigin).send(issuer)).status).toBe(200);
- const manual=await agent.post(endpoint).set('Origin',testOrigin).send({source:'MANUAL',format:4,requestKey:randomUUID(),
+ expect((await agent.patch(`${endpoint}/issuers/1`).set('Origin',testOrigin).send(issuer)).status).toBe(200);
+ const manual=await agent.post(endpoint).set('Origin',testOrigin).send({source:'MANUAL',format:1,requestKey:randomUUID(),
   issuedAt:'2026-11-08T10:22',customer:{type:'DNI',document:'72000000',fullName:'Cliente de prueba'},
   devices:[{imei1:imei[3],commercialName:'Modelo de prueba',price:'120.00'}]});
  expect(manual.status,JSON.stringify(manual.body)).toBe(201);
@@ -93,6 +93,23 @@ it('permite emisión manual con fecha declarada y conserva montos y folios al im
  expect(await importForeignReceipts(db,[row],true)).toMatchObject({existing:1,ready:0,nextFolio:5556});
  const saved=await db.foreignReceipt.findUniqueOrThrow({where:{folio:5555}});
  expect(saved.totalUsd.toFixed(2)).toBe('89.95');expect(saved.issuedAt.toISOString()).toBe('2025-01-01T17:07:09.000Z');
+ await db.authRateLimit.deleteMany();
+ expect((await request(app).post(verification).set('Origin',testOrigin).send({issuerDocument:issuer.rut,folio:5555,date:'2025-01-01',amount:'89.95'})).body).toMatchObject({found:true,folio:5555});
+ const historicalEdit=await agent.patch(endpoint+'/'+saved.id).set('Origin',testOrigin).send({format:4,expectedUpdatedAt:saved.updatedAt.toISOString()});
+ expect(historicalEdit.status).toBe(200);
+ expect(historicalEdit.body.format).toBe(4);
+});
+
+it('rechaza los formatos retirados para emisión y configuración de emisores',async()=>{
+ for(const format of [4,5,6]){
+  expect((await agent.patch(endpoint+'/issuers/'+format).set('Origin',testOrigin).send(issuer)).status).toBe(400);
+  const receipt=await agent.post(endpoint).set('Origin',testOrigin).send({
+   source:'MANUAL',format,requestKey:randomUUID(),issuedAt:'2026-11-08T10:22',
+   customer:{type:'DNI',document:'72000000',fullName:'Cliente de prueba'},
+   devices:[{imei1:imei[3],commercialName:'Modelo de prueba',price:'120.00'}],
+  });
+  expect(receipt.status).toBe(400);
+ }
 });
 
 it('un vendedor consulta y emite, con edición y emisores reservados por permiso',async()=>{
@@ -105,5 +122,5 @@ it('un vendedor consulta y emite, con edición y emisores reservados por permiso
  expect((await seller.get(endpoint)).status).toBe(200);
  expect((await seller.post(endpoint).set('Origin',testOrigin).send({})).status).toBe(400);
  expect((await seller.patch(`${endpoint}/${randomUUID()}`).set('Origin',testOrigin).send({})).status).toBe(403);
- expect((await seller.patch(`${endpoint}/issuers/4`).set('Origin',testOrigin).send(issuer)).status).toBe(403);
+ expect((await seller.patch(`${endpoint}/issuers/1`).set('Origin',testOrigin).send(issuer)).status).toBe(403);
 });

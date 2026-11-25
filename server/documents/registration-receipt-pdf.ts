@@ -1,4 +1,6 @@
 import {createCanvas} from '@napi-rs/canvas';
+import {createRequire} from 'node:module';
+import {dirname,join,resolve} from 'node:path';
 import {renderForeignReceipt} from '../../src/features/foreign-receipts/receipt-download.js';
 import type {ForeignReceiptSnapshot} from '../../shared/foreign-receipts.js';
 import {maxEvidenceBytes,maxEvidencePixels} from '../../shared/evidence.js';
@@ -7,6 +9,7 @@ import {DomainError} from '../lib/errors.js';
 
 type Barcode=(value:string,width:number,height:number)=>string;
 export const maxReceiptPages=30;
+const requireFromApp=createRequire(resolve('package.json'));
 
 export async function renderReceiptDocument(row:{
  format:number;folio:number;issuedAt:Date;totalClp:{toString():string};totalUsd:{toString():string};snapshot:unknown;
@@ -39,8 +42,11 @@ export async function receiptPdfImage(bytes:Buffer,selectedPage?:number,imeis:st
   throw new DomainError(400,'Sube una boleta PDF válida de hasta 10 MB.','RECEIPT_PDF_INVALID');
  }
  const pdfjs=await import('pdfjs-dist/legacy/build/pdf.mjs');
+ const pdfjsRoot=dirname(requireFromApp.resolve('pdfjs-dist/package.json'));
  const loading=pdfjs.getDocument({data:new Uint8Array(bytes),stopAtErrors:true,enableXfa:false,
-  maxImageSize:maxEvidencePixels,canvasMaxAreaInBytes:maxEvidencePixels*4,useSystemFonts:true});
+  maxImageSize:maxEvidencePixels,canvasMaxAreaInBytes:maxEvidencePixels*4,
+  // The function runtime may have no installed fonts for the PDF Standard 14.
+  standardFontDataUrl:`${join(pdfjsRoot,'standard_fonts')}/`,useSystemFonts:false});
  try{
   const pdf=await loading.promise;
   if(pdf.numPages<1||pdf.numPages>maxReceiptPages)throw new DomainError(400,'La boleta debe tener entre 1 y 30 páginas.','RECEIPT_PDF_PAGES');

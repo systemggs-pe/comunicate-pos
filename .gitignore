@@ -11,3 +11,8 @@ coverage/
 .local/
 .test-results/
 playwright-report/
+
+.netlify/
+/tmp/
+/output/
+/outputs/

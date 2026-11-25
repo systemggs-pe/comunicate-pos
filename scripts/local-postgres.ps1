@@ -6,8 +6,9 @@ $dataPath = Join-Path $postgresPath 'data'
 $binPath = Join-Path $runtimePath 'pgsql\bin'
 $pgCtl = Join-Path $binPath 'pg_ctl.exe'
 $databaseUri = [Uri]$env:DATABASE_URL
-if ($databaseUri.Host -notin @('127.0.0.1', 'localhost') -or $databaseUri.Port -ne 55432 -or $databaseUri.AbsolutePath -ne '/communicate_pos') {
-    throw 'Se requiere la base local communicate_pos en el puerto 55432.'
+$localPort = if ($env:POS_LOCAL_POSTGRES_PORT) { [int]$env:POS_LOCAL_POSTGRES_PORT } else { 55432 }
+if ($databaseUri.Host -notin @('127.0.0.1', 'localhost') -or $databaseUri.Port -ne $localPort -or $databaseUri.AbsolutePath -ne '/communicate_pos') {
+    throw 'Se requiere la base local communicate_pos en el puerto local configurado.'
 }
 $credentials = $databaseUri.UserInfo.Split(':', 2)
 $databaseUser = [Uri]::UnescapeDataString($credentials[0])
@@ -54,13 +55,13 @@ if (-not (Test-Path -LiteralPath (Join-Path $dataPath 'PG_VERSION'))) {
 }
 & $pgCtl -D $dataPath status *> $null
 if ($LASTEXITCODE -ne 0) {
-    Invoke-PostgresTool 'pg_ctl.exe' @('-D', $dataPath, '-l', (Join-Path $postgresPath 'postgres.log'), '-o', '-h 127.0.0.1 -p 55432', '-w', '-t', '60', 'start')
+    Invoke-PostgresTool 'pg_ctl.exe' @('-D', $dataPath, '-l', (Join-Path $postgresPath 'postgres.log'), '-o', "-h 127.0.0.1 -p $localPort", '-w', '-t', '60', 'start')
 }
 $env:PGPASSWORD = $databasePassword
 try {
-    $connectionArguments = @('-h', '127.0.0.1', '-p', '55432', '-U', $databaseUser)
+    $connectionArguments = @('-h', '127.0.0.1', '-p', [string]$localPort, '-U', $databaseUser)
     $databaseExists = & (Join-Path $binPath 'psql.exe') @connectionArguments -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname = 'communicate_pos'"
     if ($LASTEXITCODE -ne 0) { throw 'No se pudo conectar a PostgreSQL. Verifica DATABASE_URL.' }
     if ($databaseExists -ne '1') { Invoke-PostgresTool 'createdb.exe' ($connectionArguments + @('communicate_pos')) }
-    Write-Host 'PostgreSQL listo en 127.0.0.1:55432. Los datos persisten en .local\postgres\data.'
+    Write-Host "PostgreSQL listo en 127.0.0.1:${localPort}. Los datos persisten en .local\postgres\data."
 } finally { Remove-Item Env:PGPASSWORD -ErrorAction SilentlyContinue }

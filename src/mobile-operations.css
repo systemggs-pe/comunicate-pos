@@ -1,0 +1,218 @@
+.mobile-action-label,
+.design-shell .mobile-card-action,
+.mobile-identifier-copy {
+  display: none;
+}
+
+.list-skeleton {
+  min-block-size: 13.5rem;
+  padding: 12px 16px;
+}
+.list-skeleton > div {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  align-items: center;
+  gap: 12px;
+  min-block-size: 4rem;
+  border-bottom: 1px solid var(--design-line);
+}
+.list-skeleton span {
+  display: block;
+  block-size: .75rem;
+  border-radius: 4px;
+  background: var(--design-soft);
+}
+.design-shell .reference-dialog.reco-documents-dialog {
+  padding: 24px;
+}
+.reco-documents-dialog > h2 { padding-inline-end: 44px; }
+
+@media (max-width: 650px) {
+  .design-shell {
+    --workflow-dock: calc(84px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .design-shell :is(.sales-list,.reco-list,.clients-list,.equipment-list,.client-form,.registration-workspace,.more-navigation,.sale-preview-dialog,.reco-reference-dialog,.reco-documents-dialog,.request-document-dialog,.printer-picker,.client-profile-compact,.equipment-detail-dialog)
+  :is(button,.icon-button,.primary-button,.secondary-button,select,input:not([type=checkbox],[type=radio],[type=hidden]),summary) {
+    min-block-size: 44px;
+    min-inline-size: 44px;
+  }
+
+  .design-shell :is(.workspace-header,.more-navigation) .icon-button {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+  .design-shell .more-admin summary { min-block-size: 44px; }
+  .design-shell :is(.sales-list,.reco-list,.clients-list) .registration-list-tools form { min-inline-size: 0; }
+  .design-shell .sales-list .registration-list-tools form { gap: 4px; }
+  .design-shell .sales-list .registration-list-tools form input { min-inline-size: 0; }
+  .design-shell .sales-list .registration-list-tools :is(button,.icon-button) { flex: 0 0 44px; }
+  .design-shell .clients-list .registration-list-title .inline-link {
+    display: flex;
+    inline-size: max-content;
+    align-items: center;
+    min-block-size: 44px;
+  }
+
+  .design-shell :is(.clients-list,.equipment-list,.users-list,.audit-workspace) .mobile-card-table { overflow: visible; }
+  .design-shell :is(.clients-list,.equipment-list,.users-list,.audit-workspace) .mobile-card-table :is(table,tbody) {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+  .design-shell :is(.clients-list,.equipment-list,.users-list,.audit-workspace) .mobile-card-table thead { display: none; }
+  .design-shell :is(.clients-list,.equipment-list,.users-list,.audit-workspace) .mobile-card-table tr {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 10px 12px;
+    padding: 16px;
+    border-block-end: 1px solid var(--design-line);
+  }
+  .design-shell :is(.clients-list,.equipment-list,.users-list,.audit-workspace) .mobile-card-table td {
+    display: block;
+    padding: 0;
+    min-inline-size: 0;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+  .design-shell :is(.clients-list,.equipment-list,.users-list,.audit-workspace) .mobile-card-table td:is(:first-child,:last-child),
+  .design-shell .equipment-list .mobile-card-table td:nth-child(2) { grid-column: 1/-1; }
+  .design-shell :is(.clients-list,.equipment-list,.users-list,.audit-workspace) .mobile-card-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-block-end: 4px;
+    color: var(--design-muted);
+    font-size: 11px;
+  }
+  .design-shell :is(.clients-list,.equipment-list,.reco-list) .row-actions {
+    max-width: none;
+    gap: 8px;
+  }
+  .design-shell :is(.clients-list,.equipment-list) .row-actions .icon-button,
+  .design-shell .reco-list .row-actions .reco-document-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    inline-size: auto;
+    padding-inline: 10px;
+    border: 1px solid var(--design-line);
+    border-radius: 8px;
+  }
+  .mobile-action-label { display: inline; }
+  .mobile-identifier-copy { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .mobile-identifier-copy button { display: inline-flex; align-items: center; gap: 6px; }
+  .design-shell .clients-list .mobile-identifier-copy { margin-block: 6px; }
+  .design-shell .equipment-list .mobile-imei-entry {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) auto;
+    gap: 4px 8px;
+    align-items: center;
+    padding-block: 6px;
+  }
+  .mobile-imei-entry .status-badge { grid-row: 2; justify-self: start; }
+  .mobile-imei-entry .mobile-identifier-copy { grid-column: 2; grid-row: 1 / span 2; }
+
+  .design-shell .reco-list .registration-list-filters > div {
+    display: grid;
+    grid-template-columns: repeat(4,minmax(0,1fr));
+    gap: 4px;
+    min-inline-size: 0;
+  }
+  .design-shell .reco-list .registration-list-filters button {
+    min-inline-size: 0;
+    min-block-size: 44px;
+    padding-inline: 3px;
+    white-space: normal;
+  }
+  .design-shell .reco-list .registration-list-filters button:last-child { grid-column: 1/-1; }
+  .design-shell .reco-list .registration-table tr { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .design-shell .reco-list .registration-table td:nth-child(4) { grid-column: 1/-1; }
+  .design-shell .reco-list .registration-status { gap: 8px; min-width: 0; }
+  .design-shell .reco-list .row-actions .reco-document-action { order: -1; }
+
+  .design-shell .reference-dialog[data-mobile-dialog][open] {
+    inset: auto 0 0;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: min(90dvh,calc(100dvh - env(safe-area-inset-top,0px)));
+    border-radius: 16px 16px 0 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scroll-padding-block: 60px 76px;
+    padding-bottom: env(safe-area-inset-bottom,0px);
+  }
+  .design-shell .reference-dialog[data-mobile-dialog="full"][open] {
+    inset: 0;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    padding-top: env(safe-area-inset-top,0px);
+  }
+  .design-shell .reference-dialog[data-mobile-dialog] .reference-close {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+  .design-shell .reference-dialog.reco-documents-dialog[data-mobile-dialog] {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom,0px));
+  }
+  .design-shell .reference-dialog.printer-picker[data-mobile-dialog] {
+    padding: 24px 20px calc(16px + env(safe-area-inset-bottom,0px));
+  }
+  .design-shell .reference-dialog.printer-picker .printer-format-options button { min-block-size: 48px; }
+
+  .design-shell :is(.document-modal, .evidence-modal).reference-dialog[data-mobile-dialog="full"][open] {
+    display: flex;
+    flex-direction: column;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 14px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  .design-shell :is(.document-modal, .evidence-modal) .reference-modal-header { padding: 12px 48px 12px 0; }
+  .design-shell :is(.document-modal, .evidence-modal).reference-dialog > img {
+    display: block;
+    min-height: 0;
+    flex: 1 1 auto;
+    width: 100%;
+    max-height: none;
+    object-fit: contain;
+  }
+
+  .design-shell .registration-workspace.reference-panel { overflow: clip; }
+  .design-shell main:has(.mobile-workflow-actions) {
+    padding-bottom: calc(var(--workflow-dock) + 82px);
+    scroll-padding-bottom: calc(var(--workflow-dock) + 82px);
+  }
+  .design-shell .mobile-workflow-actions {
+    position: fixed;
+    bottom: var(--workflow-dock);
+    inset-inline: max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));
+    z-index: 20;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--design-line);
+    border-radius: 12px;
+    background: var(--design-surface);
+  }
+  .design-shell .mobile-workflow-actions .primary-button { margin-inline-start: auto; }
+  .design-shell .reference-dialog .mobile-workflow-actions { position: sticky; bottom: 0; }
+  .design-shell :is(.registration-workspace,.client-form) :is(input,select,textarea),
+  .design-shell .reference-dialog[data-mobile-dialog] :is(input,select,textarea) { font-size: 16px; }
+
+  :root[data-pos-keyboard] .design-shell { --workflow-dock: 0px; }
+  :root[data-pos-keyboard] :is(.design-shell,.design-shell .main-panel) { height: var(--pos-viewport-height); }
+  :root[data-pos-keyboard] .bottom-navigation { display: none; }
+  :root[data-pos-keyboard] .design-shell main { padding-bottom: 16px; }
+  :root[data-pos-keyboard] .design-shell main:has(.mobile-workflow-actions) { padding-bottom: 82px; }
+  :root[data-pos-keyboard] .design-shell .mobile-workflow-actions { bottom: var(--pos-viewport-cover); }
+  :root[data-pos-keyboard] .design-shell .reference-dialog .mobile-workflow-actions { bottom: 0; }
+  :root[data-pos-keyboard] .design-shell .reference-dialog[data-mobile-dialog][open] {
+    bottom: var(--pos-viewport-cover);
+    max-height: var(--pos-viewport-height);
+  }
+  :root[data-pos-keyboard] .design-shell .reference-dialog[data-mobile-dialog="full"][open] {
+    top: var(--pos-viewport-top);
+    height: var(--pos-viewport-height);
+  }
+}

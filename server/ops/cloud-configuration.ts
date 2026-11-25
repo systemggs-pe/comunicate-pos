@@ -1,6 +1,18 @@
 import type {S3Config} from '../storage/s3.js';
 import {authorizedOrigins} from './security.js';
 import {apiBase} from '../../shared/cloud.js';
+export function cloudDatabaseConnection(raw:string|undefined,runtime:boolean){
+ const url=new URL(raw??'');
+ if(url.hostname.endsWith('.neon.tech'))return neonConnection(raw,runtime);
+ const direct=/^db\.[a-z0-9]+\.supabase\.co$/.test(url.hostname);
+ const session=/^aws-\d+-[a-z0-9-]+\.pooler\.supabase\.com$/.test(url.hostname);
+ if(!['postgres:','postgresql:'].includes(url.protocol)||(!direct&&!session)||(url.port&&url.port!=='5432')||!url.username||!url.password||url.pathname!=='/postgres'||url.hash)throw new Error('SUPABASE_CONNECTION_INVALID');
+ const params=url.searchParams;
+ if(['sslmode','sslaccept','connection_limit','pool_timeout','connect_timeout','pgbouncer'].some(key=>params.getAll(key).length>1)||params.get('sslmode')!=='require'||params.get('sslaccept')!=='strict'||params.has('pgbouncer'))throw new Error('SUPABASE_CONNECTION_INVALID');
+ const bounded=(key:string)=>/^(?:[1-9]|[1-5][0-9]|60)$/.test(params.get(key)??'');
+ if(runtime&&(!['1','2','3'].includes(params.get('connection_limit')??'')||!bounded('pool_timeout')||!bounded('connect_timeout')))throw new Error('SUPABASE_POOL_UNBOUNDED');
+ return url;
+}
 export function neonConnection(raw:string|undefined,pooled:boolean){
  const url=new URL(raw??'');
  if(['sslmode','sslaccept','connection_limit','pool_timeout','connect_timeout'].some(key=>url.searchParams.getAll(key).length>1))throw new Error('NEON_AMBIGUOUS_PARAMETER');

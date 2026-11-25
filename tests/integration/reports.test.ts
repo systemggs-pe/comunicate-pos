@@ -25,15 +25,22 @@ beforeEach(async () => {
   await seedTestAdmin(db); agent = await loginAgent(app); actor = (await db.user.findUniqueOrThrow({ where: { email: testEmail } })).id;
 });
 afterAll(() => db.$disconnect());
+// Pin database creation timestamps independently of the business dates sent via the API.
+async function pinNewEntitiesToOctober() {
+  const createdAt = new Date('2026-10-10T12:00:00-05:00');
+  await db.$transaction([db.client.updateMany({ data: { createdAt } }), db.equipment.updateMany({ data: { createdAt } })]);
+}
 async function sale(two = false, date = '2026-10-10T23:30:00-05:00') {
   const input = workflowInput();
   const result = await agent.post('/api/sales').set('Origin', testOrigin).send({ buyer: { client: input.client }, items: [{ equipment: { ...input.equipment, imeis: input.imeis }, unitPrice: '100.10' }, ...(two ? [{ equipment: { ...input.equipment, brand: 'Apple', imeis: [{ slot: 1, value: '597087654300033' }] }, unitPrice: '50.20' }] : [])], accessories: [{ name: 'CABLE', quantity: 2, unitPrice: '0.10' }], discount: '0.05', occurredAt: date, paymentMethod: 'YAPE' });
-  expect(result.status, JSON.stringify(result.body)).toBe(201); return result.body as { id: string; code: string };
+  expect(result.status, JSON.stringify(result.body)).toBe(201); await pinNewEntitiesToOctober(); return result.body as { id: string; code: string };
 }
 async function registration(blocked = false) {
   const input = workflowInput();
   const result = await postRegistration(agent,{ ...input, requests: input.requests.map((r, i) => ({ ...r, price: i ? '0.20' : '0.10', mode: blocked && i === 1 ? 'BLOCKED' : 'REGISTRATION', operator: i ? 'CLARO' : 'BITEL' })) });
-  expect(result.status, JSON.stringify(result.body)).toBe(201); return result.body as { requests: { id: string; code: string }[] };
+  expect(result.status, JSON.stringify(result.body)).toBe(201);
+  await pinNewEntitiesToOctober();
+  return result.body as { requests: { id: string; code: string }[] };
 }
 it('dashboard vacío: seis métricas cero, importes exactos y grupos vacíos reales', async () => {
   const data = await reports.read('general', range); expect(data.summary).toEqual({ salesCount: 0, salesRevenue: '0.00', equipmentSold: 0, registrationCount: 0, registrationAmount: '0.00', newClients: 0 }); expect(data.series).toHaveLength(31); expect(data.series.every(r => r.count === 0 && r.amount === '0.00')).toBe(true); expect(data.evolution).toEqual([]);
@@ -48,7 +55,7 @@ it('doble registro: un cliente, un equipo, dos solicitudes e importes 0.30', asy
   await registration(); expect((await reports.read('general', range)).summary).toMatchObject({ registrationCount: 2, registrationAmount: '0.30', newClients: 1 }); expect((await reports.read('equipment', range)).summary).toMatchObject({ equipmentCount: 1, doubleImei: 1, imeiCount: 2, externalEquipment: 1 }); expect((await reports.read('clients', range)).summary).toMatchObject({ totalClients: 1, registrationClients: 1, repeatClients: 0 });
 });
 it('un solo IMEI atendido cuenta una solicitud sin multiplicar equipos', async () => {
-  const input = workflowInput(); input.requests = [input.requests[0]]; const result = await postRegistration(agent,input); expect(result.status).toBe(201); expect((await reports.read('registrations', range)).summary.registrationCount).toBe(1); expect((await reports.read('equipment', range)).summary.equipmentCount).toBe(1);
+  const input = workflowInput(); input.requests = [input.requests[0]]; const result = await postRegistration(agent,input); expect(result.status).toBe(201); await pinNewEntitiesToOctober(); expect((await reports.read('registrations', range)).summary.registrationCount).toBe(1); expect((await reports.read('equipment', range)).summary.equipmentCount).toBe(1);
 });
 it('estados pendientes bloqueados y registrados y porcentajes reales', async () => {
   const row = await registration(true); let data = await reports.read('registrations', range); expect(data.tables[0].rows).toEqual([{ name: 'BLOQUEADO', count: 1, percent: '50.00' }, { name: 'REGISTRO PENDIENTE', count: 1, percent: '50.00' }, { name: 'REGISTRADO', count: 0, percent: '0.00' }]);
@@ -62,6 +69,7 @@ it('creación septiembre y finalización octubre: fechas y actores independiente
   const row = await registration(); const creator = await db.user.create({ data: { email: 'creator@example.test', name: 'CREADOR INACTIVO', status: 'DISABLED', roleId: (await db.role.findUniqueOrThrow({ where: { code: 'SELLER' } })).id } });
   await db.registrationRequest.updateMany({ data: { createdById: creator.id, createdAt: new Date('2026-09-15T12:00:00-05:00') } });
   expect((await agent.post(`/api/registration-requests/${row.requests[0].id}/transition`).set('Origin', testOrigin).send({ action: 'MARK_REGISTERED', confirm: true, reason: 'Prueba' })).status).toBe(200);
+  await db.registrationRequest.update({ where: { id: row.requests[0].id }, data: { completedAt: new Date('2026-10-12T12:00:00-05:00') } });
   const october = await reports.read('registrations', range); expect(october.evolution.some(r => Number(r.completed) === 1)).toBe(true); expect(october.evolution.every(r => r.created === 0)).toBe(true);
   const september = await reports.read('registrations', { ...range, from: '2026-09-01', to: '2026-09-30' }); expect(september.evolution[0]).toMatchObject({ created: 2, pending: 1, completed: 0 });
   const workers = await reports.read('users', range); expect(workers.rows.find(r => r.id === actor)).toMatchObject({ completed: 1, created: 0 }); expect(workers.rows.find(r => r.id === creator.id)).toMatchObject({ created: 0, completed: 0, serviceAmount: '0.30', status: 'DISABLED' });

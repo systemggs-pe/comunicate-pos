@@ -1,5 +1,4 @@
-import {advanceRegistration} from '../helpers/browser-registration';
-import {uploadRegistrationReceipt} from '../helpers/browser-registration';
+import {acceptPhotoEdit,advanceRegistration,uploadRegistrationReceipt} from '../helpers/browser-registration';
 import {test,expect,type Page} from '@playwright/test';
 import sharp from 'sharp';
 import {finishMvp,mvpDb,resetMvp,loginMvp,registerContact} from '../helpers/mvp-browser';
@@ -19,7 +18,7 @@ test('Fotos del DNI, segundo celular y reutilización automática en el siguient
  await page.getByLabel('Celular del IMEI 2',{exact:true}).fill('912345678');await next(page);await expect(page.locator('.imei-validation-feedback').filter({hasText:'El celular del IMEI 2 debe ser distinto del IMEI 1.'})).toBeVisible();
  await page.getByLabel('Celular del IMEI 2',{exact:true}).fill('987654321');await next(page);await expect(page.getByLabel('Celular IMEI 2',{exact:true})).toHaveValue('987654321');await next(page);
  for(const [side,color] of [['DNI FRONTAL','#123456'],['DNI REVERSO','#654321']]){
-  const buffer=await sharp({create:{width:80,height:120,channels:3,background:color}}).png().toBuffer();await page.getByLabel(`Galería ${side} IMEI 1`,{exact:true}).setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer});
+  const buffer=await sharp({create:{width:80,height:120,channels:3,background:color}}).png().toBuffer();await page.getByLabel(`Galería ${side} IMEI 1`,{exact:true}).setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer}); await acceptPhotoEdit(page);
   await expect(page.getByText('ADJUNTADA',{exact:true})).toHaveCount(side==='DNI FRONTAL'?1:2);
  }
  await uploadRegistrationReceipt(page);await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();await expect(page.getByRole('heading',{name:'REGISTRO GUARDADO CORRECTAMENTE',exact:true})).toBeVisible();

@@ -169,7 +169,7 @@ Especificación: refinamiento exclusivo de implementación recibido el 18/10/202
 - Cambios realizados: diseño en dos columnas, mensaje «Claridad para cada equipo, venta y cliente.», indicación de acceso restringido, tarjeta blanca, icono de identidad, bienvenida y botón Google. Estilos para móvil. Sin imágenes decorativas ni textos legales no aprobados.
 - Integración Google preparada: OAuth/OIDC con código de autorización, PKCE, estado vinculado al navegador, nonce, validación del ID token en backend y sesión HttpOnly existente. Lista explícita de pares correo/identificador Google previamente autorizados, cuenta existente activa y rol obligatorio. No crea usuarios ni asigna privilegios. Vinculación única y auditoría interna. Cierre de sesión existente conservado.
 - Configuración pendiente: cliente OAuth, secreto del backend, origen autorizado, callback y mapa de identidades aprobadas. El acceso administrativo con correo y contraseña se conserva. Google permanece deshabilitado mientras falte configuración.
-- Guía: [google-auth-configuration.md](google-auth-configuration.md). Preparación basada en la [documentación oficial de Google OIDC](https://developers.google.com/identity/openid-connect/openid-connect).
+- Esta integración histórica se retiró el 20 de noviembre de 2026. El POS usa acceso por correo y contraseña.
 
 ## FOTO DNI
 
@@ -238,7 +238,7 @@ Especificación: refinamiento exclusivo de implementación recibido el 18/10/202
 4. `src/features/registrations/ShareRegistration.tsx`
 5. `src/features/sales/SaleDetails.tsx`
 6. `src/refinement.css`
-7. `docs/google-auth-configuration.md`
+
 8. `docs/interface-refinement-implementation-report.md`
 
 ### Archivos modificados

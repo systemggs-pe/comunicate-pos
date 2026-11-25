@@ -42,9 +42,9 @@ export function RegistrationRequestEdit({request,onSaved,onCancel}:{request:Regi
  const [evidencePending,setEvidencePending]=useState(false);
  const owner=request.applicant??request.imei?.equipment.owner,equipment=request.imei?.equipment,slot=request.imei?.slot;
  const changedFields=[...contactFields,...serviceFields].filter(field=>value[field]!==initial[field]);
- const needsDeclaration=value.operator==='MOVISTAR'&&!request.hasMovistarDeclaration;
+ const canAddDeclaration=value.operator==='MOVISTAR'&&!request.hasMovistarDeclaration;
  const draft=declarations.drafts[`${movistarDeclarationCategory}:${request.imei?.value}`];
- const busy=submit.busy||evidencePending||!!draft?.busy;
+ const busy=submit.busy||evidencePending||(canAddDeclaration&&!!draft?.busy);
  useUnsavedChanges(changedFields.length>0||evidencePending||!!draft);
  useFormStepFocus(step,form);
  useEffect(()=>{void workspace.current?.scrollIntoView({block:'start',behavior:'instant'});},[]);
@@ -77,9 +77,9 @@ export function RegistrationRequestEdit({request,onSaved,onCancel}:{request:Regi
   go(step+1);
  }
  async function save(){
-  if(!changedFields.length&&!needsDeclaration){onSaved(false);return;}
-  if(needsDeclaration&&!draft?.prepared)return;
-  const changes={...patch(changedFields),...(needsDeclaration&&draft?.prepared?{declarationAssetId:draft.prepared.assetId}:{})};
+  const declarationAssetId=canAddDeclaration?draft?.prepared?.assetId:undefined;
+  if(!changedFields.length&&!declarationAssetId){onSaved(false);return;}
+  const changes={...patch(changedFields),...(declarationAssetId?{declarationAssetId}:{})};
   const result=await submit.run(()=>api.patch<RegistrationRequest>(`/registration-requests/${request.id}`,requestEditSchema.parse(changes)));
   if(result){
    window.dispatchEvent(new Event('pos:form-saved'));
@@ -99,7 +99,7 @@ export function RegistrationRequestEdit({request,onSaved,onCancel}:{request:Regi
        <div className="dni-client-fields"><div className="form-grid">
         <label>Documento<div className="document-number">
          <select aria-label="Tipo de documento" disabled value="DNI"><option>DNI</option></select>
-         <input aria-label="DNI" readOnly value={owner?.dni??''}/>
+         <input aria-label="DNI" inputMode="numeric" readOnly value={owner?.dni??''}/>
         </div></label>
         <label>Nombre Completo<input aria-label="Nombre completo" readOnly value={displayClientName(owner)}/></label>
        </div></div>
@@ -123,7 +123,7 @@ export function RegistrationRequestEdit({request,onSaved,onCancel}:{request:Regi
        <h2 data-step-heading tabIndex={-1}>Datos del equipo</h2>
        {equipment&&<>
         <div className="imei-selection">
-         <div className="form-grid">{[1,2].map(number=><label key={number}>IMEI {number}<input readOnly value={equipment.imeis.find(imei=>imei.slot===number)?.value??''}/></label>)}</div>
+         <div className="form-grid">{[1,2].map(number=><label key={number}>IMEI {number}<input inputMode="numeric" readOnly value={equipment.imeis.find(imei=>imei.slot===number)?.value??''}/></label>)}</div>
          <p className="combined-address"><strong>IMEI de esta solicitud:</strong> {slot} · {request.imei?.value}</p>
         </div>
         <EquipmentFields registration readOnly value={equipment} onChange={()=>{}}/>
@@ -147,7 +147,7 @@ export function RegistrationRequestEdit({request,onSaved,onCancel}:{request:Regi
        <label>Fecha y hora *<ValidatedInput type="datetime-local" aria-label={labels.occurredAt} name="occurredAt" required value={value.occurredAt} onChange={event=>update('occurredAt',event.target.value)}/></label>
       </section>}
       {step===3&&<>
-       {needsDeclaration&&request.imei&&<MovistarDeclarationDraft manager={declarations} allowed={can('registration.evidence.upload')} imei={request.imei.value} slot={request.imei.slot}/>}
+       {canAddDeclaration&&request.imei&&<MovistarDeclarationDraft manager={declarations} allowed={can('registration.evidence.upload')} imei={request.imei.value} slot={request.imei.slot}/>}
        <EvidenceSection requestId={request.id} onPendingChange={setEvidencePending}/>
        {request.imei&&equipment&&<section className="form-panel">
         <RegistrationReview editing busy={busy} name={displayClientName(owner)} dni={owner?.dni??''} phone={value.phone}
@@ -158,10 +158,10 @@ export function RegistrationRequestEdit({request,onSaved,onCancel}:{request:Regi
        </section>}
       </>}
       {step===3&&<ErrorNotice message={submit.error}/>}
-      <div className="form-actions registration-actions">
+      <div className="form-actions registration-actions mobile-workflow-actions">
        {step>0&&<button type="button" className="secondary-button" disabled={busy} onClick={()=>go(step-1)}>Atrás</button>}
        <button type="button" className="text-button" disabled={busy} onClick={onCancel}>Cancelar</button>
-       <button className="primary-button" disabled={busy||step===3&&needsDeclaration&&!draft?.prepared}>{submit.busy?'Guardando…':step===3?'Confirmar y guardar':'Siguiente'}</button>
+       <button className="primary-button" disabled={busy}>{submit.busy?'Guardando…':step===3?'Confirmar y guardar':'Siguiente'}</button>
       </div>
      </fieldset>
     </form>

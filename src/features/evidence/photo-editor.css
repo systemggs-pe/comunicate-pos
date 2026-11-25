@@ -1,0 +1,60 @@
+.design-shell .photo-editor.reference-dialog { width: min(720px, calc(100% - 24px)); }
+.photo-editor .reference-modal-header h2 { margin: 0; }
+.photo-editor-body { display: grid; gap: 12px; padding: 14px 18px; }
+.photo-editor-hint { color: var(--design-muted); margin: 0; }
+.photo-editor-stage {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  height: clamp(190px, 45dvh, 420px);
+  padding: 24px;
+  border-radius: 10px;
+  background: var(--design-soft);
+}
+.photo-editor-space { flex: 1; min-width: 0; display: grid; place-items: center; }
+.photo-editor-picture { position: relative; user-select: none; }
+.photo-editor-picture canvas { display: block; width: 100%; height: 100%; }
+.photo-editor-mask { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.photo-editor-mask > div { position: absolute; border: 1px solid white; box-shadow: 0 0 0 300vmax #101827a6; }
+.design-shell .photo-editor-handle {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  touch-action: none;
+  cursor: grab;
+}
+.photo-editor-handle span {
+  width: 16px;
+  height: 16px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: var(--color-brand);
+  box-shadow: 0 1px 4px #18212d82;
+  pointer-events: none;
+}
+.photo-editor-tools, .photo-editor-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.photo-editor-tools button { display: inline-flex; align-items: center; justify-content: center; }
+.photo-editor-precision summary { display: flex; align-items: center; cursor: pointer; }
+.photo-editor-precision summary::after { content: "+"; margin-inline-start: auto; }
+.photo-editor-precision[open] summary::after { content: "−"; }
+.photo-editor-precision > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.design-shell .photo-editor :is(button,summary,input) { min-width: 44px; min-height: 44px; }
+.photo-editor-actions {
+  position: sticky;
+  bottom: 0;
+  justify-content: flex-end;
+  border-top: 1px solid var(--design-line);
+  padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--design-surface);
+}
+@media (max-width: 650px) {
+  .photo-editor-precision > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .photo-editor-actions > button { flex: 1; }
+  .photo-editor-stage { height: clamp(175px, 43dvh, 380px); }
+}

@@ -6,12 +6,12 @@ import { hashPassword, verifyPassword, dummyPasswordHash } from '../lib/password
 import { writeAudit, type AuditContext } from '../lib/audit.js';
 export const sessionHours = 12;
 export const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
-export const userSelect = { googleSubject:true, identityDocument:true, id: true, code: true, name: true, email: true, status: true, lastLoginAt: true, createdAt: true, role: { select: { id: true, code: true, permissions: { select: { permissionKey: true } } } } } satisfies Prisma.UserSelect;
+export const userSelect = { identityDocument:true, id: true, code: true, name: true, email: true, status: true, lastLoginAt: true, createdAt: true, role: { select: { id: true, code: true, permissions: { select: { permissionKey: true } } } } } satisfies Prisma.UserSelect;
 type SafeRow = Prisma.UserGetPayload<{ select: typeof userSelect }>;
 export function publicUser(row: SafeRow) {
-  const {googleSubject,...fields}=row; const role = row.role;
+  const role = row.role;
   if (!role) throw new DomainError(401, 'Sesión no válida.', 'SESSION_INVALID');
-  return { ...fields, googleLinked:!!googleSubject, role: { id: role.id, code: role.code }, permissions: role.code === 'SUPERADMIN' ? [...permissionKeys] : role.permissions.map(p => p.permissionKey) };
+  return { ...row, role: { id: role.id, code: role.code }, permissions: role.code === 'SUPERADMIN' ? [...permissionKeys] : role.permissions.map(p => p.permissionKey) };
 }
 export function createAuthService(db: PrismaClient) {
   async function throttle(email: string, ip: string) {

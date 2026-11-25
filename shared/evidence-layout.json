@@ -1,10 +1,10 @@
 {
-  "paper": {"width": 210, "height": 297, "pages": 2},
+  "paper": {"width": 210.01566667, "height": 297.01066667},
   "slots": [
-    {"category": "DNI_FRONT", "page": 1, "x": 62.276119, "y": 28, "width": 81.447761, "height": 51},
-    {"category": "DNI_BACK", "page": 1, "x": 61.970732, "y": 99, "width": 82.058537, "height": 52},
-    {"category": "DEVICE_BOX", "page": 1, "x": 53, "y": 192.821429, "width": 100, "height": 32.357143},
-    {"category": "PURCHASE_RECEIPT", "page": 2, "x": 24.969286, "y": 29, "width": 56.061429, "height": 127},
-    {"category": "LOGICAL_IMEI", "page": 2, "x": 112.381786, "y": 29, "width": 59.236429, "height": 127}
+    {"category": "DNI_FRONT", "x": 22.04861111, "y": 24.69444444, "width": 78.03444444, "height": 46.90180556},
+    {"category": "DNI_BACK", "x": 109.80208333, "y": 24.99430556, "width": 78.03444444, "height": 46.90180556},
+    {"category": "DEVICE_BOX", "x": 16.84513889, "y": 96.96097222, "width": 86.09541667, "height": 64.31138889},
+    {"category": "LOGICAL_IMEI", "x": 111.76, "y": 96.90805556, "width": 86.09541667, "height": 64.31138889},
+    {"category": "PURCHASE_RECEIPT", "x": 53.93972222, "y": 171.18541667, "width": 101.6, "height": 105.55111111}
   ]
 }

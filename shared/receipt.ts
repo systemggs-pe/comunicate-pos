@@ -19,7 +19,7 @@ export function receiptRows({sale,company:c}:ReceiptData,_format:ReceiptFormat):
  const section=(text:string)=>add(text,{kind:'section',font:7.2,bold:true,color:88});
  const header=(text:string,font=7.2,advance=3.986,bold=false)=>add(text,{align:'center',font,advance,bold,color:bold?18:88});
  const memory=(value:string|null|undefined)=>value?(/^[\d.,]+$/.test(value.trim())?`${value.trim()} GB`:normalizeText(value)):'—';
- header('COMUNIC@TE',13.8,6.494,true);header('RECIBO DE VENTA',9,4.67,true);header(receiptSaleCode(sale.code),8,5.29);
+ header('RECIBO DE VENTA',9,4.67,true);header(receiptSaleCode(sale.code),8,5.29);
  header('VENTA DE CELULARES Y ACCESORIOS');header(c.address||'—');header(c.city||'—');header(`Tel. ${c.phone||'—'}`);
  section('CLIENTE');
  field('Nombre:',normalizeText(sale.buyer.fullName||[sale.buyer.firstName,sale.buyer.lastName].filter(Boolean).join(' ')),13.5467);
@@ -68,6 +68,14 @@ export function receiptLayout(data:ReceiptData,format:ReceiptFormat){
  const margin=format===58?data.company.margin58:data.company.margin80;
  const width=format-2*margin,scale=width/52;
  let cursor=5*scale;
+ const image=data.company.receiptLogo;
+ let logo;
+ if(image){
+  const ratio=Math.min(width*.82/image.width,18*scale/image.height);
+  const logoWidth=image.width*ratio,logoHeight=image.height*ratio;
+  logo={dataUrl:image.dataUrl,x:(format-logoWidth)/2,y:cursor,width:logoWidth,height:logoHeight};
+  cursor+=logoHeight+3*scale;
+ }
  const items=receiptRows(data,format).map(row=>{
   cursor+=(row.before??0)*scale;
   const font=(row.font??8)*scale,labelWidth=(row.labelWidth??0)*scale;
@@ -87,7 +95,7 @@ export function receiptLayout(data:ReceiptData,format:ReceiptFormat){
   cursor+=height;
   return {row,y,baseline,height,font:row.kind==='total'?10.2*scale:font,rightFont,labelWidth,lines,lineHeight,barcode,inset};
  });
- return {items,width,margin,scale,height:cursor+5*scale};
+ return {items,width,margin,scale,height:cursor+5*scale,logo};
 }
 // Preserve at least 0.25 mm per module and 10-module quiet zones on each side.
 export function receiptBarcode(code:string,availableMm:number){

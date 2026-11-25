@@ -8,5 +8,8 @@ export const companySchema=z.object({
  showClientContact:z.boolean(),showSerial:z.boolean(),showSeller:z.boolean(),
 }).strict();
 export type CompanyInput=z.infer<typeof companySchema>;
-export interface CompanySettings extends CompanyInput {id:number;updatedAt:string;updatedById:string|null}
+export const receiptLogoMimeTypes=['image/png','image/jpeg','image/webp'] as const;
+export const maxReceiptLogoBytes=2*1024*1024;
+export interface ReceiptLogo {dataUrl:string;width:number;height:number}
+export interface CompanySettings extends CompanyInput {id:number;updatedAt:string;updatedById:string|null;receiptLogo?:ReceiptLogo|null}
 export const companyDefaults:CompanyInput={businessName:'COMUNIC@TE',businessType:'VENTA DE CELULARES Y ACCESORIOS',address:'',city:'',phone:'',email:'',receiptFooter:'GRACIAS POR SU COMPRA',defaultFormat:null,margin58:3,margin80:2,showClientContact:true,showSerial:true,showSeller:true};

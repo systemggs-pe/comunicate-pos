@@ -51,7 +51,7 @@ export function ForeignReceiptManual({initial,onSave,busy,footer}:{initial?:Manu
     <label>Tipo de documento<select value={customer.type} onChange={event=>setCustomer('type',event.target.value as ForeignReceiptCustomer['type'])}>
      {(['DNI','RUT','CE','PASAPORTE'] as const).map(type=><option key={type}>{type}</option>)}
     </select></label>
-    <label>Documento<input required maxLength={40} value={customer.document} onChange={event=>setCustomer('document',event.target.value)}/></label>
+    <label>Documento<input required inputMode={customer.type==='DNI'?'numeric':undefined} maxLength={40} value={customer.document} onChange={event=>setCustomer('document',event.target.value)}/></label>
     <label>Nombre completo<input required maxLength={201} value={customer.fullName} onChange={event=>setCustomer('fullName',event.target.value)}/></label>
     <label>Fecha y hora de la boleta<input type="datetime-local" required value={data.issuedAt} onChange={event=>setData({...data,issuedAt:event.target.value})}/></label>
    </div>

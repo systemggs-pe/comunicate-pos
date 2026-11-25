@@ -1,0 +1,34 @@
+[build]
+  command = "npm run build && node scripts/prepare-netlify-runtime.mjs"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  # PDF.js loads its adjacent worker at runtime and needs its original ESM files.
+  external_node_modules = ["@prisma/client", "@napi-rs/canvas", "argon2", "sharp", "pdfjs-dist"]
+  included_files = ["node_modules/.prisma/client/schema.prisma", "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node", "server/documents/fonts/*.ttf", "supabase-ca.crt"]
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    X-Frame-Options = "DENY"
+    Strict-Transport-Security = "max-age=31536000"
+    Permissions-Policy = "camera=(self), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https:; worker-src 'self' blob:; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"

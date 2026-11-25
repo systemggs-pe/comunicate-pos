@@ -1,7 +1,7 @@
 import {useRef,useState} from 'react';
 import {Download,Printer,ReceiptText,Search,SquarePen} from 'lucide-react';
 import {
- foreignIssuerFields,foreignReceiptCreate,foreignReceiptFormats,foreignReceiptIssuer,receiptDateFromPurchase,receiptDateInLima,
+ foreignIssuerFields,foreignReceiptCreate,foreignReceiptFormats,activeForeignReceiptFormats,isActiveForeignReceiptFormat,foreignReceiptIssuer,receiptDateFromPurchase,receiptDateInLima,
  type ForeignReceiptCreate,type ForeignReceiptCustomer,type ForeignReceiptDevice,type ForeignReceiptIssuer,type ForeignReceiptView,
 } from '../../../shared/foreign-receipts';
 import {Link} from '../../app/router';
@@ -20,9 +20,11 @@ type SaleLookup={customer:ForeignReceiptCustomer|null;lines:{id:string;code:stri
 type ReceiptForm=Omit<Extract<ForeignReceiptCreate,{source:'SALE'}>,'requestKey'>|Omit<Extract<ForeignReceiptCreate,{source:'MANUAL'}>,'requestKey'>;
 const endpoint='/foreign-receipts';
 
-function FormatField({value,onChange,issuers}:{value:number;onChange:(value:number)=>void;issuers:Issuers}){
+function FormatField({value,onChange,issuers,historicalFormat}:{value:number;onChange:(value:number)=>void;issuers:Issuers;historicalFormat?:number}){
+ const historical=historicalFormat===undefined?undefined:foreignReceiptFormats.find(format=>format.id===historicalFormat&&!isActiveForeignReceiptFormat(format.id));
  return <label>Formato PDF<select aria-label="Formato PDF" value={value} onChange={event=>onChange(Number(event.target.value))}>
-  {foreignReceiptFormats.map(format=><option key={format.id} value={format.id}>
+  {historical&&<option value={historical.id}>{historical.label} · Histórico</option>}
+  {activeForeignReceiptFormats.map(format=><option key={format.id} value={format.id}>
    {format.label} · {format.currency}{issuers[format.id]?'':' · emisor pendiente'}
   </option>)}
  </select></label>;
@@ -77,7 +79,7 @@ function IssuerEditor({format,config,onSaved}:{format:number;config:ForeignRecei
  }}>
   <fieldset disabled={submit.busy||logoBusy}>
    <div className="form-grid">{Object.entries(foreignIssuerFields).slice(0,17).map(([key,label])=><label key={key}>{label}
-    <input name={key} required={key==='nombre'||key==='rut'||key==='tipoCambioPenUsd'&&format>=4&&format<=6}
+    <input name={key} required={key==='nombre'||key==='rut'}
      maxLength={key==='rut'?40:400} defaultValue={config?.[key as keyof ForeignReceiptIssuer]??''}/></label>)}</div>
    <details className="foreign-issuer-extra"><summary>Campos adicionales del formato</summary>
     <div className="form-grid">{Object.entries(foreignIssuerFields).slice(17).map(([key,label])=><label key={key}>{label}
@@ -100,7 +102,7 @@ function IssuerEditor({format,config,onSaved}:{format:number;config:ForeignRecei
  </form>;
 }
 
-function ReceiptHistory({show}:{show:(receipt:ForeignReceiptView)=>void}){
+function ReceiptHistory({show,print,printing}:{show:(receipt:ForeignReceiptView)=>void;print:(receipt:ForeignReceiptView)=>void;printing:boolean}){
  const [type,setType]=useState('document'),[value,setValue]=useState(''),[search,setSearch]=useState({by:'document',q:''});
  const [cursors,setCursors]=useState<number[]>([]);
  const before=cursors.at(-1);
@@ -110,17 +112,22 @@ function ReceiptHistory({show}:{show:(receipt:ForeignReceiptView)=>void}){
    <label>Buscar por<select aria-label="Buscar por" value={type} onChange={event=>setType(event.target.value)}>
     <option value="document">Documento</option><option value="imei">IMEI</option><option value="folio">Folio</option>
    </select></label>
-   <label>Valor de búsqueda<input value={value} maxLength={40} onChange={event=>setValue(event.target.value)}/></label>
+   <label>Valor de búsqueda<input value={value} inputMode={type==='imei'||type==='folio'?'numeric':undefined} maxLength={40} onChange={event=>setValue(event.target.value)}/></label>
    <button className="secondary-button"><Search size={17} aria-hidden="true"/>Buscar</button>
   </form>
   {query.loading&&<Loading/>}
   <ErrorNotice message={query.error?.message} retry={query.error?query.refresh:undefined}/>
   {query.data&&(!query.data.rows.length?<EmptyState title="Sin boletas para esta búsqueda."/>:
    <ul className="foreign-history">{query.data.rows.map(row=><li key={row.id}>
-    <button type="button" onClick={()=>show(row)} className="foreign-history-row">
-     <strong>Folio {row.folio}</strong><span>{row.snapshot.customer.fullName}<small>{row.snapshot.devices.map(device=>device.commercialName).join(' · ')}</small></span>
-     <span>{formatDate(row.issuedAt)}<small>{money(row.totalPen)}</small></span>
+    <button type="button" onClick={()=>show(row)} className="foreign-history-row" aria-label={`Ver folio ${row.folio}`}>
+     <strong className="foreign-history-folio">Folio {row.folio}</strong>
+     <span className="foreign-history-customer">{row.snapshot.customer.fullName}<small>{row.snapshot.devices.map(device=>device.commercialName).join(' · ')}</small></span>
+     <time className="foreign-history-date" dateTime={row.issuedAt}>{formatDate(row.issuedAt)}</time>
+     <span className="foreign-history-amount">{money(row.totalPen)}</span>
     </button>
+    <div className="foreign-history-actions">
+     <button type="button" className="secondary-button" disabled={printing} aria-label={`Imprimir folio ${row.folio}`} onClick={()=>print(row)}><Printer size={17} aria-hidden="true"/>Imprimir</button>
+    </div>
    </li>)}</ul>)}
   {(!!cursors.length||query.data?.next)&&<div className="form-actions">
    <button className="secondary-button" type="button" disabled={!cursors.length} onClick={()=>setCursors(previous=>previous.slice(0,-1))}>Anterior</button>
@@ -131,7 +138,7 @@ function ReceiptHistory({show}:{show:(receipt:ForeignReceiptView)=>void}){
 
 function ReceiptEdit({receipt,issuers,busy,cancel,save}:{receipt:ForeignReceiptView;issuers:Issuers;busy:boolean;cancel:()=>void;save:(input:object)=>void}){
  const [format,setFormat]=useState(receipt.format),[date,setDate]=useState(receiptDateInLima(receipt.issuedAt));
- const footer=<><FormatField value={format} onChange={setFormat} issuers={issuers}/>
+ const footer=<><FormatField value={format} onChange={setFormat} issuers={issuers} historicalFormat={receipt.format}/>
   <div className="form-actions"><button type="button" className="secondary-button" onClick={cancel}>Cancelar</button>
    <button className="primary-button" disabled={format!==receipt.format&&!issuers[format]}>{busy?'Guardando…':'Guardar cambios'}</button></div></>;
  const base={format,expectedUpdatedAt:receipt.updatedAt};
@@ -202,7 +209,8 @@ export function ForeignReceiptsPage(){
     {mode==='manual'&&<ForeignReceiptManual busy={submit.busy} onSave={data=>void create({source:'MANUAL',format,...data})}
      footer={<><FormatField value={format} onChange={setFormat} issuers={issuers}/><div className="form-actions">
       <button className="primary-button" disabled={!issuers[format]}>{submit.busy?'Guardando…':'Generar boleta'}</button></div></>}/>}
-    {mode==='history'&&<ReceiptHistory key={revision} show={row=>{setCurrent(row);setNotice('');}}/>}
+    {mode==='history'&&<ReceiptHistory key={revision} show={row=>{setCurrent(row);setNotice('');}}
+     print={row=>void pdf.run(()=>deliverForeignReceipt(row,true))} printing={pdf.busy}/>}
     {mode==='issuers'&&<><FormatField value={issuerFormat} onChange={setIssuerFormat} issuers={issuers}/>
      {notice&&<p role="status" className="foreign-result">{notice}</p>}
      {issuerQuery.loading?<Loading/>:<IssuerEditor key={issuerFormat} format={issuerFormat} config={issuers[issuerFormat]} onSaved={()=>{setNotice('Emisor guardado.');issuerQuery.refresh();}}/>}</>}

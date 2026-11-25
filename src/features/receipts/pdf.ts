@@ -4,6 +4,10 @@ export function createReceiptPdf(data:ReceiptData,format:ReceiptFormat){
  const layout=receiptLayout(data,format),{margin,width,scale}=layout;
  const pageHeight=Math.min(1000,Math.max(40,layout.height));
  const doc=new jsPDF({unit:'mm',format:[format,pageHeight],compress:true});
+ if(layout.logo){
+  const {dataUrl,x,y,width,height}=layout.logo;
+  doc.addImage(dataUrl,'JPEG',x,y,width,height);
+ }
  let offset=0;
  const rule=(y:number)=>{doc.setDrawColor(176);doc.setLineWidth(.18*scale);doc.line(margin,y,format-margin,y);};
  for(const item of layout.items){

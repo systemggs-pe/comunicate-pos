@@ -6,7 +6,7 @@ const db=new PrismaClient({datasources:{db:{url:url.toString()}}});
 afterAll(()=>db.$disconnect());
 it('AUD-07 migrated database retains intentional SQL constraints, triggers and sequences',async()=>{
  const constraints=await db.$queryRaw<{name:string;validated:boolean}[]>`SELECT conname AS name,convalidated AS validated FROM pg_constraint WHERE connamespace='public'::regnamespace`;
- for(const name of ['request_completion_integrity','evidence_ready_dimensions','evidence_expected_type'])expect(constraints.some(c=>c.name===name&&c.validated),name).toBe(true);
+ for(const name of ['request_completion_integrity','evidence_ready','evidence_sizes','evidence_expected_type'])expect(constraints.some(c=>c.name===name&&c.validated),name).toBe(true);
  const triggers=await db.$queryRaw<{name:string}[]>`SELECT tgname AS name FROM pg_trigger WHERE NOT tgisinternal AND tgrelid IN (SELECT oid FROM pg_class WHERE relnamespace='public'::regnamespace)`;
  for(const name of ['evidence_link_immutable','evidence_link_scope_guard','evidence_dimensions_guard','client_identity_reuse_guard'])expect(triggers.some(t=>t.name===name),name).toBe(true);
  const indexes=await db.$queryRaw<{name:string;definition:string}[]>`SELECT indexname AS name,indexdef AS definition FROM pg_indexes WHERE schemaname='public'`;

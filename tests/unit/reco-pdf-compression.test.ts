@@ -14,14 +14,14 @@ async function declaration(){
  return Buffer.from(await doc.save());
 }
 const generate=async()=>compressRecoPdf(data,createEvidencePdf(data),new Map(),await declaration());
-const size=(page:PDFPage)=>page.getSize();
+const size=(page:PDFPage)=>({width:Number(page.getWidth().toFixed(2)),height:Number(page.getHeight().toFixed(2))});
 
 it('combina la declaración y el RECO sin pérdida cuando el archivo ya cabe',async()=>{
  const packet=await generate();
  expect(packet.bytes.length).toBe(packet.originalSize);
  expect(packet.bytes.length).toBeLessThan(recoPdfByteLimit);
  const result=await PDFDocument.load(packet.bytes);
- expect(result.getPages().map(size)).toEqual([{width:595,height:842},{width:612,height:792},{width:595.28,height:841.89},{width:595.28,height:841.89}]);
+ expect(result.getPages().map(size)).toEqual([{width:595,height:842},{width:612,height:792},{width:595.32,height:841.92}]);
 });
 
 it.each([399_999,400_000,400_001])('aplica el límite estricto a un RECO válido de %i bytes',async targetSize=>{
@@ -31,12 +31,12 @@ it.each([399_999,400_000,400_001])('aplica el límite estricto a un RECO válido
  comment[0]=37;
  comment[comment.length-1]=10;
  const original=Buffer.concat([reco.subarray(0,trailer),comment,reco.subarray(trailer)]);
- expect((await PDFDocument.load(original)).getPageCount()).toBe(2);
+ expect((await PDFDocument.load(original)).getPageCount()).toBe(1);
  const packet=await compressRecoPdf({...data,operator:'CLARO'},original,new Map());
  expect(packet.originalSize).toBe(targetSize);
  expect(packet.bytes.length).toBeLessThan(recoPdfByteLimit);
  if(targetSize===399_999)expect(packet.bytes).toBe(original);
- else expect((await PDFDocument.load(packet.bytes)).getPageCount()).toBe(2);
+ else expect((await PDFDocument.load(packet.bytes)).getPageCount()).toBe(1);
 });
 
 it('un archivo imposible de comprimir devuelve el error recuperable',async()=>{

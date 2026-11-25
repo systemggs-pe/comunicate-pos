@@ -40,10 +40,19 @@ describe('DNI local-first y caché temporal', () => {
     const result = await service.lookup(dni); expect(result).toMatchObject({ source: 'NONE', error: { code: 'DNI_PROVIDER_UNAVAILABLE' } }); expect(JSON.stringify(result)).not.toContain('secret'); expect(lookup).toHaveBeenCalledTimes(2);
   });
   it('proveedor colgado se aborta dentro del límite global', async () => {
-    const { local } = setup(); const signals: AbortSignal[] = [];
-    const lookup = vi.fn((_dni: string, signal?: AbortSignal) => { signals.push(signal!); return new Promise<null>(() => {}); });
-    const service = createDniLookupService(local, { lookup }, { timeoutMs: 30, backoffMs: 1 });
-    expect(await service.lookup(dni)).toMatchObject({ error: { code: 'DNI_PROVIDER_TIMEOUT' } }); expect(lookup).toHaveBeenCalledTimes(2); expect(signals.every(signal => signal.aborted)).toBe(true);
+    vi.useFakeTimers();
+    try {
+      const { local } = setup(); const signals: AbortSignal[] = [];
+      const lookup = vi.fn((_dni: string, signal?: AbortSignal) => { signals.push(signal!); return new Promise<null>(() => {}); });
+      const service = createDniLookupService(local, { lookup }, { timeoutMs: 30, backoffMs: 1 });
+      const result = service.lookup(dni);
+      await vi.advanceTimersByTimeAsync(29);
+      expect(lookup).toHaveBeenCalledTimes(2);
+      expect(signals.map(signal => signal.aborted)).toEqual([true, false]);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(await result).toMatchObject({ error: { code: 'DNI_PROVIDER_TIMEOUT' } });
+      expect(signals.map(signal => signal.aborted)).toEqual([true, true]);
+    } finally { vi.useRealTimers(); }
   });
   it('dos llamadas y llamadas simultáneas reutilizan resultado', async () => {
     const { lookup, service } = setup(); await Promise.all([service.lookup(dni), service.lookup(dni)]); await service.lookup(dni); expect(lookup).toHaveBeenCalledTimes(1);

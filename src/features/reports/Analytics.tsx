@@ -1,6 +1,6 @@
 import './reports.css';
-import {Download,RefreshCw,SlidersHorizontal,ChevronDown} from 'lucide-react';
-import { lazy, Suspense, useState, useSyncExternalStore } from 'react';
+import {Download,RefreshCw,SlidersHorizontal,ChevronDown,ArrowRight} from 'lucide-react';
+import { lazy, Suspense, useState, useSyncExternalStore, useEffect, useRef, type ReactNode } from 'react';
 import { useAuth } from '../../app/AuthProvider';
 import { navigate, Link } from '../../app/router';
 import { useApiQuery } from '../../hooks/useApiQuery';
@@ -25,9 +25,32 @@ function valueText(key: string, value: ReportRow[string]) {
   return String(value).toLocaleUpperCase('es-PE');
 }
 function sentence(text:string){return text.charAt(0).toLocaleUpperCase('es-PE')+text.slice(1).toLocaleLowerCase('es-PE');}
+function ReportTableScroll({label, children}:{label:string;children:ReactNode}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [moreColumns,setMoreColumns] = useState(false);
+  useEffect(() => {
+    const scroller = ref.current;
+    if (!scroller) return;
+    const measure = () => setMoreColumns(scroller.scrollLeft + scroller.clientWidth < scroller.scrollWidth - 1);
+    const observer = new ResizeObserver(measure);
+    observer.observe(scroller);
+    if (scroller.firstElementChild) observer.observe(scroller.firstElementChild);
+    scroller.addEventListener('scroll', measure, {passive:true});
+    measure();
+    return () => {
+      observer.disconnect();
+      scroller.removeEventListener('scroll', measure);
+    };
+  }, []);
+  return <div className="report-table-wrap">
+    <div ref={ref} className="report-table-scroll" tabIndex={0} role="region" aria-label={label}>{children}</div>
+    <p className="report-scroll-hint" data-more={moreColumns}>Más columnas a la derecha <ArrowRight size={15} aria-hidden="true"/></p>
+  </div>;
+}
+
 function Table({ table, type }: { table: ReportTable; type?: ReportType }) {
   const { can } = useAuth();
-  return <section className="report-panel"><h2>{sentence(table.title)}</h2>{table.rows.length ? <div className="report-table-scroll" tabIndex={0} aria-label={table.title}><table><thead><tr>{table.columns.map(c => <th key={c.key}>{sentence(c.label)}</th>)}</tr></thead><tbody>{table.rows.map((row, index) => <tr key={String(row.id ?? row.name ?? index)}>{table.columns.map(c => <td key={c.key}>{c.key === 'code' && type === 'clients' && can('clients.read') ? <Link className="inline-link" to={`/clientes/${row.id}`}>{row.code}</Link> : c.money ? money(String(row[c.key] ?? '0.00')) : valueText(c.key, row[c.key])}</td>)}</tr>)}</tbody></table></div> : <p className="report-empty">No hay datos con estos filtros.</p>}</section>;
+  return <section className="report-panel"><h2>{sentence(table.title)}</h2>{table.rows.length ? <ReportTableScroll label={table.title}><table><thead><tr>{table.columns.map(c => <th key={c.key}>{sentence(c.label)}</th>)}</tr></thead><tbody>{table.rows.map((row, index) => <tr key={String(row.id ?? row.name ?? index)}>{table.columns.map(c => <td key={c.key}>{c.key === 'code' && type === 'clients' && can('clients.read') ? <Link className="inline-link report-client-link" to={`/clientes/${row.id}`}>{row.code}</Link> : c.money ? money(String(row[c.key] ?? '0.00')) : valueText(c.key, row[c.key])}</td>)}</tr>)}</tbody></table></ReportTableScroll> : <p className="report-empty">No hay datos con estos filtros.</p>}</section>;
 }
 export function Analytics({ dashboard = false }: { dashboard?: boolean }) {
   const search = useSyncExternalStore(subscribe, () => window.location.search, () => '');

@@ -6,7 +6,7 @@ import { createAuthService } from '../server/services/auth.service.js';
 
 try {
   const database = new URL(process.env.DATABASE_URL ?? '');
-  if (!['127.0.0.1', 'localhost'].includes(database.hostname) || database.port !== '55432' || database.pathname !== '/communicate_pos') {
+  if (!['127.0.0.1', 'localhost'].includes(database.hostname) || database.port !== (process.env.POS_LOCAL_POSTGRES_PORT || '55432') || database.pathname !== '/communicate_pos') {
     throw new Error('Se requiere la base local communicate_pos.');
   }
   const active = await prisma.user.findFirst({ where: { status: 'ACTIVE', role: { code: 'SUPERADMIN' } } });

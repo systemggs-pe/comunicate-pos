@@ -1,9 +1,14 @@
 import {jsPDF} from 'jspdf';
-import {readFileSync} from 'node:fs';
+import {existsSync,readFileSync} from 'node:fs';
 import layout from '../../shared/declaration-layout.json';
 import type {DeclarationData} from '../../shared/declaration.js';
 import {DomainError} from '../lib/errors.js';
-const fonts={normal:readFileSync(new URL('./fonts/Lato-Light.ttf',import.meta.url)).toString('base64'),bold:readFileSync(new URL('./fonts/Lato-Bold.ttf',import.meta.url)).toString('base64')};
+function loadFont(name:string){
+ const location=import.meta.url;
+ const bundled=location?new URL(`./fonts/${name}`,location):null;
+ return readFileSync(bundled&&existsSync(bundled)?bundled:`server/documents/fonts/${name}`).toString('base64');
+}
+const fonts={normal:loadFont('Lato-Light.ttf'),bold:loadFont('Lato-Bold.ttf')};
 const labels:Record<string,string>={applicantName:'NOMBRE DEL SOLICITANTE',documentType:'TIPO DE DOCUMENTO',clientDocument:'DOCUMENTO DEL SOLICITANTE',address:'DIRECCIÓN',phone:'CELULAR',brand:'MARCA',model:'MODELO',imei:'IMEI',applicantSignature:'NOMBRE DEL SOLICITANTE',agentName:'NOMBRE DEL AGENTE',clientSignatureDocument:'DOCUMENTO DEL SOLICITANTE',agentDocument:'DOCUMENTO DEL AGENTE',date:'FECHA'};
 export function createDeclarationPdf(data:DeclarationData){
  const doc=new jsPDF({unit:'pt',format:[210/25.4*72,297/25.4*72],orientation:'portrait',precision:8,compress:true});

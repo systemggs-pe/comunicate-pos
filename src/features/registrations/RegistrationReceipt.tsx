@@ -1,6 +1,6 @@
 import {useEffect,useState} from 'react';
 import {ReceiptText} from 'lucide-react';
-import {foreignReceiptFormats} from '../../../shared/foreign-receipts';
+import {activeForeignReceiptFormats} from '../../../shared/foreign-receipts';
 import {registrationReceiptChoice,type ReceiptCandidate,type RegistrationReceiptChoice,type RegistrationReceiptOptions} from '../../../shared/registration-receipt';
 import {useApi} from '../../app/ApiProvider';
 import {ErrorNotice,formatDate} from '../../components/common';
@@ -59,7 +59,7 @@ export function RegistrationReceiptPanel({state}:{state:ReturnType<typeof useReg
  if(error)return <ErrorNotice message={error} retry={retry}/>;
  if(!options)return null;
  const formatField=<label>Formato de la boleta<select aria-label="Formato de la boleta" value={format??''} onChange={event=>update({format:Number(event.target.value)})}>
-  {foreignReceiptFormats.filter(item=>formats.includes(item.id)).map(item=><option key={item.id} value={item.id}>{item.label} · {item.currency}</option>)}
+  {activeForeignReceiptFormats.filter(item=>formats.includes(item.id)).map(item=><option key={item.id} value={item.id}>{item.label} · {item.currency}</option>)}
  </select></label>;
  return <div className="registration-receipt">
   {candidate&&!useUpload&&<div className="registration-receipt-match" role="status"><ReceiptText size={18} aria-hidden="true"/><div>

@@ -36,7 +36,7 @@ export function createClientDirectory(db:PrismaClient,permissions:string[]){
    if(mode==='equipment'&&!equipment)throw new DomainError(403,'Sin permiso para buscar equipos.','PERMISSION_REQUIRED');
    const where=searchWhere(q,mode);
    return db.$transaction(async tx=>{
-    const [rows,total]=await Promise.all([tx.client.findMany({where,skip:offset,take:limit,orderBy:[{createdAt:'desc'},{id:'asc'}]}),tx.client.count({where})]);
+    const [rows,total]=await Promise.all([tx.client.findMany({where,skip:offset,take:limit,orderBy:[{createdAt:'desc'},{id:'desc'}]}),tx.client.count({where})]);
     return {rows:await enrich(rows,tx),total};
    },{isolationLevel:'RepeatableRead'});
   },

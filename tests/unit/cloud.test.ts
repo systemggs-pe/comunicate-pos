@@ -1,6 +1,6 @@
 import {describe,it,expect} from 'vitest';
 import {apiBase,publicEnvironment,backupEstimate,quotaLevel} from '../../shared/cloud';
-import {neonConnection,b2Configuration,sameSiteConfiguration} from '../../server/ops/cloud-configuration';
+import {cloudDatabaseConnection,neonConnection,b2Configuration,sameSiteConfiguration} from '../../server/ops/cloud-configuration';
 import {nativeRecoveryDatabase} from '../../server/ops/recovery';
 import {requestIp} from '../../server/auth/middleware';
 import type {Request} from 'express';
@@ -15,4 +15,15 @@ describe('Cloud boundaries without external access',()=>{
  it.each([[69,'OK'],[70,'NOTICE'],[85,'WARNING'],[95,'CRITICAL']])('quota %i yields %s',(used,level)=>expect(quotaLevel(Number(used),100).level).toBe(level));
  it('remote restore requires named isolated Neon target',()=>{const url='postgresql://synthetic:synthetic@ep-example.us-east-2.aws.neon.tech/communicate_pos_staging_restore_synthetic?sslmode=require&sslaccept=strict';expect(nativeRecoveryDatabase(url,true).name).toContain('staging_restore');expect(()=>nativeRecoveryDatabase(url.replace('communicate_pos_staging_restore_synthetic','communicate_pos'),true)).toThrow();expect(()=>nativeRecoveryDatabase(url.replace('.neon.tech','.evil.test'),true)).toThrow();});
  it('only trusts sanitized Caddy IP from loopback when explicitly configured',()=>{const old=process.env.NODE_ENV,proxy=process.env.TRUST_LOOPBACK_PROXY;process.env.NODE_ENV='production';process.env.TRUST_LOOPBACK_PROXY='true';const req={ip:'127.0.0.1',socket:{remoteAddress:'127.0.0.1'},get:(name:string)=>name==='x-real-ip'?'203.0.113.10':undefined} as Request;try{expect(requestIp(req)).toBe('203.0.113.10');expect(requestIp({...req,socket:{remoteAddress:'203.0.113.20'}} as Request)).toBe('127.0.0.1');}finally{if(old===undefined)delete process.env.NODE_ENV;else process.env.NODE_ENV=old;if(proxy===undefined)delete process.env.TRUST_LOOPBACK_PROXY;else process.env.TRUST_LOOPBACK_PROXY=proxy;}});
+});
+
+it('accepts Supabase session and direct connections with strict TLS',()=>{
+ const session='postgresql://synthetic.project:synthetic@aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require&sslaccept=strict';
+ const runtime=session+'&connection_limit=1&pool_timeout=10&connect_timeout=10';
+ expect(cloudDatabaseConnection(runtime,true).port).toBe('5432');
+ expect(cloudDatabaseConnection(session,false).pathname).toBe('/postgres');
+ expect(cloudDatabaseConnection(session.replace('aws-0-us-east-1.pooler.supabase.com','db.project.supabase.co'),false).hostname).toBe('db.project.supabase.co');
+ expect(()=>cloudDatabaseConnection(session,true)).toThrow();
+ expect(()=>cloudDatabaseConnection(runtime.replace(':5432',':6543'),true)).toThrow();
+ expect(()=>cloudDatabaseConnection(runtime.replace('sslaccept=strict','sslaccept=accept_invalid_certs'),true)).toThrow();
 });

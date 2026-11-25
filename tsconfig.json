@@ -6,5 +6,5 @@
     "skipLibCheck": true, "resolveJsonModule": true,
     "types": ["node", "vite/client"], "noUnusedLocals": true, "noUnusedParameters": true
   },
-  "include": ["src", "shared", "server", "api", "scripts", "tests", "*.ts"]
+  "include": ["src", "shared", "server", "api", "netlify/functions", "scripts", "tests", "*.ts"]
 }

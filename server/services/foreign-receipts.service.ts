@@ -2,7 +2,7 @@ import {createHash} from 'node:crypto';
 import {Prisma,type PrismaClient} from '@prisma/client';
 import {z} from 'zod';
 import {
- foreignReceiptCreate,foreignReceiptFormat,foreignReceiptFormats,foreignReceiptHistoryQuery,
+ foreignReceiptCreate,activeForeignReceiptFormat,isActiveForeignReceiptFormat,foreignReceiptFormats,foreignReceiptHistoryQuery,
  foreignReceiptIssuer,foreignReceiptUpdate,foreignReceiptVerify,normalizeReceiptDocument,
  receiptDateFromPurchase,receiptDateInLima,receiptTotals,
  type ForeignReceiptCustomer,type ForeignReceiptDevice,type ForeignReceiptSnapshot,
@@ -135,10 +135,10 @@ export function foreignReceipts(db:PrismaClient,actor:AuditContext={}){
    return {rows:page,next:rows.length>50?page[page.length-1].folio:null};
   },
   async issuers(){
-   return Object.fromEntries((await db.foreignReceiptIssuer.findMany()).map(row=>[row.format,row.config]));
+   return Object.fromEntries((await db.foreignReceiptIssuer.findMany()).filter(row=>isActiveForeignReceiptFormat(row.format)).map(row=>[row.format,row.config]));
   },
   async setIssuer(rawFormat:unknown,raw:unknown){
-   const format=foreignReceiptFormat.parse(rawFormat),config=foreignReceiptIssuer.parse(raw);
+   const format=activeForeignReceiptFormat.parse(rawFormat),config=foreignReceiptIssuer.parse(raw);
    return db.$transaction(async tx=>{
     await tx.foreignReceiptIssuer.upsert({where:{format},create:{format,config},update:{config}});
     await writeAudit(tx,actor,'FOREIGN_RECEIPT_ISSUER_UPDATED','ForeignReceiptIssuer',undefined,{format});
@@ -199,6 +199,7 @@ export function foreignReceipts(db:PrismaClient,actor:AuditContext={}){
     const current=await tx.foreignReceipt.findUnique({where:{id}});
     if(!current)return fail(404,'No encontramos esa boleta.','FOREIGN_RECEIPT_NOT_FOUND');
     if(current.updatedAt.toISOString()!==input.expectedUpdatedAt)return fail(409,'Otra persona actualizó la boleta. Ábrela de nuevo.','FOREIGN_RECEIPT_STALE');
+    if(input.format!==current.format)activeForeignReceiptFormat.parse(input.format);
     if(input.manual&&current.source==='SALE')return fail(400,'Los equipos y precios provienen de las ventas vinculadas.','FOREIGN_RECEIPT_SALE_LOCKED');
     const prior=snapshotOf(current);
     const snapshot={customer:input.manual?.customer??prior.customer,devices:input.manual?.devices??prior.devices,

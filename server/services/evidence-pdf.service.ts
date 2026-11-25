@@ -58,12 +58,11 @@ export function createEvidencePdfService(db:PrismaClient,actor:AuditContext,prov
    const company=await tx.companySettings.findUnique({where:{id:1}});
    const data:EvidencePdfData={businessName:company?.businessName??companyDefaults.businessName,code:row.code,date:new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',dateStyle:'short'}).format(row.occurredAt),client:client.fullName||[client.firstName,client.lastName].filter(Boolean).join(' '),dni:client.dni??client.otherDocumentNumber??'',equipment:[equipment.commercialName,equipment.model].filter(Boolean).join(' · '),brand:equipment.brand,imei:row.imei.value,operator:row.operator,status:row.status==='PENDING'?'REGISTRO PENDIENTE':row.status==='BLOCKED'?'BLOQUEADO':'REGISTRADO',responsible:row.createdBy.name,photos};
    const original=createEvidencePdf(data);
-   if(movistar&&!declaration)throw new DomainError(409,'Edita el registro y adjunta la declaración jurada de este IMEI para descargar el RECO.','EVIDENCE_PDF_MOVISTAR_DECLARATION_MISSING');
    const packet=sources?await compressRecoPdf(data,original,sources,declaration):undefined;
    const bytes=packet?.bytes??original;
    await writeAudit(tx,actor,'EVIDENCE_PDF_GENERATED','RegistrationRequest',id,{
-    evidenceCount:photos.length,template:'EVIDENCE_A4_PHOTO_TEMPLATE_V2',
-    ...(packet?{declarationIncluded:movistar,originalBytes:packet.originalSize,downloadBytes:bytes.length}:{})
+    evidenceCount:photos.length,template:'EVIDENCE_A4_PHOTO_TEMPLATE_V3',
+    ...(packet?{declarationIncluded:!!declaration,originalBytes:packet.originalSize,downloadBytes:bytes.length}:{})
    });
    return {pdfBase64:bytes.toString('base64'),fileName:`${row.code}${compressed&&!movistar?'-comprimido':''}.pdf`};
   },{isolationLevel:Prisma.TransactionIsolationLevel.RepeatableRead,timeout:30000});}finally{if(ownedStorage instanceof S3EvidenceStorage)ownedStorage.client.destroy();}

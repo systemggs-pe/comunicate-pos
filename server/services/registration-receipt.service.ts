@@ -1,7 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import type {Prisma,PrismaClient} from '@prisma/client';
 import {z} from 'zod';
-import {foreignReceiptDevice,foreignReceiptIssuer,receiptDateFromPurchase,type ForeignReceiptSnapshot} from '../../shared/foreign-receipts.js';
+import {foreignReceiptDevice,foreignReceiptIssuer,isActiveForeignReceiptFormat,receiptDateFromPurchase,type ForeignReceiptSnapshot} from '../../shared/foreign-receipts.js';
 import {limaDateTimeIso} from '../../shared/operational-date.js';
 import type {ReceiptCandidate,RegistrationReceiptChoice,RegistrationReceiptOptions} from '../../shared/registration-receipt.js';
 import {dniSchema,idSchema,imeiSchema} from '../../shared/validation.js';
@@ -49,8 +49,7 @@ export async function registrationReceiptOptions(db:PrismaClient,raw:unknown,per
    originalPdf:!!row.evidenceAsset.originalStorageKey})),
  ];
  const formats=permissions.issue&&(!sale||permissions.sales)?(await db.foreignReceiptIssuer.findMany({orderBy:{format:'asc'}})).flatMap(row=>{
-  const parsed=foreignReceiptIssuer.safeParse(row.config);
-  return parsed.success&&(!(row.format>=4&&row.format<=6)||parsed.data.tipoCambioPenUsd)?[row.format]:[];
+  return isActiveForeignReceiptFormat(row.format)&&foreignReceiptIssuer.safeParse(row.config).success?[row.format]:[];
  }):[];
  const date=sale&&receiptDateFromPurchase([sale.sale.occurredAt]);
  return {candidates,formats,sold:!!sale,sale:permissions.sales&&sale&&date?{code:sale.sale.code,price:sale.unitPrice.toFixed(2),

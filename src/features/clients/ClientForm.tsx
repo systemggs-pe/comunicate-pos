@@ -17,7 +17,7 @@ export function ClientForm({ initial, onSaved, onCancel }: { initial?: Client; o
   const other=documentType==='OTROS';
   const lookup = useDniLookup(initial||other ? emptyClient : value, setValue);
   const [duplicate, setDuplicate] = useState<Client | null>(null); const submit = useSubmit();
-  return <form className="form-panel" onSubmit={async event => {
+  return <form className="form-panel client-form" onSubmit={async event => {
     event.preventDefault();
     const result = await submit.run(async () => {
       setDuplicate(null);

@@ -2,7 +2,7 @@ import {clearEvidenceFixtures} from '../helpers/evidence';
 import 'dotenv/config';
 import {PrismaClient} from '@prisma/client';
 import request from 'supertest';
-import {beforeEach,afterAll,describe,it,expect,vi} from 'vitest';
+import {beforeEach,afterAll,describe,it,expect} from 'vitest';
 import {createApp} from '../../server/app';
 import {createAuthService,hashToken} from '../../server/services/auth.service';
 import {recoverSuperadmin} from '../../server/ops/admin-recovery';
@@ -31,26 +31,6 @@ it('recuperación desde el host cambia la clave del superadmin y revoca sus sesi
  expect((await request(app).post('/api/auth/login').set('Origin',testOrigin).send({email:testEmail,password:testPassword})).status).toBe(401);
  expect((await (await loginAgent(app,testEmail,newPassword)).get('/api/auth/me')).status).toBe(200);
  expect(await db.auditLog.count({where:{action:'USER_PASSWORD_RESET',entityId:rootId,metadata:{path:['method'],equals:'HOST_RECOVERY'}}})).toBe(1);
-});
-it('Google usa el callback HTTPS del subdominio de API del POS y rechaza un dominio ajeno',async()=>{
- const origin='https://pos.test-communicate.example',api='https://api.test-communicate.example';
- const redirect=api+'/api/auth/google/callback';
- const configured={AUTH_ALLOWED_ORIGINS:origin,WEB_SITE_DOMAIN:'test-communicate.example',
-  GOOGLE_OIDC_APP_ORIGIN:origin,GOOGLE_OIDC_API_ORIGIN:api,GOOGLE_OIDC_REDIRECT_URI:redirect,
-  GOOGLE_OIDC_CLIENT_ID:'fixture-client',GOOGLE_OIDC_CLIENT_SECRET:'fixture-only',GOOGLE_OIDC_AUTHORIZED_ACCOUNTS:'{"operator@example.test":"fixture-id"}'};
- for(const [key,value] of Object.entries(configured))vi.stubEnv(key,value);
- vi.stubEnv('NODE_ENV','production');
- try{
-  expect((await request(app).get('/api/auth/google/config').set('Origin',origin)).body.enabled).toBe(true);
-  const start=await request(app).post('/api/auth/google/start').set('Origin',origin).send({});
-  expect(start.status).toBe(200);
-  expect(new URL(start.body.url).searchParams.get('redirect_uri')).toBe(redirect);
-  expect(start.headers['set-cookie'][0]).toContain('__Host-pos_google=');
-  expect(start.headers['set-cookie'][0]).toContain('Secure');
-  vi.stubEnv('GOOGLE_OIDC_API_ORIGIN','https://elsewhere.example');
-  vi.stubEnv('GOOGLE_OIDC_REDIRECT_URI','https://elsewhere.example/api/auth/google/callback');
-  expect((await request(app).get('/api/auth/google/config').set('Origin',origin)).body.enabled).toBe(false);
- }finally{vi.unstubAllEnvs();}
 });
 describe('Phase 4 — sesiones, permisos y auditoría reales',()=>{
  it('1 login correcto y lastLoginAt',async()=>{const result=await request(app).post('/api/auth/login').set('Origin',testOrigin).send({email:testEmail,password:testPassword});expect(result.status).toBe(200);expect(result.body.lastLoginAt).toBeTruthy();});

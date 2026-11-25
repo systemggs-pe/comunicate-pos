@@ -1,3 +1,4 @@
+import {acceptPhotoEdit,uploadMissingRegistrationIdentity,uploadRegistrationReceipt} from '../helpers/browser-registration';
 import 'dotenv/config';
 import {randomUUID} from 'node:crypto';
 import {mkdir,readFile} from 'node:fs/promises';
@@ -8,7 +9,6 @@ import {getDocument} from 'pdfjs-dist/legacy/build/pdf.mjs';
 import sharp from 'sharp';
 import {isValidImeiLuhn} from '../../shared/imei';
 import {clearEvidenceFixtures,evidenceTestStorage} from '../helpers/evidence';
-import {uploadMissingRegistrationIdentity,uploadRegistrationReceipt} from '../helpers/browser-registration';
 import {seedTestAdmin,testEmail,testPassword,testOrigin} from '../helpers/auth';
 
 const target=new URL(process.env.TEST_DATABASE_URL!);
@@ -39,7 +39,7 @@ async function uploadRecoEvidence(page:Page,large=true){
   const source=large?sharp(noise,{raw:{width:1500,height:1100,channels:3}}):sharp({create:{width:1500,height:460,channels:3,background:'#edf1f6'}});
   const buffer=await source.composite([{input:label,top:0,left:0}]).jpeg({quality:95}).toBuffer();
   const input=page.getByLabel(`Galería ${category}`,{exact:true});
-  await input.setInputFiles({name:'evidencia-ficticia.jpg',mimeType:'image/jpeg',buffer});
+  await input.setInputFiles({name:'evidencia-ficticia.jpg',mimeType:'image/jpeg',buffer}); await acceptPhotoEdit(page);
   await expect(page.locator('.evidence-card').filter({has:input}).getByText('ADJUNTADA',{exact:true})).toBeVisible();
  }
 }
@@ -122,7 +122,7 @@ for(const [title,operators,expected] of [
   const secondDeclaration=page.getByLabel('Subir declaración jurada de Movistar para IMEI 2',{exact:true});
   await expect(declarations).toHaveCount(operators.filter(operator=>operator==='MOVISTAR').length);
   const gallery=page.getByLabel('Galería BOLETA DE VENTA',{exact:true});
-  await expect(gallery).toBeHidden();
+  await expect(gallery).toBeVisible();
   const pdf=new jsPDF();pdf.text(`DECLARACIÓN FICTICIA DE PRUEBA IMEI ${firstSlot}`,20,20);
   pdf.addPage();pdf.text('SEGUNDA PÁGINA DE LA DECLARACIÓN',20,20);
   if(title==='un IMEI'){
@@ -152,12 +152,12 @@ for(const [title,operators,expected] of [
    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
    await declaration.setInputFiles(file(Buffer.from('%PDF-1.7\narchivo inválido\n%%EOF')));
    await expect(page.getByRole('alert')).toContainText('Adjunta una declaración jurada en PDF válido.');
-   await expect(gallery).toBeHidden();
+   await expect(gallery).toBeVisible();
   }
   await declaration.setInputFiles(file(title==='un IMEI'?largeDeclaration():base));
   await expect(page.getByText('Validada',{exact:true})).toHaveCount(1);
   if(title==='dos IMEIs Movistar'){
-   await expect(gallery).toBeHidden();
+   await expect(gallery).toBeVisible();
    await secondDeclaration.setInputFiles(file(base));
    await expect(page.getByText('Validada',{exact:true})).toHaveCount(2);
   }
@@ -173,13 +173,6 @@ for(const [title,operators,expected] of [
    await expect(page.locator('.evidence-preview')).toHaveCount(3);
   }
   if(title==='un IMEI'){
-   await page.route('**/api/registration-operations',async route=>{
-    const payload=route.request().postDataJSON();
-    payload.evidence=payload.evidence.filter((entry:{category:string})=>entry.category!=='MOVISTAR_DECLARATION');
-    await route.continue({postData:JSON.stringify(payload)});
-   },{times:1});
-   await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();
-   await expect(page.getByText('Adjunta una declaración jurada válida por cada IMEI de Movistar.',{exact:true})).toBeVisible();
    await page.route('**/api/registration-operations',route=>route.fulfill({status:503,json:{error:{code:'TEST_RETRY',message:'Reintento de prueba'}}}),{times:1});
    await page.getByRole('button',{name:'Confirmar y guardar',exact:true}).click();
    await expect(page.getByText('Reintento de prueba',{exact:true})).toBeVisible();
@@ -217,7 +210,7 @@ for(const [title,operators,expected] of [
    const task=getDocument({data:new Uint8Array(file),useSystemFonts:true});
    try{
     const packet=await task.promise;
-    expect(packet.numPages).toBe(row.operator==='MOVISTAR'?4:2);
+    expect(packet.numPages).toBe(row.operator==='MOVISTAR'?3:1);
     if(row.operator==='MOVISTAR'){
      expect(file.length).toBeLessThan(400_000);
      const first=await (await packet.getPage(1)).getTextContent();
@@ -257,7 +250,7 @@ for(const [title,operators,expected] of [
     const bytes=await readFile((await compressed.path())!);
     expect(bytes.length).toBeLessThan(400_000);
     const task=getDocument({data:new Uint8Array(bytes)});
-    try{expect((await task.promise).numPages).toBe(2);}finally{await task.destroy();}
+    try{expect((await task.promise).numPages).toBe(1);}finally{await task.destroy();}
     const standardSize=(await readFile(`${folder}/reco-movistar-claro.pdf`)).length;
     const audit=await db.auditLog.findFirstOrThrow({where:{action:'EVIDENCE_PDF_GENERATED',entityId:claro.id,metadata:{path:['declarationIncluded'],equals:false}}});
     expect(audit.metadata).toMatchObject({originalBytes:standardSize,downloadBytes:bytes.length});
@@ -291,23 +284,63 @@ for(const [title,operators,expected] of [
  });
 }
 
-test('editar a Movistar exige la declaración y permite descargar el RECO unido',async({page})=>{
+test('dos IMEIs Movistar sin declaración descargan un RECO cada uno y ofrecen destinos al compartir',async({page})=>{
+ const device=await known('EQUIPO DEMO SIN DECLARACIÓN',[7,8]);
+ await start(page);await chooseKnown(page,'EQUIPO DEMO SIN DECLARACIÓN',1,true,['MOVISTAR','MOVISTAR']);
+ await expect(page.getByText('PDF opcional.',{exact:false})).toHaveCount(2);
+ await uploadRegistrationReceipt(page);
+ const downloads=await submit(page,2);
+ for(const download of downloads){
+  const bytes=await readFile((await download.path())!);
+  expect(bytes.length).toBeLessThan(400_000);
+  const task=getDocument({data:new Uint8Array(bytes)});
+  try{expect((await task.promise).numPages).toBe(1);}finally{await task.destroy();}
+ }
+ const row=await db.registrationRequest.findFirstOrThrow({where:{imei:{equipmentId:device.id}}});
+ expect(await db.registrationEvidence.count({where:{category:'MOVISTAR_DECLARATION'}})).toBe(0);
+ await page.addInitScript(()=>{
+  Object.defineProperty(navigator,'share',{configurable:true,value:async(data:ShareData)=>{
+   document.documentElement.dataset.sharedText=data.text;
+   throw new DOMException('Cancelado','AbortError');
+  }});
+ });
+ await page.goto('/registros');
+ const share=page.getByRole('button',{name:`Compartir ${row.code}`,exact:true});
+ const response=page.waitForResponse(result=>result.url().endsWith(`/${row.id}/share-text`));
+ await share.click();
+ const {text}=await (await response).json();
+ await expect(page.locator('html')).toHaveAttribute('data-shared-text',text);
+ await expect(page.getByRole('dialog',{name:'Compartir registro'})).toHaveCount(0);
+ await page.evaluate(()=>Object.defineProperty(navigator,'share',{configurable:true,value:undefined}));
+ await share.click();
+ const options=page.getByRole('dialog',{name:'Compartir registro'});
+ await expect(options.getByRole('link',{name:'WhatsApp'})).toHaveAttribute('href',`https://wa.me/?text=${encodeURIComponent(text)}`);
+ await expect(options.getByRole('link',{name:'Correo'})).toHaveAttribute('href',`mailto:?subject=${encodeURIComponent(`Registro ${row.code}`)}&body=${encodeURIComponent(text)}`);
+});
+
+test('editar a Movistar permite omitir la declaración y adjuntarla después',async({page})=>{
  const device=await known('EQUIPO DEMO EDICIÓN',[7]);
  await start(page);await chooseKnown(page,'EQUIPO DEMO EDICIÓN',1,false,['CLARO']);
  await uploadRegistrationReceipt(page);
  await submit(page,1);
  const row=await db.registrationRequest.findFirstOrThrow({where:{imei:{equipmentId:device.id}}});
  const endpoint=`/api/registration-requests/${row.id}`;
- const declined=await page.request.patch(endpoint,{headers,data:{operator:'MOVISTAR',price:'200'}});
- expect(declined.status()).toBe(400);
- expect((await declined.json()).error.code).toBe('MOVISTAR_DECLARATION_REQUIRED');
- expect(await db.registrationRequest.findUnique({where:{id:row.id}})).toMatchObject({operator:'CLARO',price:row.price});
  await page.goto(`/registros/${row.id}?edit=1`);
  await next(page);await next(page);
  await page.getByLabel('Operador',{exact:true}).selectOption('MOVISTAR');
  await next(page);
  const save=page.getByRole('button',{name:'Confirmar y guardar',exact:true});
- await expect(save).toBeDisabled();
+ await expect(save).toBeEnabled();
+ await save.click();
+ await expect(page).toHaveURL(new RegExp('/registros/'+row.id+'$'));
+ const withoutDeclaration=await page.request.post(endpoint+'/evidence-pdf',{headers,data:{}});
+ expect(withoutDeclaration.status()).toBe(200);
+ const plain=Buffer.from((await withoutDeclaration.json()).pdfBase64,'base64');
+ expect(plain.length).toBeLessThan(400_000);
+ const plainTask=getDocument({data:new Uint8Array(plain)});
+ try{expect((await plainTask.promise).numPages).toBe(1);}finally{await plainTask.destroy();}
+ await page.goto(`/registros/${row.id}?edit=1`);
+ await next(page);await next(page);await next(page);
  const pdf=new jsPDF();pdf.text('DECLARACIÓN DE EDICIÓN DEMO',20,25);
  await page.getByLabel('Subir declaración jurada de Movistar para IMEI 1',{exact:true}).setInputFiles({
   name:'declaracion-edicion.pdf',mimeType:'application/pdf',buffer:Buffer.from(pdf.output('arraybuffer')),
@@ -326,7 +359,7 @@ test('editar a Movistar exige la declaración y permite descargar el RECO unido'
  const bytes=Buffer.from((await reco.json()).pdfBase64,'base64');
  expect(bytes.length).toBeLessThan(400_000);
  const task=getDocument({data:new Uint8Array(bytes)});
- try{expect((await task.promise).numPages).toBe(3);}finally{await task.destroy();}
+ try{expect((await task.promise).numPages).toBe(2);}finally{await task.destroy();}
 });
 
 test('venta de dos equipos: toma la línea correcta, fecha menos un día, reintento y dos RECO con un solo folio',async({page})=>{

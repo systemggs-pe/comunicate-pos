@@ -54,3 +54,60 @@
 .reports-compact button:focus-visible,.reports-compact summary:focus-visible{outline:2px solid #096acb;outline-offset:3px}
 @media(max-width:760px){.reports-compact .reports-heading p{display:none}.reports-compact .report-tabs{width:100%}.reports-compact .report-tabs button{padding-inline:12px}.reports-compact .report-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.reports-compact .report-stats>div{padding:12px;border-right:1px solid #d3dae2;border-bottom:1px solid #d3dae2}.reports-compact .report-stats>div:nth-child(3n){border-right:1px solid #d3dae2}.reports-compact .report-stats>div:nth-child(2n){border-right:0}.reports-compact .report-stats>div:nth-last-child(-n+3){border-bottom:1px solid #d3dae2}.reports-compact .report-stats>div:nth-last-child(-n+2){border-bottom:0}.reports-compact .report-stats dd{font-size:22px}.reports-compact .report-filters>label{flex:1 1 130px}.report-filter-actions{margin:0;width:100%}.report-filter-actions button{flex:1}.report-breakdowns{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.reports-compact .report-tabs button,.reports-compact summary>svg{transition:none}}
+
+.report-scroll-hint { display: none; }
+
+@media (max-width: 650px) {
+  .reports-compact .report-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    overflow: visible;
+  }
+  .reports-compact .report-tabs button {
+    padding-inline: 4px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .reports-compact .report-filters > label,
+  .reports-compact .report-filters :is(input, select),
+  .reports-compact .report-chart-heading select { min-width: 0; }
+  .reports-compact :is(.report-filters, .report-filter-actions, .report-chart-heading, .report-pagination)
+    :is(button, select, input, summary),
+  .reports-compact .report-client-link {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .reports-compact :is(.report-filters, .report-chart-heading) :is(input, select) { font-size: 16px; }
+  .report-client-link { display: inline-flex; align-items: center; }
+  .report-table-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .report-table-scroll { order: 1; overscroll-behavior-inline: contain; }
+  .report-scroll-hint[data-more="true"] { visibility: visible; }
+  .report-scroll-hint {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin: 0 0 8px;
+    color: var(--design-muted);
+    font-size: 12px;
+    visibility: hidden;
+  }
+  .report-table-scroll :is(th, td):first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 96px;
+    width: 104px;
+    max-width: 120px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    box-shadow: 1px 0 var(--design-line);
+  }
+  .report-table-scroll td:first-child { background: var(--design-surface); }
+}

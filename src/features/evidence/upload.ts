@@ -2,13 +2,22 @@ import type {ApiClient} from '../../services/api';
 import {maxEvidenceBytes,maxEvidencePixels,movistarDeclarationCategory,movistarDeclarationInvalid,
  type EvidenceCategory,type EvidenceUpload,type PreparedEvidence} from '../../../shared/evidence';
 
-export async function validatePhoto(file:File){
+export async function decodePhoto(file:File){
  if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('USA JPEG, PNG O WEBP. HEIC/HEIF NO ESTÁ HABILITADO.');
  if(!file.size||file.size>maxEvidenceBytes)throw new Error('EL ARCHIVO DEBE PESAR HASTA 10 MB.');
  const magic=new Uint8Array(await file.slice(0,12).arrayBuffer());
  const type=magic[0]===255&&magic[1]===216&&magic[2]===255?'image/jpeg':magic.slice(0,8).join(',')==='137,80,78,71,13,10,26,10'?'image/png':String.fromCharCode(...magic.slice(0,4))==='RIFF'&&String.fromCharCode(...magic.slice(8,12))==='WEBP'?'image/webp':null;
  if(type!==file.type)throw new Error('EL CONTENIDO DEL ARCHIVO NO COINCIDE CON SU TIPO.');
- const bitmap=await createImageBitmap(file);const valid=bitmap.width>=32&&bitmap.height>=32&&bitmap.width<=12000&&bitmap.height<=12000&&bitmap.width*bitmap.height<=maxEvidencePixels;bitmap.close();if(!valid)throw new Error('USA UNA FOTO DE 32 PX O MÁS Y HASTA 20 MILLONES DE PÍXELES.');
+ const bitmap=await createImageBitmap(file);
+ if(bitmap.width<32||bitmap.height<32||bitmap.width>12000||bitmap.height>12000||bitmap.width*bitmap.height>maxEvidencePixels){
+  bitmap.close();
+  throw new Error('USA UNA FOTO DE 32 PX O MÁS Y HASTA 20 MILLONES DE PÍXELES.');
+ }
+ return bitmap;
+}
+export async function validatePhoto(file:File){
+ const bitmap=await decodePhoto(file);
+ bitmap.close();
 }
 export async function uploadPhoto(api:ApiClient,file:File,category:EvidenceCategory,scope:{operationKey:string}|{requestId:string},progress:(percent:number)=>void,signal:AbortSignal,onAsset:(id:string)=>void,receiptPage?:number){
  if(category===movistarDeclarationCategory){

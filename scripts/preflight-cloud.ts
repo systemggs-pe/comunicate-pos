@@ -2,7 +2,7 @@ import 'dotenv/config';
 import {readFile,access,mkdir,writeFile} from 'node:fs/promises';
 import {spawnSync} from 'node:child_process';
 import {publicEnvironment} from '../shared/cloud.js';
-import {neonConnection,b2Configuration,sameSiteConfiguration} from '../server/ops/cloud-configuration.js';
+import {cloudDatabaseConnection,b2Configuration,sameSiteConfiguration} from '../server/ops/cloud-configuration.js';
 const profile=process.argv.includes('--configured')?'configured':'local';
 type Check={name:string;status:'PASS'|'FAIL'|'NOT VERIFIED'|'BLOCKED'};
 const checks:Check[]=[];const check=(name:string,condition:boolean)=>checks.push({name,status:condition?'PASS':'FAIL'});
@@ -22,7 +22,7 @@ check('no-configured-secrets-in-bundle',!leaked);
 for(const name of ['unit','integration','e2e','cloud-ui']){try{const report=JSON.parse(await readFile(`.test-results/phase10a/final-${name}.json`,'utf8'));check(`executed-${name}`,name==='e2e'?report.stats.expected>=44&&report.stats.unexpected===0&&report.stats.skipped===0:name==='cloud-ui'?report.status==='PASS':report.success===true&&report.numFailedTests===0&&report.numPendingTests===0);}catch{check(`executed-${name}`,false);}}
 try{const arm=JSON.parse(await readFile('.test-results/phase10a/arm64.json','utf8'));check('isolated-arm64-smoke',arm.status==='PASS'&&arm.architecture==='arm64');}catch{checks.push({name:'isolated-arm64-smoke',status:'NOT VERIFIED'});}
 if(profile==='configured'){
- for(const [name,run] of [['neon-pooled',()=>neonConnection(process.env.DATABASE_URL,true)],['neon-direct',()=>neonConnection(process.env.DIRECT_URL,false)],['b2-independent',()=>b2Configuration(process.env)],['same-site-cookies',()=>sameSiteConfiguration(process.env)]] as const){try{run();check(name,true);}catch{check(name,false);}}
+ for(const [name,run] of [['database-runtime',()=>cloudDatabaseConnection(process.env.DATABASE_URL,true)],['database-operator',()=>cloudDatabaseConnection(process.env.DIRECT_URL,false)],['b2-independent',()=>b2Configuration(process.env)],['same-site-cookies',()=>sameSiteConfiguration(process.env)]] as const){try{run();check(name,true);}catch{check(name,false);}}
  check('r2-config',process.env.S3_REGION==='auto'&&process.env.S3_ENCRYPTION_PROVIDER==='r2-managed'&&!process.env.S3_SERVER_SIDE_ENCRYPTION&&!process.env.S3_KMS_KEY_ID&&!!process.env.S3_ENDPOINT&&/^https:\/\/[a-f0-9]{32}\.r2\.cloudflarestorage\.com\/?$/.test(process.env.S3_ENDPOINT));
  check('worker-pool-declared',!!process.env.WORKER_DATABASE_URL);
  check('production-security-mode',process.env.NODE_ENV==='production'&&process.env.TRUST_LOOPBACK_PROXY==='true'&&process.env.HTTP_LOGGING!=='false'&&!process.env.ADMIN_PASSWORD&&process.env.MAINTENANCE_MODE!=='true');

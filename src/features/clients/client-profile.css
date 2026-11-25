@@ -147,3 +147,11 @@
  .client-profile-device-name a,.client-profile-movement-heading>a {transition:none}
  .client-profile-compact .client-edit-button:active,.client-profile-compact>.reference-close:active {transform:none}
 }
+@media (max-width: 650px) {
+ .design-shell .client-profile-compact :is(.client-profile-device-name, .client-profile-movement-heading) a {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+ }
+}

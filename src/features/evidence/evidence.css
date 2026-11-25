@@ -10,3 +10,13 @@
 .registration-dni-saved .document-photo-frame{max-height:180px}
 .registration-dni-saved .evidence-grid{gap:16px}
 @media(prefers-reduced-motion:no-preference){.registration-dni-saved .evidence-grid{animation:registration-dni-ready 160ms ease-out}@keyframes registration-dni-ready{from{opacity:.65;clip-path:inset(0 0 5px)}to{opacity:1;clip-path:inset(0)}}}
+.design-shell .reference-dialog.evidence-modal { padding: 24px; }
+.evidence-modal .reference-modal-header { padding-inline-end: 48px; }
+
+@media (max-width: 650px) {
+  .design-shell :is(.evidence-card, .evidence-reference, .registration-dni-saved)
+    :is(button, select, .evidence-actions label) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

@@ -1,7 +1,7 @@
+import {acceptPhotoEdit,advanceRegistration,uploadRegistrationReceipt} from '../helpers/browser-registration';
 import {test,expect,type Page} from '@playwright/test';
 import sharp from 'sharp';
 import {finishMvp,mvpDb,resetMvp,loginMvp,registerContact} from '../helpers/mvp-browser';
-import {advanceRegistration,uploadRegistrationReceipt} from '../helpers/browser-registration';
 import {fixtureImei} from '../helpers/imei';
 
 test.beforeEach(async({page})=>{
@@ -51,7 +51,7 @@ test('permite guardar sin fotos cuando falla CODART',async({page})=>{
 test('guarda una cara manual, reutiliza y conserva la versión anterior al reemplazarla',async({page})=>{
  const upload=async(color:string)=>{
   const buffer=await sharp({create:{width:80,height:120,channels:3,background:color}}).png().toBuffer();
-  await page.getByLabel('Galería DNI FRONTAL IMEI 1',{exact:true}).setInputFiles({name:'dni-sintetico.png',mimeType:'image/png',buffer});
+  await page.getByLabel('Galería DNI FRONTAL IMEI 1',{exact:true}).setInputFiles({name:'dni-sintetico.png',mimeType:'image/png',buffer}); await acceptPhotoEdit(page);
   await expect(page.locator('.evidence-card').filter({has:page.getByLabel('Galería DNI FRONTAL IMEI 1',{exact:true})}).getByText('ADJUNTADA',{exact:true})).toBeVisible();
  };
  await registerContact(page);const initial=await equipment(page,2);await upload('#647b84');

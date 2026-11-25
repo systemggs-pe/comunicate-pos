@@ -72,3 +72,24 @@
 @keyframes dni-disclosure-reveal{from{opacity:.45;clip-path:inset(0 0 12px 0)}to{opacity:1;clip-path:inset(0)}}
 @media(max-width:760px){.client-document-access>summary{padding:14px;gap:10px}.client-dni-content{padding:16px 14px}.dni-saved-heading.dni-photo-intro{gap:8px}.dni-saved-heading h3{font-size:16px}.dni-photo-workspace .dni-photo-extra>summary{min-height:44px}}
 @media(prefers-reduced-motion:reduce){.client-dni-content,.dni-update-body{animation:none}.client-dni-chevron,.dni-update-chevron,.client-document-access>summary,.dni-photo-workspace .dni-photo-extra>summary{transition:none}}
+.photo-authorization .dni-photo-help { margin: 0 0 8px; }
+
+@media (max-width: 650px) {
+  .design-shell :is(.dni-photo-main, .dni-photo-workspace, .document-image)
+    :is(button, select, input:not([type="checkbox"]), summary, a.inline-link) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .design-shell .dni-photo-main .dni-photo-next a { display: inline-flex; align-items: center; }
+  .design-shell .dni-photo-main .dni-photo-form input { font-size: 16px; }
+  .dni-photo-main .dni-photo-controls { min-width: 0; }
+  .dni-photo-main .dni-photo-form.module-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .dni-photo-main .photo-authorization { padding: 12px; border: 1px solid var(--design-line); border-radius: 10px; }
+  .dni-photo-workspace .dni-photo-request { gap: 8px; }
+  .dni-photo-consent.checkbox-label { align-items: center; }
+  .document-actions { display: flex; flex-wrap: wrap; }
+}

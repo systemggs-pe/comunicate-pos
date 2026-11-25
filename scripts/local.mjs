@@ -28,8 +28,8 @@ try {
   const { config } = await import('dotenv');
   config({ quiet: true });
   const database = new URL(process.env.DATABASE_URL);
-  if (!['127.0.0.1', 'localhost'].includes(database.hostname) || database.port !== '55432' || database.pathname !== '/communicate_pos') {
-    throw new Error('El inicio local requiere la base communicate_pos en 127.0.0.1:55432. Revisa .env; no se aplicaron migraciones.');
+  if (!['127.0.0.1', 'localhost'].includes(database.hostname) || database.port !== (process.env.POS_LOCAL_POSTGRES_PORT || '55432') || database.pathname !== '/communicate_pos') {
+    throw new Error('El inicio local requiere la base communicate_pos en el puerto PostgreSQL local configurado. Revisa .env; no se aplicaron migraciones.');
   }
   const apiPort = Number(process.env.PORT ?? 3001);
   if (!Number.isInteger(apiPort) || apiPort < 1 || apiPort > 65535 || apiPort === 5173) throw new Error('PORT debe ser un puerto válido distinto de 5173.');

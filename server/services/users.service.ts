@@ -32,7 +32,7 @@ export function createUsersService(db: PrismaClient, actor: AuthUser, ctx: Audit
     });
   }
   // Usuarios históricos sin rol son visibles para que el administrador pueda rehabilitarlos.
-  const safe = (row: Prisma.UserGetPayload<{ select: typeof userSelect }>) => {const {googleSubject,...fields}=row;return row.role ? publicUser(row) : { ...fields,googleLinked:!!googleSubject,permissions: [] };};
+  const safe = (row: Prisma.UserGetPayload<{ select: typeof userSelect }>) => row.role ? publicUser(row) : { ...row,permissions: [] };
   return {
     list: async (raw: unknown) => { const { q,offset,limit,status,roleId } = listQuerySchema.extend({status:z.enum(['ACTIVE','DISABLED']).optional(),roleId:idSchema.optional()}).parse(raw); return (await db.user.findMany({ where: {status,roleId, OR: [{ name: { contains:q,mode:'insensitive' } }, { email: { contains:q,mode:'insensitive' } }, { code: { contains:q,mode:'insensitive' } }] }, select:userSelect, orderBy:[{createdAt:'desc'},{id:'asc'}], skip:offset,take:limit })).map(safe); },
     get: async (id: unknown) => safe(await get(db,idSchema.parse(id))),

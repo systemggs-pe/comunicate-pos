@@ -31,10 +31,10 @@ async function image(requestId:string,category:string,color='#765432'){
 }
 it('plantilla A4 fija por RECO, sin fotos permitido y descarga repetida sin duplicar',async()=>{
  const rows=await fixture();expect((await agent.patch('/api/settings/company').set('Origin',testOrigin).send({...companyDefaults,businessName:'EMPRESA SINTÉTICA'})).status).toBe(200);
- for(const row of rows){const result=await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({});expect(result.status).toBe(200);expect(result.headers['cache-control']).toBe('no-store');expect(result.body.fileName).toBe(`${row.code}.pdf`);const parsed=inspectEvidencePdf(Buffer.from(result.body.pdfBase64,'base64'));expect(parsed.pages).toHaveLength(2);expect(parsed.text.trim()).toBe('');expect(parsed.pages.every(p=>p.images.length===0)).toBe(true);expect((await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({})).status).toBe(200);}
+ for(const row of rows){const result=await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({});expect(result.status).toBe(200);expect(result.headers['cache-control']).toBe('no-store');expect(result.body.fileName).toBe(`${row.code}.pdf`);const parsed=inspectEvidencePdf(Buffer.from(result.body.pdfBase64,'base64'));expect(parsed.pages).toHaveLength(1);expect(parsed.text.trim()).toBe('');expect(parsed.pages.every(p=>p.images.length===0)).toBe(true);expect((await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({})).status).toBe(200);}
  expect(await db.registrationRequest.count()).toBe(2);expect(await db.registrationOperation.count()).toBe(1);expect(await db.equipment.count()).toBe(1);expect(await db.client.count()).toBe(1);
 });
-it('la variante comprimida conserva las dos páginas aunque falten las fotos opcionales',async()=>{
+it('la variante comprimida conserva una página aunque falten las fotos opcionales',async()=>{
  const [row]=await fixture();
  const response=await agent.post(endpoint(row.id)).set('Origin',testOrigin).send({compressed:true});
  expect(response.status).toBe(200);
@@ -42,13 +42,13 @@ it('la variante comprimida conserva las dos páginas aunque falten las fotos opc
  const pdf=Buffer.from(response.body.pdfBase64,'base64');
  expect(pdf.length).toBeLessThan(400_000);
  const parsed=inspectEvidencePdf(pdf);
- expect(parsed.pages.map(page=>page.images.length)).toEqual([0,0]);
+ expect(parsed.pages.map(page=>page.images.length)).toEqual([0]);
  expect(await db.registrationOperation.count()).toBe(1);
 });
 it('MinIO real: cinco categorías, imágenes proporcionadas y ninguna foto del otro RECO',async()=>{
  const [first,second]=await fixture();for(const category of ['DNI_FRONT','DNI_BACK','PURCHASE_RECEIPT','DEVICE_BOX','LOGICAL_IMEI'])await image(first.id,category);await image(second.id,'LOGICAL_IMEI','#112233');
- const result=await agent.post(endpoint(first.id)).set('Origin',testOrigin).send({});expect(result.status,JSON.stringify(result.body.error)).toBe(200);const parsed=inspectEvidencePdf(Buffer.from(result.body.pdfBase64,'base64'));expect(parsed.pages).toHaveLength(2);expect(parsed.pages.flatMap(p=>p.images)).toHaveLength(5);expect(parsed.pages.map(p=>p.images.length)).toEqual([3,2]);expect(parsed.text.trim()).toBe('');
- const other=await agent.post(endpoint(second.id)).set('Origin',testOrigin).send({});const siblingPdf=inspectEvidencePdf(Buffer.from(other.body.pdfBase64,'base64'));expect(siblingPdf.pages).toHaveLength(2);expect(siblingPdf.pages.flatMap(p=>p.images)).toHaveLength(3);expect(siblingPdf.text).not.toContain(first.imei.value);
+ const result=await agent.post(endpoint(first.id)).set('Origin',testOrigin).send({});expect(result.status,JSON.stringify(result.body.error)).toBe(200);const parsed=inspectEvidencePdf(Buffer.from(result.body.pdfBase64,'base64'));expect(parsed.pages).toHaveLength(1);expect(parsed.pages.flatMap(p=>p.images)).toHaveLength(5);expect(parsed.pages.map(p=>p.images.length)).toEqual([5]);expect(parsed.text.trim()).toBe('');
+ const other=await agent.post(endpoint(second.id)).set('Origin',testOrigin).send({});const siblingPdf=inspectEvidencePdf(Buffer.from(other.body.pdfBase64,'base64'));expect(siblingPdf.pages).toHaveLength(1);expect(siblingPdf.pages.flatMap(p=>p.images)).toHaveLength(3);expect(siblingPdf.text).not.toContain(first.imei.value);
 });
 it('falta archivo: conserva registros y permite reintentar solamente el documento',async()=>{
  const [row]=await fixture(),asset=await image(row.id,'DNI_FRONT'),bytes=await storage.download(asset.storageKey,10485760);await storage.delete(asset.storageKey);

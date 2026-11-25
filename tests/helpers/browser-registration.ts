@@ -25,7 +25,7 @@ export async function uploadMissingRegistrationIdentity(page:Page){
  for(const [side,color] of [['DNI FRONTAL','#123456'],['DNI REVERSO','#654321']]){
   const input=page.getByLabel(new RegExp(`^Galería ${side} IMEI [12]$`));if(!await input.count())continue;
   const card=page.locator('.evidence-card').filter({has:input});if(await card.getByText('ADJUNTADA',{exact:true}).count())continue;
-  const buffer=await sharp({create:{width:80,height:120,channels:3,background:color}}).png().toBuffer();await input.setInputFiles({name:'synthetic-dni.png',mimeType:'image/png',buffer});await expect(card.getByText('ADJUNTADA',{exact:true})).toBeVisible();
+  const buffer=await sharp({create:{width:80,height:120,channels:3,background:color}}).png().toBuffer();await input.setInputFiles({name:'synthetic-dni.png',mimeType:'image/png',buffer}); await acceptPhotoEdit(page);await expect(card.getByText('ADJUNTADA',{exact:true})).toBeVisible();
  }
 }
 
@@ -35,11 +35,15 @@ export async function uploadRegistrationReceipt(page:Page){
  const ready=card.getByText('ADJUNTADA',{exact:true});
  if(await ready.count())return;
  const buffer=await sharp({create:{width:90,height:120,channels:3,background:'#48786b'}}).png().toBuffer();
- await input.setInputFiles({name:'synthetic-receipt.png',mimeType:'image/png',buffer});
+ await input.setInputFiles({name:'synthetic-receipt.png',mimeType:'image/png',buffer}); await acceptPhotoEdit(page);
  await expect(ready).toBeVisible();
 }
 
 export async function uploadRegistrationEvidence(page:Page){
  await uploadMissingRegistrationIdentity(page);
  await uploadRegistrationReceipt(page);
+}
+
+export async function acceptPhotoEdit(page:Page){
+ await page.getByRole('dialog',{name:'Editar foto',exact:true}).getByRole('button',{name:'Usar foto',exact:true}).click();
 }

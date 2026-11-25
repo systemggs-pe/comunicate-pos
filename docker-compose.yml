@@ -29,7 +29,7 @@ services:
       POSTGRES_PASSWORD: communicate_local
       POSTGRES_DB: communicate_pos
     ports:
-      - "127.0.0.1:55432:5432"
+      - "127.0.0.1:${POS_LOCAL_POSTGRES_PORT:-55432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

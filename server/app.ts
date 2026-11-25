@@ -1,4 +1,3 @@
-import {registerGoogleAuth} from './auth/google.js';
 import {registrationShareText} from '../shared/registration-share.js';
 import {idSchema} from '../shared/validation.js';
 import {registrationReceiptChoice} from '../shared/registration-receipt.js';
@@ -19,6 +18,7 @@ import { createReportsService } from './services/reports.service.js';
 import type {EvidenceStorageProvider} from './storage/provider.js';
 import { normalizeOperationalResponse } from '../shared/normalization.js';
 import {createCompanyService} from './services/company.service.js';
+import {maxReceiptLogoBytes,receiptLogoMimeTypes} from '../shared/company.js';
 import {createDeclarationService} from './services/declaration.service.js';
 import express, { type ErrorRequestHandler } from 'express';
 import helmet from 'helmet';
@@ -53,7 +53,6 @@ app.get('/api/health', (_req, res) => res.json({ name: 'COMUNIC@TE POS', status:
 app.use('/api', originGuard);
 app.use('/api',maintenanceGuard);
 registerPublicForeignReceiptRoutes(app,db);
-registerGoogleAuth(app,db);
 app.post('/api/auth/login', async (req,res) => { const result=await auth.login(req.body,requestContext(req)); res.cookie(cookieName(),result.token,{...cookieOptions(),expires:result.expiresAt}); res.json(result.user); });
 app.use('/api',requireAuth(auth));
 app.use('/api',rejectActorInput);
@@ -93,6 +92,12 @@ app.get('/api/registration-requests/:id/declaration-data',requirePermission('reg
 app.post('/api/registration-requests/:id/declaration',requirePermission('registration.read','registration.update'),async(req,res)=>res.json(await createDeclarationService(db,requestContext(req,authState(res).user.id)).generate(req.params.id,req.body)));
 app.get('/api/settings/company',requirePermission('settings.read'),async(_req,res)=>res.json(await createCompanyService(db).get()));
 app.patch('/api/settings/company',requirePermission('settings.update'),async(req,res)=>res.json(await createCompanyService(db,requestContext(req,authState(res).user.id)).update(req.body)));
+app.post('/api/settings/company/receipt-logo',requirePermission('settings.update'),express.raw({type:[...receiptLogoMimeTypes],limit:maxReceiptLogoBytes}),async(req,res)=>{
+ res.json(await createCompanyService(db,requestContext(req,authState(res).user.id)).setReceiptLogo(req.body));
+});
+app.delete('/api/settings/company/receipt-logo',requirePermission('settings.update'),async(req,res)=>{
+ res.json(await createCompanyService(db,requestContext(req,authState(res).user.id)).removeReceiptLogo());
+});
 app.get('/api/sales/:id/receipt',requirePermission('sales.read'),async(req,res)=>{
  const sale=await pos(req,res).getSaleById(req.params.id);
  res.json({sale,company:await createCompanyService(db).get()});

@@ -6,12 +6,13 @@ export class ApiError extends Error {
 }
 export class ApiClient {
   async request<T>(path: string, method = 'GET', body?: unknown, signal?: AbortSignal): Promise<T> {
+    const file = body instanceof Blob ? body : undefined;
     let response: Response;
     try {
       response = await fetch(apiUrl(path), {
         method, credentials: 'include', signal: AbortSignal.any([AbortSignal.timeout(30000), ...(signal ? [signal] : [])]),
-        headers: { ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}) },
-        body: body === undefined ? undefined : JSON.stringify(body),
+        headers: { ...(body !== undefined ? { 'Content-Type': file?.type || 'application/json' } : {}) },
+        body: file ?? (body === undefined ? undefined : JSON.stringify(body)),
       });
     } catch (error) {
       if (signal?.aborted) throw error;

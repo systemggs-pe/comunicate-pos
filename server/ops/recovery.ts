@@ -17,7 +17,7 @@ export function encryptBackup(data:Buffer,password:string){const salt=randomByte
 export function decryptBackup(data:Buffer,password:string){if(data.length<headerSize+16||!data.subarray(0,8).equals(magic))throw new Error('BACKUP_FORMAT_INVALID');const decipher=createDecipheriv('aes-256-gcm',key(password,data.subarray(8,24)),data.subarray(24,36));decipher.setAuthTag(data.subarray(-16));return Buffer.concat([decipher.update(data.subarray(headerSize,-16)),decipher.final()]);}
 function localRecoveryProfile(){
  const container=process.env.RECOVERY_POSTGRES_CONTAINER,port=process.env.RECOVERY_POSTGRES_PORT;
- if(container===undefined&&port===undefined)return {port:'55432',container:undefined};
+ if(container===undefined&&port===undefined)return {port:process.env.POS_LOCAL_POSTGRES_PORT || '55432',container:undefined};
  if(!container||!port||!/^\d{1,5}$/.test(port)||Number(port)<1024||Number(port)>65535||!/^communicate-(?:p1|audit|test)-[a-z0-9-]+$/.test(container))throw new Error('RECOVERY_LOCAL_PROFILE_INVALID');
  return {port,container};
 }

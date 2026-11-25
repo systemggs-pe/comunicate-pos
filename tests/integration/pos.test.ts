@@ -40,7 +40,7 @@ describe('Phase 2: clientes y registro atómico', () => {
   it('búsqueda por DNI y nombre completo', async () => { await service.createClient(client); expect(await service.listClients({ q: 'Ana Pérez' })).toHaveLength(1); expect(await service.listClients({ q: '00123456' })).toHaveLength(1); expect(await service.listClients({ q: 'Otro' })).toHaveLength(0); });
   it('paginación y conteo de equipos', async () => { await service.submitRegistration(flow); const result = await service.listClients({ limit: 1 }); expect(result[0].equipmentCount).toBe(1); expect(await service.listClients({ offset: 1 })).toHaveLength(0); });
   it('equipo externo con un IMEI', async () => { const result = await service.submitRegistration({ ...flow, imeis: external.imeis.slice(0, 1) }); expect(result.imeis).toHaveLength(1); expect(result.registrationStatus).toBe('REGISTERED'); });
-  it('equipo externo con dos IMEIs, propietario y código', async () => { const result = await service.submitRegistration(flow); expect(result.origin).toBe('EXTERNAL'); expect(result.status).toBe('ACTIVE'); expect(result.owner?.dni).toBe(client.dni); expect(result.code).toMatch(/^EQ-\d{6,}$/); expect(result.imeis.map(i => i.slot)).toEqual([1, 2]); });
+  it('equipo externo con dos IMEIs, propietario y código', async () => { const result = await service.submitRegistration(flow); expect(result.origin).toBe('EXTERNAL'); expect(result.status).toBe('ACTIVE'); expect(result.owner?.dni).toBe(client.dni); expect(result.code).toMatch(/^EQ-\d{5,}$/); expect(result.imeis.map(i => i.slot)).toEqual([1, 2]); });
   it('edición segura y evento de equipo', async () => { const result = await service.submitRegistration(flow); const edited = await service.updateEquipment(result.id, { brand: ' SAMSUNG ', model: ' Galaxy   S25 ', serialNumber: 'SERIAL' }); expect(edited.model).toBe('GALAXY S25'); expect(edited.ownerId).toBe(result.ownerId); expect((await service.getEquipmentHistory(result.id)).some(e => e.eventType === 'EQUIPMENT_UPDATED')).toBe(true); });
   it.each(['ownerId', 'id', 'code', 'imeis'])('rechaza campo sensible %s', async field => { const result = await service.submitRegistration(flow); expect(() => service.updateEquipment(result.id, { brand: 'A', model: 'B', [field]: result.id })).toThrow(); expect((await service.getEquipmentById(result.id)).brand).toBe('SAMSUNG'); });
   it('búsqueda de equipo por código e IMEI y ownerId', async () => { const result = await service.submitRegistration(flow); expect((await service.listEquipment({ q: result.code }))[0].id).toBe(result.id); expect((await service.listEquipment({ q: imei2, ownerId: result.ownerId }))[0].id).toBe(result.id); });
@@ -125,13 +125,13 @@ describe('PostgreSQL real: reglas comerciales', () => {
   it('concurrencia: un IMEI no permite dos ventas',async()=>{const input={buyer:{client},paymentMethod:'CASH',items:[{equipment:{brand:'A',model:'B',imeis:[{slot:1,value:imei1}]},unitPrice:'100'}]};const result=await Promise.allSettled([service.createSale(input),service.createSale(input)]);expect(result.filter(r=>r.status==='fulfilled')).toHaveLength(1);expect(await db.sale.count()).toBe(1);});
   it('códigos por secuencia únicos bajo concurrencia', async () => {
     const results = await Promise.all(Array.from({ length: 8 }, (_, i) => service.createClient({ ...client, dni: `1234567${i}` })));
-    expect(new Set(results.map(r => r.code)).size).toBe(8); expect(results.every(r => /^CL-\d{6,}$/.test(r.code))).toBe(true);
+    expect(new Set(results.map(r => r.code)).size).toBe(8); expect(results.every(r => /^CL\d{5,}$/.test(r.code))).toBe(true);
   });
   it('códigos crecen después de seis dígitos sin truncarse', async () => {
     await db.$queryRaw`SELECT setval('client_code_seq', 999998)`;
     const first = await service.createClient(client);
     const second = await service.createClient({ ...client, dni: '87654321' });
-    expect(first.code).toBe('CL-999999'); expect(second.code).toBe('CL-1000000');
+    expect(first.code).toBe('CL999999'); expect(second.code).toBe('CL1000000');
   });
   it('registro sin propietario se rechaza en servicio y base', async () => {
     const equipment = await service.createEquipment({ origin: 'STORE', brand: 'A', model: 'B', imeis: [{ slot: 1, value: imei1 }] });
